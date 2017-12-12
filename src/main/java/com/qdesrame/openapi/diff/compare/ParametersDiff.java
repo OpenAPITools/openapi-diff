@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @author QDesrame
  */
-public class ParameterDiff {
+public class ParametersDiff {
 
     private List<Parameter> increased;
     private List<Parameter> missing;
@@ -21,20 +21,20 @@ public class ParameterDiff {
     Map<String, Schema> oldDefinitions;
     Map<String, Schema> newDefinitions;
 
-    private ParameterDiff() {
+    private ParametersDiff() {
     }
 
-    public static ParameterDiff buildWithDefinition(Map<String, Schema> left,
-                                                    Map<String, Schema> right) {
-        ParameterDiff diff = new ParameterDiff();
+    public static ParametersDiff buildWithDefinition(Map<String, Schema> left,
+                                                     Map<String, Schema> right) {
+        ParametersDiff diff = new ParametersDiff();
         diff.oldDefinitions = left;
         diff.newDefinitions = right;
         return diff;
     }
 
-    public ParameterDiff diff(List<Parameter> left,
-                              List<Parameter> right) {
-        ParameterDiff instance = new ParameterDiff();
+    public ParametersDiff diff(List<Parameter> left,
+                               List<Parameter> right) {
+        ParametersDiff instance = new ParametersDiff();
         if (null == left) left = new ArrayList<Parameter>();
         if (null == right) right = new ArrayList<Parameter>();
 
@@ -48,11 +48,9 @@ public class ParameterDiff {
                 instance.missing.add(leftPara);
             } else {
                 Parameter rightPara = rightParam.get();
-
                 ChangedParameter changedParameter = new ChangedParameter();
                 changedParameter.setLeftParameter(leftPara);
                 changedParameter.setRightParameter(rightPara);
-
                 //is required
                 boolean rightRequired = rightPara.getRequired();
                 boolean leftRequired = leftPara.getRequired();

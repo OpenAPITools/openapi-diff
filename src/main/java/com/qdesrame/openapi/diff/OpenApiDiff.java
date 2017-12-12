@@ -1,7 +1,7 @@
 package com.qdesrame.openapi.diff;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
-import com.qdesrame.openapi.diff.compare.ParameterDiff;
+import com.qdesrame.openapi.diff.compare.ParametersDiff;
 import com.qdesrame.openapi.diff.compare.SchemaDiff;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.OpenAPI;
@@ -105,7 +105,7 @@ public class OpenApiDiff {
 
                 List<Parameter> oldParameters = oldOperation.getParameters();
                 List<Parameter> newParameters = newOperation.getParameters();
-                ParameterDiff parameterDiff = ParameterDiff
+                ParametersDiff parameterDiff = ParametersDiff
                         .buildWithDefinition(oldSpecOpenApi.getComponents().getSchemas(),
                                 newSpecOpenApi.getComponents().getSchemas())
                         .diff(oldParameters, newParameters);
