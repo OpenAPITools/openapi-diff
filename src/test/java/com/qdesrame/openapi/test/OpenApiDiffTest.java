@@ -14,7 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-public class SwaggerDiffTest {
+public class OpenApiDiffTest {
 
     private final String OPENAPI_DOC1 = "petstore_v2_1.yaml";
     private final String OPENAPI_DOC2 = "petstore_v2_2.yaml";

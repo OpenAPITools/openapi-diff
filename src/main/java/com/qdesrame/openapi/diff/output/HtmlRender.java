@@ -1,7 +1,6 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
-import com.deepoove.swagger.diff.model.*;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.Schema;

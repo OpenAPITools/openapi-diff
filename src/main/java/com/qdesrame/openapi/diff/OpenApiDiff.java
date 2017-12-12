@@ -3,7 +3,6 @@ package com.qdesrame.openapi.diff;
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.ParameterDiff;
 import com.qdesrame.openapi.diff.compare.SchemaDiff;
-import com.deepoove.swagger.diff.model.*;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
