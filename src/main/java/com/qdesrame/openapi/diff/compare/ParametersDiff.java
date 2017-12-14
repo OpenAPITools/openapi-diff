@@ -1,11 +1,13 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.model.ChangedParameter;
-import io.swagger.oas.models.media.Schema;
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import io.swagger.oas.models.Components;
 import io.swagger.oas.models.parameters.Parameter;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * compare two parameter
@@ -14,105 +16,46 @@ import java.util.*;
  */
 public class ParametersDiff {
 
-    private List<Parameter> increased;
-    private List<Parameter> missing;
-    private List<ChangedParameter> changed;
+    private Components leftComponents;
+    private Components rightComponents;
 
-    Map<String, Schema> oldDefinitions;
-    Map<String, Schema> newDefinitions;
-
-    private ParametersDiff() {
+    private ParametersDiff(Components left, Components right) {
+        this.leftComponents = left;
+        this.rightComponents = right;
     }
 
-    public static ParametersDiff buildWithDefinition(Map<String, Schema> left,
-                                                     Map<String, Schema> right) {
-        ParametersDiff diff = new ParametersDiff();
-        diff.oldDefinitions = left;
-        diff.newDefinitions = right;
-        return diff;
+    public static ParametersDiff fromComponents(Components left, Components right) {
+        return new ParametersDiff(left, right);
     }
 
-    public ParametersDiff diff(List<Parameter> left,
-                               List<Parameter> right) {
-        ParametersDiff instance = new ParametersDiff();
-        if (null == left) left = new ArrayList<Parameter>();
-        if (null == right) right = new ArrayList<Parameter>();
-
-        instance.increased = new ArrayList<Parameter>(right);
-        instance.missing = new ArrayList<Parameter>();
-        instance.changed = new ArrayList<ChangedParameter>();
-        for (Parameter leftPara : left) {
-            String name = leftPara.getName();
-            Optional<Parameter> rightParam = contains(right, leftPara);
-            if (!rightParam.isPresent()) {
-                instance.missing.add(leftPara);
-            } else {
-                Parameter rightPara = rightParam.get();
-                ChangedParameter changedParameter = new ChangedParameter();
-                changedParameter.setLeftParameter(leftPara);
-                changedParameter.setRightParameter(rightPara);
-                //is required
-                boolean rightRequired = rightPara.getRequired();
-                boolean leftRequired = leftPara.getRequired();
-                changedParameter.setChangeRequired(leftRequired != rightRequired);
-
-                //description
-                String description = rightPara.getDescription();
-                String oldPescription = leftPara.getDescription();
-                if (StringUtils.isBlank(description)) description = "";
-                if (StringUtils.isBlank(oldPescription)) oldPescription = "";
-                changedParameter.setChangeDescription(!description.equals(oldPescription));
-
-                if (changedParameter.isDiff()) {
-                    instance.changed.add(changedParameter);
-                }
-
-            }
-
-        }
-        return instance;
-    }
-
-    private static int index(List<Parameter> right, String name) {
-        int i = 0;
-        for (; i < right.size(); i++) {
-            Parameter para = right.get(i);
-            if (name.equals(para.getName())) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public List<Parameter> getIncreased() {
-        return increased;
-    }
-
-    public void setIncreased(List<Parameter> increased) {
-        this.increased = increased;
-    }
-
-    public List<Parameter> getMissing() {
-        return missing;
-    }
-
-    public void setMissing(List<Parameter> missing) {
-        this.missing = missing;
-    }
-
-    public List<ChangedParameter> getChanged() {
-        return changed;
-    }
-
-    public void setChanged(List<ChangedParameter> changed) {
-        this.changed = changed;
+    public static Optional<Parameter> contains(Components components, List<Parameter> parameters, Parameter parameter) {
+        return parameters.stream().filter(param -> same(RefPointer.Replace.parameter(components, param), parameter)).findFirst();
     }
 
     public static boolean same(Parameter left, Parameter right) {
         return Objects.equals(left.getName(), right.getName()) && Objects.equals(left.getIn(), right.getIn());
     }
 
-    public static Optional<Parameter> contains(List<Parameter> parameters, Parameter parameter) {
-        return parameters.stream().filter(param -> same(param, parameter)).findFirst();
+    public ParametersDiffResult diff(List<Parameter> left, List<Parameter> right) {
+        ParametersDiffResult result = new ParametersDiffResult();
+        if (null == left) left = new ArrayList<>();
+        if (null == right) right = new ArrayList<>();
+
+        for (Parameter leftPara : left) {
+            RefPointer.Replace.parameter(leftComponents, leftPara);
+            Optional<Parameter> rightParam = contains(rightComponents, right, leftPara);
+            if (!rightParam.isPresent()) {
+                result.getMissing().add(leftPara);
+            } else {
+                Parameter rightPara = rightParam.get();
+                right.remove(rightPara);
+                ParameterDiffResult resultParam = ParameterDiff.fromComponents(leftComponents, rightComponents).diff(leftPara, rightPara);
+                if (resultParam.isDiff()) {
+                    result.getChanged().add(resultParam);
+                }
+            }
+        }
+        result.getIncreased().addAll(right);
+        return result;
     }
 }

@@ -1,116 +1,62 @@
 package com.qdesrame.openapi.diff.compare;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import com.qdesrame.openapi.diff.model.ElSchema;
-
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.Schema;
 
-/**
- * compare two model
- * @author QDesrame
- * @version 
- */
+import java.util.Map;
+import java.util.Objects;
+
 public class SchemaDiff {
 
-	private List<ElSchema> increased;
-	private List<ElSchema> missing;
+    private Components leftComponents;
+    private Components rightComponents;
 
-	private Map<String, Schema> oldDefinitions;
-	private Map<String, Schema> newDefinitions;
+    private SchemaDiff(Components left, Components right) {
+        this.leftComponents = left;
+        this.rightComponents = right;
+    }
 
-	private SchemaDiff() {
-		increased = new ArrayList<ElSchema>();
-		missing = new ArrayList<ElSchema>();
-	}
+    public static SchemaDiff fromComponents(Components left, Components right) {
+        return new SchemaDiff(left, right);
+    }
 
-	public static SchemaDiff buildWithDefinition(Map<String, Schema> left,
-												 Map<String, Schema> right) {
-		SchemaDiff diff = new SchemaDiff();
-		diff.oldDefinitions = left;
-		diff.newDefinitions = right;
-		return diff;
-	}
+    public SchemaDiffResult diff(Schema left, Schema right) {
+        SchemaDiffResult result = new SchemaDiffResult();
+        RefPointer.Replace.schema(leftComponents, left);
+        RefPointer.Replace.schema(rightComponents, right);
 
-	public SchemaDiff diff(Schema leftSchema, Schema rightSchema) {
-		return this.diff(leftSchema, rightSchema, null);
-	}
+        if (!Objects.equals(left.getType(), right.getType())) {
+            result.setChangeType(right.getType());
+        }
+        result.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
+        result.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
+        result.setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()));
+        result.setChangeRequired(ListDiff.diff(left.getRequired(), right.getRequired()));
+        result.setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()));
+        result.setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()));
+        result.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
+        result.setChangeReadOnly(!Boolean.TRUE.equals(left.getReadOnly()) && Boolean.TRUE.equals(right.getReadOnly()));
+        result.setChangeWriteOnly(!Boolean.TRUE.equals(left.getWriteOnly()) && Boolean.TRUE.equals(right.getWriteOnly()));
 
-	public SchemaDiff diff(Schema leftSchema, Schema rightSchema, String parentEl) {
-		if (null == leftSchema && null == rightSchema) return this;
-		Map<String, Schema> leftProperties = null == leftSchema ? null : leftSchema.getProperties();
-		Map<String, Schema> rightProperties = null == rightSchema ? null : rightSchema.getProperties();
-		MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
-		Map<String, Schema> increasedProp = propertyDiff.getIncreased();
-		Map<String, Schema> missingProp = propertyDiff.getMissing();
+        Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
+        Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
+        MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
+        Map<String, Schema> increasedProp = propertyDiff.getIncreased();
+        Map<String, Schema> missingProp = propertyDiff.getMissing();
 
-		increased.addAll(convert2ElPropertys(increasedProp, parentEl, false));
-		missing.addAll(convert2ElPropertys(missingProp, parentEl, true));
+        for (String key : propertyDiff.getSharedKey()) {
+            Schema leftSchema = RefPointer.Replace.schema(leftComponents, leftProperties.get(key));
+            Schema rightSchema = RefPointer.Replace.schema(rightComponents, rightProperties.get(key));
 
-		List<String> sharedKey = propertyDiff.getSharedKey();
-		for (String key : sharedKey) {
-			Schema left = leftProperties.get(key);
-			Schema right = rightProperties.get(key);
-			if (left.get$ref() != null
-					&& right.get$ref() != null) {
-				String leftRef = left.get$ref();
-				String rightRef = right.get$ref();
-				diff(oldDefinitions.get(leftRef),
-						newDefinitions.get(rightRef),
-						null == parentEl ? key : (parentEl + "." + key));
-			}
-		}
-		return this;
-	}
-
-	private Collection<? extends ElSchema> convert2ElPropertys(
-			Map<String, Schema> propMap, String parentEl, boolean isLeft) {
-		List<ElSchema> result = new ArrayList<ElSchema>();
-		if (null == propMap) return result;
-		for (Entry<String, Schema> entry : propMap.entrySet()) {
-			String propName = entry.getKey();
-			Schema property = entry.getValue();
-			if (property.get$ref() != null) {
-				String ref = property.get$ref();
-				Schema schema = isLeft ? oldDefinitions.get(ref)
-						: newDefinitions.get(ref);
-				if (schema != null) {
-					Map<String, Schema> properties = schema.getProperties();
-					result.addAll(
-							convert2ElPropertys(properties,
-									null == parentEl ? propName
-											: (parentEl + "." + propName),
-									isLeft));
-				}
-			} else {
-				ElSchema pWithPath = new ElSchema();
-				pWithPath.setSchema(property);
-				pWithPath.setEl(null == parentEl ? propName
-						: (parentEl + "." + propName));
-				result.add(pWithPath);
-			}
-		}
-		return result;
-	}
-
-	public List<ElSchema> getIncreased() {
-		return increased;
-	}
-
-	public void setIncreased(List<ElSchema> increased) {
-		this.increased = increased;
-	}
-
-	public List<ElSchema> getMissing() {
-		return missing;
-	}
-
-	public void setMissing(List<ElSchema> missing) {
-		this.missing = missing;
-	}
+            SchemaDiffResult resultSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
+            if (resultSchema.isDiff()) {
+                result.getChangedProperties().put(key, resultSchema);
+            }
+        }
+        result.getIncreasedProperties().putAll(increasedProp);
+        result.getMissingProperties().putAll(missingProp);
+        return result;
+    }
 
 }

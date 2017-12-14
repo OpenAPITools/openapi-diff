@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponse;
 
@@ -15,7 +16,7 @@ public class ChangedOperation implements Changed {
     private List<Parameter> addParameters = new ArrayList<Parameter>();
     private List<Parameter> missingParameters = new ArrayList<Parameter>();
 
-    private List<ChangedParameter> changedParameter = new ArrayList<ChangedParameter>();
+    private List<ParameterDiffResult> changedParameter = new ArrayList<>();
 
     private List<ElSchema> addProps = new ArrayList<ElSchema>();
     private List<ElSchema> missingProps = new ArrayList<ElSchema>();
@@ -40,11 +41,11 @@ public class ChangedOperation implements Changed {
         this.missingParameters = missingParameters;
     }
 
-    public List<ChangedParameter> getChangedParameter() {
+    public List<ParameterDiffResult> getChangedParameter() {
         return changedParameter;
     }
 
-    public void setChangedParameter(List<ChangedParameter> changedParameter) {
+    public void setChangedParameter(List<ParameterDiffResult> changedParameter) {
         this.changedParameter = changedParameter;
     }
 

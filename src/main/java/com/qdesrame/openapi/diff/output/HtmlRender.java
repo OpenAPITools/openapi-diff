@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
+import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.Schema;
@@ -165,12 +166,12 @@ public class HtmlRender implements Render {
     private ContainerTag ul_param(ChangedOperation changedOperation) {
         List<Parameter> addParameters = changedOperation.getAddParameters();
         List<Parameter> delParameters = changedOperation.getMissingParameters();
-        List<ChangedParameter> changedParameters = changedOperation.getChangedParameter();
+        List<ParameterDiffResult> changedParameters = changedOperation.getChangedParameter();
         ContainerTag ul = ul().withClass("change param");
         for (Parameter param : addParameters) {
             ul.with(li_addParam(param));
         }
-        for (ChangedParameter param : changedParameters) {
+        for (ParameterDiffResult param : changedParameters) {
             List<ElSchema> increased = param.getIncreased();
             for (ElSchema prop : increased) {
                 ul.with(li_addProp(prop));

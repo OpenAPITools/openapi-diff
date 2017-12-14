@@ -2,7 +2,8 @@ package com.qdesrame.openapi.diff;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.ParametersDiff;
-import com.qdesrame.openapi.diff.compare.SchemaDiff;
+import com.qdesrame.openapi.diff.compare.ParametersDiffResult;
+import com.qdesrame.openapi.diff.compare.SchemaDiffOld;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
@@ -105,9 +106,9 @@ public class OpenApiDiff {
 
                 List<Parameter> oldParameters = oldOperation.getParameters();
                 List<Parameter> newParameters = newOperation.getParameters();
-                ParametersDiff parameterDiff = ParametersDiff
-                        .buildWithDefinition(oldSpecOpenApi.getComponents().getSchemas(),
-                                newSpecOpenApi.getComponents().getSchemas())
+                ParametersDiffResult parameterDiff = ParametersDiff
+                        .fromComponents(oldSpecOpenApi.getComponents(),
+                                newSpecOpenApi.getComponents())
                         .diff(oldParameters, newParameters);
                 changedOperation.setAddParameters(parameterDiff.getIncreased());
                 changedOperation.setMissingParameters(parameterDiff.getMissing());
@@ -141,7 +142,7 @@ public class OpenApiDiff {
 
                         newMediaType.getSchema();
 
-                        SchemaDiff schemaDiff = SchemaDiff.buildWithDefinition(
+                        SchemaDiffOld schemaDiff = SchemaDiffOld.buildWithDefinition(
                                 oldSpecOpenApi.getComponents().getSchemas(), newSpecOpenApi.getComponents().getSchemas());
                         schemaDiff.diff(oldMediaType.getSchema(), newMediaType.getSchema());
                         changedMediaType.setAddProps(schemaDiff.getIncreased());
