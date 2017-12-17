@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
 import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
+import io.swagger.oas.models.media.MediaType;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponse;
 
@@ -24,6 +25,9 @@ public class ChangedOperation implements Changed {
     private Map<String, ApiResponse> addResponses;
     private Map<String, ChangedResponse> changedResponses;
     private boolean deprecated;
+    private Map<String, MediaType> missingMediaTypes;
+    private Map<String, MediaType> addMediaTypes;
+    private Map<String, ChangedMediaType> changedMediaTypes;
 
     public List<Parameter> getAddParameters() {
         return addParameters;
@@ -115,5 +119,17 @@ public class ChangedOperation implements Changed {
 
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
+    }
+
+    public void setMissingMediaTypes(Map<String, MediaType> missingMediaTypes) {
+        this.missingMediaTypes = missingMediaTypes;
+    }
+
+    public void setAddMediaTypes(Map<String, MediaType> addMediaTypes) {
+        this.addMediaTypes = addMediaTypes;
+    }
+
+    public void setChangedMediaTypes(Map<String, ChangedMediaType> changedMediaTypes) {
+        this.changedMediaTypes = changedMediaTypes;
     }
 }

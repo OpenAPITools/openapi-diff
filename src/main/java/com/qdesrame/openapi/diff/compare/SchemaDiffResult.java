@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SchemaDiffResult implements Changed {
+    private Schema oldSchema;
+    private Schema newSchema;
+
     private String type;
     private Map<String, SchemaDiffResult> changed;
     private Map<String, Schema> increased;
@@ -82,4 +85,23 @@ public class SchemaDiffResult implements Changed {
     public void setChangeWriteOnly(boolean writeOnly) {
         this.writeOnly = writeOnly;
     }
+
+    public Schema getOldSchema() {
+        return oldSchema;
+    }
+
+    public SchemaDiffResult setOldSchema(Schema oldSchema) {
+        this.oldSchema = oldSchema;
+        return this;
+    }
+
+    public Schema getNewSchema() {
+        return newSchema;
+    }
+
+    public SchemaDiffResult setNewSchema(Schema newSchema) {
+        this.newSchema = newSchema;
+        return this;
+    }
+
 }

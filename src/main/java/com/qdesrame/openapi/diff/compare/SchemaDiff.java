@@ -29,6 +29,8 @@ public class SchemaDiff {
         if (!Objects.equals(left.getType(), right.getType())) {
             result.setChangeType(right.getType());
         }
+        result.setOldSchema(left);
+        result.setNewSchema(right);
         result.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
         result.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
         result.setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()));

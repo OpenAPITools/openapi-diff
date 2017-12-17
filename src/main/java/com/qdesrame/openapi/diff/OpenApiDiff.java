@@ -1,15 +1,12 @@
 package com.qdesrame.openapi.diff;
 
-import com.qdesrame.openapi.diff.compare.MapKeyDiff;
-import com.qdesrame.openapi.diff.compare.ParametersDiff;
-import com.qdesrame.openapi.diff.compare.ParametersDiffResult;
-import com.qdesrame.openapi.diff.compare.SchemaDiffOld;
+import com.qdesrame.openapi.diff.compare.*;
 import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.MediaType;
-import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponse;
 import io.swagger.parser.models.AuthorizationValue;
 import io.swagger.parser.models.ParseOptions;
@@ -77,7 +74,7 @@ public class OpenApiDiff {
         this.deprecatedEndpoints = new ArrayList<>();
 
         List<String> sharedKey = pathDiff.getSharedKey();
-        ChangedEndpoint changedEndpoint = null;
+        ChangedEndpoint changedEndpoint;
         for (String pathUrl : sharedKey) {
             changedEndpoint = new ChangedEndpoint();
             changedEndpoint.setPathUrl(pathUrl);
@@ -96,7 +93,7 @@ public class OpenApiDiff {
             List<PathItem.HttpMethod> sharedMethods = operationDiff.getSharedKey();
             Map<PathItem.HttpMethod, ChangedOperation> operas = new HashMap<>();
             Map<PathItem.HttpMethod, Operation> deprecOperas = new HashMap<>();
-            ChangedOperation changedOperation = null;
+            ChangedOperation changedOperation;
             for (PathItem.HttpMethod method : sharedMethods) {
                 changedOperation = new ChangedOperation();
                 Operation oldOperation = oldOperationMap.get(method);
@@ -104,12 +101,42 @@ public class OpenApiDiff {
                 changedOperation.setSummary(newOperation.getSummary());
                 changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
-                List<Parameter> oldParameters = oldOperation.getParameters();
-                List<Parameter> newParameters = newOperation.getParameters();
+                if (oldOperation.getRequestBody() != null && newOperation.getRequestBody() != null) {
+                    RefPointer.Replace.requestBody(oldSpecOpenApi.getComponents(), oldOperation.getRequestBody());
+                    RefPointer.Replace.requestBody(newSpecOpenApi.getComponents(), newOperation.getRequestBody());
+
+                    MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(oldOperation.getRequestBody().getContent(), newOperation.getRequestBody().getContent());
+                    Map<String, MediaType> increasedMediaType = mediaTypeDiff.getIncreased();
+                    Map<String, MediaType> missingMediaType = mediaTypeDiff.getMissing();
+                    changedOperation.setMissingMediaTypes(missingMediaType);
+                    changedOperation.setAddMediaTypes(increasedMediaType);
+                    List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();
+                    Map<String, ChangedMediaType> medias = new HashMap<String, ChangedMediaType>();
+                    ChangedMediaType changedMediaType;
+                    for (String mediaTypeKey : sharedMediaTypes) {
+                        changedMediaType = new ChangedMediaType();
+                        MediaType oldMediaType = newOperation.getRequestBody().getContent().get(mediaTypeKey);
+                        MediaType newMediaType = newOperation.getRequestBody().getContent().get(mediaTypeKey);
+                        SchemaDiffResult schemaDiff = SchemaDiff.fromComponents(
+                                oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
+                                .diff(oldMediaType.getSchema(), newMediaType.getSchema());
+
+                        changedMediaType.setSchema(schemaDiff);
+                        if (changedMediaType.isDiff()) {
+                            medias.put(mediaTypeKey, changedMediaType);
+                        }
+                    }
+                    changedOperation.setChangedMediaTypes(medias);
+                } else if (oldOperation.getRequestBody() == null && newOperation.getRequestBody() == null) {
+
+                } else {
+                    throw new RuntimeException("TODO"); // TODO
+                }
+
                 ParametersDiffResult parameterDiff = ParametersDiff
                         .fromComponents(oldSpecOpenApi.getComponents(),
                                 newSpecOpenApi.getComponents())
-                        .diff(oldParameters, newParameters);
+                        .diff(oldOperation.getParameters(), newOperation.getParameters());
                 changedOperation.setAddParameters(parameterDiff.getIncreased());
                 changedOperation.setMissingParameters(parameterDiff.getMissing());
                 changedOperation.setChangedParameter(parameterDiff.getChanged());
@@ -120,33 +147,30 @@ public class OpenApiDiff {
                 changedOperation.setMissingResponses(responseDiff.getMissing());
                 List<String> sharedResponseCodes = responseDiff.getSharedKey();
                 Map<String, ChangedResponse> resps = new HashMap<String, ChangedResponse>();
-                ChangedResponse changedResponse = null;
+                ChangedResponse changedResponse;
                 for (String responseCode : sharedResponseCodes) {
                     changedResponse = new ChangedResponse();
                     ApiResponse oldResponse = oldOperation.getResponses().get(responseCode);
                     ApiResponse newResponse = newOperation.getResponses().get(responseCode);
                     changedResponse.setDescription(newResponse.getDescription());
 
-
                     MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(oldResponse.getContent(), newResponse.getContent());
                     Map<String, MediaType> increasedMediaType = mediaTypeDiff.getIncreased();
                     Map<String, MediaType> missingMediaType = mediaTypeDiff.getMissing();
+                    changedResponse.setMissingMediaTypes(missingMediaType);
+                    changedResponse.setAddMediaTypes(increasedMediaType);
                     List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();
                     Map<String, ChangedMediaType> medias = new HashMap<String, ChangedMediaType>();
-                    ChangedMediaType changedMediaType = null;
+                    ChangedMediaType changedMediaType;
                     for (String mediaTypeKey : sharedMediaTypes) {
                         changedMediaType = new ChangedMediaType();
                         MediaType oldMediaType = oldResponse.getContent().get(mediaTypeKey);
                         MediaType newMediaType = newResponse.getContent().get(mediaTypeKey);
+                        SchemaDiffResult schemaDiff = SchemaDiff.fromComponents(
+                                oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
+                                .diff(oldMediaType.getSchema(), newMediaType.getSchema());
 
-
-                        newMediaType.getSchema();
-
-                        SchemaDiffOld schemaDiff = SchemaDiffOld.buildWithDefinition(
-                                oldSpecOpenApi.getComponents().getSchemas(), newSpecOpenApi.getComponents().getSchemas());
-                        schemaDiff.diff(oldMediaType.getSchema(), newMediaType.getSchema());
-                        changedMediaType.setAddProps(schemaDiff.getIncreased());
-                        changedMediaType.setMissingProps(schemaDiff.getMissing());
+                        changedMediaType.setSchema(schemaDiff);
                         if (changedMediaType.isDiff()) {
                             medias.put(mediaTypeKey, changedMediaType);
                         }

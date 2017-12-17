@@ -1,22 +1,17 @@
 package com.qdesrame.openapi.diff.model;
 
-import java.util.List;
+import com.qdesrame.openapi.diff.compare.SchemaDiffResult;
 
 public class ChangedMediaType implements Changed {
-    private List<ElSchema> addProps;
-    private List<ElSchema> missingProps;
-
-    public void setAddProps(List<ElSchema> addProps) {
-        this.addProps = addProps;
-    }
-
-    public void setMissingProps(List<ElSchema> missingProps) {
-        this.missingProps = missingProps;
-    }
+    private SchemaDiffResult schema;
 
 
     @Override
     public boolean isDiff() {
-        return !addProps.isEmpty() || !missingProps.isEmpty();
+        return schema.isDiff();
+    }
+
+    public void setSchema(SchemaDiffResult schema) {
+        this.schema = schema;
     }
 }

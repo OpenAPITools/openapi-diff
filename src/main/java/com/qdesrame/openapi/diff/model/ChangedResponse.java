@@ -1,11 +1,15 @@
 package com.qdesrame.openapi.diff.model;
 
+import io.swagger.oas.models.media.MediaType;
+
 import java.util.Map;
 
 public class ChangedResponse implements Changed{
 
     private String description;
     private Map<String, ChangedMediaType> changedMediaTypes;
+    private Map<String, MediaType> missingMediaTypes;
+    private Map<String, MediaType> addMediaTypes;
 
     public String getDescription() {
         return description;
@@ -29,4 +33,11 @@ public class ChangedResponse implements Changed{
         return !changedMediaTypes.isEmpty();
     }
 
+    public void setMissingMediaTypes(Map<String, MediaType> missingMediaTypes) {
+        this.missingMediaTypes = missingMediaTypes;
+    }
+
+    public void setAddMediaTypes(Map<String, MediaType> addMediaTypes) {
+        this.addMediaTypes = addMediaTypes;
+    }
 }
