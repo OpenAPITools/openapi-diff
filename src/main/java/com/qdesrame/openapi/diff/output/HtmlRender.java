@@ -2,7 +2,10 @@ package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
 import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
-import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.model.ChangedEndpoint;
+import com.qdesrame.openapi.diff.model.ChangedOperation;
+import com.qdesrame.openapi.diff.model.ElSchema;
+import com.qdesrame.openapi.diff.model.Endpoint;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.parameters.Parameter;
@@ -172,22 +175,10 @@ public class HtmlRender implements Render {
             ul.with(li_addParam(param));
         }
         for (ParameterDiffResult param : changedParameters) {
-            List<ElSchema> increased = param.getIncreased();
-            for (ElSchema prop : increased) {
-                ul.with(li_addProp(prop));
-            }
-        }
-        for (ChangedParameter param : changedParameters) {
             boolean changeRequired = param.isChangeRequired();
             boolean changeDescription = param.isChangeDescription();
             if (changeRequired || changeDescription)
                 ul.with(li_changedParam(param));
-        }
-        for (ChangedParameter param : changedParameters) {
-            List<ElSchema> missing = param.getMissing();
-            for (ElSchema prop : missing) {
-                ul.with(li_missingProp(prop));
-            }
         }
         for (Parameter param : delParameters) {
             ul.with(li_missingParam(param));
@@ -203,7 +194,7 @@ public class HtmlRender implements Render {
         return li().withClass("missing").with(span("Delete")).with(del(param.getName())).with(span(null == param.getDescription() ? "" : ("//" + param.getDescription())).withClass("comment"));
     }
 
-    private ContainerTag li_changedParam(ChangedParameter changeParam) {
+    private ContainerTag li_changedParam(ParameterDiffResult changeParam) {
         boolean changeRequired = changeParam.isChangeRequired();
         boolean changeDescription = changeParam.isChangeDescription();
         Parameter rightParam = changeParam.getRightParameter();

@@ -3,6 +3,7 @@ package com.qdesrame.openapi.diff.compare;
 import com.qdesrame.openapi.diff.model.Changed;
 import io.swagger.oas.models.media.Schema;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class SchemaDiffResult implements Changed {
@@ -21,6 +22,8 @@ public class SchemaDiffResult implements Changed {
     private boolean writeOnly;
 
     public SchemaDiffResult() {
+        increased = new HashMap<>();
+        missing = new HashMap<>();
     }
 
     @Override

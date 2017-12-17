@@ -5,6 +5,9 @@ import io.swagger.oas.models.parameters.Parameter;
 
 public class ParameterDiffResult implements Changed, Comparable<Parameter> {
 
+    private Parameter left;
+    private Parameter right;
+
     private String name;
     private String in;
     private boolean changeRequired;
@@ -31,8 +34,16 @@ public class ParameterDiffResult implements Changed, Comparable<Parameter> {
         this.changeRequired = changeRequired;
     }
 
+    public boolean isChangeRequired() {
+        return changeRequired;
+    }
+
     public void setChangeDescription(boolean changeDescription) {
         this.changeDescription = changeDescription;
+    }
+
+    public boolean isChangeDescription() {
+        return changeDescription;
     }
 
     public void setChangeDeprecated(boolean deprecated) {
@@ -41,5 +52,23 @@ public class ParameterDiffResult implements Changed, Comparable<Parameter> {
 
     public void setChangeSchema(SchemaDiffResult schema) {
         this.schema = schema;
+    }
+
+    public Parameter getLeftParameter() {
+        return left;
+    }
+
+    public ParameterDiffResult setLeftParameter(Parameter left) {
+        this.left = left;
+        return this;
+    }
+
+    public Parameter getRightParameter() {
+        return right;
+    }
+
+    public ParameterDiffResult setRightParameter(Parameter right) {
+        this.right = right;
+        return this;
     }
 }

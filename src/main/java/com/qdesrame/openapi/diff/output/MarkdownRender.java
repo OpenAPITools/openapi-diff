@@ -1,7 +1,11 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
-import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
+import com.qdesrame.openapi.diff.model.ChangedEndpoint;
+import com.qdesrame.openapi.diff.model.ChangedOperation;
+import com.qdesrame.openapi.diff.model.ElSchema;
+import com.qdesrame.openapi.diff.model.Endpoint;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.parameters.Parameter;
@@ -154,32 +158,18 @@ public class MarkdownRender implements Render {
     private String ul_param(ChangedOperation changedOperation) {
         List<Parameter> addParameters = changedOperation.getAddParameters();
         List<Parameter> delParameters = changedOperation.getMissingParameters();
-        List<ChangedParameter> changedParameters = changedOperation
+        List<ParameterDiffResult> changedParameters = changedOperation
                 .getChangedParameter();
         StringBuffer sb = new StringBuffer("\n\n");
         for (Parameter param : addParameters) {
             sb.append(PRE_LI).append(PRE_CODE)
                     .append(li_addParam(param) + "\n");
         }
-        for (ChangedParameter param : changedParameters) {
-            List<ElSchema> increased = param.getIncreased();
-            for (ElSchema prop : increased) {
-                sb.append(PRE_LI).append(PRE_CODE)
-                        .append(li_addProp(prop) + "\n");
-            }
-        }
-        for (ChangedParameter param : changedParameters) {
+        for (ParameterDiffResult param : changedParameters) {
             boolean changeRequired = param.isChangeRequired();
             boolean changeDescription = param.isChangeDescription();
             if (changeRequired || changeDescription) sb.append(PRE_LI)
                     .append(PRE_CODE).append(li_changedParam(param) + "\n");
-        }
-        for (ChangedParameter param : changedParameters) {
-            List<ElSchema> missing = param.getMissing();
-            for (ElSchema prop : missing) {
-                sb.append(PRE_LI).append(PRE_CODE)
-                        .append(li_missingProp(prop) + "\n");
-            }
         }
         for (Parameter param : delParameters) {
             sb.append(PRE_LI).append(PRE_CODE)
@@ -204,7 +194,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String li_changedParam(ChangedParameter changeParam) {
+    private String li_changedParam(ParameterDiffResult changeParam) {
         boolean changeRequired = changeParam.isChangeRequired();
         boolean changeDescription = changeParam.isChangeDescription();
         Parameter rightParam = changeParam.getRightParameter();
