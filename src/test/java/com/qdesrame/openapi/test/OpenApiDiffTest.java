@@ -2,11 +2,9 @@ package com.qdesrame.openapi.test;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedEndpoint;
-import com.qdesrame.openapi.diff.model.ChangedOperation;
 import com.qdesrame.openapi.diff.model.Endpoint;
 import com.qdesrame.openapi.diff.output.HtmlRender;
 import com.qdesrame.openapi.diff.output.MarkdownRender;
-import io.swagger.oas.models.PathItem;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,11 +27,6 @@ public class OpenApiDiffTest {
         List<ChangedEndpoint> changedEndpoints = diff.getChangedEndpoints();
         Assert.assertTrue(newEndpoints.isEmpty());
         Assert.assertTrue(missingEndpoints.isEmpty());
-        for (ChangedEndpoint changedEndpoint : changedEndpoints) {
-            for (PathItem.HttpMethod method : changedEndpoint.getChangedOperations().keySet()) {
-                ChangedOperation operation = changedEndpoint.getChangedOperations().get(method);
-            }
-        }
         Assert.assertTrue(changedEndpoints.isEmpty());
 
     }
