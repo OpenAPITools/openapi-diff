@@ -1,12 +1,15 @@
 package com.qdesrame.openapi.diff;
 
 import com.qdesrame.openapi.diff.compare.*;
-import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.model.ChangedEndpoint;
+import com.qdesrame.openapi.diff.model.ChangedOperation;
+import com.qdesrame.openapi.diff.model.ChangedResponse;
+import com.qdesrame.openapi.diff.model.Endpoint;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.PathItem;
-import io.swagger.oas.models.media.MediaType;
+import io.swagger.oas.models.media.Content;
 import io.swagger.oas.models.parameters.RequestBody;
 import io.swagger.oas.models.responses.ApiResponse;
 import io.swagger.parser.models.AuthorizationValue;
@@ -102,36 +105,21 @@ public class OpenApiDiff {
                 changedOperation.setSummary(newOperation.getSummary());
                 changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
-                if (oldOperation.getRequestBody() != null && newOperation.getRequestBody() != null) {
+                Content oldRequestContent = new Content();
+                Content newRequestContent = new Content();
+                if (oldOperation.getRequestBody() != null) {
                     RequestBody oldRequestBody = RefPointer.Replace.requestBody(oldSpecOpenApi.getComponents(), oldOperation.getRequestBody());
-                    RequestBody newRequestBody = RefPointer.Replace.requestBody(newSpecOpenApi.getComponents(), newOperation.getRequestBody());
-                    MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(oldRequestBody.getContent(), newRequestBody.getContent());
-                    Map<String, MediaType> increasedMediaType = mediaTypeDiff.getIncreased();
-                    Map<String, MediaType> missingMediaType = mediaTypeDiff.getMissing();
-                    changedOperation.setMissingRequestMediaTypes(missingMediaType);
-                    changedOperation.setAddRequestMediaTypes(increasedMediaType);
-                    List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();
-                    Map<String, ChangedMediaType> medias = new HashMap<String, ChangedMediaType>();
-                    ChangedMediaType changedMediaType;
-                    for (String mediaTypeKey : sharedMediaTypes) {
-                        changedMediaType = new ChangedMediaType();
-                        MediaType oldMediaType = oldRequestBody.getContent().get(mediaTypeKey);
-                        MediaType newMediaType = newRequestBody.getContent().get(mediaTypeKey);
-                        SchemaDiffResult schemaDiff = SchemaDiff.fromComponents(
-                                oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
-                                .diff(oldMediaType.getSchema(), newMediaType.getSchema());
-
-                        changedMediaType.setSchema(schemaDiff);
-                        if (changedMediaType.isDiff()) {
-                            medias.put(mediaTypeKey, changedMediaType);
-                        }
+                    if (oldRequestBody.getContent() != null) {
+                        oldRequestContent = oldRequestBody.getContent();
                     }
-                    changedOperation.setChangedRequestMediaTypes(medias);
-                } else if (oldOperation.getRequestBody() == null && newOperation.getRequestBody() == null) {
-
-                } else {
-                    throw new RuntimeException("TODO"); // TODO
                 }
+                if (newOperation.getRequestBody() != null) {
+                    RequestBody newRequestBody = RefPointer.Replace.requestBody(oldSpecOpenApi.getComponents(), newOperation.getRequestBody());
+                    newRequestContent = newRequestBody.getContent();
+                }
+                changedOperation
+                        .setRequestContent(ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
+                                .diff(oldRequestContent, newRequestContent));
 
                 ParametersDiffResult parameterDiff = ParametersDiff
                         .fromComponents(oldSpecOpenApi.getComponents(),
@@ -153,32 +141,9 @@ public class OpenApiDiff {
                     ApiResponse oldResponse = oldOperation.getResponses().get(responseCode);
                     ApiResponse newResponse = newOperation.getResponses().get(responseCode);
                     changedResponse.setDescription(newResponse.getDescription());
-
-                    MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(oldResponse.getContent(), newResponse.getContent());
-                    Map<String, MediaType> increasedMediaType = mediaTypeDiff.getIncreased();
-                    Map<String, MediaType> missingMediaType = mediaTypeDiff.getMissing();
-                    changedResponse.setMissingMediaTypes(missingMediaType);
-                    changedResponse.setAddMediaTypes(increasedMediaType);
-                    List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();
-                    Map<String, ChangedMediaType> medias = new HashMap<String, ChangedMediaType>();
-                    ChangedMediaType changedMediaType;
-                    for (String mediaTypeKey : sharedMediaTypes) {
-                        changedMediaType = new ChangedMediaType();
-                        MediaType oldMediaType = oldResponse.getContent().get(mediaTypeKey);
-                        MediaType newMediaType = newResponse.getContent().get(mediaTypeKey);
-                        SchemaDiffResult schemaDiff = SchemaDiff.fromComponents(
-                                oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
-                                .diff(oldMediaType.getSchema(), newMediaType.getSchema());
-
-                        changedMediaType.setSchema(schemaDiff);
-                        if (changedMediaType.isDiff()) {
-                            medias.put(mediaTypeKey, changedMediaType);
-                        }
-                    }
-                    changedResponse.setChangedMediaTypes(medias);
-                    if (changedResponse.isDiff()) {
-                        resps.put(responseCode, changedResponse);
-                    }
+                    ContentDiffResult contentDiffResult = ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
+                            .diff(oldResponse.getContent(), newResponse.getContent());
+                    changedResponse.setChangedContent(contentDiffResult);
                 }
                 changedOperation.setChangedResponses(resps);
 

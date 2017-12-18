@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
+import com.qdesrame.openapi.diff.compare.ContentDiffResult;
 import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
@@ -132,7 +133,8 @@ public class HtmlRender implements Render {
                     ul_detail.with(li().with(h3("Parameter")).with(ul_param(changedOperation)));
                 }
                 if (changedOperation.isDiffRequest()) {
-                    ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation)));
+                    ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getRequestContent())));
+                } else {
                 }
                 if (changedOperation.isDiffResponse()) {
                     ul_detail.with(li().with(h3("Return Type")).with(ul_response(changedOperation)));
@@ -173,19 +175,16 @@ public class HtmlRender implements Render {
         return li().withText(String.format("Changed response : [%s]", name)).with(span(null == response.getDescription() ? "" : ("//" + response.getDescription())).withClass("comment"));
     }
 
-    private ContainerTag ul_request(ChangedOperation changedOperation) {
-        Map<String, MediaType> addRequestBodies = changedOperation.getAddRequestMediaTypes();
-        Map<String, MediaType> delRequestBodies = changedOperation.getMissingRequestMediaTypes();
-        Map<String, ChangedMediaType> changedRequestBodies = changedOperation.getChangedRequestMediaTypes();
+    private ContainerTag ul_request(ContentDiffResult changedContent) {
         ContainerTag ul = ul().withClass("change request-body");
-        for (String propName : addRequestBodies.keySet()) {
-            ul.with(li_addRequest(propName, addRequestBodies.get(propName)));
+        for (String propName : changedContent.getIncreased().keySet()) {
+            ul.with(li_addRequest(propName, changedContent.getIncreased().get(propName)));
         }
-        for (String propName : delRequestBodies.keySet()) {
-            ul.with(li_missingRequest(propName, delRequestBodies.get(propName)));
+        for (String propName : changedContent.getMissing().keySet()) {
+            ul.with(li_missingRequest(propName, changedContent.getMissing().get(propName)));
         }
-        for (String propName : changedRequestBodies.keySet()) {
-            ul.with(li_changedRequest(propName, changedRequestBodies.get(propName)));
+        for (String propName : changedContent.getChanged().keySet()) {
+            ul.with(li_changedRequest(propName, changedContent.getChanged().get(propName)));
         }
         return ul;
     }

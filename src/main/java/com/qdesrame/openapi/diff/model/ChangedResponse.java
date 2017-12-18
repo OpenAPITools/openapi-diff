@@ -1,15 +1,12 @@
 package com.qdesrame.openapi.diff.model;
 
-import io.swagger.oas.models.media.MediaType;
+import com.qdesrame.openapi.diff.compare.ContentDiffResult;
 
-import java.util.Map;
-
-public class ChangedResponse implements Changed{
+public class ChangedResponse implements Changed {
 
     private String description;
-    private Map<String, ChangedMediaType> changedMediaTypes;
-    private Map<String, MediaType> missingMediaTypes;
-    private Map<String, MediaType> addMediaTypes;
+
+    private ContentDiffResult changedContent;
 
     public String getDescription() {
         return description;
@@ -20,24 +17,16 @@ public class ChangedResponse implements Changed{
         return this;
     }
 
-    public Map<String, ChangedMediaType> getChangedMediaTypes() {
-        return changedMediaTypes;
-    }
-
-    public void setChangedMediaTypes(Map<String,ChangedMediaType> changedMediaTypes) {
-        this.changedMediaTypes = changedMediaTypes;
-    }
-
     @Override
     public boolean isDiff() {
-        return !changedMediaTypes.isEmpty();
+        return changedContent.isDiff();
     }
 
-    public void setMissingMediaTypes(Map<String, MediaType> missingMediaTypes) {
-        this.missingMediaTypes = missingMediaTypes;
+    public ContentDiffResult getChangedContent() {
+        return changedContent;
     }
 
-    public void setAddMediaTypes(Map<String, MediaType> addMediaTypes) {
-        this.addMediaTypes = addMediaTypes;
+    public void setChangedContent(ContentDiffResult changedContent) {
+        this.changedContent = changedContent;
     }
 }

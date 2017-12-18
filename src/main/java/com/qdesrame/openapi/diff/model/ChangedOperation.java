@@ -1,12 +1,11 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.compare.ContentDiffResult;
 import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
-import io.swagger.oas.models.media.MediaType;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,14 +23,9 @@ public class ChangedOperation implements Changed {
     private Map<String, ApiResponse> addResponses;
     private Map<String, ChangedResponse> changedResponses;
     private boolean deprecated;
-    private Map<String, MediaType> missingRequestMediaTypes;
-    private Map<String, MediaType> addRequestMediaTypes;
-    private Map<String, ChangedMediaType> changedRequestMediaTypes;
+    private ContentDiffResult requestContent;
 
     public ChangedOperation() {
-        missingRequestMediaTypes = new HashMap<>();
-        addRequestMediaTypes = new HashMap<>();
-        changedRequestMediaTypes = new HashMap<>();
     }
 
     public List<Parameter> getAddParameters() {
@@ -81,7 +75,7 @@ public class ChangedOperation implements Changed {
     }
 
     public boolean isDiffRequest() {
-        return !addRequestMediaTypes.isEmpty() || !missingRequestMediaTypes.isEmpty() || !changedRequestMediaTypes.isEmpty();
+        return requestContent.isDiff();
     }
 
     public void setAddResponses(Map<String, ApiResponse> addResponses) {
@@ -117,27 +111,11 @@ public class ChangedOperation implements Changed {
         this.deprecated = deprecated;
     }
 
-    public Map<String, MediaType> getMissingRequestMediaTypes() {
-        return missingRequestMediaTypes;
+    public ContentDiffResult getRequestContent() {
+        return requestContent;
     }
 
-    public void setMissingRequestMediaTypes(Map<String, MediaType> missingRequestMediaTypes) {
-        this.missingRequestMediaTypes = missingRequestMediaTypes;
-    }
-
-    public Map<String, MediaType> getAddRequestMediaTypes() {
-        return addRequestMediaTypes;
-    }
-
-    public void setAddRequestMediaTypes(Map<String, MediaType> addRequestMediaTypes) {
-        this.addRequestMediaTypes = addRequestMediaTypes;
-    }
-
-    public Map<String, ChangedMediaType> getChangedRequestMediaTypes() {
-        return changedRequestMediaTypes;
-    }
-
-    public void setChangedRequestMediaTypes(Map<String, ChangedMediaType> changedRequestMediaTypes) {
-        this.changedRequestMediaTypes = changedRequestMediaTypes;
+    public void setRequestContent(ContentDiffResult requestContent) {
+        this.requestContent = requestContent;
     }
 }
