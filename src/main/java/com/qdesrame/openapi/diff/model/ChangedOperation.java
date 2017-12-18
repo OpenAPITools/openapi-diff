@@ -6,6 +6,7 @@ import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,15 +20,19 @@ public class ChangedOperation implements Changed {
 
     private List<ParameterDiffResult> changedParameter = new ArrayList<>();
 
-    private List<ElSchema> addProps = new ArrayList<ElSchema>();
-    private List<ElSchema> missingProps = new ArrayList<ElSchema>();
     private Map<String, ApiResponse> missingResponses;
     private Map<String, ApiResponse> addResponses;
     private Map<String, ChangedResponse> changedResponses;
     private boolean deprecated;
-    private Map<String, MediaType> missingMediaTypes;
-    private Map<String, MediaType> addMediaTypes;
-    private Map<String, ChangedMediaType> changedMediaTypes;
+    private Map<String, MediaType> missingRequestMediaTypes;
+    private Map<String, MediaType> addRequestMediaTypes;
+    private Map<String, ChangedMediaType> changedRequestMediaTypes;
+
+    public ChangedOperation() {
+        missingRequestMediaTypes = new HashMap<>();
+        addRequestMediaTypes = new HashMap<>();
+        changedRequestMediaTypes = new HashMap<>();
+    }
 
     public List<Parameter> getAddParameters() {
         return addParameters;
@@ -53,22 +58,6 @@ public class ChangedOperation implements Changed {
         this.changedParameter = changedParameter;
     }
 
-    public List<ElSchema> getAddProps() {
-        return addProps;
-    }
-
-    public void setAddProps(List<ElSchema> addProps) {
-        this.addProps = addProps;
-    }
-
-    public List<ElSchema> getMissingProps() {
-        return missingProps;
-    }
-
-    public void setMissingProps(List<ElSchema> missingProps) {
-        this.missingProps = missingProps;
-    }
-
     public String getSummary() {
         return summary;
     }
@@ -79,12 +68,7 @@ public class ChangedOperation implements Changed {
 
     @Override
     public boolean isDiff() {
-        return isDiffProp() || isDiffParam() || isDiffResponse();
-    }
-
-    public boolean isDiffProp() {
-        return !addProps.isEmpty()
-                || !missingProps.isEmpty();
+        return isDiffParam() || isDiffRequest() || isDiffResponse();
     }
 
     public boolean isDiffParam() {
@@ -96,12 +80,24 @@ public class ChangedOperation implements Changed {
         return !addResponses.isEmpty() || !missingResponses.isEmpty() || !changedResponses.isEmpty();
     }
 
+    public boolean isDiffRequest() {
+        return !addRequestMediaTypes.isEmpty() || !missingRequestMediaTypes.isEmpty() || !changedRequestMediaTypes.isEmpty();
+    }
+
     public void setAddResponses(Map<String, ApiResponse> addResponses) {
         this.addResponses = addResponses;
     }
 
+    public Map<String, ApiResponse> getAddResponses() {
+        return addResponses;
+    }
+
     public void setMissingResponses(Map<String, ApiResponse> missingResponses) {
         this.missingResponses = missingResponses;
+    }
+
+    public Map<String, ApiResponse> getMissingResponses() {
+        return missingResponses;
     }
 
     public Map<String, ChangedResponse> getChangedResponses() {
@@ -121,15 +117,27 @@ public class ChangedOperation implements Changed {
         this.deprecated = deprecated;
     }
 
-    public void setMissingMediaTypes(Map<String, MediaType> missingMediaTypes) {
-        this.missingMediaTypes = missingMediaTypes;
+    public Map<String, MediaType> getMissingRequestMediaTypes() {
+        return missingRequestMediaTypes;
     }
 
-    public void setAddMediaTypes(Map<String, MediaType> addMediaTypes) {
-        this.addMediaTypes = addMediaTypes;
+    public void setMissingRequestMediaTypes(Map<String, MediaType> missingRequestMediaTypes) {
+        this.missingRequestMediaTypes = missingRequestMediaTypes;
     }
 
-    public void setChangedMediaTypes(Map<String, ChangedMediaType> changedMediaTypes) {
-        this.changedMediaTypes = changedMediaTypes;
+    public Map<String, MediaType> getAddRequestMediaTypes() {
+        return addRequestMediaTypes;
+    }
+
+    public void setAddRequestMediaTypes(Map<String, MediaType> addRequestMediaTypes) {
+        this.addRequestMediaTypes = addRequestMediaTypes;
+    }
+
+    public Map<String, ChangedMediaType> getChangedRequestMediaTypes() {
+        return changedRequestMediaTypes;
+    }
+
+    public void setChangedRequestMediaTypes(Map<String, ChangedMediaType> changedRequestMediaTypes) {
+        this.changedRequestMediaTypes = changedRequestMediaTypes;
     }
 }

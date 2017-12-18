@@ -2,13 +2,11 @@ package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
 import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
-import com.qdesrame.openapi.diff.model.ChangedEndpoint;
-import com.qdesrame.openapi.diff.model.ChangedOperation;
-import com.qdesrame.openapi.diff.model.ElSchema;
-import com.qdesrame.openapi.diff.model.Endpoint;
+import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.oas.models.media.MediaType;
 import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
 
 import java.util.List;
@@ -113,7 +111,7 @@ public class HtmlRender implements Render {
     }
 
     private ContainerTag li_deprecatedEndpoint(String method, String path,
-                                            String desc) {
+                                               String desc) {
         return li().with(span(method).withClass(method),
                 del().withText(path)).with(span(" " + desc));
     }
@@ -133,7 +131,10 @@ public class HtmlRender implements Render {
                 if (changedOperation.isDiffParam()) {
                     ul_detail.with(li().with(h3("Parameter")).with(ul_param(changedOperation)));
                 }
-                if (changedOperation.isDiffProp()) {
+                if (changedOperation.isDiffRequest()) {
+                    ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation)));
+                }
+                if (changedOperation.isDiffResponse()) {
                     ul_detail.with(li().with(h3("Return Type")).with(ul_response(changedOperation)));
                 }
                 ol.with(li().with(span(method).withClass(method)).withText(pathUrl + " ").with(span(desc))
@@ -144,26 +145,61 @@ public class HtmlRender implements Render {
     }
 
     private ContainerTag ul_response(ChangedOperation changedOperation) {
-        List<ElSchema> addProps = changedOperation.getAddProps();
-        List<ElSchema> delProps = changedOperation.getMissingProps();
+        Map<String, ApiResponse> addResponses = changedOperation.getAddResponses();
+        Map<String, ApiResponse> delResponses = changedOperation.getMissingResponses();
+        Map<String, ChangedResponse> changedResponses = changedOperation.getChangedResponses();
         ContainerTag ul = ul().withClass("change response");
-        for (ElSchema prop : addProps) {
-            ul.with(li_addProp(prop));
+        for (String propName : addResponses.keySet()) {
+            ul.with(li_addResponse(propName, addResponses.get(propName)));
         }
-        for (ElSchema prop : delProps) {
-            ul.with(li_missingProp(prop));
+        for (String propName : delResponses.keySet()) {
+            ul.with(li_missingResponse(propName, delResponses.get(propName)));
+        }
+        for (String propName : changedResponses.keySet()) {
+            ul.with(li_changedResponse(propName, changedResponses.get(propName)));
         }
         return ul;
     }
 
-    private ContainerTag li_missingProp(ElSchema prop) {
-        Schema schema = prop.getSchema();
-        return li().withClass("missing").withText("Delete").with(del(prop.getEl())).with(span(null == schema.getDescription() ? "" : ("//" + schema.getDescription())).withClass("comment"));
+    private ContainerTag li_addResponse(String name, ApiResponse response) {
+        return li().withText(String.format("New response : [%s]", name)).with(span(null == response.getDescription() ? "" : ("//" + response.getDescription())).withClass("comment"));
     }
 
-    private ContainerTag li_addProp(ElSchema prop) {
-        Schema schema = prop.getSchema();
-        return li().withText("Add " + prop.getEl()).with(span(null == schema.getDescription() ? "" : ("//" + schema.getDescription())).withClass("comment"));
+    private ContainerTag li_missingResponse(String name, ApiResponse response) {
+        return li().withText(String.format("Deleted response : [%s]", name)).with(span(null == response.getDescription() ? "" : ("//" + response.getDescription())).withClass("comment"));
+    }
+
+    private ContainerTag li_changedResponse(String name, ChangedResponse response) {
+        return li().withText(String.format("Changed response : [%s]", name)).with(span(null == response.getDescription() ? "" : ("//" + response.getDescription())).withClass("comment"));
+    }
+
+    private ContainerTag ul_request(ChangedOperation changedOperation) {
+        Map<String, MediaType> addRequestBodies = changedOperation.getAddRequestMediaTypes();
+        Map<String, MediaType> delRequestBodies = changedOperation.getMissingRequestMediaTypes();
+        Map<String, ChangedMediaType> changedRequestBodies = changedOperation.getChangedRequestMediaTypes();
+        ContainerTag ul = ul().withClass("change request-body");
+        for (String propName : addRequestBodies.keySet()) {
+            ul.with(li_addRequest(propName, addRequestBodies.get(propName)));
+        }
+        for (String propName : delRequestBodies.keySet()) {
+            ul.with(li_missingRequest(propName, delRequestBodies.get(propName)));
+        }
+        for (String propName : changedRequestBodies.keySet()) {
+            ul.with(li_changedRequest(propName, changedRequestBodies.get(propName)));
+        }
+        return ul;
+    }
+
+    private ContainerTag li_addRequest(String name, MediaType request) {
+        return li().withText(String.format("New request body: '%s'", name));
+    }
+
+    private ContainerTag li_missingRequest(String name, MediaType request) {
+        return li().withText(String.format("Deleted request body: '%s'", name));
+    }
+
+    private ContainerTag li_changedRequest(String name, ChangedMediaType request) {
+        return li().withText(String.format("Changed request body: '%s'", name));
     }
 
     private ContainerTag ul_param(ChangedOperation changedOperation) {

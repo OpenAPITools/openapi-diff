@@ -98,7 +98,7 @@ public class OpenApiDiffTest {
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
                 .render(diff);
-
+        System.out.println("Test");
         try {
             FileWriter fw = new FileWriter(
                     "target/testDiff.html");

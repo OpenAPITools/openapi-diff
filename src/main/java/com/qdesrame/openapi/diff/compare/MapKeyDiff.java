@@ -15,14 +15,14 @@ public class MapKeyDiff<K, V> {
     private List<K> sharedKey;
 
     private MapKeyDiff() {
-        this.sharedKey = new ArrayList<K>();
+        this.sharedKey = new ArrayList<>();
         this.increased = new HashMap<>();
         this.missing = new HashMap<>();
     }
 
     public static <K, V> MapKeyDiff<K, V> diff(Map<K, V> mapLeft,
                                                Map<K, V> mapRight) {
-        MapKeyDiff<K, V> instance = new MapKeyDiff<K, V>();
+        MapKeyDiff<K, V> instance = new MapKeyDiff<>();
         if (null == mapLeft && null == mapRight) return instance;
         if (null == mapLeft) {
             instance.increased = mapRight;
@@ -32,8 +32,8 @@ public class MapKeyDiff<K, V> {
             instance.missing = mapLeft;
             return instance;
         }
-        instance.increased = new LinkedHashMap<K, V>(mapRight);
-        instance.missing = new LinkedHashMap<K, V>();
+        instance.increased = new LinkedHashMap<>(mapRight);
+        instance.missing = new LinkedHashMap<>();
         for (Entry<K, V> entry : mapLeft.entrySet()) {
             K leftKey = entry.getKey();
             V leftValue = entry.getValue();

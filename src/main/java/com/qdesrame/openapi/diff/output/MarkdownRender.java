@@ -111,10 +111,10 @@ public class MarkdownRender implements Render {
                     ul_detail.append(PRE_LI).append("Parameter")
                             .append(ul_param(changedOperation));
                 }
-                if (changedOperation.isDiffProp()) {
-                    ul_detail.append(PRE_LI).append("Return Type")
-                            .append(ul_response(changedOperation));
-                }
+//                if (changedOperation.isDiffProp()) {
+//                    ul_detail.append(PRE_LI).append("Return Type")
+//                            .append(ul_response(changedOperation));
+//                }
                 sb.append(LI).append(CODE).append(method).append(CODE)
                         .append(" " + pathUrl).append(" " + desc + "  \n")
                         .append(ul_detail);
@@ -124,16 +124,16 @@ public class MarkdownRender implements Render {
     }
 
     private String ul_response(ChangedOperation changedOperation) {
-        List<ElSchema> addProps = changedOperation.getAddProps();
-        List<ElSchema> delProps = changedOperation.getMissingProps();
+//        List<ElSchema> addProps = changedOperation.getAddProps();
+//        List<ElSchema> delProps = changedOperation.getMissingProps();
         StringBuffer sb = new StringBuffer("\n\n");
-        for (ElSchema prop : addProps) {
-            sb.append(PRE_LI).append(PRE_CODE).append(li_addProp(prop) + "\n");
-        }
-        for (ElSchema prop : delProps) {
-            sb.append(PRE_LI).append(PRE_CODE)
-                    .append(li_missingProp(prop) + "\n");
-        }
+//        for (ElSchema prop : addProps) {
+//            sb.append(PRE_LI).append(PRE_CODE).append(li_addProp(prop) + "\n");
+//        }
+//        for (ElSchema prop : delProps) {
+//            sb.append(PRE_LI).append(PRE_CODE)
+//                    .append(li_missingProp(prop) + "\n");
+//        }
         return sb.toString();
     }
 
