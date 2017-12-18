@@ -29,12 +29,9 @@ public class OpenApiDiffTest {
         List<ChangedEndpoint> changedEndpoints = diff.getChangedEndpoints();
         Assert.assertTrue(newEndpoints.isEmpty());
         Assert.assertTrue(missingEndpoints.isEmpty());
-        System.out.println("Changed end points: " + changedEndpoints);
         for (ChangedEndpoint changedEndpoint : changedEndpoints) {
             for (PathItem.HttpMethod method : changedEndpoint.getChangedOperations().keySet()) {
                 ChangedOperation operation = changedEndpoint.getChangedOperations().get(method);
-                System.out.println(String.format("%s %s", method, changedEndpoint.getPathUrl()));
-                System.out.println(String.format("Response changed: %d", operation.getChangedResponses().size()));
             }
         }
         Assert.assertTrue(changedEndpoints.isEmpty());
@@ -98,7 +95,6 @@ public class OpenApiDiffTest {
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
                 .render(diff);
-        System.out.println("Test");
         try {
             FileWriter fw = new FileWriter(
                     "target/testDiff.html");
