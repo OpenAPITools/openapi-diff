@@ -144,6 +144,9 @@ public class OpenApiDiff {
                     ContentDiffResult contentDiffResult = ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
                             .diff(oldResponse.getContent(), newResponse.getContent());
                     changedResponse.setChangedContent(contentDiffResult);
+                    if (changedResponse.isDiff()) {
+                        resps.put(responseCode, changedResponse);
+                    }
                 }
                 changedOperation.setChangedResponses(resps);
 
