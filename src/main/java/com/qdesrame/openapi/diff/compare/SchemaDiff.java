@@ -1,9 +1,13 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.compare.schemaDiffResult.ArraySchemaDiffResult;
+import com.qdesrame.openapi.diff.compare.schemaDiffResult.SchemaDiffResult;
 import io.swagger.oas.models.Components;
+import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.Schema;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -11,6 +15,39 @@ public class SchemaDiff {
 
     private Components leftComponents;
     private Components rightComponents;
+    private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>> schemaDiffResultClassMap = new HashMap<>();
+
+    static {
+        schemaDiffResultClassMap.put(Schema.class, SchemaDiffResult.class);
+        schemaDiffResultClassMap.put(ArraySchema.class, ArraySchemaDiffResult.class);
+        //TODO add other classes for different schema types
+    }
+
+    public static SchemaDiffResult getSchemaDiffResult() {
+        return getSchemaDiffResult(null);
+    }
+
+    public static SchemaDiffResult getSchemaDiffResult(Class<? extends Schema> classType) {
+        if (classType == null) {
+            throw new IllegalArgumentException("classType can not be null");
+        }
+
+        Class<? extends SchemaDiffResult> aClass = schemaDiffResultClassMap.get(classType);
+        try {
+            if (aClass == null) {
+                aClass = schemaDiffResultClassMap.get(Schema.class);
+            }
+            if (aClass != null) {
+                Class<? extends SchemaDiffResult> schemaDiffResultClass = aClass;
+                Constructor<? extends SchemaDiffResult> constructor = schemaDiffResultClass.getConstructor();
+                return constructor.newInstance();
+            } else {
+                throw new IllegalArgumentException("invalid classType");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("type " + classType + " is illegal");
+        }
+    }
 
     private SchemaDiff(Components left, Components right) {
         this.leftComponents = left;
@@ -22,42 +59,20 @@ public class SchemaDiff {
     }
 
     public SchemaDiffResult diff(Schema left, Schema right) {
-        SchemaDiffResult result = new SchemaDiffResult();
-        RefPointer.Replace.schema(leftComponents, left);
-        RefPointer.Replace.schema(rightComponents, right);
-
-        if (!Objects.equals(left.getType(), right.getType())) {
-            result.setChangeType(right.getType());
+        //If type of schemas are different, just set old & new schema, set changedType to true in SchemaDiffResult and
+        // return the object
+        if (!Objects.equals(left.getType(), right.getType()) ||
+                !Objects.equals(left.getFormat(), right.getFormat())) {
+            SchemaDiffResult result = SchemaDiff.getSchemaDiffResult();
+            result.setOldSchema(left);
+            result.setNewSchema(right);
+            result.setChangedType(true);
+            return result;
         }
-        result.setOldSchema(left);
-        result.setNewSchema(right);
-        result.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
-        result.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
-        result.setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()));
-        result.setChangeRequired(ListDiff.diff(left.getRequired(), right.getRequired()));
-        result.setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()));
-        result.setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()));
-        result.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
-        result.setChangeReadOnly(!Boolean.TRUE.equals(left.getReadOnly()) && Boolean.TRUE.equals(right.getReadOnly()));
-        result.setChangeWriteOnly(!Boolean.TRUE.equals(left.getWriteOnly()) && Boolean.TRUE.equals(right.getWriteOnly()));
 
-        Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
-        Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
-        MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
-        Map<String, Schema> increasedProp = propertyDiff.getIncreased();
-        Map<String, Schema> missingProp = propertyDiff.getMissing();
-
-        for (String key : propertyDiff.getSharedKey()) {
-            Schema leftSchema = RefPointer.Replace.schema(leftComponents, leftProperties.get(key));
-            Schema rightSchema = RefPointer.Replace.schema(rightComponents, rightProperties.get(key));
-
-            SchemaDiffResult resultSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
-            if (resultSchema.isDiff()) {
-                result.getChangedProperties().put(key, resultSchema);
-            }
-        }
-        result.getIncreasedProperties().putAll(increasedProp);
-        result.getMissingProperties().putAll(missingProp);
+        //If schema type is same then get specific SchemaDiffResult and compare the properties
+        SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass());
+        result.diff(leftComponents, rightComponents, left, right);
         return result;
     }
 
