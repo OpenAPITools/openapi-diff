@@ -51,7 +51,8 @@ public class SchemaDiffResult implements Changed {
                 || missing.size() > 0
                 || changed.size() > 0
                 || deprecated
-                || required.getIncreased().size() > 0;
+                || required.getIncreased().size() > 0
+                || required.getMissing().size() > 0;
     }
 
     public void setChangeType(String type) {
@@ -187,7 +188,10 @@ public class SchemaDiffResult implements Changed {
     public void diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         left = RefPointer.Replace.schema(leftComponents, left);
         right = RefPointer.Replace.schema(rightComponents, right);
+        processDiff(leftComponents, rightComponents, left, right);
+    }
 
+    protected void processDiff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         this.setOldSchema(left);
         this.setNewSchema(right);
         this.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
@@ -218,4 +222,5 @@ public class SchemaDiffResult implements Changed {
         this.getIncreasedProperties().putAll(increasedProp);
         this.getMissingProperties().putAll(missingProp);
     }
+
 }

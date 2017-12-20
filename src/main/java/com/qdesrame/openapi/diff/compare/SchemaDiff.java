@@ -2,12 +2,15 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.compare.schemaDiffResult.ArraySchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemaDiffResult.SchemaDiffResult;
+import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.ArraySchema;
+import io.swagger.oas.models.media.ComposedSchema;
 import io.swagger.oas.models.media.Schema;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -59,6 +62,9 @@ public class SchemaDiff {
     }
 
     public SchemaDiffResult diff(Schema left, Schema right) {
+        left = resolveComposedSchema(leftComponents, left);
+        right = resolveComposedSchema(rightComponents, right);
+
         //If type of schemas are different, just set old & new schema, set changedType to true in SchemaDiffResult and
         // return the object
         if (!Objects.equals(left.getType(), right.getType()) ||
@@ -74,6 +80,41 @@ public class SchemaDiff {
         SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass());
         result.diff(leftComponents, rightComponents, left, right);
         return result;
+    }
+
+    public static Schema resolveComposedSchema(Components components, Schema schema) {
+        if (schema instanceof ComposedSchema) {
+            ComposedSchema composedSchema = (ComposedSchema) schema;
+            List<Schema> allOfSchemaList = composedSchema.getAllOf();
+            if (allOfSchemaList != null) {
+                for (Schema allOfSchema : allOfSchemaList) {
+                    allOfSchema = RefPointer.Replace.schema(components, allOfSchema);
+                    allOfSchema = resolveComposedSchema(components, allOfSchema);
+                    schema = addSchema(schema, allOfSchema);
+                }
+            }
+        }
+        return schema;
+    }
+
+    private static Schema addSchema(Schema schema, Schema fromSchema) {
+        if (fromSchema.getProperties() != null) {
+            if (schema.getProperties() == null) {
+                schema.setProperties(fromSchema.getProperties());
+            } else {
+                schema.getProperties().putAll(fromSchema.getProperties());
+            }
+        }
+
+        if (fromSchema.getRequired() != null) {
+            if (schema.getRequired() == null) {
+                schema.setRequired(fromSchema.getRequired());
+            } else {
+                schema.getRequired().addAll(fromSchema.getRequired());
+            }
+        }
+        //TODO copy other things from fromSchema
+        return schema;
     }
 
 }
