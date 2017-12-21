@@ -14,4 +14,8 @@ public class ChangedMediaType implements Changed {
     public void setSchema(SchemaDiffResult schema) {
         this.schema = schema;
     }
+
+    public SchemaDiffResult getSchema() {
+        return schema;
+    }
 }

@@ -3,6 +3,7 @@ package com.qdesrame.openapi.diff.output;
 import com.qdesrame.openapi.diff.OpenApiDiff;
 import com.qdesrame.openapi.diff.compare.ContentDiffResult;
 import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
+import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.MediaType;
@@ -172,7 +173,9 @@ public class HtmlRender implements Render {
     }
 
     private ContainerTag li_changedResponse(String name, ChangedResponse response) {
-        return li().withText(String.format("Changed response : [%s]", name)).with(span(null == response.getDescription() ? "" : ("//" + response.getDescription())).withClass("comment"));
+        return li().withText(String.format("Changed response : [%s]", name))
+                .with(span(null == response.getDescription() ? "" : ("//" + response.getDescription())).withClass("comment"))
+                .with(ul_request(response.getChangedContent()));
     }
 
     private ContainerTag ul_request(ContentDiffResult changedContent) {
@@ -190,15 +193,21 @@ public class HtmlRender implements Render {
     }
 
     private ContainerTag li_addRequest(String name, MediaType request) {
-        return li().withText(String.format("New request body: '%s'", name));
+        return li().withText(String.format("New body: '%s'", name));
     }
 
     private ContainerTag li_missingRequest(String name, MediaType request) {
-        return li().withText(String.format("Deleted request body: '%s'", name));
+        return li().withText(String.format("Deleted body: '%s'", name));
     }
 
     private ContainerTag li_changedRequest(String name, ChangedMediaType request) {
-        return li().withText(String.format("Changed request body: '%s'", name));
+        return li().withText(String.format("Changed body: '%s'", name)).with(div_changedSchema(request.getSchema()));
+    }
+
+    private ContainerTag div_changedSchema(SchemaDiffResult schema) {
+        ContainerTag div = div();
+        div.with(h3("Schema"));
+        return div;
     }
 
     private ContainerTag ul_param(ChangedOperation changedOperation) {
