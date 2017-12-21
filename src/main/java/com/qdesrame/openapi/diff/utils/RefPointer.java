@@ -4,6 +4,7 @@ import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.parameters.RequestBody;
+import io.swagger.oas.models.responses.ApiResponse;
 
 public class RefPointer {
 
@@ -29,19 +30,27 @@ public class RefPointer {
         return result;
     }
 
-    public static String getSchemaName(String ref) {
-        if (ref != null) {
-            return RefPointer.getRefName(SCHEMAS, ref);
-        }
-        return null;
-    }
-
     public static RequestBody requestBody(Components components, String ref) {
         RequestBody result = components.getRequestBodies().get(getRefName(REQUEST_BODIES, ref));
         if (result == null) {
             throw new IllegalArgumentException(String.format("Request body for ref '%s' doesn't exist.", ref));
         }
         return result;
+    }
+
+    public static ApiResponse response(Components components, String ref) {
+        ApiResponse result = components.getResponses().get(getRefName(RESPONSES, ref));
+        if (result == null) {
+            throw new IllegalArgumentException(String.format("Response for ref '%s' doesn't exist.", ref));
+        }
+        return result;
+    }
+
+    public static String getSchemaName(String ref) {
+        if (ref != null) {
+            return RefPointer.getRefName(SCHEMAS, ref);
+        }
+        return null;
     }
 
     protected static String getBaseRefForType(String type) {
@@ -76,6 +85,13 @@ public class RefPointer {
                 requestBody = RefPointer.requestBody(components, requestBody.get$ref());
             }
             return requestBody;
+        }
+
+        public static ApiResponse response(Components components, ApiResponse response) {
+            if (response.get$ref() != null) {
+                response = RefPointer.response(components, response.get$ref());
+            }
+            return response;
         }
     }
 }

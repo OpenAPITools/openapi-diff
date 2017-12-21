@@ -72,8 +72,8 @@ public class OpenApiDiff {
     }
 
     /*
-    * @param oldSpecOpenApi
-    * @param newSpecOpenApi
+     * @param oldSpecOpenApi
+     * @param newSpecOpenApi
      */
     private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi) {
         this.oldSpecOpenApi = oldSpecOpenApi;
@@ -151,12 +151,12 @@ public class OpenApiDiff {
                 changedOperation.setAddResponses(responseDiff.getIncreased());
                 changedOperation.setMissingResponses(responseDiff.getMissing());
                 List<String> sharedResponseCodes = responseDiff.getSharedKey();
-                Map<String, ChangedResponse> resps = new HashMap<String, ChangedResponse>();
+                Map<String, ChangedResponse> resps = new HashMap<>();
                 ChangedResponse changedResponse;
                 for (String responseCode : sharedResponseCodes) {
                     changedResponse = new ChangedResponse();
-                    ApiResponse oldResponse = oldOperation.getResponses().get(responseCode);
-                    ApiResponse newResponse = newOperation.getResponses().get(responseCode);
+                    ApiResponse oldResponse = RefPointer.Replace.response(oldSpecOpenApi.getComponents(), oldOperation.getResponses().get(responseCode));
+                    ApiResponse newResponse = RefPointer.Replace.response(newSpecOpenApi.getComponents(), newOperation.getResponses().get(responseCode));
                     changedResponse.setDescription(newResponse.getDescription());
                     ContentDiffResult contentDiffResult = ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
                             .diff(oldResponse.getContent(), newResponse.getContent());
