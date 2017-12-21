@@ -1,4 +1,4 @@
-package com.qdesrame.openapi.diff.compare.schemaDiffResult;
+package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.ListDiff;
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;

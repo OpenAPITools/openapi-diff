@@ -1,7 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.compare.schemaDiffResult.ArraySchemaDiffResult;
-import com.qdesrame.openapi.diff.compare.schemaDiffResult.SchemaDiffResult;
+import com.qdesrame.openapi.diff.compare.schemadiffresult.ArraySchemaDiffResult;
+import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.ArraySchema;
