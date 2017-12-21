@@ -1,14 +1,13 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.OpenApiDiff;
+import com.qdesrame.openapi.diff.compare.ContentDiffResult;
 import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
-import com.qdesrame.openapi.diff.model.ChangedEndpoint;
-import com.qdesrame.openapi.diff.model.ChangedOperation;
-import com.qdesrame.openapi.diff.model.ElSchema;
-import com.qdesrame.openapi.diff.model.Endpoint;
+import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.oas.models.media.MediaType;
 import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.oas.models.responses.ApiResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -111,10 +110,14 @@ public class MarkdownRender implements Render {
                     ul_detail.append(PRE_LI).append("Parameter")
                             .append(ul_param(changedOperation));
                 }
-//                if (changedOperation.isDiffProp()) {
-//                    ul_detail.append(PRE_LI).append("Return Type")
-//                            .append(ul_response(changedOperation));
-//                }
+                if (changedOperation.isDiffRequest()) {
+                    ul_detail.append(PRE_LI).append("Request")
+                            .append(ul_request(changedOperation.getRequestContent()));
+                }
+                if (changedOperation.isDiffResponse()) {
+                    ul_detail.append(PRE_LI).append("Return Type")
+                            .append(ul_response(changedOperation));
+                }
                 sb.append(LI).append(CODE).append(method).append(CODE)
                         .append(" " + pathUrl).append(" " + desc + "  \n")
                         .append(ul_detail);
@@ -124,34 +127,69 @@ public class MarkdownRender implements Render {
     }
 
     private String ul_response(ChangedOperation changedOperation) {
-//        List<ElSchema> addProps = changedOperation.getAddProps();
-//        List<ElSchema> delProps = changedOperation.getMissingProps();
+        Map<String, ApiResponse> addResponses = changedOperation.getAddResponses();
+        Map<String, ApiResponse> delResponses = changedOperation.getMissingResponses();
+        Map<String, ChangedResponse> changedResponses = changedOperation.getChangedResponses();
         StringBuffer sb = new StringBuffer("\n\n");
-//        for (ElSchema prop : addProps) {
-//            sb.append(PRE_LI).append(PRE_CODE).append(li_addProp(prop) + "\n");
-//        }
-//        for (ElSchema prop : delProps) {
-//            sb.append(PRE_LI).append(PRE_CODE)
-//                    .append(li_missingProp(prop) + "\n");
-//        }
+        for (String propName : addResponses.keySet()) {
+            sb.append(PRE_LI).append(PRE_CODE).append(li_addResponse(propName, addResponses.get(propName))).append("\n");
+        }
+        for (String propName : delResponses.keySet()) {
+            sb.append(PRE_LI).append(PRE_CODE).append(li_missingResponse(propName, delResponses.get(propName))).append("\n");
+        }
+        for (String propName : changedResponses.keySet()) {
+            sb.append(PRE_LI).append(PRE_CODE).append(li_changedResponse(propName, changedResponses.get(propName))).append("\n");
+        }
         return sb.toString();
     }
 
-    private String li_missingProp(ElSchema prop) {
-        Schema property = prop.getSchema();
+    private String li_addResponse(String name, ApiResponse response) {
         StringBuffer sb = new StringBuffer("");
-        sb.append("Delete ").append(prop.getEl())
-                .append(null == property.getDescription() ? ""
-                        : (" //" + property.getDescription()));
+        sb.append(String.format("New response : [%s]", name)).append(null == response.getDescription() ? "" : (" //" + response.getDescription()));
         return sb.toString();
     }
 
-    private String li_addProp(ElSchema prop) {
-        Schema property = prop.getSchema();
+    private String li_missingResponse(String name, ApiResponse response) {
         StringBuffer sb = new StringBuffer("");
-        sb.append("Add ").append(prop.getEl())
-                .append(null == property.getDescription() ? ""
-                        : (" //" + property.getDescription()));
+        sb.append(String.format("Deleted response : [%s]", name)).append(null == response.getDescription() ? "" : (" //" + response.getDescription()));
+        return sb.toString();
+    }
+
+    private String li_changedResponse(String name, ChangedResponse response) {
+        StringBuffer sb = new StringBuffer("");
+        sb.append(String.format("Changed response : [%s]", name)).append(null == response.getDescription() ? "" : (" //" + response.getDescription()));
+        return sb.toString();
+    }
+
+    private String ul_request(ContentDiffResult changedContent) {
+        StringBuffer sb = new StringBuffer("\n\n");
+        for (String propName : changedContent.getIncreased().keySet()) {
+            sb.append(PRE_LI).append(PRE_CODE).append(li_addRequest(propName, changedContent.getIncreased().get(propName))).append("\n");
+        }
+        for (String propName : changedContent.getMissing().keySet()) {
+            sb.append(PRE_LI).append(PRE_CODE).append(li_missingRequest(propName, changedContent.getMissing().get(propName))).append("\n");
+        }
+        for (String propName : changedContent.getChanged().keySet()) {
+            sb.append(PRE_LI).append(PRE_CODE).append(li_changedRequest(propName, changedContent.getChanged().get(propName))).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private String li_addRequest(String name, MediaType request) {
+        StringBuffer sb = new StringBuffer("");
+        sb.append(String.format("New request body : '%s'", name));
+        return sb.toString();
+    }
+
+    private String li_missingRequest(String name, MediaType request) {
+        StringBuffer sb = new StringBuffer("");
+        sb.append(String.format("Deleted request body : [%s]", name));
+        return sb.toString();
+    }
+
+    private String li_changedRequest(String name, ChangedMediaType request) {
+        StringBuffer sb = new StringBuffer("");
+        sb.append(String.format("Changed response : [%s]", name));
         return sb.toString();
     }
 
