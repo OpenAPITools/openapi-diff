@@ -29,6 +29,13 @@ public class RefPointer {
         return result;
     }
 
+    public static String getSchemaName(String ref) {
+        if (ref != null) {
+            return RefPointer.getRefName(SCHEMAS, ref);
+        }
+        return null;
+    }
+
     public static RequestBody requestBody(Components components, String ref) {
         RequestBody result = components.getRequestBodies().get(getRefName(REQUEST_BODIES, ref));
         if (result == null) {

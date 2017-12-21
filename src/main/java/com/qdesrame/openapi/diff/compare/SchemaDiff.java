@@ -23,6 +23,7 @@ public class SchemaDiff {
     static {
         schemaDiffResultClassMap.put(Schema.class, SchemaDiffResult.class);
         schemaDiffResultClassMap.put(ArraySchema.class, ArraySchemaDiffResult.class);
+        schemaDiffResultClassMap.put(ComposedSchema.class, ComposedSchemaDiffResult.class);
         //TODO add other classes for different schema types
     }
 
@@ -41,8 +42,7 @@ public class SchemaDiff {
                 aClass = schemaDiffResultClassMap.get(Schema.class);
             }
             if (aClass != null) {
-                Class<? extends SchemaDiffResult> schemaDiffResultClass = aClass;
-                Constructor<? extends SchemaDiffResult> constructor = schemaDiffResultClass.getConstructor();
+                Constructor<? extends SchemaDiffResult> constructor = aClass.getConstructor();
                 return constructor.newInstance();
             } else {
                 throw new IllegalArgumentException("invalid classType");
@@ -78,8 +78,7 @@ public class SchemaDiff {
 
         //If schema type is same then get specific SchemaDiffResult and compare the properties
         SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass());
-        result.diff(leftComponents, rightComponents, left, right);
-        return result;
+        return result.diff(leftComponents, rightComponents, left, right);
     }
 
     public static Schema resolveComposedSchema(Components components, Schema schema) {

@@ -15,14 +15,11 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
     }
 
     @Override
-    public void diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public SchemaDiffResult diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         ArraySchema leftArraySchema = (ArraySchema) left;
         ArraySchema rightArraySchema = (ArraySchema) right;
         left = RefPointer.Replace.schema(leftComponents, leftArraySchema.getItems());
         right = RefPointer.Replace.schema(rightComponents, rightArraySchema.getItems());
-        left = SchemaDiff.resolveComposedSchema(leftComponents, left);
-        right = SchemaDiff.resolveComposedSchema(rightComponents, right);
-
-        super.processDiff(leftComponents, rightComponents, left, right);
+        return SchemaDiff.fromComponents(leftComponents, rightComponents).diff(left, right);
     }
 }
