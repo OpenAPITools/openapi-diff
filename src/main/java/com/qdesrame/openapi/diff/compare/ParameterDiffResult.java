@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.compare;
 
+import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
 import com.qdesrame.openapi.diff.model.Changed;
 import io.swagger.oas.models.parameters.Parameter;
 

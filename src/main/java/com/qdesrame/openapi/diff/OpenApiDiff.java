@@ -50,6 +50,10 @@ public class OpenApiDiff {
         return new OpenApiDiff(oldSpec, newSpec, auths).compare();
     }
 
+    public static OpenApiDiff compare(OpenAPI oldOpenAPI, OpenAPI newOpenAPI) {
+        return new OpenApiDiff(oldOpenAPI, newOpenAPI);
+    }
+
     /**
      * @param oldSpec
      * @param newSpec
@@ -64,6 +68,19 @@ public class OpenApiDiff {
         if (null == oldSpecOpenApi || null == newSpecOpenApi) {
             throw new RuntimeException(
                     "cannot read api-doc from spec.");
+        }
+    }
+
+    /*
+    * @param oldSpecOpenApi
+    * @param newSpecOpenApi
+     */
+    private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi) {
+        this.oldSpecOpenApi = oldSpecOpenApi;
+        this.newSpecOpenApi = newSpecOpenApi;
+        if (null == oldSpecOpenApi || null == newSpecOpenApi) {
+            throw new RuntimeException(
+                    "one of the old or new object is null");
         }
     }
 
@@ -144,6 +161,9 @@ public class OpenApiDiff {
                     ContentDiffResult contentDiffResult = ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
                             .diff(oldResponse.getContent(), newResponse.getContent());
                     changedResponse.setChangedContent(contentDiffResult);
+                    if (changedResponse.isDiff()) {
+                        resps.put(responseCode, changedResponse);
+                    }
                 }
                 changedOperation.setChangedResponses(resps);
 

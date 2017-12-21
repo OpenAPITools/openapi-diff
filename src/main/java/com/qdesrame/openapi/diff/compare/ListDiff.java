@@ -11,6 +11,8 @@ public class ListDiff<T> {
 
     private ListDiff() {
         this.sharedItem = new ArrayList<>();
+        this.increased = new ArrayList<>();
+        this.missing = new ArrayList<>();
     }
 
     public static <T> ListDiff<T> diff(List<T> left, List<T> right) {
