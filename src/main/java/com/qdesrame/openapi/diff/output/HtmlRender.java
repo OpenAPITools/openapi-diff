@@ -1,9 +1,5 @@
 package com.qdesrame.openapi.diff.output;
 
-import com.qdesrame.openapi.diff.OpenApiDiff;
-import com.qdesrame.openapi.diff.compare.ContentDiffResult;
-import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
-import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.MediaType;
@@ -32,7 +28,7 @@ public class HtmlRender implements Render {
     }
 
 
-    public String render(OpenApiDiff diff) {
+    public String render(ChangedOpenApi diff) {
         List<Endpoint> newEndpoints = diff.getNewEndpoints();
         ContainerTag ol_newEndpoint = ol_newEndpoint(newEndpoints);
 
@@ -131,14 +127,14 @@ public class HtmlRender implements Render {
 
                 ContainerTag ul_detail = ul().withClass("detail");
                 if (changedOperation.isDiffParam()) {
-                    ul_detail.with(li().with(h3("Parameters")).with(ul_param(changedOperation)));
+                    ul_detail.with(li().with(h3("Parameters")).with(ul_param(changedOperation.getChangedParameters())));
                 }
                 if (changedOperation.isDiffRequest()) {
                     ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getRequestContent())));
                 } else {
                 }
                 if (changedOperation.isDiffResponse()) {
-                    ul_detail.with(li().with(h3("Response")).with(ul_response(changedOperation)));
+                    ul_detail.with(li().with(h3("Response")).with(ul_response(changedOperation.getChangedApiResponse())));
                 }
                 ol.with(li().with(span(method).withClass(method)).withText(pathUrl + " ").with(span(desc))
                         .with(ul_detail));
@@ -147,10 +143,10 @@ public class HtmlRender implements Render {
         return ol;
     }
 
-    private ContainerTag ul_response(ChangedOperation changedOperation) {
-        Map<String, ApiResponse> addResponses = changedOperation.getAddResponses();
-        Map<String, ApiResponse> delResponses = changedOperation.getMissingResponses();
-        Map<String, ChangedResponse> changedResponses = changedOperation.getChangedResponses();
+    private ContainerTag ul_response(ChangedApiResponse changedApiResponse) {
+        Map<String, ApiResponse> addResponses = changedApiResponse.getAddResponses();
+        Map<String, ApiResponse> delResponses = changedApiResponse.getMissingResponses();
+        Map<String, ChangedResponse> changedResponses = changedApiResponse.getChangedResponses();
         ContainerTag ul = ul().withClass("change response");
         for (String propName : addResponses.keySet()) {
             ul.with(li_addResponse(propName, addResponses.get(propName)));
@@ -178,7 +174,7 @@ public class HtmlRender implements Render {
                 .with(ul_request(response.getChangedContent()));
     }
 
-    private ContainerTag ul_request(ContentDiffResult changedContent) {
+    private ContainerTag ul_request(ChangedContent changedContent) {
         ContainerTag ul = ul().withClass("change request-body");
         for (String propName : changedContent.getIncreased().keySet()) {
             ul.with(li_addRequest(propName, changedContent.getIncreased().get(propName)));
@@ -204,21 +200,21 @@ public class HtmlRender implements Render {
         return li().withText(String.format("Changed body: '%s'", name)).with(div_changedSchema(request.getSchema()));
     }
 
-    private ContainerTag div_changedSchema(SchemaDiffResult schema) {
+    private ContainerTag div_changedSchema(ChangedSchema schema) {
         ContainerTag div = div();
         div.with(h3("Schema"));
         return div;
     }
 
-    private ContainerTag ul_param(ChangedOperation changedOperation) {
-        List<Parameter> addParameters = changedOperation.getAddParameters();
-        List<Parameter> delParameters = changedOperation.getMissingParameters();
-        List<ParameterDiffResult> changedParameters = changedOperation.getChangedParameter();
+    private ContainerTag ul_param(ChangedParameters changedParameters) {
+        List<Parameter> addParameters = changedParameters.getIncreased();
+        List<Parameter> delParameters = changedParameters.getMissing();
+        List<ChangedParameter> changed = changedParameters.getChanged();
         ContainerTag ul = ul().withClass("change param");
         for (Parameter param : addParameters) {
             ul.with(li_addParam(param));
         }
-        for (ParameterDiffResult param : changedParameters) {
+        for (ChangedParameter param : changed) {
             ul.with(li_changedParam(param));
         }
         for (Parameter param : delParameters) {
@@ -235,13 +231,13 @@ public class HtmlRender implements Render {
         return li().withClass("missing").with(span("Delete")).with(del(param.getName())).with(span("in ").withText(param.getIn())).with(span(null == param.getDescription() ? "" : ("//" + param.getDescription())).withClass("comment"));
     }
 
-    private ContainerTag li_deprecatedParam(ParameterDiffResult param) {
+    private ContainerTag li_deprecatedParam(ChangedParameter param) {
         return li().withClass("missing").with(span("Deprecated"))
                 .with(del(param.getName())).with(span("in ").withText(param.getIn()))
                 .with(span(null == param.getRightParameter().getDescription() ? "" : ("//" + param.getRightParameter().getDescription())).withClass("comment"));
     }
 
-    private ContainerTag li_changedParam(ParameterDiffResult changeParam) {
+    private ContainerTag li_changedParam(ChangedParameter changeParam) {
         if (changeParam.isDeprecated()) {
             return li_deprecatedParam(changeParam);
         }

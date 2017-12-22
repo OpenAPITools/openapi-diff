@@ -1,8 +1,5 @@
 package com.qdesrame.openapi.diff.output;
 
-import com.qdesrame.openapi.diff.OpenApiDiff;
-import com.qdesrame.openapi.diff.compare.ContentDiffResult;
-import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.oas.models.PathItem;
 import io.swagger.oas.models.media.MediaType;
@@ -26,7 +23,7 @@ public class MarkdownRender implements Render {
     public MarkdownRender() {
     }
 
-    public String render(OpenApiDiff diff) {
+    public String render(ChangedOpenApi diff) {
         List<Endpoint> newEndpoints = diff.getNewEndpoints();
         String ol_newEndpoint = ol_newEndpoint(newEndpoints);
 
@@ -108,7 +105,7 @@ public class MarkdownRender implements Render {
                 StringBuffer ul_detail = new StringBuffer();
                 if (changedOperation.isDiffParam()) {
                     ul_detail.append(PRE_LI).append("Parameter")
-                            .append(ul_param(changedOperation));
+                            .append(ul_param(changedOperation.getChangedParameters()));
                 }
                 if (changedOperation.isDiffRequest()) {
                     ul_detail.append(PRE_LI).append("Request")
@@ -116,7 +113,7 @@ public class MarkdownRender implements Render {
                 }
                 if (changedOperation.isDiffResponse()) {
                     ul_detail.append(PRE_LI).append("Return Type")
-                            .append(ul_response(changedOperation));
+                            .append(ul_response(changedOperation.getChangedApiResponse()));
                 }
                 sb.append(LI).append(CODE).append(method).append(CODE)
                         .append(" " + pathUrl).append(" " + desc + "  \n")
@@ -126,10 +123,10 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String ul_response(ChangedOperation changedOperation) {
-        Map<String, ApiResponse> addResponses = changedOperation.getAddResponses();
-        Map<String, ApiResponse> delResponses = changedOperation.getMissingResponses();
-        Map<String, ChangedResponse> changedResponses = changedOperation.getChangedResponses();
+    private String ul_response(ChangedApiResponse changedApiResponse) {
+        Map<String, ApiResponse> addResponses = changedApiResponse.getAddResponses();
+        Map<String, ApiResponse> delResponses = changedApiResponse.getMissingResponses();
+        Map<String, ChangedResponse> changedResponses = changedApiResponse.getChangedResponses();
         StringBuffer sb = new StringBuffer("\n\n");
         for (String propName : addResponses.keySet()) {
             sb.append(PRE_LI).append(PRE_CODE).append(li_addResponse(propName, addResponses.get(propName))).append("\n");
@@ -161,7 +158,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String ul_request(ContentDiffResult changedContent) {
+    private String ul_request(ChangedContent changedContent) {
         StringBuffer sb = new StringBuffer("\n\n");
         for (String propName : changedContent.getIncreased().keySet()) {
             sb.append(PRE_LI).append(PRE_CODE).append(li_addRequest(propName, changedContent.getIncreased().get(propName))).append("\n");
@@ -193,17 +190,16 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String ul_param(ChangedOperation changedOperation) {
-        List<Parameter> addParameters = changedOperation.getAddParameters();
-        List<Parameter> delParameters = changedOperation.getMissingParameters();
-        List<ParameterDiffResult> changedParameters = changedOperation
-                .getChangedParameter();
+    private String ul_param(ChangedParameters changedParameters) {
+        List<Parameter> addParameters = changedParameters.getIncreased();
+        List<Parameter> delParameters = changedParameters.getMissing();
+        List<ChangedParameter> changed = changedParameters.getChanged();
         StringBuffer sb = new StringBuffer("\n\n");
         for (Parameter param : addParameters) {
             sb.append(PRE_LI).append(PRE_CODE)
                     .append(li_addParam(param) + "\n");
         }
-        for (ParameterDiffResult param : changedParameters) {
+        for (ChangedParameter param : changed) {
             boolean changeRequired = param.isChangeRequired();
             boolean changeDescription = param.isChangeDescription();
             if (changeRequired || changeDescription) sb.append(PRE_LI)
@@ -232,7 +228,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String li_changedParam(ParameterDiffResult changeParam) {
+    private String li_changedParam(ChangedParameter changeParam) {
         boolean changeRequired = changeParam.isChangeRequired();
         boolean changeDescription = changeParam.isChangeDescription();
         Parameter rightParam = changeParam.getRightParameter();

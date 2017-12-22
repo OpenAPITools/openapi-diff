@@ -1,21 +1,39 @@
 package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
+import io.swagger.oas.models.media.Schema;
 
 public class ChangedMediaType implements Changed {
-    private SchemaDiffResult schema;
+    private Schema oldSchema;
+    private Schema newSchema;
+    private ChangedSchema changedSchema;
 
+    public ChangedMediaType(Schema oldSchema, Schema newSchema) {
+        this.oldSchema = oldSchema;
+        this.newSchema = newSchema;
+    }
 
     @Override
     public boolean isDiff() {
-        return schema.isDiff();
+        return changedSchema.isDiff();
     }
 
-    public void setSchema(SchemaDiffResult schema) {
-        this.schema = schema;
+    public void setChangedSchema(ChangedSchema changedSchema) {
+        this.changedSchema = changedSchema;
     }
 
-    public SchemaDiffResult getSchema() {
-        return schema;
+    public Schema getOldSchema() {
+        return oldSchema;
+    }
+
+    public Schema getNewSchema() {
+        return newSchema;
+    }
+
+    public ChangedSchema getChangedSchema() {
+        return changedSchema;
+    }
+
+    public ChangedSchema getSchema() {
+        return changedSchema;
     }
 }

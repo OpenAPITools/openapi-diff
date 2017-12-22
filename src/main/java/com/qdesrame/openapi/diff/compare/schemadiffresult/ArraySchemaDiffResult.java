@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.SchemaDiff;
+import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.ArraySchema;
@@ -15,7 +16,7 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
     }
 
     @Override
-    public SchemaDiffResult diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         ArraySchema leftArraySchema = (ArraySchema) left;
         ArraySchema rightArraySchema = (ArraySchema) right;
         left = RefPointer.Replace.schema(leftComponents, leftArraySchema.getItems());

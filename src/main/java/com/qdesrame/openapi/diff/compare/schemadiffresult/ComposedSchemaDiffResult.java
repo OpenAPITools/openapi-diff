@@ -1,7 +1,9 @@
-package com.qdesrame.openapi.diff.compare;
+package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
-import com.qdesrame.openapi.diff.compare.schemadiffresult.OneOfMappingDiffResult;
-import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
+import com.qdesrame.openapi.diff.compare.MapKeyDiff;
+import com.qdesrame.openapi.diff.compare.SchemaDiff;
+import com.qdesrame.openapi.diff.model.ChangedOneOfSchema;
+import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.ComposedSchema;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class ComposedSchemaDiffResult extends SchemaDiffResult {
     @Override
-    public SchemaDiffResult diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         ComposedSchema leftComposedSchema = (ComposedSchema) left;
         ComposedSchema rightComposedSchema = (ComposedSchema) right;
         if (CollectionUtils.isNotEmpty(leftComposedSchema.getOneOf())
@@ -30,34 +32,34 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 throw new IllegalArgumentException("discriminator or property not found for oneOf schema");
             } else if (!leftDis.getPropertyName().equals(rightDis.getPropertyName()) ||
                     (CollectionUtils.isEmpty(leftComposedSchema.getOneOf()) || CollectionUtils.isEmpty(rightComposedSchema.getOneOf()))) {
-                this.oldSchema = left;
-                this.newSchema = right;
-                this.discriminatorPropertyChanged = true;
-                return this;
+                changedSchema.setOldSchema(left);
+                changedSchema.setNewSchema(right);
+                changedSchema.setDiscriminatorPropertyChanged(true);
+                return changedSchema;
             }
 
             Map<String, String> leftMapping = getMapping(leftComposedSchema);
             Map<String, String> rightMapping = getMapping(rightComposedSchema);
 
-            OneOfMappingDiffResult oneOfMappingDiffResult = new OneOfMappingDiffResult();
+            ChangedOneOfSchema changedOneOfSchema = new ChangedOneOfSchema(leftMapping, rightMapping);
             MapKeyDiff<String, String> mappingDiff = MapKeyDiff.diff(leftMapping, rightMapping);
-            oneOfMappingDiffResult.setIncreasedMapping(mappingDiff.getIncreased());
-            oneOfMappingDiffResult.setMissingMapping(mappingDiff.getMissing());
+            changedOneOfSchema.setIncreasedMapping(mappingDiff.getIncreased());
+            changedOneOfSchema.setMissingMapping(mappingDiff.getMissing());
 
-            Map<String, SchemaDiffResult> changedMapping = new HashMap<>();
-            oneOfMappingDiffResult.setChangedMapping(changedMapping);
+            Map<String, ChangedSchema> changedMapping = new HashMap<>();
+            changedOneOfSchema.setChangedMapping(changedMapping);
 
             for (String key : mappingDiff.getSharedKey()) {
                 Schema leftSchema = new Schema();
                 leftSchema.set$ref(leftMapping.get(key));
                 Schema rightSchema = new Schema();
                 rightSchema.set$ref(rightMapping.get(key));
-                SchemaDiffResult schemaDiffResult = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
-                if (schemaDiffResult.isDiff()) {
-                    changedMapping.put(key, schemaDiffResult);
+                ChangedSchema changedSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
+                if (changedSchema.isDiff()) {
+                    changedMapping.put(key, changedSchema);
                 }
             }
-            this.oneOfMappingDiffResult = oneOfMappingDiffResult;
+            changedSchema.setChangedOneOfSchema(changedOneOfSchema);
         }
         return super.processDiff(leftComponents, rightComponents, left, right);
     }

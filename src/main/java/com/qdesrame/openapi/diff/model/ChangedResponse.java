@@ -1,12 +1,18 @@
 package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.compare.ContentDiffResult;
+import io.swagger.oas.models.media.Content;
 
 public class ChangedResponse implements Changed {
-
     private String description;
+    private Content oldContent;
+    private Content newContent;
+    private ChangedContent changedContent;
 
-    private ContentDiffResult changedContent;
+    public ChangedResponse(String description, Content oldContent, Content newContent) {
+        this.description = description;
+        this.oldContent = oldContent;
+        this.newContent = newContent;
+    }
 
     public String getDescription() {
         return description;
@@ -17,16 +23,24 @@ public class ChangedResponse implements Changed {
         return this;
     }
 
+    public Content getOldContent() {
+        return oldContent;
+    }
+
+    public Content getNewContent() {
+        return newContent;
+    }
+
     @Override
     public boolean isDiff() {
         return changedContent.isDiff();
     }
 
-    public ContentDiffResult getChangedContent() {
+    public ChangedContent getChangedContent() {
         return changedContent;
     }
 
-    public void setChangedContent(ContentDiffResult changedContent) {
+    public void setChangedContent(ChangedContent changedContent) {
         this.changedContent = changedContent;
     }
 }

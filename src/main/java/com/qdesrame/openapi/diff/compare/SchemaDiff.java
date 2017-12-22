@@ -1,7 +1,9 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.compare.schemadiffresult.ArraySchemaDiffResult;
+import com.qdesrame.openapi.diff.compare.schemadiffresult.ComposedSchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
+import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.ArraySchema;
@@ -61,7 +63,7 @@ public class SchemaDiff {
         return new SchemaDiff(left, right);
     }
 
-    public SchemaDiffResult diff(Schema left, Schema right) {
+    public ChangedSchema diff(Schema left, Schema right) {
         left = resolveComposedSchema(leftComponents, left);
         right = resolveComposedSchema(rightComponents, right);
 
@@ -69,11 +71,11 @@ public class SchemaDiff {
         // return the object
         if (!Objects.equals(left.getType(), right.getType()) ||
                 !Objects.equals(left.getFormat(), right.getFormat())) {
-            SchemaDiffResult result = SchemaDiff.getSchemaDiffResult();
-            result.setOldSchema(left);
-            result.setNewSchema(right);
-            result.setChangedType(true);
-            return result;
+            ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult().getChangedSchema();
+            changedSchema.setOldSchema(left);
+            changedSchema.setNewSchema(right);
+            changedSchema.setChangedType(true);
+            return changedSchema;
         }
 
         //If schema type is same then get specific SchemaDiffResult and compare the properties

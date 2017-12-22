@@ -1,4 +1,4 @@
-package com.qdesrame.openapi.diff.compare;
+package com.qdesrame.openapi.diff.model;
 
 import java.util.ArrayList;
 import java.util.List;

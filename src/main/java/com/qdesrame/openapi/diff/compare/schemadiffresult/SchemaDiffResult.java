@@ -1,212 +1,64 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
-import com.qdesrame.openapi.diff.compare.ListDiff;
+import com.qdesrame.openapi.diff.model.ListDiff;
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.SchemaDiff;
 import com.qdesrame.openapi.diff.model.Changed;
+import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.Schema;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class SchemaDiffResult implements Changed {
-    protected Schema oldSchema;
-    protected Schema newSchema;
-    protected String type;
-    protected Map<String, SchemaDiffResult> changed;
-    protected Map<String, Schema> increased;
-    protected Map<String, Schema> missing;
-    protected boolean deprecated;
-    protected boolean description;
-    protected boolean title;
-    protected ListDiff<String> required;
-    protected boolean defaultVal;
-    protected ListDiff enumVal;
-    protected boolean format;
-    protected boolean readOnly;
-    protected boolean writeOnly;
-    protected boolean changedType;
-    protected boolean discriminatorPropertyChanged;
-    protected OneOfMappingDiffResult oneOfMappingDiffResult;
+    protected ChangedSchema changedSchema;
 
     public SchemaDiffResult() {
-        increased = new HashMap<>();
-        missing = new HashMap<>();
-        changed = new HashMap<>();
+        this.changedSchema = new ChangedSchema();
     }
 
     public SchemaDiffResult(String type) {
         this();
-        this.type = type;
+        this.changedSchema.setChangeType(type);
     }
 
     @Override
     public boolean isDiff() {
-        return Boolean.TRUE.equals(changedType)
-                || writeOnly
-                || readOnly
-                || format
-                || increased.size() > 0
-                || missing.size() > 0
-                || changed.size() > 0
-                || deprecated
-                || required.getIncreased().size() > 0
-                || required.getMissing().size() > 0
-                || discriminatorPropertyChanged
-                || (oneOfMappingDiffResult != null && oneOfMappingDiffResult.isDiff());
+        return changedSchema.isDiff();
     }
 
-    public void setChangeType(String type) {
-        this.type = type;
+    public ChangedSchema getChangedSchema() {
+        return changedSchema;
     }
 
-    public Map<String, SchemaDiffResult> getChangedProperties() {
-        return changed;
+    public void setChangedSchema(ChangedSchema changedSchema) {
+        this.changedSchema = changedSchema;
     }
 
-    public Map<String, Schema> getIncreasedProperties() {
-        return increased;
+    public void setNewSchema(Schema newSchema) {
+        changedSchema.setNewSchema(newSchema);
     }
 
-    public Map<String, Schema> getMissingProperties() {
-        return missing;
-    }
-
-    public void setChangeDeprecated(boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
-    public void setChangeDescription(boolean description) {
-        this.description = description;
-    }
-
-    public void setChangeTitle(boolean title) {
-        this.title = title;
-    }
-
-    public void setChangeRequired(ListDiff<String> required) {
-        this.required = required;
-    }
-
-    public void setChangeDefault(boolean changeDefault) {
-        this.defaultVal = changeDefault;
-    }
-
-    public void setChangeEnum(ListDiff changeEnum) {
-        this.enumVal = changeEnum;
-    }
-
-    public void setChangeFormat(boolean format) {
-        this.format = format;
-    }
-
-    public void setChangeReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
-    }
-
-    public void setChangeWriteOnly(boolean writeOnly) {
-        this.writeOnly = writeOnly;
-    }
-
-    public void setChanged(Map<String, SchemaDiffResult> changed) {
-        this.changed = changed;
-    }
-
-    public void setIncreased(Map<String, Schema> increased) {
-        this.increased = increased;
-    }
-
-    public void addIncreased(String name, Schema increased) {
-        this.increased.put(name, increased);
-    }
-
-    public void setMissing(Map<String, Schema> missing) {
-        this.missing = missing;
-    }
-
-    public void addMissing(String name, Schema missing) {
-        this.missing.put(name, missing);
-    }
-
-    public void setDeprecated(boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
-    public void setDescription(boolean description) {
-        this.description = description;
-    }
-
-    public void setTitle(boolean title) {
-        this.title = title;
-    }
-
-    public void setRequired(ListDiff<String> required) {
-        this.required = required;
-    }
-
-    public void setDefaultVal(boolean defaultVal) {
-        this.defaultVal = defaultVal;
-    }
-
-    public void setEnumVal(ListDiff enumVal) {
-        this.enumVal = enumVal;
-    }
-
-    public void setFormat(boolean format) {
-        this.format = format;
-    }
-
-    public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
-    }
-
-    public void setWriteOnly(boolean writeOnly) {
-        this.writeOnly = writeOnly;
-    }
-
-    public void setChangedType(boolean changedType) {
-        this.changedType = changedType;
-    }
-
-    public Schema getOldSchema() {
-        return oldSchema;
-    }
-
-    public SchemaDiffResult setOldSchema(Schema oldSchema) {
-        this.oldSchema = oldSchema;
-        return this;
-    }
-
-    public Schema getNewSchema() {
-        return newSchema;
-    }
-
-    public SchemaDiffResult setNewSchema(Schema newSchema) {
-        this.newSchema = newSchema;
-        return this;
-    }
-
-    public SchemaDiffResult diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         left = RefPointer.Replace.schema(leftComponents, left);
         right = RefPointer.Replace.schema(rightComponents, right);
         return processDiff(leftComponents, rightComponents, left, right);
     }
 
-    protected SchemaDiffResult processDiff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
-        this.setOldSchema(left);
-        this.setNewSchema(right);
-        this.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
-        this.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
-        this.setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()));
-        this.setChangeRequired(ListDiff.diff(left.getRequired(), right.getRequired()));
-        this.setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()));
-        this.setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()));
-        this.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
-        this.setChangeReadOnly(!Boolean.TRUE.equals(left.getReadOnly()) && Boolean.TRUE.equals(right.getReadOnly()));
-        this.setChangeWriteOnly(!Boolean.TRUE.equals(left.getWriteOnly()) && Boolean.TRUE.equals(right.getWriteOnly()));
+    protected ChangedSchema processDiff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+        changedSchema.setOldSchema(left);
+        changedSchema.setNewSchema(right);
+        changedSchema.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
+        changedSchema.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
+        changedSchema.setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()));
+        changedSchema.setChangeRequired(ListDiff.diff(left.getRequired(), right.getRequired()));
+        changedSchema.setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()));
+        changedSchema.setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()));
+        changedSchema.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
+        changedSchema.setChangeReadOnly(!Boolean.TRUE.equals(left.getReadOnly()) && Boolean.TRUE.equals(right.getReadOnly()));
+        changedSchema.setChangeWriteOnly(!Boolean.TRUE.equals(left.getWriteOnly()) && Boolean.TRUE.equals(right.getWriteOnly()));
 
         Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
         Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
@@ -218,14 +70,14 @@ public class SchemaDiffResult implements Changed {
             Schema leftSchema = RefPointer.Replace.schema(leftComponents, leftProperties.get(key));
             Schema rightSchema = RefPointer.Replace.schema(rightComponents, rightProperties.get(key));
 
-            SchemaDiffResult resultSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
+            ChangedSchema resultSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
             if (resultSchema.isDiff()) {
-                this.getChangedProperties().put(key, resultSchema);
+                changedSchema.getChangedProperties().put(key, resultSchema);
             }
         }
-        this.getIncreasedProperties().putAll(increasedProp);
-        this.getMissingProperties().putAll(missingProp);
-        return this;
+        changedSchema.getIncreasedProperties().putAll(increasedProp);
+        changedSchema.getMissingProperties().putAll(missingProp);
+        return changedSchema;
     }
 
 }

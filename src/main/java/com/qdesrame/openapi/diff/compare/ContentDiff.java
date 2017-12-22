@@ -1,7 +1,8 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
+import com.qdesrame.openapi.diff.model.ChangedContent;
 import com.qdesrame.openapi.diff.model.ChangedMediaType;
+import com.qdesrame.openapi.diff.model.ChangedSchema;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.Content;
 import io.swagger.oas.models.media.MediaType;
@@ -26,31 +27,29 @@ public class ContentDiff implements Comparable<Content> {
 
     @Override
     public boolean compare(Content left, Content right) {
-
         return false;
     }
 
-    public ContentDiffResult diff(Content left, Content right) {
-        ContentDiffResult result = new ContentDiffResult();
+    public ChangedContent diff(Content left, Content right) {
+        ChangedContent changedContent = new ChangedContent(left, right);
 
         MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(left, right);
-        result.setIncreased(mediaTypeDiff.getIncreased());
-        result.setMissing(mediaTypeDiff.getMissing());
+        changedContent.setIncreased(mediaTypeDiff.getIncreased());
+        changedContent.setMissing(mediaTypeDiff.getMissing());
         List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();
         Map<String, ChangedMediaType> changedMediaTypes = new HashMap<>();
-        ChangedMediaType changedMediaType;
         for (String mediaTypeKey : sharedMediaTypes) {
-            changedMediaType = new ChangedMediaType();
             MediaType oldMediaType = left.get(mediaTypeKey);
             MediaType newMediaType = right.get(mediaTypeKey);
-            SchemaDiffResult schemaDiff = SchemaDiff.fromComponents(leftComponents, rightComponents)
+            ChangedSchema changedSchema = SchemaDiff.fromComponents(leftComponents, rightComponents)
                     .diff(oldMediaType.getSchema(), newMediaType.getSchema());
-            changedMediaType.setSchema(schemaDiff);
+            ChangedMediaType changedMediaType = new ChangedMediaType(oldMediaType.getSchema(), newMediaType.getSchema());
+            changedMediaType.setChangedSchema(changedSchema);
             if (changedMediaType.isDiff()) {
                 changedMediaTypes.put(mediaTypeKey, changedMediaType);
             }
         }
-        result.setChanged(changedMediaTypes);
-        return result;
+        changedContent.setChanged(changedMediaTypes);
+        return changedContent;
     }
 }
