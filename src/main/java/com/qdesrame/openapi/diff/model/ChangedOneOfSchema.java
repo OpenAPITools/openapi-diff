@@ -1,16 +1,30 @@
-package com.qdesrame.openapi.diff.compare.schemadiffresult;
-
-import com.qdesrame.openapi.diff.model.Changed;
+package com.qdesrame.openapi.diff.model;
 
 import java.util.Map;
 
 /**
- * Created by adarsh.sharma on 21/12/17.
+ * Created by adarsh.sharma on 22/12/17.
  */
-public class OneOfMappingDiffResult implements Changed {
+public class ChangedOneOfSchema implements Changed {
+    private Map<String, String> oldMapping;
+    private Map<String, String> newMapping;
+
     private Map<String, String> increasedMapping;
     private Map<String, String> missingMapping;
-    private Map<String, SchemaDiffResult> changedMapping;
+    private Map<String, ChangedSchema> changedMapping;
+
+    public ChangedOneOfSchema(Map<String, String> oldMapping, Map<String, String> newMapping) {
+        this.oldMapping = oldMapping;
+        this.newMapping = newMapping;
+    }
+
+    public Map<String, String> getOldMapping() {
+        return oldMapping;
+    }
+
+    public Map<String, String> getNewMapping() {
+        return newMapping;
+    }
 
     public Map<String, String> getIncreasedMapping() {
         return increasedMapping;
@@ -28,11 +42,11 @@ public class OneOfMappingDiffResult implements Changed {
         this.missingMapping = missingMapping;
     }
 
-    public Map<String, SchemaDiffResult> getChangedMapping() {
+    public Map<String, ChangedSchema> getChangedMapping() {
         return changedMapping;
     }
 
-    public void setChangedMapping(Map<String, SchemaDiffResult> changedMapping) {
+    public void setChangedMapping(Map<String, ChangedSchema> changedMapping) {
         this.changedMapping = changedMapping;
     }
 

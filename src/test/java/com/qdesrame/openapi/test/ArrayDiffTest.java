@@ -1,7 +1,8 @@
 package com.qdesrame.openapi.test;
 
-import com.qdesrame.openapi.diff.OpenApiDiff;
+import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedEndpoint;
+import com.qdesrame.openapi.diff.model.ChangedOpenApi;
 import com.qdesrame.openapi.diff.model.Endpoint;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,10 +16,10 @@ public class ArrayDiffTest {
 
     @Test
     public void testArrayDiffDifferent() {
-        OpenApiDiff diff = OpenApiDiff.compare(OPENAPI_DOC31, OPENAPI_DOC32);
-        List<Endpoint> newEndpoints = diff.getNewEndpoints();
-        List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = diff.getChangedEndpoints();
+        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC31, OPENAPI_DOC32);
+        List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
+        List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
+        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
 
         Assert.assertTrue(newEndpoints.isEmpty());
         Assert.assertTrue(missingEndpoints.isEmpty());
@@ -27,10 +28,10 @@ public class ArrayDiffTest {
 
     @Test
     public void testArrayDiffSame() {
-        OpenApiDiff diff = OpenApiDiff.compare(OPENAPI_DOC31, OPENAPI_DOC31);
-        List<Endpoint> newEndpoints = diff.getNewEndpoints();
-        List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = diff.getChangedEndpoints();
+        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC31, OPENAPI_DOC31);
+        List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
+        List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
+        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
 
         Assert.assertTrue(newEndpoints.isEmpty());
         Assert.assertTrue(missingEndpoints.isEmpty());

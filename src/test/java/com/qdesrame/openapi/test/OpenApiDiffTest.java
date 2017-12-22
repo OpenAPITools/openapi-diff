@@ -1,7 +1,8 @@
 package com.qdesrame.openapi.test;
 
-import com.qdesrame.openapi.diff.OpenApiDiff;
+import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedEndpoint;
+import com.qdesrame.openapi.diff.model.ChangedOpenApi;
 import com.qdesrame.openapi.diff.model.Endpoint;
 import com.qdesrame.openapi.diff.output.HtmlRender;
 import com.qdesrame.openapi.diff.output.MarkdownRender;
@@ -21,7 +22,7 @@ public class OpenApiDiffTest {
 
     @Test
     public void testEqual() {
-        OpenApiDiff diff = OpenApiDiff.compare(OPENAPI_DOC2, OPENAPI_DOC2);
+        ChangedOpenApi diff = OpenApiDiff.compare(OPENAPI_DOC2, OPENAPI_DOC2);
         List<Endpoint> newEndpoints = diff.getNewEndpoints();
         List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
         List<ChangedEndpoint> changedEndpoints = diff.getChangedEndpoints();
@@ -33,13 +34,13 @@ public class OpenApiDiffTest {
 
     @Test
     public void testNewApi() {
-        OpenApiDiff diff = OpenApiDiff.compare(OPENAPI_EMPTY_DOC, OPENAPI_DOC2);
-        List<Endpoint> newEndpoints = diff.getNewEndpoints();
-        List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = diff.getChangedEndpoints();
+        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_EMPTY_DOC, OPENAPI_DOC2);
+        List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
+        List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
+        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
-                .render(diff);
+                .render(changedOpenApi);
 
         try {
             FileWriter fw = new FileWriter(
@@ -58,13 +59,13 @@ public class OpenApiDiffTest {
 
     @Test
     public void testDeprecatedApi() {
-        OpenApiDiff diff = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_EMPTY_DOC);
-        List<Endpoint> newEndpoints = diff.getNewEndpoints();
-        List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = diff.getChangedEndpoints();
+        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_EMPTY_DOC);
+        List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
+        List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
+        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
-                .render(diff);
+                .render(changedOpenApi);
 
         try {
             FileWriter fw = new FileWriter(
@@ -83,11 +84,11 @@ public class OpenApiDiffTest {
 
     @Test
     public void testDiff() {
-        OpenApiDiff diff = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
-        List<ChangedEndpoint> changedEndPoints = diff.getChangedEndpoints();
+        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
+        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
-                .render(diff);
+                .render(changedOpenApi);
         try {
             FileWriter fw = new FileWriter(
                     "target/testDiff.html");
@@ -103,7 +104,7 @@ public class OpenApiDiffTest {
 
     @Test
     public void testDiffAndMarkdown() {
-        OpenApiDiff diff = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
+        ChangedOpenApi diff = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
         String render = new MarkdownRender().render(diff);
         try {
             FileWriter fw = new FileWriter(

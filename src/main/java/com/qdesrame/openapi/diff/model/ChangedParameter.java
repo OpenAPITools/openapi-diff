@@ -2,73 +2,66 @@ package com.qdesrame.openapi.diff.model;
 
 import io.swagger.oas.models.parameters.Parameter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class ChangedParameter implements Changed {
-	
-	private List<ElSchema> increased = new ArrayList<ElSchema>();
-	private List<ElSchema> missing = new ArrayList<ElSchema>();;
+	private Parameter left;
+	private Parameter right;
 
-	private Parameter leftParameter;
-	private Parameter rightParameter;
+	private String name;
+	private String in;
+	private boolean changeRequired;
+	private boolean changeDescription;
+	private boolean deprecated;
+	private ChangedSchema changedSchema;
 
-	private boolean isChangeRequired;
-	// private boolean isChangeType;
-	private boolean isChangeDescription;
-
-	public boolean isChangeRequired() {
-		return isChangeRequired;
+	public ChangedParameter(String name, String in) {
+		this.name = name;
+		this.in = in;
 	}
 
-	public void setChangeRequired(boolean isChangeRequired) {
-		this.isChangeRequired = isChangeRequired;
+	@Override
+	public boolean isDiff() {
+		return false;
+	}
+
+	public void setChangeRequired(boolean changeRequired) {
+		this.changeRequired = changeRequired;
+	}
+
+	public boolean isChangeRequired() {
+		return changeRequired;
+	}
+
+	public void setChangeDescription(boolean changeDescription) {
+		this.changeDescription = changeDescription;
 	}
 
 	public boolean isChangeDescription() {
-		return isChangeDescription;
+		return changeDescription;
 	}
 
-	public void setChangeDescription(boolean isChangeDescription) {
-		this.isChangeDescription = isChangeDescription;
+	public void setChangeDeprecated(boolean deprecated) {
+		this.deprecated = deprecated;
+	}
+
+	public void setChangedSchema(ChangedSchema changedSchema) {
+		this.changedSchema = changedSchema;
 	}
 
 	public Parameter getLeftParameter() {
-		return leftParameter;
+		return left;
 	}
 
-	public void setLeftParameter(Parameter leftParameter) {
-		this.leftParameter = leftParameter;
+	public void setLeftParameter(Parameter left) {
+		this.left = left;
 	}
 
 	public Parameter getRightParameter() {
-		return rightParameter;
+		return right;
 	}
 
-	public void setRightParameter(Parameter rightParameter) {
-		this.rightParameter = rightParameter;
+	public void setRightParameter(Parameter right) {
+		this.right = right;
 	}
-
-	public boolean isDiff() {
-		return isChangeRequired || isChangeDescription || !increased.isEmpty() || !missing.isEmpty();
-	}
-
-	public List<ElSchema> getIncreased() {
-		return increased;
-	}
-
-	public void setIncreased(List<ElSchema> increased) {
-		this.increased = increased;
-	}
-
-	public List<ElSchema> getMissing() {
-		return missing;
-	}
-
-	public void setMissing(List<ElSchema> missing) {
-		this.missing = missing;
-	}
-	
 
 }

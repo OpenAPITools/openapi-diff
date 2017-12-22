@@ -1,10 +1,6 @@
-package com.qdesrame.openapi.diff;
+package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.compare.*;
-import com.qdesrame.openapi.diff.model.ChangedEndpoint;
-import com.qdesrame.openapi.diff.model.ChangedOperation;
-import com.qdesrame.openapi.diff.model.ChangedResponse;
-import com.qdesrame.openapi.diff.model.Endpoint;
+import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
@@ -27,9 +23,10 @@ public class OpenApiDiff {
 
     private static Logger logger = LoggerFactory.getLogger(OpenApiDiff.class);
 
+    private ChangedOpenApi changedOpenApi;
+
     private OpenAPI oldSpecOpenApi;
     private OpenAPI newSpecOpenApi;
-
     private List<Endpoint> newEndpoints;
     private List<Endpoint> missingEndpoints;
     private List<Endpoint> deprecatedEndpoints;
@@ -41,17 +38,21 @@ public class OpenApiDiff {
      * @param oldSpec old api-doc location:Json or Http
      * @param newSpec new api-doc location:Json or Http
      */
-    public static OpenApiDiff compare(String oldSpec, String newSpec) {
+    public static ChangedOpenApi compare(String oldSpec, String newSpec) {
         return compare(oldSpec, newSpec, null);
     }
 
-    public static OpenApiDiff compare(String oldSpec, String newSpec,
+    public static ChangedOpenApi compare(String oldSpec, String newSpec,
                                       List<AuthorizationValue> auths) {
         return new OpenApiDiff(oldSpec, newSpec, auths).compare();
     }
 
-    public static OpenApiDiff compare(OpenAPI oldOpenAPI, OpenAPI newOpenAPI) {
-        return new OpenApiDiff(oldOpenAPI, newOpenAPI);
+    public static ChangedOpenApi compare(OpenAPI oldOpenAPI, OpenAPI newOpenAPI) {
+        return new OpenApiDiff(oldOpenAPI, newOpenAPI).compare();
+    }
+
+    private OpenApiDiff() {
+        this.changedOpenApi = new ChangedOpenApi();
     }
 
     /**
@@ -60,6 +61,7 @@ public class OpenApiDiff {
      * @param auths
      */
     private OpenApiDiff(String oldSpec, String newSpec, List<AuthorizationValue> auths) {
+        this();
         OpenAPIV3Parser openApiParser = new OpenAPIV3Parser();
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
@@ -76,6 +78,7 @@ public class OpenApiDiff {
      * @param newSpecOpenApi
      */
     private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi) {
+        this();
         this.oldSpecOpenApi = oldSpecOpenApi;
         this.newSpecOpenApi = newSpecOpenApi;
         if (null == oldSpecOpenApi || null == newSpecOpenApi) {
@@ -84,7 +87,7 @@ public class OpenApiDiff {
         }
     }
 
-    private OpenApiDiff compare() {
+    private ChangedOpenApi compare() {
         Map<String, PathItem> oldPaths = oldSpecOpenApi.getPaths();
         Map<String, PathItem> newPaths = newSpecOpenApi.getPaths();
         MapKeyDiff<String, PathItem> pathDiff = MapKeyDiff.diff(oldPaths, newPaths);
@@ -95,12 +98,10 @@ public class OpenApiDiff {
         this.deprecatedEndpoints = new ArrayList<>();
 
         List<String> sharedKey = pathDiff.getSharedKey();
-        ChangedEndpoint changedEndpoint;
         for (String pathUrl : sharedKey) {
-            changedEndpoint = new ChangedEndpoint();
-            changedEndpoint.setPathUrl(pathUrl);
             PathItem oldPath = oldPaths.get(pathUrl);
             PathItem newPath = newPaths.get(pathUrl);
+            ChangedEndpoint changedEndpoint = new ChangedEndpoint(pathUrl, oldPath, newPath);
 
             Map<PathItem.HttpMethod, Operation> oldOperationMap = oldPath.readOperationsMap();
             Map<PathItem.HttpMethod, Operation> newOperationMap = newPath.readOperationsMap();
@@ -116,9 +117,9 @@ public class OpenApiDiff {
             Map<PathItem.HttpMethod, Operation> deprecOperas = new HashMap<>();
             ChangedOperation changedOperation;
             for (PathItem.HttpMethod method : sharedMethods) {
-                changedOperation = new ChangedOperation();
                 Operation oldOperation = oldOperationMap.get(method);
                 Operation newOperation = newOperationMap.get(method);
+                changedOperation = new ChangedOperation(oldOperation, newOperation);
                 changedOperation.setSummary(newOperation.getSummary());
                 changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
@@ -138,34 +139,33 @@ public class OpenApiDiff {
                         .setRequestContent(ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
                                 .diff(oldRequestContent, newRequestContent));
 
-                ParametersDiffResult parameterDiff = ParametersDiff
+                ChangedParameters changedParameters = ParametersDiff
                         .fromComponents(oldSpecOpenApi.getComponents(),
                                 newSpecOpenApi.getComponents())
                         .diff(oldOperation.getParameters(), newOperation.getParameters());
-                changedOperation.setAddParameters(parameterDiff.getIncreased());
-                changedOperation.setMissingParameters(parameterDiff.getMissing());
-                changedOperation.setChangedParameter(parameterDiff.getChanged());
+                changedOperation.setChangedParameters(changedParameters);
 
                 MapKeyDiff<String, ApiResponse> responseDiff = MapKeyDiff.diff(oldOperation.getResponses(),
                         newOperation.getResponses());
-                changedOperation.setAddResponses(responseDiff.getIncreased());
-                changedOperation.setMissingResponses(responseDiff.getMissing());
+                ChangedApiResponse changedApiResponse = new ChangedApiResponse(oldOperation.getResponses(), newOperation.getResponses());
+                changedOperation.setChangedApiResponse(changedApiResponse);
+                changedApiResponse.setAddResponses(responseDiff.getIncreased());
+                changedApiResponse.setMissingResponses(responseDiff.getMissing());
                 List<String> sharedResponseCodes = responseDiff.getSharedKey();
                 Map<String, ChangedResponse> resps = new HashMap<>();
-                ChangedResponse changedResponse;
                 for (String responseCode : sharedResponseCodes) {
-                    changedResponse = new ChangedResponse();
                     ApiResponse oldResponse = RefPointer.Replace.response(oldSpecOpenApi.getComponents(), oldOperation.getResponses().get(responseCode));
                     ApiResponse newResponse = RefPointer.Replace.response(newSpecOpenApi.getComponents(), newOperation.getResponses().get(responseCode));
-                    changedResponse.setDescription(newResponse.getDescription());
-                    ContentDiffResult contentDiffResult = ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
+                    ChangedContent changedContent = ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
                             .diff(oldResponse.getContent(), newResponse.getContent());
-                    changedResponse.setChangedContent(contentDiffResult);
+                    ChangedResponse changedResponse = new ChangedResponse(newResponse.getDescription(), oldResponse.getContent(), newResponse.getContent());
+                    changedResponse.setDescription(newResponse.getDescription());
+                    changedResponse.setChangedContent(changedContent);
                     if (changedResponse.isDiff()) {
                         resps.put(responseCode, changedResponse);
                     }
                 }
-                changedOperation.setChangedResponses(resps);
+                changedApiResponse.setChangedResponses(resps);
 
                 if (changedOperation.isDiff()) {
                     operas.put(method, changedOperation);
@@ -189,7 +189,17 @@ public class OpenApiDiff {
             }
         }
 
-        return this;
+        return getChangedOpenApi();
+    }
+
+    private ChangedOpenApi getChangedOpenApi() {
+        changedOpenApi.setMissingEndpoints(missingEndpoints);
+        changedOpenApi.setNewEndpoints(newEndpoints);
+        changedOpenApi.setNewSpecOpenApi(newSpecOpenApi);
+        changedOpenApi.setOldSpecOpenApi(oldSpecOpenApi);
+        changedOpenApi.setChangedEndpoints(changedEndpoints);
+        changedOpenApi.setDeprecatedEndpoints(deprecatedEndpoints);
+        return changedOpenApi;
     }
 
     private List<Endpoint> convert2EndpointList(Map<String, PathItem> map) {

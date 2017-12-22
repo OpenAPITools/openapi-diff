@@ -9,12 +9,31 @@ import java.util.Map;
 public class ChangedEndpoint implements Changed {
 
     private String pathUrl;
+    private PathItem oldPathItem;
+    private PathItem newPathItem;
 
     private Map<PathItem.HttpMethod, Operation> newOperations;
     private Map<PathItem.HttpMethod, Operation> missingOperations;
     private Map<PathItem.HttpMethod, Operation> deprecatedOperations;
-
     private Map<PathItem.HttpMethod, ChangedOperation> changedOperations;
+
+    public ChangedEndpoint(String pathUrl, PathItem oldPathItem, PathItem newPathItem) {
+        this.pathUrl = pathUrl;
+        this.oldPathItem = oldPathItem;
+        this.newPathItem = newPathItem;
+    }
+
+    public String getPathUrl() {
+        return pathUrl;
+    }
+
+    public PathItem getOldPathItem() {
+        return oldPathItem;
+    }
+
+    public PathItem getNewPathItem() {
+        return newPathItem;
+    }
 
     public Map<PathItem.HttpMethod, Operation> getNewOperations() {
         return newOperations;
@@ -41,14 +60,6 @@ public class ChangedEndpoint implements Changed {
     public void setChangedOperations(
             Map<PathItem.HttpMethod, ChangedOperation> changedOperations) {
         this.changedOperations = changedOperations;
-    }
-
-    public String getPathUrl() {
-        return pathUrl;
-    }
-
-    public void setPathUrl(String pathUrl) {
-        this.pathUrl = pathUrl;
     }
 
     public boolean isDiff() {

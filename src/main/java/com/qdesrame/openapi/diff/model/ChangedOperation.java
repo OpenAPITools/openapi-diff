@@ -1,55 +1,28 @@
 package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.compare.ContentDiffResult;
-import com.qdesrame.openapi.diff.compare.ParameterDiffResult;
-import io.swagger.oas.models.parameters.Parameter;
-import io.swagger.oas.models.responses.ApiResponse;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import io.swagger.oas.models.Operation;
 
 public class ChangedOperation implements Changed {
 
+    private Operation oldOperation;
+    private Operation newOperation;
     private String summary;
-
-    private List<Parameter> addParameters = new ArrayList<Parameter>();
-    private List<Parameter> missingParameters = new ArrayList<Parameter>();
-
-    private List<ParameterDiffResult> changedParameter = new ArrayList<>();
-
-    private Map<String, ApiResponse> missingResponses;
-    private Map<String, ApiResponse> addResponses;
-    private Map<String, ChangedResponse> changedResponses;
     private boolean deprecated;
-    private ContentDiffResult requestContent;
+    private ChangedParameters changedParameters;
+    private ChangedContent requestContent;
+    private ChangedApiResponse changedApiResponse;
 
-    public ChangedOperation() {
+    public ChangedOperation(Operation oldOperation, Operation newOperation) {
+        this.oldOperation = oldOperation;
+        this.newOperation = newOperation;
     }
 
-    public List<Parameter> getAddParameters() {
-        return addParameters;
+    public Operation getOldOperation() {
+        return oldOperation;
     }
 
-    public void setAddParameters(List<Parameter> addParameters) {
-        this.addParameters = addParameters;
-    }
-
-    public List<Parameter> getMissingParameters() {
-        return missingParameters;
-    }
-
-    public void setMissingParameters(List<Parameter> missingParameters) {
-        this.missingParameters = missingParameters;
-    }
-
-    public List<ParameterDiffResult> getChangedParameter() {
-        return changedParameter;
-    }
-
-    public void setChangedParameter(List<ParameterDiffResult> changedParameter) {
-        this.changedParameter = changedParameter;
+    public Operation getNewOperation() {
+        return newOperation;
     }
 
     public String getSummary() {
@@ -60,49 +33,6 @@ public class ChangedOperation implements Changed {
         this.summary = summary;
     }
 
-    @Override
-    public boolean isDiff() {
-        return isDiffParam() || isDiffRequest() || isDiffResponse();
-    }
-
-    public boolean isDiffParam() {
-        return !addParameters.isEmpty() || !missingParameters.isEmpty()
-                || !changedParameter.isEmpty();
-    }
-
-    public boolean isDiffResponse() {
-        return !addResponses.isEmpty() || !missingResponses.isEmpty() || !changedResponses.isEmpty();
-    }
-
-    public boolean isDiffRequest() {
-        return requestContent.isDiff();
-    }
-
-    public void setAddResponses(Map<String, ApiResponse> addResponses) {
-        this.addResponses = addResponses;
-    }
-
-    public Map<String, ApiResponse> getAddResponses() {
-        return addResponses;
-    }
-
-    public void setMissingResponses(Map<String, ApiResponse> missingResponses) {
-        this.missingResponses = missingResponses;
-    }
-
-    public Map<String, ApiResponse> getMissingResponses() {
-        return missingResponses;
-    }
-
-    public Map<String, ChangedResponse> getChangedResponses() {
-        return changedResponses;
-    }
-
-    public ChangedOperation setChangedResponses(Map<String, ChangedResponse> changedResponses) {
-        this.changedResponses = changedResponses;
-        return this;
-    }
-
     public boolean isDeprecated() {
         return deprecated;
     }
@@ -111,11 +41,45 @@ public class ChangedOperation implements Changed {
         this.deprecated = deprecated;
     }
 
-    public ContentDiffResult getRequestContent() {
+    public ChangedParameters getChangedParameters() {
+        return changedParameters;
+    }
+
+    public void setChangedParameters(ChangedParameters changedParameters) {
+        this.changedParameters = changedParameters;
+    }
+
+    public ChangedContent getRequestContent() {
         return requestContent;
     }
 
-    public void setRequestContent(ContentDiffResult requestContent) {
+    public void setRequestContent(ChangedContent requestContent) {
         this.requestContent = requestContent;
     }
+
+    public ChangedApiResponse getChangedApiResponse() {
+        return changedApiResponse;
+    }
+
+    public void setChangedApiResponse(ChangedApiResponse changedApiResponse) {
+        this.changedApiResponse = changedApiResponse;
+    }
+
+    @Override
+    public boolean isDiff() {
+        return isDiffParam() || isDiffRequest() || isDiffResponse();
+    }
+
+    public boolean isDiffParam() {
+        return changedParameters.isDiff();
+    }
+
+    public boolean isDiffResponse() {
+        return changedApiResponse.isDiff();
+    }
+
+    public boolean isDiffRequest() {
+        return requestContent.isDiff();
+    }
+
 }
