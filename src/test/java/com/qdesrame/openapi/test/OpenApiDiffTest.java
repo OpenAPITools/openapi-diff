@@ -13,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
+
 public class OpenApiDiffTest {
 
     private final String OPENAPI_DOC1 = "petstore_v2_1.yaml";
@@ -22,13 +24,7 @@ public class OpenApiDiffTest {
 
     @Test
     public void testEqual() {
-        ChangedOpenApi diff = OpenApiDiff.compare(OPENAPI_DOC2, OPENAPI_DOC2);
-        List<Endpoint> newEndpoints = diff.getNewEndpoints();
-        List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndpoints = diff.getChangedEndpoints();
-        Assert.assertTrue(newEndpoints.isEmpty());
-        Assert.assertTrue(missingEndpoints.isEmpty());
-        Assert.assertTrue(changedEndpoints.isEmpty());
+        assertOpenApiAreEquals(OPENAPI_DOC2, OPENAPI_DOC2);
     }
 
     @Test

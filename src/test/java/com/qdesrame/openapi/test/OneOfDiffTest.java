@@ -1,13 +1,9 @@
 package com.qdesrame.openapi.test;
 
-import com.qdesrame.openapi.diff.compare.OpenApiDiff;
-import com.qdesrame.openapi.diff.model.ChangedEndpoint;
-import com.qdesrame.openapi.diff.model.ChangedOpenApi;
-import com.qdesrame.openapi.diff.model.Endpoint;
-import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
+import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
+import static com.qdesrame.openapi.test.TestUtils.assertOpenApiChangedEndpoints;
 
 /**
  * Created by adarsh.sharma on 19/12/17.
@@ -20,38 +16,17 @@ public class OneOfDiffTest {
 
     @Test
     public void testDiffSame() {
-        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC1);
-        List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
-        List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
-
-        Assert.assertTrue(newEndpoints.isEmpty());
-        Assert.assertTrue(missingEndpoints.isEmpty());
-        Assert.assertTrue(changedEndPoints.isEmpty());
+        assertOpenApiAreEquals(OPENAPI_DOC1, OPENAPI_DOC1);
     }
 
     @Test
     public void testDiffDifferentMapping() {
-        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
-        List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
-        List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
-
-        Assert.assertTrue(newEndpoints.isEmpty());
-        Assert.assertTrue(missingEndpoints.isEmpty());
-        Assert.assertTrue(changedEndPoints.size() > 0);
+        assertOpenApiChangedEndpoints(OPENAPI_DOC1, OPENAPI_DOC2);
     }
 
     @Test
     public void testDiffSameWithOneOf() {
-        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC2, OPENAPI_DOC3);
-        List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
-        List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
-
-        Assert.assertTrue(newEndpoints.isEmpty());
-        Assert.assertTrue(missingEndpoints.isEmpty());
-        Assert.assertTrue(changedEndPoints.isEmpty());
+        assertOpenApiAreEquals(OPENAPI_DOC2, OPENAPI_DOC3);
     }
 
 }
