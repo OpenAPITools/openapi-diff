@@ -117,9 +117,9 @@ try {
 ```
 
 # License
-open-diff is released under the Apache License 2.0.
+openapi-diff is released under the Apache License 2.0.
 
-
-
+# Thanks
+* Adarsh Sharma / [adarshsharma](https://github.com/adarshsharma)
 
 
