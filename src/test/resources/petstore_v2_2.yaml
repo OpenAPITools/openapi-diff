@@ -87,6 +87,7 @@ paths:
       parameters:
         - name: status
           in: query
+          deprecated: true
           description: Status values that need to be considered for filter
           required: true
           explode: true

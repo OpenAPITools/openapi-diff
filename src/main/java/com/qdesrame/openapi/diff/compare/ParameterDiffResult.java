@@ -23,7 +23,7 @@ public class ParameterDiffResult implements Changed, Comparable<Parameter> {
 
     @Override
     public boolean isDiff() {
-        return false;
+        return deprecated || changeDescription || changeRequired || schema.isDiff();
     }
 
     @Override
@@ -55,6 +55,10 @@ public class ParameterDiffResult implements Changed, Comparable<Parameter> {
         this.schema = schema;
     }
 
+    public SchemaDiffResult getSchema() {
+        return schema;
+    }
+
     public Parameter getLeftParameter() {
         return left;
     }
@@ -71,5 +75,17 @@ public class ParameterDiffResult implements Changed, Comparable<Parameter> {
     public ParameterDiffResult setRightParameter(Parameter right) {
         this.right = right;
         return this;
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIn() {
+        return in;
     }
 }

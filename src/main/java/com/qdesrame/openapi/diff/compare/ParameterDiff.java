@@ -1,6 +1,5 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.parameters.Parameter;
@@ -33,6 +32,8 @@ public class ParameterDiff implements Comparable<Parameter> {
         ParameterDiffResult result = new ParameterDiffResult(right.getName(), right.getIn());
         RefPointer.Replace.parameter(this.leftComponents, left);
         RefPointer.Replace.parameter(this.rightComponents, right);
+        result.setLeftParameter(left);
+        result.setRightParameter(right);
         boolean leftRequired = Optional.ofNullable(left.getRequired()).orElse(Boolean.FALSE);
         boolean rightRequired = Optional.ofNullable(right.getRequired()).orElse(Boolean.FALSE);
         result.setChangeRequired(leftRequired != rightRequired);
@@ -44,12 +45,10 @@ public class ParameterDiff implements Comparable<Parameter> {
         if (StringUtils.isBlank(rightDescription)) {
             rightDescription = "";
         }
-        result.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(left.getDeprecated()));
-        result.setChangeDescription(Objects.equals(leftDescription, rightDescription));
-        SchemaDiffResult resultSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(left.getSchema(), right.getSchema());
-        if (resultSchema.isDiff()) {
-            result.setChangeSchema(resultSchema);
-        }
+        result.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
+        result.setChangeDescription(!Objects.equals(leftDescription, rightDescription));
+        result.setChangeSchema(SchemaDiff.fromComponents(leftComponents, rightComponents)
+                .diff(left.getSchema(), right.getSchema()));
         return result;
     }
 }

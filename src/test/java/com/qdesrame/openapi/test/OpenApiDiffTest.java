@@ -28,7 +28,6 @@ public class OpenApiDiffTest {
         Assert.assertTrue(newEndpoints.isEmpty());
         Assert.assertTrue(missingEndpoints.isEmpty());
         Assert.assertTrue(changedEndpoints.isEmpty());
-
     }
 
     @Test

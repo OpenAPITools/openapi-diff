@@ -131,14 +131,14 @@ public class HtmlRender implements Render {
 
                 ContainerTag ul_detail = ul().withClass("detail");
                 if (changedOperation.isDiffParam()) {
-                    ul_detail.with(li().with(h3("Parameter")).with(ul_param(changedOperation)));
+                    ul_detail.with(li().with(h3("Parameters")).with(ul_param(changedOperation)));
                 }
                 if (changedOperation.isDiffRequest()) {
                     ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getRequestContent())));
                 } else {
                 }
                 if (changedOperation.isDiffResponse()) {
-                    ul_detail.with(li().with(h3("Return Type")).with(ul_response(changedOperation)));
+                    ul_detail.with(li().with(h3("Response")).with(ul_response(changedOperation)));
                 }
                 ol.with(li().with(span(method).withClass(method)).withText(pathUrl + " ").with(span(desc))
                         .with(ul_detail));
@@ -219,10 +219,7 @@ public class HtmlRender implements Render {
             ul.with(li_addParam(param));
         }
         for (ParameterDiffResult param : changedParameters) {
-            boolean changeRequired = param.isChangeRequired();
-            boolean changeDescription = param.isChangeDescription();
-            if (changeRequired || changeDescription)
-                ul.with(li_changedParam(param));
+            ul.with(li_changedParam(param));
         }
         for (Parameter param : delParameters) {
             ul.with(li_missingParam(param));
@@ -231,19 +228,28 @@ public class HtmlRender implements Render {
     }
 
     private ContainerTag li_addParam(Parameter param) {
-        return li().withText("Add " + param.getName()).with(span(null == param.getDescription() ? "" : ("//" + param.getDescription())).withClass("comment"));
+        return li().withText("Add " + param.getName() + " in " + param.getIn()).with(span(null == param.getDescription() ? "" : ("//" + param.getDescription())).withClass("comment"));
     }
 
     private ContainerTag li_missingParam(Parameter param) {
-        return li().withClass("missing").with(span("Delete")).with(del(param.getName())).with(span(null == param.getDescription() ? "" : ("//" + param.getDescription())).withClass("comment"));
+        return li().withClass("missing").with(span("Delete")).with(del(param.getName())).with(span("in ").withText(param.getIn())).with(span(null == param.getDescription() ? "" : ("//" + param.getDescription())).withClass("comment"));
+    }
+
+    private ContainerTag li_deprecatedParam(ParameterDiffResult param) {
+        return li().withClass("missing").with(span("Deprecated"))
+                .with(del(param.getName())).with(span("in ").withText(param.getIn()))
+                .with(span(null == param.getRightParameter().getDescription() ? "" : ("//" + param.getRightParameter().getDescription())).withClass("comment"));
     }
 
     private ContainerTag li_changedParam(ParameterDiffResult changeParam) {
+        if (changeParam.isDeprecated()) {
+            return li_deprecatedParam(changeParam);
+        }
         boolean changeRequired = changeParam.isChangeRequired();
         boolean changeDescription = changeParam.isChangeDescription();
         Parameter rightParam = changeParam.getRightParameter();
         Parameter leftParam = changeParam.getLeftParameter();
-        ContainerTag li = li().withText(rightParam.getName());
+        ContainerTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
         if (changeRequired) {
             li.withText(" change into " + (rightParam.getRequired() ? "required" : "not required"));
         }
