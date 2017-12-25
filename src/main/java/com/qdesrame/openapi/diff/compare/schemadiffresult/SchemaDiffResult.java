@@ -1,10 +1,9 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
-import com.qdesrame.openapi.diff.compare.SchemaDiff;
+import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.ListDiff;
-import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.Schema;
 
@@ -13,13 +12,15 @@ import java.util.Objects;
 
 public class SchemaDiffResult {
     protected ChangedSchema changedSchema;
+    protected OpenApiDiff openApiDiff;
 
-    public SchemaDiffResult() {
+    public SchemaDiffResult(OpenApiDiff openApiDiff) {
+        this.openApiDiff = openApiDiff;
         this.changedSchema = new ChangedSchema();
     }
 
-    public SchemaDiffResult(String type) {
-        this();
+    public SchemaDiffResult(String type, OpenApiDiff openApiDiff) {
+        this(openApiDiff);
         this.changedSchema.setChangeType(type);
     }
 
@@ -27,21 +28,7 @@ public class SchemaDiffResult {
         return changedSchema;
     }
 
-    public void setChangedSchema(ChangedSchema changedSchema) {
-        this.changedSchema = changedSchema;
-    }
-
-    public void setNewSchema(Schema newSchema) {
-        changedSchema.setNewSchema(newSchema);
-    }
-
     public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
-        left = RefPointer.Replace.schema(leftComponents, left);
-        right = RefPointer.Replace.schema(rightComponents, right);
-        return processDiff(leftComponents, rightComponents, left, right);
-    }
-
-    protected ChangedSchema processDiff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         changedSchema.setOldSchema(left);
         changedSchema.setNewSchema(right);
         changedSchema.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
@@ -61,10 +48,7 @@ public class SchemaDiffResult {
         Map<String, Schema> missingProp = propertyDiff.getMissing();
 
         for (String key : propertyDiff.getSharedKey()) {
-            Schema leftSchema = RefPointer.Replace.schema(leftComponents, leftProperties.get(key));
-            Schema rightSchema = RefPointer.Replace.schema(rightComponents, rightProperties.get(key));
-
-            ChangedSchema resultSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
+            ChangedSchema resultSchema = openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key));
             if (resultSchema.isDiff()) {
                 changedSchema.getChangedProperties().put(key, resultSchema);
             }

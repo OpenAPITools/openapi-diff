@@ -13,14 +13,12 @@ public class ParameterDiff implements Comparable<Parameter> {
 
     private Components leftComponents;
     private Components rightComponents;
+    private OpenApiDiff openApiDiff;
 
-    private ParameterDiff(Components left, Components right) {
-        this.leftComponents = left;
-        this.rightComponents = right;
-    }
-
-    public static ParameterDiff fromComponents(Components left, Components right) {
-        return new ParameterDiff(left, right);
+    public ParameterDiff(OpenApiDiff openApiDiff) {
+        this.openApiDiff = openApiDiff;
+        this.leftComponents = openApiDiff.getOldSpecOpenApi() != null? openApiDiff.getOldSpecOpenApi().getComponents(): null;
+        this.rightComponents = openApiDiff.getNewSpecOpenApi() != null? openApiDiff.getNewSpecOpenApi().getComponents(): null;
     }
 
     @Override
@@ -47,8 +45,7 @@ public class ParameterDiff implements Comparable<Parameter> {
         }
         changedParameter.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
         changedParameter.setChangeDescription(!Objects.equals(leftDescription, rightDescription));
-        changedParameter.setChangedSchema(SchemaDiff.fromComponents(leftComponents, rightComponents)
-                .diff(left.getSchema(), right.getSchema()));
+        changedParameter.setChangedSchema(openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema()));
         return changedParameter;
     }
 }

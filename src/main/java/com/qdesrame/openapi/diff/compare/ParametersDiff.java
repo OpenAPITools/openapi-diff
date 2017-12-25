@@ -20,14 +20,12 @@ public class ParametersDiff {
 
     private Components leftComponents;
     private Components rightComponents;
+    private OpenApiDiff openApiDiff;
 
-    private ParametersDiff(Components left, Components right) {
-        this.leftComponents = left;
-        this.rightComponents = right;
-    }
-
-    public static ParametersDiff fromComponents(Components left, Components right) {
-        return new ParametersDiff(left, right);
+    public ParametersDiff(OpenApiDiff openApiDiff) {
+        this.openApiDiff = openApiDiff;
+        this.leftComponents = openApiDiff.getOldSpecOpenApi() != null? openApiDiff.getOldSpecOpenApi().getComponents(): null;
+        this.rightComponents = openApiDiff.getNewSpecOpenApi() != null? openApiDiff.getNewSpecOpenApi().getComponents(): null;
     }
 
     public static Optional<Parameter> contains(Components components, List<Parameter> parameters, Parameter parameter) {
@@ -51,7 +49,7 @@ public class ParametersDiff {
             } else {
                 Parameter rightPara = rightParam.get();
                 right.remove(rightPara);
-                ChangedParameter changedParameter = ParameterDiff.fromComponents(leftComponents, rightComponents).diff(leftPara, rightPara);
+                ChangedParameter changedParameter = openApiDiff.getParameterDiff().diff(leftPara, rightPara);
                 if (changedParameter.isDiff()) {
                     result.getChanged().add(changedParameter);
                 }

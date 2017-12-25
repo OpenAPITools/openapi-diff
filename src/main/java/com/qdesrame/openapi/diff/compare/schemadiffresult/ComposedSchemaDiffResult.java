@@ -1,7 +1,7 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
-import com.qdesrame.openapi.diff.compare.SchemaDiff;
+import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedOneOfSchema;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
@@ -19,6 +19,11 @@ import java.util.stream.Collectors;
  * Created by adarsh.sharma on 20/12/17.
  */
 public class ComposedSchemaDiffResult extends SchemaDiffResult {
+
+    public ComposedSchemaDiffResult(OpenApiDiff openApiDiff) {
+        super(openApiDiff);
+    }
+
     @Override
     public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         ComposedSchema leftComposedSchema = (ComposedSchema) left;
@@ -54,14 +59,14 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 leftSchema.set$ref(leftMapping.get(key));
                 Schema rightSchema = new Schema();
                 rightSchema.set$ref(rightMapping.get(key));
-                ChangedSchema changedSchema = SchemaDiff.fromComponents(leftComponents, rightComponents).diff(leftSchema, rightSchema);
+                ChangedSchema changedSchema = openApiDiff.getSchemaDiff().diff(leftSchema, rightSchema);
                 if (changedSchema.isDiff()) {
                     changedMapping.put(key, changedSchema);
                 }
             }
             changedSchema.setChangedOneOfSchema(changedOneOfSchema);
         }
-        return super.processDiff(leftComponents, rightComponents, left, right);
+        return super.diff(leftComponents, rightComponents, left, right);
     }
 
     private Map<String, String> getMapping(ComposedSchema composedSchema) {

@@ -24,6 +24,10 @@ public class OpenApiDiff {
     private static Logger logger = LoggerFactory.getLogger(OpenApiDiff.class);
 
     private ChangedOpenApi changedOpenApi;
+    private SchemaDiff schemaDiff;
+    private ContentDiff contentDiff;
+    private ParametersDiff parametersDiff;
+    private ParameterDiff parameterDiff;
 
     private OpenAPI oldSpecOpenApi;
     private OpenAPI newSpecOpenApi;
@@ -55,6 +59,13 @@ public class OpenApiDiff {
         this.changedOpenApi = new ChangedOpenApi();
     }
 
+    private void initializeFields() {
+        this.schemaDiff = new SchemaDiff(this);
+        this.contentDiff = new ContentDiff(this);
+        this.parametersDiff = new ParametersDiff(this);
+        this.parameterDiff = new ParameterDiff(this);
+    }
+
     /**
      * @param oldSpec
      * @param newSpec
@@ -71,6 +82,7 @@ public class OpenApiDiff {
             throw new RuntimeException(
                     "cannot read api-doc from spec.");
         }
+        initializeFields();
     }
 
     /*
@@ -85,6 +97,7 @@ public class OpenApiDiff {
             throw new RuntimeException(
                     "one of the old or new object is null");
         }
+        initializeFields();
     }
 
     private ChangedOpenApi compare() {
@@ -135,14 +148,9 @@ public class OpenApiDiff {
                     RequestBody newRequestBody = RefPointer.Replace.requestBody(oldSpecOpenApi.getComponents(), newOperation.getRequestBody());
                     newRequestContent = newRequestBody.getContent();
                 }
-                changedOperation.setRequestChangedContent(
-                        ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
-                        .diff(oldRequestContent, newRequestContent));
+                changedOperation.setRequestChangedContent(contentDiff.diff(oldRequestContent, newRequestContent));
 
-                ChangedParameters changedParameters = ParametersDiff
-                        .fromComponents(oldSpecOpenApi.getComponents(),
-                                newSpecOpenApi.getComponents())
-                        .diff(oldOperation.getParameters(), newOperation.getParameters());
+                ChangedParameters changedParameters = parametersDiff.diff(oldOperation.getParameters(), newOperation.getParameters());
                 changedOperation.setChangedParameters(changedParameters);
 
                 MapKeyDiff<String, ApiResponse> responseDiff = MapKeyDiff.diff(oldOperation.getResponses(),
@@ -156,8 +164,7 @@ public class OpenApiDiff {
                 for (String responseCode : sharedResponseCodes) {
                     ApiResponse oldResponse = RefPointer.Replace.response(oldSpecOpenApi.getComponents(), oldOperation.getResponses().get(responseCode));
                     ApiResponse newResponse = RefPointer.Replace.response(newSpecOpenApi.getComponents(), newOperation.getResponses().get(responseCode));
-                    ChangedContent changedContent = ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
-                            .diff(oldResponse.getContent(), newResponse.getContent());
+                    ChangedContent changedContent = contentDiff.diff(oldResponse.getContent(), newResponse.getContent());
                     ChangedResponse changedResponse = new ChangedResponse(newResponse.getDescription(), oldResponse.getContent(), newResponse.getContent());
                     changedResponse.setDescription(newResponse.getDescription());
                     changedResponse.setChangedContent(changedContent);
@@ -241,6 +248,30 @@ public class OpenApiDiff {
             endpoints.add(endpoint);
         }
         return endpoints;
+    }
+
+    public SchemaDiff getSchemaDiff() {
+        return schemaDiff;
+    }
+
+    public ContentDiff getContentDiff() {
+        return contentDiff;
+    }
+
+    public ParametersDiff getParametersDiff() {
+        return parametersDiff;
+    }
+
+    public ParameterDiff getParameterDiff() {
+        return parameterDiff;
+    }
+
+    public OpenAPI getOldSpecOpenApi() {
+        return oldSpecOpenApi;
+    }
+
+    public OpenAPI getNewSpecOpenApi() {
+        return newSpecOpenApi;
     }
 
     public List<Endpoint> getNewEndpoints() {
