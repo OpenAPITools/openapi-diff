@@ -130,7 +130,7 @@ public class HtmlRender implements Render {
                     ul_detail.with(li().with(h3("Parameters")).with(ul_param(changedOperation.getChangedParameters())));
                 }
                 if (changedOperation.isDiffRequest()) {
-                    ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getRequestContent())));
+                    ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getRequestChangedContent())));
                 } else {
                 }
                 if (changedOperation.isDiffResponse()) {

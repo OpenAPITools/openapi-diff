@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * Created by adarsh.sharma on 22/12/17.
  */
-public class ChangedOneOfSchema implements Changed {
+public class ChangedOneOfSchema implements RequestResponseChanged {
     private Map<String, String> oldMapping;
     private Map<String, String> newMapping;
 
@@ -53,5 +53,11 @@ public class ChangedOneOfSchema implements Changed {
     @Override
     public boolean isDiff() {
         return increasedMapping.size() > 0 || missingMapping.size() > 0 || changedMapping.size() > 0;
+    }
+
+    @Override
+    public boolean isDiffBackwardCompatible(boolean isRequest) {
+        return ((isRequest && missingMapping.isEmpty()) || (!isRequest && increasedMapping.isEmpty()))
+                && changedMapping.values().stream().allMatch(m -> m.isDiffBackwardCompatible(isRequest));
     }
 }

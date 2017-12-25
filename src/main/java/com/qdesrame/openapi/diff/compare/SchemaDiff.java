@@ -64,6 +64,9 @@ public class SchemaDiff {
     }
 
     public ChangedSchema diff(Schema left, Schema right) {
+        left = RefPointer.Replace.schema(leftComponents, left);
+        right = RefPointer.Replace.schema(rightComponents, right);
+
         left = resolveComposedSchema(leftComponents, left);
         right = resolveComposedSchema(rightComponents, right);
 

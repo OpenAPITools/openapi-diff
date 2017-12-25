@@ -109,7 +109,7 @@ public class MarkdownRender implements Render {
                 }
                 if (changedOperation.isDiffRequest()) {
                     ul_detail.append(PRE_LI).append("Request")
-                            .append(ul_request(changedOperation.getRequestContent()));
+                            .append(ul_request(changedOperation.getRequestChangedContent()));
                 }
                 if (changedOperation.isDiffResponse()) {
                     ul_detail.append(PRE_LI).append("Return Type")

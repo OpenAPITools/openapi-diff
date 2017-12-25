@@ -36,6 +36,11 @@ public class ChangedResponse implements Changed {
         return changedContent.isDiff();
     }
 
+    @Override
+    public boolean isDiffBackwardCompatible() {
+        return changedContent.isDiffBackwardCompatible(false);
+    }
+
     public ChangedContent getChangedContent() {
         return changedContent;
     }

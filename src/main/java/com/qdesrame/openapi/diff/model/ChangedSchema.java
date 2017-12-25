@@ -8,13 +8,13 @@ import java.util.Map;
 /**
  * Created by adarsh.sharma on 22/12/17.
  */
-public class ChangedSchema implements Changed {
+public class ChangedSchema implements RequestResponseChanged {
     protected Schema oldSchema;
     protected Schema newSchema;
     protected String type;
-    protected Map<String, ChangedSchema> changed;
-    protected Map<String, Schema> increased;
-    protected Map<String, Schema> missing;
+    protected Map<String, ChangedSchema> changedProperties;
+    protected Map<String, Schema> increasedProperties;
+    protected Map<String, Schema> missingProperties;
     protected boolean deprecated;
     protected boolean description;
     protected boolean title;
@@ -29,9 +29,9 @@ public class ChangedSchema implements Changed {
     protected ChangedOneOfSchema changedOneOfSchema;
 
     public ChangedSchema() {
-        increased = new HashMap<>();
-        missing = new HashMap<>();
-        changed = new HashMap<>();
+        increasedProperties = new HashMap<>();
+        missingProperties = new HashMap<>();
+        changedProperties = new HashMap<>();
     }
 
     @Override
@@ -40,9 +40,9 @@ public class ChangedSchema implements Changed {
                 || writeOnly
                 || readOnly
                 || format
-                || increased.size() > 0
-                || missing.size() > 0
-                || changed.size() > 0
+                || increasedProperties.size() > 0
+                || missingProperties.size() > 0
+                || changedProperties.size() > 0
                 || deprecated
                 || required.getIncreased().size() > 0
                 || required.getMissing().size() > 0
@@ -50,20 +50,30 @@ public class ChangedSchema implements Changed {
                 || (changedOneOfSchema != null && changedOneOfSchema.isDiff());
     }
 
+    @Override
+    public boolean isDiffBackwardCompatible(boolean isRequest) {
+        return ((isRequest &&  enumVal.getMissing().isEmpty() && increasedProperties.keySet().stream().noneMatch(p -> newSchema.getRequired().contains(p)))
+                || (!isRequest && enumVal.getIncreased().isEmpty() && missingProperties.isEmpty()))
+                && !changedType
+                && !discriminatorPropertyChanged
+                && (changedOneOfSchema == null || changedOneOfSchema.isDiffBackwardCompatible(isRequest))
+                && changedProperties.values().stream().allMatch(p -> p.isDiffBackwardCompatible(isRequest));
+    }
+
     public void setChangeType(String type) {
         this.type = type;
     }
 
     public Map<String, ChangedSchema> getChangedProperties() {
-        return changed;
+        return changedProperties;
     }
 
     public Map<String, Schema> getIncreasedProperties() {
-        return increased;
+        return increasedProperties;
     }
 
     public Map<String, Schema> getMissingProperties() {
-        return missing;
+        return missingProperties;
     }
 
     public void setChangeDeprecated(boolean deprecated) {
@@ -102,24 +112,16 @@ public class ChangedSchema implements Changed {
         this.writeOnly = writeOnly;
     }
 
-    public void setChanged(Map<String, ChangedSchema> changed) {
-        this.changed = changed;
+    public void setChangedProperties(Map<String, ChangedSchema> changed) {
+        this.changedProperties = changed;
     }
 
-    public void setIncreased(Map<String, Schema> increased) {
-        this.increased = increased;
+    public void setIncreasedProperties(Map<String, Schema> increased) {
+        this.increasedProperties = increased;
     }
 
-    public void addIncreased(String name, Schema increased) {
-        this.increased.put(name, increased);
-    }
-
-    public void setMissing(Map<String, Schema> missing) {
-        this.missing = missing;
-    }
-
-    public void addMissing(String name, Schema missing) {
-        this.missing.put(name, missing);
+    public void setMissingProperties(Map<String, Schema> missing) {
+        this.missingProperties = missing;
     }
 
     public void setDeprecated(boolean deprecated) {

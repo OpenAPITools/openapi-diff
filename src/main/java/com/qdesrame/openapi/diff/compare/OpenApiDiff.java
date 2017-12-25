@@ -135,9 +135,9 @@ public class OpenApiDiff {
                     RequestBody newRequestBody = RefPointer.Replace.requestBody(oldSpecOpenApi.getComponents(), newOperation.getRequestBody());
                     newRequestContent = newRequestBody.getContent();
                 }
-                changedOperation
-                        .setRequestContent(ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
-                                .diff(oldRequestContent, newRequestContent));
+                changedOperation.setRequestChangedContent(
+                        ContentDiff.fromComponents(oldSpecOpenApi.getComponents(), newSpecOpenApi.getComponents())
+                        .diff(oldRequestContent, newRequestContent));
 
                 ChangedParameters changedParameters = ParametersDiff
                         .fromComponents(oldSpecOpenApi.getComponents(),

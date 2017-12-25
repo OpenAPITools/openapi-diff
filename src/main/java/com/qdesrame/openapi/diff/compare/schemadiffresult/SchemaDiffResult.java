@@ -1,10 +1,9 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
-import com.qdesrame.openapi.diff.model.ListDiff;
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.SchemaDiff;
-import com.qdesrame.openapi.diff.model.Changed;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
+import com.qdesrame.openapi.diff.model.ListDiff;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.Schema;
@@ -12,7 +11,7 @@ import io.swagger.oas.models.media.Schema;
 import java.util.Map;
 import java.util.Objects;
 
-public class SchemaDiffResult implements Changed {
+public class SchemaDiffResult {
     protected ChangedSchema changedSchema;
 
     public SchemaDiffResult() {
@@ -22,11 +21,6 @@ public class SchemaDiffResult implements Changed {
     public SchemaDiffResult(String type) {
         this();
         this.changedSchema.setChangeType(type);
-    }
-
-    @Override
-    public boolean isDiff() {
-        return changedSchema.isDiff();
     }
 
     public ChangedSchema getChangedSchema() {
