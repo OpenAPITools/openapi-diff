@@ -29,6 +29,12 @@ public class ChangedApiResponse implements Changed {
         return !addResponses.isEmpty() || !missingResponses.isEmpty() || !changedResponses.isEmpty();
     }
 
+    @Override
+    public boolean isDiffBackwardCompatible() {
+        return addResponses.size() == 0
+                && changedResponses.values().stream().allMatch(c -> c.isDiffBackwardCompatible());
+    }
+
     public ApiResponses getOldApiResponses() {
         return oldApiResponses;
     }

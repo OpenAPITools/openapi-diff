@@ -63,10 +63,15 @@ public class ChangedEndpoint implements Changed {
     }
 
     public boolean isDiff() {
-//		newOperations.isEmpty() 
-//		|| !missingOperations.isEmpty()
-//		|| 
-        return !changedOperations.isEmpty();
+		return !newOperations.isEmpty()
+		|| !missingOperations.isEmpty()
+		|| !changedOperations.isEmpty();
+    }
+
+    @Override
+    public boolean isDiffBackwardCompatible() {
+        return missingOperations.isEmpty()
+                && changedOperations.values().stream().allMatch(c -> c.isDiffBackwardCompatible());
     }
 
     @Override

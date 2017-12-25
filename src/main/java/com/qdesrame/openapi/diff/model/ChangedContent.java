@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by adarsh.sharma on 22/12/17.
  */
-public class ChangedContent implements Changed {
+public class ChangedContent implements RequestResponseChanged {
     private Content oldContent;
     private Content newContent;
 
@@ -60,6 +60,12 @@ public class ChangedContent implements Changed {
     @Override
     public boolean isDiff() {
         return !increased.isEmpty() || !missing.isEmpty() || !changed.isEmpty();
+    }
+
+    @Override
+    public boolean isDiffBackwardCompatible(boolean isRequest) {
+        return ((isRequest && missing.isEmpty()) || (!isRequest && increased.isEmpty()))
+                && changed.values().stream().allMatch(c -> c.isDiffBackwardCompatible(isRequest));
     }
 
 }

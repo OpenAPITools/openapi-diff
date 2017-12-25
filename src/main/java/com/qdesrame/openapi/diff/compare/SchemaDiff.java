@@ -10,7 +10,6 @@ import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.ComposedSchema;
 import io.swagger.oas.models.media.Schema;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,8 @@ public class SchemaDiff {
 
     private Components leftComponents;
     private Components rightComponents;
+    private OpenApiDiff openApiDiff;
+    private SchemaDiffCache schemaDiffCache;
     private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>> schemaDiffResultClassMap = new HashMap<>();
 
     static {
@@ -29,11 +30,11 @@ public class SchemaDiff {
         //TODO add other classes for different schema types
     }
 
-    public static SchemaDiffResult getSchemaDiffResult() {
-        return getSchemaDiffResult(null);
+    public static SchemaDiffResult getSchemaDiffResult(OpenApiDiff openApiDiff) {
+        return getSchemaDiffResult(null, openApiDiff);
     }
 
-    public static SchemaDiffResult getSchemaDiffResult(Class<? extends Schema> classType) {
+    public static SchemaDiffResult getSchemaDiffResult(Class<? extends Schema> classType, OpenApiDiff openApiDiff) {
         if (classType == null) {
             throw new IllegalArgumentException("classType can not be null");
         }
@@ -44,8 +45,7 @@ public class SchemaDiff {
                 aClass = schemaDiffResultClassMap.get(Schema.class);
             }
             if (aClass != null) {
-                Constructor<? extends SchemaDiffResult> constructor = aClass.getConstructor();
-                return constructor.newInstance();
+                return aClass.getConstructor(OpenApiDiff.class).newInstance(openApiDiff);
             } else {
                 throw new IllegalArgumentException("invalid classType");
             }
@@ -54,16 +54,27 @@ public class SchemaDiff {
         }
     }
 
-    private SchemaDiff(Components left, Components right) {
-        this.leftComponents = left;
-        this.rightComponents = right;
-    }
-
-    public static SchemaDiff fromComponents(Components left, Components right) {
-        return new SchemaDiff(left, right);
+    public SchemaDiff(OpenApiDiff openApiDiff) {
+        this.openApiDiff = openApiDiff;
+        this.leftComponents = openApiDiff.getOldSpecOpenApi() != null ? openApiDiff.getOldSpecOpenApi().getComponents() : null;
+        this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
+        this.schemaDiffCache = new SchemaDiffCache();
     }
 
     public ChangedSchema diff(Schema left, Schema right) {
+        String leftRef = left.get$ref();
+        String rightRef = right.get$ref();
+        boolean areBothRefSchemas = leftRef != null && rightRef != null;
+        if (areBothRefSchemas) {
+            ChangedSchema changedSchemaFromCache = schemaDiffCache.getFromCache(leftRef, rightRef);
+            if (changedSchemaFromCache != null) {
+                return changedSchemaFromCache;
+            }
+        }
+
+        left = RefPointer.Replace.schema(leftComponents, left);
+        right = RefPointer.Replace.schema(rightComponents, right);
+
         left = resolveComposedSchema(leftComponents, left);
         right = resolveComposedSchema(rightComponents, right);
 
@@ -71,7 +82,7 @@ public class SchemaDiff {
         // return the object
         if (!Objects.equals(left.getType(), right.getType()) ||
                 !Objects.equals(left.getFormat(), right.getFormat())) {
-            ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult().getChangedSchema();
+            ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult(openApiDiff).getChangedSchema();
             changedSchema.setOldSchema(left);
             changedSchema.setNewSchema(right);
             changedSchema.setChangedType(true);
@@ -79,8 +90,12 @@ public class SchemaDiff {
         }
 
         //If schema type is same then get specific SchemaDiffResult and compare the properties
-        SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass());
-        return result.diff(leftComponents, rightComponents, left, right);
+        SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
+        ChangedSchema changedSchema = result.diff(leftComponents, rightComponents, left, right);
+        if(areBothRefSchemas) {
+            schemaDiffCache.addToCache(leftRef, rightRef, changedSchema);
+        }
+        return changedSchema;
     }
 
     public static Schema resolveComposedSchema(Components components, Schema schema) {

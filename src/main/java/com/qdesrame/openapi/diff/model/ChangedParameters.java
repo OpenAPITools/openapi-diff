@@ -45,4 +45,11 @@ public class ChangedParameters implements Changed {
     public boolean isDiff() {
         return !increased.isEmpty() || !missing.isEmpty() || !changed.isEmpty();
     }
+
+    @Override
+    public boolean isDiffBackwardCompatible() {
+        return increased.stream().noneMatch(p -> p.getRequired())
+                && missing.isEmpty()
+                && changed.stream().allMatch(p -> p.isDiffBackwardCompatible());
+    }
 }

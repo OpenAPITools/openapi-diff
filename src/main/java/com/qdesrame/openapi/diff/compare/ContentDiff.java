@@ -3,7 +3,6 @@ package com.qdesrame.openapi.diff.compare;
 import com.qdesrame.openapi.diff.model.ChangedContent;
 import com.qdesrame.openapi.diff.model.ChangedMediaType;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
-import io.swagger.oas.models.Components;
 import io.swagger.oas.models.media.Content;
 import io.swagger.oas.models.media.MediaType;
 
@@ -13,16 +12,10 @@ import java.util.Map;
 
 public class ContentDiff implements Comparable<Content> {
 
-    private Components leftComponents;
-    private Components rightComponents;
+    private OpenApiDiff openApiDiff;
 
-    private ContentDiff(Components left, Components right) {
-        this.leftComponents = left;
-        this.rightComponents = right;
-    }
-
-    public static ContentDiff fromComponents(Components left, Components right) {
-        return new ContentDiff(left, right);
+    public ContentDiff(OpenApiDiff openApiDiff) {
+        this.openApiDiff = openApiDiff;
     }
 
     @Override
@@ -41,8 +34,7 @@ public class ContentDiff implements Comparable<Content> {
         for (String mediaTypeKey : sharedMediaTypes) {
             MediaType oldMediaType = left.get(mediaTypeKey);
             MediaType newMediaType = right.get(mediaTypeKey);
-            ChangedSchema changedSchema = SchemaDiff.fromComponents(leftComponents, rightComponents)
-                    .diff(oldMediaType.getSchema(), newMediaType.getSchema());
+            ChangedSchema changedSchema = openApiDiff.getSchemaDiff().diff(oldMediaType.getSchema(), newMediaType.getSchema());
             ChangedMediaType changedMediaType = new ChangedMediaType(oldMediaType.getSchema(), newMediaType.getSchema());
             changedMediaType.setChangedSchema(changedSchema);
             if (changedMediaType.isDiff()) {

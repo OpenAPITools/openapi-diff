@@ -24,6 +24,12 @@ public class ChangedParameter implements Changed {
         return deprecated || changeDescription || changeRequired || changedSchema.isDiff();
     }
 
+    @Override
+    public boolean isDiffBackwardCompatible() {
+        return !changeRequired
+                && changedSchema.isDiffBackwardCompatible(true);
+    }
+
     public void setChangeRequired(boolean changeRequired) {
         this.changeRequired = changeRequired;
     }

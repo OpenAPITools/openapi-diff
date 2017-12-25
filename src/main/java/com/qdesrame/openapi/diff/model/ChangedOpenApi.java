@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by adarsh.sharma on 22/12/17.
  */
-public class ChangedOpenApi {
+public class ChangedOpenApi implements Changed {
     private OpenAPI oldSpecOpenApi;
     private OpenAPI newSpecOpenApi;
 
@@ -62,5 +62,18 @@ public class ChangedOpenApi {
 
     public void setChangedEndpoints(List<ChangedEndpoint> changedEndpoints) {
         this.changedEndpoints = changedEndpoints;
+    }
+
+    @Override
+    public boolean isDiff() {
+        return newEndpoints.size() > 0
+                || missingEndpoints.size() > 0
+                || deprecatedEndpoints.size() > 0
+                || changedEndpoints.size() > 0;
+    }
+
+    public boolean isDiffBackwardCompatible() {
+        return missingEndpoints.size() == 0
+                && changedEndpoints.stream().allMatch(c -> c.isDiffBackwardCompatible());
     }
 }
