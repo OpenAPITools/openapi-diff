@@ -1,6 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
-import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 
 public class ChangedParameter implements Changed {

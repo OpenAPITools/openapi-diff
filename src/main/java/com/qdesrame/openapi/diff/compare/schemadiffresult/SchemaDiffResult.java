@@ -4,8 +4,8 @@ import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.ListDiff;
-import io.swagger.oas.models.Components;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.Map;
 import java.util.Objects;

@@ -2,9 +2,9 @@ package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
-import io.swagger.oas.models.Components;
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 
 /**
  * Created by adarsh.sharma on 18/12/17.

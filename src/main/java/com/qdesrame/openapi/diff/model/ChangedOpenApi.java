@@ -1,7 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
-import io.swagger.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.OpenAPI;
 
 import java.util.ArrayList;
 import java.util.List;
