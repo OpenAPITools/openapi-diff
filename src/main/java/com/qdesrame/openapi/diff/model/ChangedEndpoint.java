@@ -4,6 +4,7 @@ import io.swagger.oas.models.Operation;
 import io.swagger.oas.models.PathItem;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class ChangedEndpoint implements Changed {
@@ -14,7 +15,6 @@ public class ChangedEndpoint implements Changed {
 
     private Map<PathItem.HttpMethod, Operation> newOperations;
     private Map<PathItem.HttpMethod, Operation> missingOperations;
-    private Map<PathItem.HttpMethod, Operation> deprecatedOperations;
     private Map<PathItem.HttpMethod, ChangedOperation> changedOperations;
 
     public ChangedEndpoint(String pathUrl, PathItem oldPathItem, PathItem newPathItem) {
@@ -57,15 +57,22 @@ public class ChangedEndpoint implements Changed {
         return changedOperations;
     }
 
+    public Map<PathItem.HttpMethod, Operation> getDeprecatedOperations() {
+        return changedOperations.entrySet()
+                .stream()
+                .filter(p -> p.getValue().isDeprecated())
+                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue().getNewOperation()));
+    }
+
     public void setChangedOperations(
             Map<PathItem.HttpMethod, ChangedOperation> changedOperations) {
         this.changedOperations = changedOperations;
     }
 
     public boolean isDiff() {
-		return !newOperations.isEmpty()
-		|| !missingOperations.isEmpty()
-		|| !changedOperations.isEmpty();
+        return !newOperations.isEmpty()
+                || !missingOperations.isEmpty()
+                || !changedOperations.isEmpty();
     }
 
     @Override
@@ -79,15 +86,4 @@ public class ChangedEndpoint implements Changed {
         return String.format("Changed endpoint '%s': %d missing, %d changed", pathUrl, getMissingOperations().size(), getChangedOperations().size());
     }
 
-    public void setDeprecatedOperations(Map<PathItem.HttpMethod,Operation> deprecatedOperations) {
-        this.deprecatedOperations = deprecatedOperations;
-    }
-
-    public Map<PathItem.HttpMethod,Operation> getDeprecatedOperations() {
-        return deprecatedOperations;
-    }
-
-    public boolean isDeprecated() {
-        return !deprecatedOperations.isEmpty();
-    }
 }
