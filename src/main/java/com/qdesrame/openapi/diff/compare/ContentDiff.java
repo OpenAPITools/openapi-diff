@@ -3,8 +3,8 @@ package com.qdesrame.openapi.diff.compare;
 import com.qdesrame.openapi.diff.model.ChangedContent;
 import com.qdesrame.openapi.diff.model.ChangedMediaType;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
-import io.swagger.oas.models.media.Content;
-import io.swagger.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
 
 import java.util.HashMap;
 import java.util.List;

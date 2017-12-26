@@ -1,10 +1,10 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.model.*;
-import io.swagger.oas.models.PathItem;
-import io.swagger.oas.models.media.MediaType;
-import io.swagger.oas.models.parameters.Parameter;
-import io.swagger.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 
 import java.util.List;
 import java.util.Map;

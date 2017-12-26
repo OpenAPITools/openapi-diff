@@ -5,10 +5,10 @@ import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedOneOfSchema;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
-import io.swagger.oas.models.Components;
-import io.swagger.oas.models.media.ComposedSchema;
-import io.swagger.oas.models.media.Discriminator;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Discriminator;
+import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.HashMap;

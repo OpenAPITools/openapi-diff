@@ -1,8 +1,8 @@
 package com.qdesrame.openapi.diff.model;
 
 
-import io.swagger.oas.models.Operation;
-import io.swagger.oas.models.PathItem;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 
 public class Endpoint {
 

@@ -1,7 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
-import io.swagger.oas.models.responses.ApiResponse;
-import io.swagger.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
 
 import java.util.HashMap;
 import java.util.Map;

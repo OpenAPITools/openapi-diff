@@ -3,8 +3,8 @@ package com.qdesrame.openapi.diff.compare;
 import com.qdesrame.openapi.diff.model.ChangedParameter;
 import com.qdesrame.openapi.diff.model.ChangedParameters;
 import com.qdesrame.openapi.diff.utils.RefPointer;
-import io.swagger.oas.models.Components;
-import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 import java.util.ArrayList;
 import java.util.List;
