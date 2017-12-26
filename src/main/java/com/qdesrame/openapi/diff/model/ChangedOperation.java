@@ -67,7 +67,7 @@ public class ChangedOperation implements Changed {
 
     @Override
     public boolean isDiff() {
-        return isDiffParam() || isDiffRequest() || isDiffResponse();
+        return deprecated || isDiffParam() || isDiffRequest() || isDiffResponse();
     }
 
     @Override

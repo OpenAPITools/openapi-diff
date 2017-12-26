@@ -1,7 +1,9 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.oas.models.OpenAPI;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +15,6 @@ public class ChangedOpenApi implements Changed {
 
     private List<Endpoint> newEndpoints;
     private List<Endpoint> missingEndpoints;
-    private List<Endpoint> deprecatedEndpoints;
     private List<ChangedEndpoint> changedEndpoints;
 
     public OpenAPI getOldSpecOpenApi() {
@@ -49,11 +50,9 @@ public class ChangedOpenApi implements Changed {
     }
 
     public List<Endpoint> getDeprecatedEndpoints() {
-        return deprecatedEndpoints;
-    }
-
-    public void setDeprecatedEndpoints(List<Endpoint> deprecatedEndpoints) {
-        this.deprecatedEndpoints = deprecatedEndpoints;
+        return changedEndpoints.stream()
+                .map(c -> EndpointUtils.convert2EndpointList(c.getPathUrl(), c.getDeprecatedOperations()))
+                .collect(ArrayList::new, List::addAll, List::addAll);
     }
 
     public List<ChangedEndpoint> getChangedEndpoints() {
@@ -68,7 +67,6 @@ public class ChangedOpenApi implements Changed {
     public boolean isDiff() {
         return newEndpoints.size() > 0
                 || missingEndpoints.size() > 0
-                || deprecatedEndpoints.size() > 0
                 || changedEndpoints.size() > 0;
     }
 
@@ -76,4 +74,5 @@ public class ChangedOpenApi implements Changed {
         return missingEndpoints.size() == 0
                 && changedEndpoints.stream().allMatch(c -> c.isDiffBackwardCompatible());
     }
+
 }

@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.oas.models.Operation;
@@ -14,8 +15,10 @@ import io.swagger.parser.v3.OpenAPIV3Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OpenApiDiff {
 
@@ -33,7 +36,6 @@ public class OpenApiDiff {
     private OpenAPI newSpecOpenApi;
     private List<Endpoint> newEndpoints;
     private List<Endpoint> missingEndpoints;
-    private List<Endpoint> deprecatedEndpoints;
     private List<ChangedEndpoint> changedEndpoints;
 
     /**
@@ -104,11 +106,10 @@ public class OpenApiDiff {
         Map<String, PathItem> oldPaths = oldSpecOpenApi.getPaths();
         Map<String, PathItem> newPaths = newSpecOpenApi.getPaths();
         MapKeyDiff<String, PathItem> pathDiff = MapKeyDiff.diff(oldPaths, newPaths);
-        this.newEndpoints = convert2EndpointList(pathDiff.getIncreased());
-        this.missingEndpoints = convert2EndpointList(pathDiff.getMissing());
+        this.newEndpoints = EndpointUtils.convert2EndpointList(pathDiff.getIncreased());
+        this.missingEndpoints = EndpointUtils.convert2EndpointList(pathDiff.getMissing());
 
         this.changedEndpoints = new ArrayList<>();
-        this.deprecatedEndpoints = new ArrayList<>();
 
         List<String> sharedKey = pathDiff.getSharedKey();
         for (String pathUrl : sharedKey) {
@@ -127,7 +128,6 @@ public class OpenApiDiff {
 
             List<PathItem.HttpMethod> sharedMethods = operationDiff.getSharedKey();
             Map<PathItem.HttpMethod, ChangedOperation> operas = new HashMap<>();
-            Map<PathItem.HttpMethod, Operation> deprecOperas = new HashMap<>();
             ChangedOperation changedOperation;
             for (PathItem.HttpMethod method : sharedMethods) {
                 Operation oldOperation = oldOperationMap.get(method);
@@ -176,20 +176,14 @@ public class OpenApiDiff {
 
                 if (changedOperation.isDiff()) {
                     operas.put(method, changedOperation);
-                } else if (changedOperation.isDeprecated()) {
-                    deprecOperas.put(method, newOperation);
                 }
             }
             changedEndpoint.setChangedOperations(operas);
-            changedEndpoint.setDeprecatedOperations(deprecOperas);
 
-            this.newEndpoints.addAll(convert2EndpointList(changedEndpoint.getPathUrl(),
+            this.newEndpoints.addAll(EndpointUtils.convert2EndpointList(changedEndpoint.getPathUrl(),
                     changedEndpoint.getNewOperations()));
-            this.missingEndpoints.addAll(convert2EndpointList(changedEndpoint.getPathUrl(),
+            this.missingEndpoints.addAll(EndpointUtils.convert2EndpointList(changedEndpoint.getPathUrl(),
                     changedEndpoint.getMissingOperations()));
-            if (changedEndpoint.isDeprecated()) {
-                this.deprecatedEndpoints.addAll(convert2EndpointList(changedEndpoint.getPathUrl(), changedEndpoint.getDeprecatedOperations()));
-            }
 
             if (changedEndpoint.isDiff()) {
                 changedEndpoints.add(changedEndpoint);
@@ -205,49 +199,7 @@ public class OpenApiDiff {
         changedOpenApi.setNewSpecOpenApi(newSpecOpenApi);
         changedOpenApi.setOldSpecOpenApi(oldSpecOpenApi);
         changedOpenApi.setChangedEndpoints(changedEndpoints);
-        changedOpenApi.setDeprecatedEndpoints(deprecatedEndpoints);
         return changedOpenApi;
-    }
-
-    private List<Endpoint> convert2EndpointList(Map<String, PathItem> map) {
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
-        if (null == map) return endpoints;
-        for (Entry<String, PathItem> entry : map.entrySet()) {
-            String url = entry.getKey();
-            PathItem path = entry.getValue();
-
-            Map<PathItem.HttpMethod, Operation> operationMap = path.readOperationsMap();
-            for (Entry<PathItem.HttpMethod, Operation> entryOper : operationMap.entrySet()) {
-                PathItem.HttpMethod httpMethod = entryOper.getKey();
-                Operation operation = entryOper.getValue();
-
-                Endpoint endpoint = new Endpoint();
-                endpoint.setPathUrl(url);
-                endpoint.setMethod(httpMethod);
-                endpoint.setSummary(operation.getSummary());
-                endpoint.setPath(path);
-                endpoint.setOperation(operation);
-                endpoints.add(endpoint);
-            }
-        }
-        return endpoints;
-    }
-
-    private Collection<? extends Endpoint> convert2EndpointList(String pathUrl,
-                                                                Map<PathItem.HttpMethod, Operation> map) {
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
-        if (null == map) return endpoints;
-        for (Entry<PathItem.HttpMethod, Operation> entry : map.entrySet()) {
-            PathItem.HttpMethod httpMethod = entry.getKey();
-            Operation operation = entry.getValue();
-            Endpoint endpoint = new Endpoint();
-            endpoint.setPathUrl(pathUrl);
-            endpoint.setMethod(httpMethod);
-            endpoint.setSummary(operation.getSummary());
-            endpoint.setOperation(operation);
-            endpoints.add(endpoint);
-        }
-        return endpoints;
     }
 
     public SchemaDiff getSchemaDiff() {
@@ -280,10 +232,6 @@ public class OpenApiDiff {
 
     public List<Endpoint> getMissingEndpoints() {
         return missingEndpoints;
-    }
-
-    public List<Endpoint> getDeprecatedEndpoints() {
-        return deprecatedEndpoints;
     }
 
     public List<ChangedEndpoint> getChangedEndpoints() {
