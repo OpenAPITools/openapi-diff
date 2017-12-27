@@ -38,7 +38,7 @@ public class MarkdownRender implements Render {
     }
 
     public String renderHtml(String ol_new, String ol_miss, String ol_deprec, String ol_changed) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(H3).append("What's New").append("\n").append(HR)
                 .append(ol_new).append("\n").append(H3)
                 .append("What's Deleted").append("\n").append(HR)
@@ -52,7 +52,7 @@ public class MarkdownRender implements Render {
 
     private String ol_newEndpoint(List<Endpoint> endpoints) {
         if (null == endpoints) return "";
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Endpoint endpoint : endpoints) {
             sb.append(li_newEndpoint(endpoint.getMethod().toString(),
                     endpoint.getPathUrl(), endpoint.getSummary()));
@@ -61,7 +61,7 @@ public class MarkdownRender implements Render {
     }
 
     private String li_newEndpoint(String method, String path, String desc) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(LI).append(CODE).append(method).append(CODE)
                 .append(" " + path).append(" " + desc + "\n");
         return sb.toString();
@@ -69,7 +69,7 @@ public class MarkdownRender implements Render {
 
     private String ol_missingEndpoint(List<Endpoint> endpoints) {
         if (null == endpoints) return "";
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Endpoint endpoint : endpoints) {
             sb.append(li_newEndpoint(endpoint.getMethod().toString(),
                     endpoint.getPathUrl(), endpoint.getSummary()));
@@ -79,7 +79,7 @@ public class MarkdownRender implements Render {
 
     private String ol_deprecatedEndpoint(List<Endpoint> endpoints) {
         if (null == endpoints) return "";
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Endpoint endpoint : endpoints) {
             sb.append(li_newEndpoint(endpoint.getMethod().toString(),
                     endpoint.getPathUrl(), endpoint.getSummary()));
@@ -89,14 +89,14 @@ public class MarkdownRender implements Render {
 
     private String ol_changed(List<ChangedOperation> changedOperations) {
         if (null == changedOperations) return "";
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (ChangedOperation changedOperation : changedOperations) {
             String pathUrl = changedOperation.getPathUrl();
 
             String method = changedOperation.getHttpMethod().toString();
             String desc = changedOperation.getSummary();
 
-            StringBuffer ul_detail = new StringBuffer();
+            StringBuilder ul_detail = new StringBuilder();
             if (changedOperation.isDiffParam()) {
                 ul_detail.append(PRE_LI).append("Parameter")
                         .append(ul_param(changedOperation.getChangedParameters()));
@@ -120,7 +120,7 @@ public class MarkdownRender implements Render {
         Map<String, ApiResponse> addResponses = changedApiResponse.getAddResponses();
         Map<String, ApiResponse> delResponses = changedApiResponse.getMissingResponses();
         Map<String, ChangedResponse> changedResponses = changedApiResponse.getChangedResponses();
-        StringBuffer sb = new StringBuffer("\n\n");
+        StringBuilder sb = new StringBuilder("\n\n");
         for (String propName : addResponses.keySet()) {
             sb.append(PRE_LI).append(PRE_CODE).append(li_addResponse(propName, addResponses.get(propName))).append("\n");
         }
@@ -134,25 +134,25 @@ public class MarkdownRender implements Render {
     }
 
     private String li_addResponse(String name, ApiResponse response) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append(String.format("New response : [%s]", name)).append(null == response.getDescription() ? "" : (" //" + response.getDescription()));
         return sb.toString();
     }
 
     private String li_missingResponse(String name, ApiResponse response) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append(String.format("Deleted response : [%s]", name)).append(null == response.getDescription() ? "" : (" //" + response.getDescription()));
         return sb.toString();
     }
 
     private String li_changedResponse(String name, ChangedResponse response) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append(String.format("Changed response : [%s]", name)).append(null == response.getDescription() ? "" : (" //" + response.getDescription()));
         return sb.toString();
     }
 
     private String ul_request(ChangedContent changedContent) {
-        StringBuffer sb = new StringBuffer("\n\n");
+        StringBuilder sb = new StringBuilder("\n\n");
         for (String propName : changedContent.getIncreased().keySet()) {
             sb.append(PRE_LI).append(PRE_CODE).append(li_addRequest(propName, changedContent.getIncreased().get(propName))).append("\n");
         }
@@ -166,19 +166,19 @@ public class MarkdownRender implements Render {
     }
 
     private String li_addRequest(String name, MediaType request) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append(String.format("New request body : '%s'", name));
         return sb.toString();
     }
 
     private String li_missingRequest(String name, MediaType request) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append(String.format("Deleted request body : [%s]", name));
         return sb.toString();
     }
 
     private String li_changedRequest(String name, ChangedMediaType request) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append(String.format("Changed response : [%s]", name));
         return sb.toString();
     }
@@ -187,7 +187,7 @@ public class MarkdownRender implements Render {
         List<Parameter> addParameters = changedParameters.getIncreased();
         List<Parameter> delParameters = changedParameters.getMissing();
         List<ChangedParameter> changed = changedParameters.getChanged();
-        StringBuffer sb = new StringBuffer("\n\n");
+        StringBuilder sb = new StringBuilder("\n\n");
         for (Parameter param : addParameters) {
             sb.append(PRE_LI).append(PRE_CODE)
                     .append(li_addParam(param) + "\n");
@@ -206,16 +206,18 @@ public class MarkdownRender implements Render {
     }
 
     private String li_addParam(Parameter param) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append("Add ").append(param.getName())
+                .append(" in ").append(param.getIn())
                 .append(null == param.getDescription() ? ""
                         : (" //" + param.getDescription()));
         return sb.toString();
     }
 
     private String li_missingParam(Parameter param) {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append("Delete ").append(param.getName())
+                .append(" in ").append(param.getIn())
                 .append(null == param.getDescription() ? ""
                         : (" //" + param.getDescription()));
         return sb.toString();
@@ -226,7 +228,7 @@ public class MarkdownRender implements Render {
         boolean changeDescription = changeParam.isChangeDescription();
         Parameter rightParam = changeParam.getRightParameter();
         Parameter leftParam = changeParam.getLeftParameter();
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         sb.append(rightParam.getName());
         if (changeRequired) {
             sb.append(" change into " + (rightParam.getRequired() ? "required" : "not required"));

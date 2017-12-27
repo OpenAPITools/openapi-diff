@@ -48,26 +48,6 @@ public class OpenApiDiff {
         return compare(oldSpec, newSpec, null);
     }
 
-    public static ChangedOpenApi compare(String oldSpec, String newSpec,
-                                      List<AuthorizationValue> auths) {
-        return new OpenApiDiff(oldSpec, newSpec, auths).compare();
-    }
-
-    public static ChangedOpenApi compare(OpenAPI oldOpenAPI, OpenAPI newOpenAPI) {
-        return new OpenApiDiff(oldOpenAPI, newOpenAPI).compare();
-    }
-
-    private OpenApiDiff() {
-        this.changedOpenApi = new ChangedOpenApi();
-    }
-
-    private void initializeFields() {
-        this.schemaDiff = new SchemaDiff(this);
-        this.contentDiff = new ContentDiff(this);
-        this.parametersDiff = new ParametersDiff(this);
-        this.parameterDiff = new ParameterDiff(this);
-    }
-
     /**
      * @param oldSpec
      * @param newSpec
@@ -79,12 +59,34 @@ public class OpenApiDiff {
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
         oldSpecOpenApi = openApiParser.read(oldSpec, auths, options);
+        if (oldSpecOpenApi == null) {
+            throw new RuntimeException("Cannot read old OpenAPI spec");
+        }
         newSpecOpenApi = openApiParser.read(newSpec, auths, options);
-        if (null == oldSpecOpenApi || null == newSpecOpenApi) {
-            throw new RuntimeException(
-                    "cannot read api-doc from spec.");
+        if (null == newSpecOpenApi) {
+            throw new RuntimeException("Cannot read new OpenAPI spec");
         }
         initializeFields();
+    }
+
+    private OpenApiDiff() {
+        this.changedOpenApi = new ChangedOpenApi();
+    }
+
+    public static ChangedOpenApi compare(OpenAPI oldOpenAPI, OpenAPI newOpenAPI) {
+        return new OpenApiDiff(oldOpenAPI, newOpenAPI).compare();
+    }
+
+    public static ChangedOpenApi compare(String oldSpec, String newSpec,
+                                         List<AuthorizationValue> auths) {
+        return new OpenApiDiff(oldSpec, newSpec, auths).compare();
+    }
+
+    private void initializeFields() {
+        this.schemaDiff = new SchemaDiff(this);
+        this.contentDiff = new ContentDiff(this);
+        this.parametersDiff = new ParametersDiff(this);
+        this.parameterDiff = new ParameterDiff(this);
     }
 
     /*
