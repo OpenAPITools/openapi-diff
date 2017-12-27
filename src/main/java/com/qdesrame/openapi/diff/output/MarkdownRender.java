@@ -1,14 +1,12 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.model.*;
-import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class MarkdownRender implements Render {
 
@@ -33,8 +31,8 @@ public class MarkdownRender implements Render {
         List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
         String ol_deprecatedEndpoint = ol_deprecatedEndpoint(deprecatedEndpoints);
 
-        List<ChangedEndpoint> changedEndpoints = diff.getChangedEndpoints();
-        String ol_changed = ol_changed(changedEndpoints);
+        List<ChangedOperation> changedOperations = diff.getChangedOperations();
+        String ol_changed = ol_changed(changedOperations);
 
         return renderHtml(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed);
     }
@@ -89,36 +87,31 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String ol_changed(List<ChangedEndpoint> changedEndpoints) {
-        if (null == changedEndpoints) return "";
+    private String ol_changed(List<ChangedOperation> changedOperations) {
+        if (null == changedOperations) return "";
         StringBuffer sb = new StringBuffer();
-        for (ChangedEndpoint changedEndpoint : changedEndpoints) {
-            String pathUrl = changedEndpoint.getPathUrl();
-            Map<PathItem.HttpMethod, ChangedOperation> changedOperations = changedEndpoint
-                    .getChangedOperations();
-            for (Entry<PathItem.HttpMethod, ChangedOperation> entry : changedOperations
-                    .entrySet()) {
-                String method = entry.getKey().toString();
-                ChangedOperation changedOperation = entry.getValue();
-                String desc = changedOperation.getSummary();
+        for (ChangedOperation changedOperation : changedOperations) {
+            String pathUrl = changedOperation.getPathUrl();
 
-                StringBuffer ul_detail = new StringBuffer();
-                if (changedOperation.isDiffParam()) {
-                    ul_detail.append(PRE_LI).append("Parameter")
-                            .append(ul_param(changedOperation.getChangedParameters()));
-                }
-                if (changedOperation.isDiffRequest()) {
-                    ul_detail.append(PRE_LI).append("Request")
-                            .append(ul_request(changedOperation.getRequestChangedContent()));
-                }
-                if (changedOperation.isDiffResponse()) {
-                    ul_detail.append(PRE_LI).append("Return Type")
-                            .append(ul_response(changedOperation.getChangedApiResponse()));
-                }
-                sb.append(LI).append(CODE).append(method).append(CODE)
-                        .append(" " + pathUrl).append(" " + desc + "  \n")
-                        .append(ul_detail);
+            String method = changedOperation.getHttpMethod().toString();
+            String desc = changedOperation.getSummary();
+
+            StringBuffer ul_detail = new StringBuffer();
+            if (changedOperation.isDiffParam()) {
+                ul_detail.append(PRE_LI).append("Parameter")
+                        .append(ul_param(changedOperation.getChangedParameters()));
             }
+            if (changedOperation.isDiffRequest()) {
+                ul_detail.append(PRE_LI).append("Request")
+                        .append(ul_request(changedOperation.getRequestChangedContent()));
+            }
+            if (changedOperation.isDiffResponse()) {
+                ul_detail.append(PRE_LI).append("Return Type")
+                        .append(ul_response(changedOperation.getChangedApiResponse()));
+            }
+            sb.append(LI).append(CODE).append(method).append(CODE)
+                    .append(" " + pathUrl).append(" " + desc + "  \n")
+                    .append(ul_detail);
         }
         return sb.toString();
     }

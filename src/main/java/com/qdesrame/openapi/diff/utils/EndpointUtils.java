@@ -13,21 +13,26 @@ import java.util.Map;
  * Created by adarsh.sharma on 26/12/17.
  */
 public class EndpointUtils {
-    public static Collection<? extends Endpoint> convert2EndpointList(String pathUrl,
-                                                                Map<PathItem.HttpMethod, Operation> map) {
+    public static Collection<? extends Endpoint> convert2Endpoints(String pathUrl,
+                                                                   Map<PathItem.HttpMethod, Operation> map) {
         List<Endpoint> endpoints = new ArrayList<Endpoint>();
         if (null == map) return endpoints;
         for (Map.Entry<PathItem.HttpMethod, Operation> entry : map.entrySet()) {
             PathItem.HttpMethod httpMethod = entry.getKey();
             Operation operation = entry.getValue();
-            Endpoint endpoint = new Endpoint();
-            endpoint.setPathUrl(pathUrl);
-            endpoint.setMethod(httpMethod);
-            endpoint.setSummary(operation.getSummary());
-            endpoint.setOperation(operation);
+            Endpoint endpoint = convert2Endpoint(pathUrl, httpMethod, operation);
             endpoints.add(endpoint);
         }
         return endpoints;
+    }
+
+    public static Endpoint convert2Endpoint(String pathUrl, PathItem.HttpMethod httpMethod, Operation operation) {
+        Endpoint endpoint = new Endpoint();
+        endpoint.setPathUrl(pathUrl);
+        endpoint.setMethod(httpMethod);
+        endpoint.setSummary(operation.getSummary());
+        endpoint.setOperation(operation);
+        return endpoint;
     }
 
     public static List<Endpoint> convert2EndpointList(Map<String, PathItem> map) {

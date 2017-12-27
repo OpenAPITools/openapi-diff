@@ -36,7 +36,7 @@ public class OpenApiDiff {
     private OpenAPI newSpecOpenApi;
     private List<Endpoint> newEndpoints;
     private List<Endpoint> missingEndpoints;
-    private List<ChangedEndpoint> changedEndpoints;
+    private List<ChangedOperation> changedOperations;
 
     /**
      * compare two openapi doc
@@ -109,13 +109,12 @@ public class OpenApiDiff {
         this.newEndpoints = EndpointUtils.convert2EndpointList(pathDiff.getIncreased());
         this.missingEndpoints = EndpointUtils.convert2EndpointList(pathDiff.getMissing());
 
-        this.changedEndpoints = new ArrayList<>();
+        this.changedOperations = new ArrayList<>();
 
         List<String> sharedKey = pathDiff.getSharedKey();
         for (String pathUrl : sharedKey) {
             PathItem oldPath = oldPaths.get(pathUrl);
             PathItem newPath = newPaths.get(pathUrl);
-            ChangedEndpoint changedEndpoint = new ChangedEndpoint(pathUrl, oldPath, newPath);
 
             Map<PathItem.HttpMethod, Operation> oldOperationMap = oldPath.readOperationsMap();
             Map<PathItem.HttpMethod, Operation> newOperationMap = newPath.readOperationsMap();
@@ -123,16 +122,17 @@ public class OpenApiDiff {
                     newOperationMap);
             Map<PathItem.HttpMethod, Operation> increasedOperation = operationDiff.getIncreased();
             Map<PathItem.HttpMethod, Operation> missingOperation = operationDiff.getMissing();
-            changedEndpoint.setNewOperations(increasedOperation);
-            changedEndpoint.setMissingOperations(missingOperation);
+
+            this.newEndpoints.addAll(EndpointUtils.convert2Endpoints(pathUrl, increasedOperation));
+            this.missingEndpoints.addAll(EndpointUtils.convert2Endpoints(pathUrl, missingOperation));
 
             List<PathItem.HttpMethod> sharedMethods = operationDiff.getSharedKey();
-            Map<PathItem.HttpMethod, ChangedOperation> operas = new HashMap<>();
+
             ChangedOperation changedOperation;
             for (PathItem.HttpMethod method : sharedMethods) {
                 Operation oldOperation = oldOperationMap.get(method);
                 Operation newOperation = newOperationMap.get(method);
-                changedOperation = new ChangedOperation(oldOperation, newOperation);
+                changedOperation = new ChangedOperation(pathUrl, method, oldOperation, newOperation);
                 changedOperation.setSummary(newOperation.getSummary());
                 changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
@@ -175,19 +175,10 @@ public class OpenApiDiff {
                 changedApiResponse.setChangedResponses(resps);
 
                 if (changedOperation.isDiff()) {
-                    operas.put(method, changedOperation);
+                    changedOperations.add(changedOperation);
                 }
             }
-            changedEndpoint.setChangedOperations(operas);
 
-            this.newEndpoints.addAll(EndpointUtils.convert2EndpointList(changedEndpoint.getPathUrl(),
-                    changedEndpoint.getNewOperations()));
-            this.missingEndpoints.addAll(EndpointUtils.convert2EndpointList(changedEndpoint.getPathUrl(),
-                    changedEndpoint.getMissingOperations()));
-
-            if (changedEndpoint.isDiff()) {
-                changedEndpoints.add(changedEndpoint);
-            }
         }
 
         return getChangedOpenApi();
@@ -198,7 +189,7 @@ public class OpenApiDiff {
         changedOpenApi.setNewEndpoints(newEndpoints);
         changedOpenApi.setNewSpecOpenApi(newSpecOpenApi);
         changedOpenApi.setOldSpecOpenApi(oldSpecOpenApi);
-        changedOpenApi.setChangedEndpoints(changedEndpoints);
+        changedOpenApi.setChangedOperations(changedOperations);
         return changedOpenApi;
     }
 
@@ -234,8 +225,8 @@ public class OpenApiDiff {
         return missingEndpoints;
     }
 
-    public List<ChangedEndpoint> getChangedEndpoints() {
-        return changedEndpoints;
+    public List<ChangedOperation> getChangedOperations() {
+        return changedOperations;
     }
 
 }

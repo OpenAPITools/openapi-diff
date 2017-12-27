@@ -1,9 +1,13 @@
 package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+
 
 public class ChangedOperation implements Changed {
 
+    private String pathUrl;
+    private PathItem.HttpMethod httpMethod;
     private Operation oldOperation;
     private Operation newOperation;
     private String summary;
@@ -12,9 +16,19 @@ public class ChangedOperation implements Changed {
     private ChangedContent requestChangedContent;
     private ChangedApiResponse changedApiResponse;
 
-    public ChangedOperation(Operation oldOperation, Operation newOperation) {
+    public ChangedOperation(String pathUrl, PathItem.HttpMethod httpMethod, Operation oldOperation, Operation newOperation) {
+        this.httpMethod = httpMethod;
+        this.pathUrl = pathUrl;
         this.oldOperation = oldOperation;
         this.newOperation = newOperation;
+    }
+
+    public String getPathUrl() {
+        return pathUrl;
+    }
+
+    public PathItem.HttpMethod getHttpMethod() {
+        return httpMethod;
     }
 
     public Operation getOldOperation() {
