@@ -65,7 +65,7 @@ public class ConsoleRender implements Render {
             if (operation.isDiffRequest()) {
                 ul_detail.append(StringUtils.repeat(' ', 2)).append("Request:")
                         .append(System.lineSeparator())
-                        .append(ul_content(operation.getRequestChangedContent(), true));
+                        .append(ul_content(operation.getChangedRequestBody().getChangedContent(), true));
             }
             if (operation.isDiffResponse()) {
                 ul_detail.append(StringUtils.repeat(' ', 2)).append("Return Type:")
