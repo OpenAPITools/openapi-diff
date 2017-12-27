@@ -1,7 +1,7 @@
 package com.qdesrame.openapi.test;
 
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
-import com.qdesrame.openapi.diff.model.ChangedEndpoint;
+import com.qdesrame.openapi.diff.model.ChangedOperation;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
 import com.qdesrame.openapi.diff.model.Endpoint;
 import com.qdesrame.openapi.diff.output.HtmlRender;
@@ -32,7 +32,7 @@ public class OpenApiDiffTest {
         ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_EMPTY_DOC, OPENAPI_DOC2);
         List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
         List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
+        List<ChangedOperation> changedEndPoints = changedOpenApi.getChangedOperations();
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
                 .render(changedOpenApi);
@@ -57,7 +57,7 @@ public class OpenApiDiffTest {
         ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_EMPTY_DOC);
         List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
         List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
-        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
+        List<ChangedOperation> changedEndPoints = changedOpenApi.getChangedOperations();
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
                 .render(changedOpenApi);
@@ -80,7 +80,7 @@ public class OpenApiDiffTest {
     @Test
     public void testDiff() {
         ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
-        List<ChangedEndpoint> changedEndPoints = changedOpenApi.getChangedEndpoints();
+        List<ChangedOperation> changedEndPoints = changedOpenApi.getChangedOperations();
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
                 .render(changedOpenApi);

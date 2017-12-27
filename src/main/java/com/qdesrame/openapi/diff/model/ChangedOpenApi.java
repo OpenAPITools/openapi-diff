@@ -3,8 +3,8 @@ package com.qdesrame.openapi.diff.model;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by adarsh.sharma on 22/12/17.
@@ -15,7 +15,7 @@ public class ChangedOpenApi implements Changed {
 
     private List<Endpoint> newEndpoints;
     private List<Endpoint> missingEndpoints;
-    private List<ChangedEndpoint> changedEndpoints;
+    private List<ChangedOperation> changedOperations;
 
     public OpenAPI getOldSpecOpenApi() {
         return oldSpecOpenApi;
@@ -50,29 +50,30 @@ public class ChangedOpenApi implements Changed {
     }
 
     public List<Endpoint> getDeprecatedEndpoints() {
-        return changedEndpoints.stream()
-                .map(c -> EndpointUtils.convert2EndpointList(c.getPathUrl(), c.getDeprecatedOperations()))
-                .collect(ArrayList::new, List::addAll, List::addAll);
+        return changedOperations.stream()
+                .filter(c -> c.isDeprecated())
+                .map(c -> EndpointUtils.convert2Endpoint(c.getPathUrl(), c.getHttpMethod(), c.getNewOperation()))
+                .collect(Collectors.toList());
     }
 
-    public List<ChangedEndpoint> getChangedEndpoints() {
-        return changedEndpoints;
+    public List<ChangedOperation> getChangedOperations() {
+        return changedOperations;
     }
 
-    public void setChangedEndpoints(List<ChangedEndpoint> changedEndpoints) {
-        this.changedEndpoints = changedEndpoints;
+    public void setChangedOperations(List<ChangedOperation> changedOperations) {
+        this.changedOperations = changedOperations;
     }
 
     @Override
     public boolean isDiff() {
         return newEndpoints.size() > 0
                 || missingEndpoints.size() > 0
-                || changedEndpoints.size() > 0;
+                || changedOperations.size() > 0;
     }
 
     public boolean isDiffBackwardCompatible() {
         return missingEndpoints.size() == 0
-                && changedEndpoints.stream().allMatch(c -> c.isDiffBackwardCompatible());
+                && changedOperations.stream().allMatch(c -> c.isDiffBackwardCompatible());
     }
 
 }

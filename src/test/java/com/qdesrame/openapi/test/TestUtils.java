@@ -11,7 +11,7 @@ public class TestUtils {
 
         Assert.assertTrue(changedOpenApi.getNewEndpoints().isEmpty());
         Assert.assertTrue(changedOpenApi.getMissingEndpoints().isEmpty());
-        Assert.assertTrue(changedOpenApi.getChangedEndpoints().isEmpty());
+        Assert.assertTrue(changedOpenApi.getChangedOperations().isEmpty());
     }
 
     public static void assertOpenApiChangedEndpoints(String oldSpec, String newSpec) {
@@ -19,7 +19,7 @@ public class TestUtils {
 
         Assert.assertTrue(changedOpenApi.getNewEndpoints().isEmpty());
         Assert.assertTrue(changedOpenApi.getMissingEndpoints().isEmpty());
-        Assert.assertTrue(changedOpenApi.getChangedEndpoints().size() > 0);
+        Assert.assertTrue(changedOpenApi.getChangedOperations().size() > 0);
     }
 
     public static void assertOpenApiBackwardCompatible(String oldSpec, String newSpec, boolean isDiff) {

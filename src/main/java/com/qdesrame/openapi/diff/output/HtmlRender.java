@@ -1,7 +1,6 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.model.*;
-import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -9,7 +8,6 @@ import j2html.tags.ContainerTag;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import static j2html.TagCreator.*;
 
@@ -38,8 +36,8 @@ public class HtmlRender implements Render {
         List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
         ContainerTag ol_deprecatedEndpoint = ol_deprecatedEndpoint(deprecatedEndpoints);
 
-        List<ChangedEndpoint> changedEndpoints = diff.getChangedEndpoints();
-        ContainerTag ol_changed = ol_changed(changedEndpoints);
+        List<ChangedOperation> changedOperations = diff.getChangedOperations();
+        ContainerTag ol_changed = ol_changed(changedOperations);
 
         return renderHtml(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed);
     }
@@ -114,31 +112,27 @@ public class HtmlRender implements Render {
                 del().withText(path)).with(span(" " + desc));
     }
 
-    private ContainerTag ol_changed(List<ChangedEndpoint> changedEndpoints) {
-        if (null == changedEndpoints) return ol();
+    private ContainerTag ol_changed(List<ChangedOperation> changedOperations) {
+        if (null == changedOperations) return ol();
         ContainerTag ol = ol();
-        for (ChangedEndpoint changedEndpoint : changedEndpoints) {
-            String pathUrl = changedEndpoint.getPathUrl();
-            Map<PathItem.HttpMethod, ChangedOperation> changedOperations = changedEndpoint.getChangedOperations();
-            for (Entry<PathItem.HttpMethod, ChangedOperation> entry : changedOperations.entrySet()) {
-                String method = entry.getKey().toString();
-                ChangedOperation changedOperation = entry.getValue();
-                String desc = changedOperation.getSummary();
+        for (ChangedOperation changedOperation : changedOperations) {
+            String pathUrl = changedOperation.getPathUrl();
+            String method = changedOperation.getHttpMethod().toString();
+            String desc = changedOperation.getSummary();
 
-                ContainerTag ul_detail = ul().withClass("detail");
-                if (changedOperation.isDiffParam()) {
-                    ul_detail.with(li().with(h3("Parameters")).with(ul_param(changedOperation.getChangedParameters())));
-                }
-                if (changedOperation.isDiffRequest()) {
-                    ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getRequestChangedContent())));
-                } else {
-                }
-                if (changedOperation.isDiffResponse()) {
-                    ul_detail.with(li().with(h3("Response")).with(ul_response(changedOperation.getChangedApiResponse())));
-                }
-                ol.with(li().with(span(method).withClass(method)).withText(pathUrl + " ").with(span(desc))
-                        .with(ul_detail));
+            ContainerTag ul_detail = ul().withClass("detail");
+            if (changedOperation.isDiffParam()) {
+                ul_detail.with(li().with(h3("Parameters")).with(ul_param(changedOperation.getChangedParameters())));
             }
+            if (changedOperation.isDiffRequest()) {
+                ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getRequestChangedContent())));
+            } else {
+            }
+            if (changedOperation.isDiffResponse()) {
+                ul_detail.with(li().with(h3("Response")).with(ul_response(changedOperation.getChangedApiResponse())));
+            }
+            ol.with(li().with(span(method).withClass(method)).withText(pathUrl + " ").with(span(desc))
+                    .with(ul_detail));
         }
         return ol;
     }
