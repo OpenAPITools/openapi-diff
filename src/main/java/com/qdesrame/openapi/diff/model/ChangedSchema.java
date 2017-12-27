@@ -52,7 +52,7 @@ public class ChangedSchema implements RequestResponseChanged {
 
     @Override
     public boolean isDiffBackwardCompatible(boolean isRequest) {
-        return ((isRequest &&  enumVal.getMissing().isEmpty() && increasedProperties.keySet().stream().noneMatch(p -> newSchema.getRequired().contains(p)))
+        return ((isRequest && enumVal.getMissing().isEmpty() && increasedProperties.keySet().stream().noneMatch(p -> newSchema.getRequired() != null && newSchema.getRequired().contains(p)))
                 || (!isRequest && enumVal.getIncreased().isEmpty() && missingProperties.isEmpty()))
                 && !changedType
                 && !discriminatorPropertyChanged
