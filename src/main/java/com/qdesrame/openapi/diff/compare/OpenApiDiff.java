@@ -6,8 +6,6 @@ import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
@@ -31,6 +29,7 @@ public class OpenApiDiff {
     private ContentDiff contentDiff;
     private ParametersDiff parametersDiff;
     private ParameterDiff parameterDiff;
+    private RequestBodyDiff requestBodyDiff;
 
     private OpenAPI oldSpecOpenApi;
     private OpenAPI newSpecOpenApi;
@@ -87,6 +86,7 @@ public class OpenApiDiff {
         this.contentDiff = new ContentDiff(this);
         this.parametersDiff = new ParametersDiff(this);
         this.parameterDiff = new ParameterDiff(this);
+        this.requestBodyDiff = new RequestBodyDiff(this);
     }
 
     /*
@@ -138,19 +138,9 @@ public class OpenApiDiff {
                 changedOperation.setSummary(newOperation.getSummary());
                 changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
-                Content oldRequestContent = new Content();
-                Content newRequestContent = new Content();
-                if (oldOperation.getRequestBody() != null) {
-                    RequestBody oldRequestBody = RefPointer.Replace.requestBody(oldSpecOpenApi.getComponents(), oldOperation.getRequestBody());
-                    if (oldRequestBody.getContent() != null) {
-                        oldRequestContent = oldRequestBody.getContent();
-                    }
+                if (oldOperation.getRequestBody() != null || newOperation.getRequestBody() != null) {
+                    changedOperation.setChangedRequestBody(requestBodyDiff.diff(oldOperation.getRequestBody(), newOperation.getRequestBody()));
                 }
-                if (newOperation.getRequestBody() != null) {
-                    RequestBody newRequestBody = RefPointer.Replace.requestBody(oldSpecOpenApi.getComponents(), newOperation.getRequestBody());
-                    newRequestContent = newRequestBody.getContent();
-                }
-                changedOperation.setRequestChangedContent(contentDiff.diff(oldRequestContent, newRequestContent));
 
                 ChangedParameters changedParameters = parametersDiff.diff(oldOperation.getParameters(), newOperation.getParameters());
                 changedOperation.setChangedParameters(changedParameters);

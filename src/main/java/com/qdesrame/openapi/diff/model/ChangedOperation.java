@@ -13,7 +13,7 @@ public class ChangedOperation implements Changed {
     private String summary;
     private boolean deprecated;
     private ChangedParameters changedParameters;
-    private ChangedContent requestChangedContent;
+    private ChangedRequestBody changedRequestBody;
     private ChangedApiResponse changedApiResponse;
 
     public ChangedOperation(String pathUrl, PathItem.HttpMethod httpMethod, Operation oldOperation, Operation newOperation) {
@@ -63,12 +63,12 @@ public class ChangedOperation implements Changed {
         this.changedParameters = changedParameters;
     }
 
-    public ChangedContent getRequestChangedContent() {
-        return requestChangedContent;
+    public ChangedRequestBody getChangedRequestBody() {
+        return changedRequestBody;
     }
 
-    public void setRequestChangedContent(ChangedContent requestChangedContent) {
-        this.requestChangedContent = requestChangedContent;
+    public void setChangedRequestBody(ChangedRequestBody changedRequestBody) {
+        this.changedRequestBody = changedRequestBody;
     }
 
     public ChangedApiResponse getChangedApiResponse() {
@@ -87,7 +87,7 @@ public class ChangedOperation implements Changed {
     @Override
     public boolean isDiffBackwardCompatible() {
         return changedParameters.isDiffBackwardCompatible()
-                && requestChangedContent.isDiffBackwardCompatible(true)
+                && (changedRequestBody == null || changedRequestBody.isDiffBackwardCompatible())
                 && changedApiResponse.isDiffBackwardCompatible();
     }
 
@@ -100,7 +100,7 @@ public class ChangedOperation implements Changed {
     }
 
     public boolean isDiffRequest() {
-        return requestChangedContent.isDiff();
+        return changedRequestBody != null && changedRequestBody.isDiff();
     }
 
 }
