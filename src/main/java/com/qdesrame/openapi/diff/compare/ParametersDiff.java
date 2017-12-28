@@ -37,7 +37,7 @@ public class ParametersDiff {
     }
 
     public ChangedParameters diff(List<Parameter> left, List<Parameter> right) {
-        ChangedParameters result = new ChangedParameters(left, right);
+        ChangedParameters result = new ChangedParameters(left, new ArrayList<>(right));
         if (null == left) left = new ArrayList<>();
         if (null == right) right = new ArrayList<>();
 
