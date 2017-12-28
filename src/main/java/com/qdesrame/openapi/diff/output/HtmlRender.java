@@ -164,7 +164,7 @@ public class HtmlRender implements Render {
 
     private ContainerTag li_changedResponse(String name, ChangedResponse response) {
         return li().withText(String.format("Changed response : [%s]", name))
-                .with(span(null == response.getDescription() ? "" : ("//" + response.getDescription())).withClass("comment"))
+                .with(span((null == response.getNewApiResponse() || null == response.getNewApiResponse().getDescription()) ? "" : ("//" + response.getNewApiResponse().getDescription())).withClass("comment"))
                 .with(ul_request(response.getChangedContent()));
     }
 

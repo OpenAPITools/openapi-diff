@@ -147,7 +147,8 @@ public class MarkdownRender implements Render {
 
     private String li_changedResponse(String name, ChangedResponse response) {
         StringBuilder sb = new StringBuilder("");
-        sb.append(String.format("Changed response : [%s]", name)).append(null == response.getDescription() ? "" : (" //" + response.getDescription()));
+        sb.append(String.format("Changed response : [%s]", name))
+                .append((null == response.getNewApiResponse() || null == response.getNewApiResponse().getDescription()) ? "" : (" //" + response.getNewApiResponse().getDescription()));
         return sb.toString();
     }
 
