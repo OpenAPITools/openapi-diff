@@ -49,7 +49,8 @@ public class ChangedResponse implements Changed {
 
     @Override
     public boolean isDiff() {
-        return (changedContent != null && changedContent.isDiff())
+        return changeDescription
+                ||(changedContent != null && changedContent.isDiff())
                 || (changedHeaders != null && changedHeaders.isDiff());
     }
 
