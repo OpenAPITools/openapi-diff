@@ -24,8 +24,8 @@ public class ParametersDiff {
 
     public ParametersDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
-        this.leftComponents = openApiDiff.getOldSpecOpenApi() != null? openApiDiff.getOldSpecOpenApi().getComponents(): null;
-        this.rightComponents = openApiDiff.getNewSpecOpenApi() != null? openApiDiff.getNewSpecOpenApi().getComponents(): null;
+        this.leftComponents = openApiDiff.getOldSpecOpenApi() != null ? openApiDiff.getOldSpecOpenApi().getComponents() : null;
+        this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
     }
 
     public static Optional<Parameter> contains(Components components, List<Parameter> parameters, Parameter parameter) {
@@ -37,7 +37,7 @@ public class ParametersDiff {
     }
 
     public ChangedParameters diff(List<Parameter> left, List<Parameter> right) {
-        ChangedParameters result = new ChangedParameters(left, new ArrayList<>(right));
+        ChangedParameters result = new ChangedParameters(left, right != null ? new ArrayList<>(right) : null);
         if (null == left) left = new ArrayList<>();
         if (null == right) right = new ArrayList<>();
 
