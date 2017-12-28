@@ -422,7 +422,7 @@ paths:
         '200':
           description: successful operation
           headers:
-            X-Rate-Limit:
+            X-Rate-Limit-New:
               description: calls per hour allowed by the user
               schema:
                 type: integer
@@ -430,8 +430,7 @@ paths:
             X-Expires-After:
               description: date in UTC when token expires
               schema:
-                type: string
-                format: date-time
+                type: integer
           content:
             application/xml:
               schema:

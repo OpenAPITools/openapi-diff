@@ -1,44 +1,34 @@
 package com.qdesrame.openapi.diff.model;
 
-import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 
 public class ChangedResponse implements Changed {
-    private String description;
-    private Content oldContent;
-    private Content newContent;
+    private ApiResponse oldApiResponse;
+    private ApiResponse newApiResponse;
+
+    private boolean changeDescription;
+    private ChangedHeaders changedHeaders;
     private ChangedContent changedContent;
 
-    public ChangedResponse(String description, Content oldContent, Content newContent) {
-        this.description = description;
-        this.oldContent = oldContent;
-        this.newContent = newContent;
+    public ChangedResponse(ApiResponse oldApiResponse, ApiResponse newApiResponse) {
+        this.oldApiResponse = oldApiResponse;
+        this.newApiResponse = newApiResponse;
     }
 
-    public String getDescription() {
-        return description;
+    public boolean isChangeDescription() {
+        return changeDescription;
     }
 
-    public ChangedResponse setDescription(String description) {
-        this.description = description;
-        return this;
+    public void setChangeDescription(boolean changeDescription) {
+        this.changeDescription = changeDescription;
     }
 
-    public Content getOldContent() {
-        return oldContent;
+    public ApiResponse getOldApiResponse() {
+        return oldApiResponse;
     }
 
-    public Content getNewContent() {
-        return newContent;
-    }
-
-    @Override
-    public boolean isDiff() {
-        return changedContent.isDiff();
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return changedContent.isDiffBackwardCompatible(false);
+    public ApiResponse getNewApiResponse() {
+        return newApiResponse;
     }
 
     public ChangedContent getChangedContent() {
@@ -47,5 +37,25 @@ public class ChangedResponse implements Changed {
 
     public void setChangedContent(ChangedContent changedContent) {
         this.changedContent = changedContent;
+    }
+
+    public ChangedHeaders getChangedHeaders() {
+        return changedHeaders;
+    }
+
+    public void setChangedHeaders(ChangedHeaders changedHeaders) {
+        this.changedHeaders = changedHeaders;
+    }
+
+    @Override
+    public boolean isDiff() {
+        return (changedContent != null && changedContent.isDiff())
+                || (changedHeaders != null && changedHeaders.isDiff());
+    }
+
+    @Override
+    public boolean isDiffBackwardCompatible() {
+        return (changedContent == null || changedContent.isDiffBackwardCompatible(false))
+                && (changedHeaders == null || changedHeaders.isDiffBackwardCompatible());
     }
 }

@@ -36,7 +36,7 @@ public class SchemaDiff {
 
     public static SchemaDiffResult getSchemaDiffResult(Class<? extends Schema> classType, OpenApiDiff openApiDiff) {
         if (classType == null) {
-            throw new IllegalArgumentException("classType can not be null");
+            classType = Schema.class;
         }
 
         Class<? extends SchemaDiffResult> aClass = schemaDiffResultClassMap.get(classType);
@@ -92,7 +92,7 @@ public class SchemaDiff {
         //If schema type is same then get specific SchemaDiffResult and compare the properties
         SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
         ChangedSchema changedSchema = result.diff(leftComponents, rightComponents, left, right);
-        if(areBothRefSchemas) {
+        if (areBothRefSchemas) {
             schemaDiffCache.addToCache(leftRef, rightRef, changedSchema);
         }
         return changedSchema;
