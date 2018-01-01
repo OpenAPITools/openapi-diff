@@ -108,6 +108,7 @@ public class SchemaDiff {
                     allOfSchema = resolveComposedSchema(components, allOfSchema);
                     schema = addSchema(schema, allOfSchema);
                 }
+                composedSchema.setAllOf(null);
             }
         }
         return schema;
