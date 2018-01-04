@@ -170,14 +170,16 @@ public class HtmlRender implements Render {
 
     private ContainerTag ul_request(ChangedContent changedContent) {
         ContainerTag ul = ul().withClass("change request-body");
-        for (String propName : changedContent.getIncreased().keySet()) {
-            ul.with(li_addRequest(propName, changedContent.getIncreased().get(propName)));
-        }
-        for (String propName : changedContent.getMissing().keySet()) {
-            ul.with(li_missingRequest(propName, changedContent.getMissing().get(propName)));
-        }
-        for (String propName : changedContent.getChanged().keySet()) {
-            ul.with(li_changedRequest(propName, changedContent.getChanged().get(propName)));
+        if(changedContent != null) {
+            for (String propName : changedContent.getIncreased().keySet()) {
+                ul.with(li_addRequest(propName, changedContent.getIncreased().get(propName)));
+            }
+            for (String propName : changedContent.getMissing().keySet()) {
+                ul.with(li_missingRequest(propName, changedContent.getMissing().get(propName)));
+            }
+            for (String propName : changedContent.getChanged().keySet()) {
+                ul.with(li_changedRequest(propName, changedContent.getChanged().get(propName)));
+            }
         }
         return ul;
     }
@@ -228,7 +230,7 @@ public class HtmlRender implements Render {
     private ContainerTag li_deprecatedParam(ChangedParameter param) {
         return li().withClass("missing").with(span("Deprecated"))
                 .with(del(param.getName())).with(span("in ").withText(param.getIn()))
-                .with(span(null == param.getRightParameter().getDescription() ? "" : ("//" + param.getRightParameter().getDescription())).withClass("comment"));
+                .with(span(null == param.getNewParameter().getDescription() ? "" : ("//" + param.getNewParameter().getDescription())).withClass("comment"));
     }
 
     private ContainerTag li_changedParam(ChangedParameter changeParam) {
@@ -237,8 +239,8 @@ public class HtmlRender implements Render {
         }
         boolean changeRequired = changeParam.isChangeRequired();
         boolean changeDescription = changeParam.isChangeDescription();
-        Parameter rightParam = changeParam.getRightParameter();
-        Parameter leftParam = changeParam.getLeftParameter();
+        Parameter rightParam = changeParam.getNewParameter();
+        Parameter leftParam = changeParam.getNewParameter();
         ContainerTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
         if (changeRequired) {
             li.withText(" change into " + (rightParam.getRequired() ? "required" : "not required"));

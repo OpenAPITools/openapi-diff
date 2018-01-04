@@ -86,17 +86,17 @@ public class ChangedOperation implements Changed {
 
     @Override
     public boolean isDiffBackwardCompatible() {
-        return changedParameters.isDiffBackwardCompatible()
+        return (changedParameters == null || changedParameters.isDiffBackwardCompatible())
                 && (changedRequestBody == null || changedRequestBody.isDiffBackwardCompatible())
-                && changedApiResponse.isDiffBackwardCompatible();
+                && (changedApiResponse == null || changedApiResponse.isDiffBackwardCompatible());
     }
 
     public boolean isDiffParam() {
-        return changedParameters.isDiff();
+        return changedParameters != null && changedParameters.isDiff();
     }
 
     public boolean isDiffResponse() {
-        return changedApiResponse.isDiff();
+        return changedApiResponse != null && changedApiResponse.isDiff();
     }
 
     public boolean isDiffRequest() {

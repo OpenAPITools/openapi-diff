@@ -39,6 +39,8 @@ public class ChangedHeader implements Changed {
     public boolean isDiffBackwardCompatible() {
         return changeRequired
                 && changeAllowEmptyValue
+                && changeStyle
+                && changeExplode
                 && (changedSchema == null || changedSchema.isDiffBackwardCompatible(false))
                 && (changedContent == null || changedContent.isDiffBackwardCompatible(false));
     }

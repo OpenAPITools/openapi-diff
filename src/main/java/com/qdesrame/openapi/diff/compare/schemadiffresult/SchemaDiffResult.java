@@ -21,7 +21,7 @@ public class SchemaDiffResult {
 
     public SchemaDiffResult(String type, OpenApiDiff openApiDiff) {
         this(openApiDiff);
-        this.changedSchema.setChangeType(type);
+        this.changedSchema.setType(type);
     }
 
     public ChangedSchema getChangedSchema() {
@@ -40,6 +40,7 @@ public class SchemaDiffResult {
         changedSchema.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
         changedSchema.setChangeReadOnly(!Boolean.TRUE.equals(left.getReadOnly()) && Boolean.TRUE.equals(right.getReadOnly()));
         changedSchema.setChangeWriteOnly(!Boolean.TRUE.equals(left.getWriteOnly()) && Boolean.TRUE.equals(right.getWriteOnly()));
+        changedSchema.setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
 
         Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
         Map<String, Schema> rightProperties = null == right ? null : right.getProperties();

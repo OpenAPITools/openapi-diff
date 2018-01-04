@@ -7,7 +7,7 @@ import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
 /**
  * Created by adarsh.sharma on 25/12/17.
  */
-public class SchemaDiffCacheTest {
+public class ReferenceDiffCacheTest {
 
     private final String OPENAPI_DOC1 = "schema_diff_cache_1.yaml";
 

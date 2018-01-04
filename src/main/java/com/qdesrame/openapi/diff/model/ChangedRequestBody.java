@@ -59,11 +59,11 @@ public class ChangedRequestBody implements Changed {
 
     @Override
     public boolean isDiff() {
-        return changeDescription || changeRequired || changedContent.isDiff();
+        return changeDescription || changeRequired || (changedContent != null && changedContent.isDiff());
     }
 
     @Override
     public boolean isDiffBackwardCompatible() {
-        return !changeRequired && changedContent.isDiffBackwardCompatible(true);
+        return !changeRequired && (changedContent == null || changedContent.isDiffBackwardCompatible(true));
     }
 }

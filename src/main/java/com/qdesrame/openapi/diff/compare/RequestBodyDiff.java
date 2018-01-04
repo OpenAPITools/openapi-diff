@@ -12,12 +12,24 @@ import java.util.Objects;
  */
 public class RequestBodyDiff {
     private OpenApiDiff openApiDiff;
+    private ReferenceDiffCache<ChangedRequestBody> requestBodyDiffCache;
 
     public RequestBodyDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
+        this.requestBodyDiffCache = new ReferenceDiffCache<>();
     }
 
     public ChangedRequestBody diff(RequestBody left, RequestBody right) {
+        String leftRef = left.get$ref();
+        String rightRef = right.get$ref();
+        boolean areBothRefs = leftRef != null && rightRef != null;
+        if (areBothRefs) {
+            ChangedRequestBody changedRequestBodyCache = requestBodyDiffCache.getFromCache(leftRef, rightRef);
+            if (changedRequestBodyCache != null) {
+                return changedRequestBodyCache;
+            }
+        }
+
         Content oldRequestContent = new Content();
         Content newRequestContent = new Content();
         RequestBody oldRequestBody = null;
@@ -29,13 +41,13 @@ public class RequestBodyDiff {
             }
         }
         if (right != null) {
-            newRequestBody = RefPointer.Replace.requestBody(openApiDiff.getOldSpecOpenApi().getComponents(), right);
+            newRequestBody = RefPointer.Replace.requestBody(openApiDiff.getNewSpecOpenApi().getComponents(), right);
             if (newRequestBody.getContent() != null) {
                 newRequestContent = newRequestBody.getContent();
             }
         }
 
-        ChangedRequestBody changedRequestBody = new ChangedRequestBody(left, right);
+        ChangedRequestBody changedRequestBody = new ChangedRequestBody(oldRequestBody, newRequestBody);
 
         boolean leftRequired = oldRequestBody != null ? Boolean.TRUE.equals(oldRequestBody.getRequired()) : false;
         boolean rightRequired = newRequestBody != null ? Boolean.TRUE.equals(newRequestBody.getRequired()) : false;
@@ -46,6 +58,11 @@ public class RequestBodyDiff {
         changedRequestBody.setChangeDescription(!Objects.equals(leftDescription, rightDescription));
 
         changedRequestBody.setChangedContent(openApiDiff.getContentDiff().diff(oldRequestContent, newRequestContent));
-        return changedRequestBody;
+
+        if (areBothRefs) {
+            requestBodyDiffCache.addToCache(leftRef, rightRef, changedRequestBody);
+        }
+
+        return changedRequestBody.isDiff() ? changedRequestBody : null;
     }
 }

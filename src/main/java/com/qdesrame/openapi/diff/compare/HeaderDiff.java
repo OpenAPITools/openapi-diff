@@ -1,6 +1,8 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedHeader;
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.headers.Header;
 
 import java.util.Objects;
@@ -11,12 +13,31 @@ import java.util.Optional;
  */
 public class HeaderDiff {
     private OpenApiDiff openApiDiff;
+    private Components leftComponents;
+    private Components rightComponents;
+    private ReferenceDiffCache<ChangedHeader> headerReferenceDiffCache;
 
     public HeaderDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
+        this.leftComponents = openApiDiff.getOldSpecOpenApi() != null ? openApiDiff.getOldSpecOpenApi().getComponents() : null;
+        this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
+        this.headerReferenceDiffCache = new ReferenceDiffCache<>();
     }
 
     public ChangedHeader diff(Header left, Header right) {
+        String leftRef = left.get$ref();
+        String rightRef = right.get$ref();
+        boolean areBothRefHeaders = leftRef != null && rightRef != null;
+        if (areBothRefHeaders) {
+            ChangedHeader changedHeaderFromCache = headerReferenceDiffCache.getFromCache(leftRef, rightRef);
+            if (changedHeaderFromCache != null) {
+                return changedHeaderFromCache;
+            }
+        }
+
+        left = RefPointer.Replace.header(leftComponents, left);
+        right = RefPointer.Replace.header(rightComponents, right);
+
         ChangedHeader changedHeader = new ChangedHeader(left, right);
 
         changedHeader.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
@@ -28,7 +49,11 @@ public class HeaderDiff {
         changedHeader.setChangedSchema(openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema()));
         changedHeader.setChangedContent(openApiDiff.getContentDiff().diff(left.getContent(), right.getContent()));
 
-        return changedHeader;
+        if (areBothRefHeaders) {
+            headerReferenceDiffCache.addToCache(leftRef, rightRef, changedHeader);
+        }
+
+        return changedHeader.isDiff() ? changedHeader : null;
     }
 
     private boolean getBooleanDiff(Boolean left, Boolean right) {

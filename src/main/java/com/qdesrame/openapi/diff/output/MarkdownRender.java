@@ -227,8 +227,8 @@ public class MarkdownRender implements Render {
     private String li_changedParam(ChangedParameter changeParam) {
         boolean changeRequired = changeParam.isChangeRequired();
         boolean changeDescription = changeParam.isChangeDescription();
-        Parameter rightParam = changeParam.getRightParameter();
-        Parameter leftParam = changeParam.getLeftParameter();
+        Parameter rightParam = changeParam.getNewParameter();
+        Parameter leftParam = changeParam.getNewParameter();
         StringBuilder sb = new StringBuilder("");
         sb.append(rightParam.getName());
         if (changeRequired) {

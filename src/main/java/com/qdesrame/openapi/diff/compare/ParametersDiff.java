@@ -37,7 +37,7 @@ public class ParametersDiff {
     }
 
     public ChangedParameters diff(List<Parameter> left, List<Parameter> right) {
-        ChangedParameters result = new ChangedParameters(left, right != null ? new ArrayList<>(right) : null);
+        ChangedParameters changedParameters = new ChangedParameters(left, right != null ? new ArrayList<>(right) : null);
         if (null == left) left = new ArrayList<>();
         if (null == right) right = new ArrayList<>();
 
@@ -45,17 +45,18 @@ public class ParametersDiff {
             RefPointer.Replace.parameter(leftComponents, leftPara);
             Optional<Parameter> rightParam = contains(rightComponents, right, leftPara);
             if (!rightParam.isPresent()) {
-                result.getMissing().add(leftPara);
+                changedParameters.getMissing().add(leftPara);
             } else {
                 Parameter rightPara = rightParam.get();
                 right.remove(rightPara);
                 ChangedParameter changedParameter = openApiDiff.getParameterDiff().diff(leftPara, rightPara);
-                if (changedParameter.isDiff()) {
-                    result.getChanged().add(changedParameter);
+                if (changedParameter != null) {
+                    changedParameters.getChanged().add(changedParameter);
                 }
             }
         }
-        result.getIncreased().addAll(right);
-        return result;
+        changedParameters.getIncreased().addAll(right);
+
+        return changedParameters.isDiff() ? changedParameters : null;
     }
 }
