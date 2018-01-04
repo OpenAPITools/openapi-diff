@@ -2,6 +2,8 @@ package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +11,8 @@ import java.util.Map;
 /**
  * Created by adarsh.sharma on 22/12/17.
  */
+@Getter
+@Setter
 public class ChangedContent implements RequestResponseChanged {
     private Content oldContent;
     private Content newContent;
@@ -23,38 +27,6 @@ public class ChangedContent implements RequestResponseChanged {
         this.increased = new HashMap<>();
         this.missing = new HashMap<>();
         this.changed = new HashMap<>();
-    }
-
-    public Content getOldContent() {
-        return oldContent;
-    }
-
-    public Content getNewContent() {
-        return newContent;
-    }
-
-    public Map<String, MediaType> getIncreased() {
-        return increased;
-    }
-
-    public void setIncreased(Map<String, MediaType> increased) {
-        this.increased = increased;
-    }
-
-    public Map<String, MediaType> getMissing() {
-        return missing;
-    }
-
-    public void setMissing(Map<String, MediaType> missing) {
-        this.missing = missing;
-    }
-
-    public Map<String, ChangedMediaType> getChanged() {
-        return changed;
-    }
-
-    public void setChanged(Map<String, ChangedMediaType> changed) {
-        this.changed = changed;
     }
 
     @Override

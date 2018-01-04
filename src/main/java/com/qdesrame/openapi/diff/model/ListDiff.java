@@ -1,8 +1,11 @@
 package com.qdesrame.openapi.diff.model;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class ListDiff<T> {
 
     private List<T> increased;
@@ -41,15 +44,4 @@ public class ListDiff<T> {
         return instance;
     }
 
-    public List<T> getIncreased() {
-        return increased;
-    }
-
-    public List<T> getMissing() {
-        return missing;
-    }
-
-    public List<T> getSharedItem() {
-        return sharedItem;
-    }
 }

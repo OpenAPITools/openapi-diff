@@ -193,7 +193,7 @@ public class HtmlRender implements Render {
     }
 
     private ContainerTag li_changedRequest(String name, ChangedMediaType request) {
-        return li().withText(String.format("Changed body: '%s'", name)).with(div_changedSchema(request.getSchema()));
+        return li().withText(String.format("Changed body: '%s'", name)).with(div_changedSchema(request.getChangedSchema()));
     }
 
     private ContainerTag div_changedSchema(ChangedSchema schema) {

@@ -2,10 +2,12 @@ package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 public class ChangedOperation implements Changed {
-
     private String pathUrl;
     private PathItem.HttpMethod httpMethod;
     private Operation oldOperation;
@@ -21,62 +23,6 @@ public class ChangedOperation implements Changed {
         this.pathUrl = pathUrl;
         this.oldOperation = oldOperation;
         this.newOperation = newOperation;
-    }
-
-    public String getPathUrl() {
-        return pathUrl;
-    }
-
-    public PathItem.HttpMethod getHttpMethod() {
-        return httpMethod;
-    }
-
-    public Operation getOldOperation() {
-        return oldOperation;
-    }
-
-    public Operation getNewOperation() {
-        return newOperation;
-    }
-
-    public String getSummary() {
-        return summary;
-    }
-
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
-
-    public boolean isDeprecated() {
-        return deprecated;
-    }
-
-    public void setDeprecated(boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
-    public ChangedParameters getChangedParameters() {
-        return changedParameters;
-    }
-
-    public void setChangedParameters(ChangedParameters changedParameters) {
-        this.changedParameters = changedParameters;
-    }
-
-    public ChangedRequestBody getChangedRequestBody() {
-        return changedRequestBody;
-    }
-
-    public void setChangedRequestBody(ChangedRequestBody changedRequestBody) {
-        this.changedRequestBody = changedRequestBody;
-    }
-
-    public ChangedApiResponse getChangedApiResponse() {
-        return changedApiResponse;
-    }
-
-    public void setChangedApiResponse(ChangedApiResponse changedApiResponse) {
-        this.changedApiResponse = changedApiResponse;
     }
 
     @Override
