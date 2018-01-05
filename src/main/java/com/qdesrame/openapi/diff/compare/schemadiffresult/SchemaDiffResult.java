@@ -6,10 +6,12 @@ import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.ListDiff;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Getter;
 
 import java.util.Map;
 import java.util.Objects;
 
+@Getter
 public class SchemaDiffResult {
     protected ChangedSchema changedSchema;
     protected OpenApiDiff openApiDiff;
@@ -21,11 +23,7 @@ public class SchemaDiffResult {
 
     public SchemaDiffResult(String type, OpenApiDiff openApiDiff) {
         this(openApiDiff);
-        this.changedSchema.setChangeType(type);
-    }
-
-    public ChangedSchema getChangedSchema() {
-        return changedSchema;
+        this.changedSchema.setType(type);
     }
 
     public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
@@ -40,6 +38,7 @@ public class SchemaDiffResult {
         changedSchema.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
         changedSchema.setChangeReadOnly(!Boolean.TRUE.equals(left.getReadOnly()) && Boolean.TRUE.equals(right.getReadOnly()));
         changedSchema.setChangeWriteOnly(!Boolean.TRUE.equals(left.getWriteOnly()) && Boolean.TRUE.equals(right.getWriteOnly()));
+        changedSchema.setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
 
         Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
         Map<String, Schema> rightProperties = null == right ? null : right.getProperties();

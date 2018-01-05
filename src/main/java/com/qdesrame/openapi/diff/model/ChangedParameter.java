@@ -1,18 +1,26 @@
 package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.parameters.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 public class ChangedParameter implements Changed {
-    private Parameter left;
-    private Parameter right;
+    private Parameter oldParameter;
+    private Parameter newParameter;
 
     private String name;
     private String in;
-    private boolean changeRequired;
+
     private boolean changeDescription;
+    private boolean changeRequired;
     private boolean deprecated;
+    private boolean changeStyle;
+    private boolean changeExplode;
+    private boolean changeAllowEmptyValue;
     private ChangedSchema changedSchema;
+    private ChangedContent changedContent;
 
     public ChangedParameter(String name, String in) {
         this.name = name;
@@ -21,69 +29,23 @@ public class ChangedParameter implements Changed {
 
     @Override
     public boolean isDiff() {
-        return deprecated || changeDescription || changeRequired || changedSchema.isDiff();
+        return changeDescription
+                || changeRequired
+                || deprecated
+                || changeAllowEmptyValue
+                || changeStyle
+                || changeExplode
+                || (changedSchema != null && changedSchema.isDiff())
+                || (changedContent != null && changedContent.isDiff());
     }
 
     @Override
     public boolean isDiffBackwardCompatible() {
-        return !changeRequired
-                && changedSchema.isDiffBackwardCompatible(true);
+        return (!changeRequired || Boolean.TRUE.equals(oldParameter.getRequired()))
+                && (!changeAllowEmptyValue || Boolean.TRUE.equals(newParameter.getAllowEmptyValue()))
+                && !changeStyle
+                && !changeExplode
+                && (changedSchema == null || changedSchema.isDiffBackwardCompatible(true))
+                && (changedContent == null || changedContent.isDiffBackwardCompatible(true));
     }
-
-    public void setChangeRequired(boolean changeRequired) {
-        this.changeRequired = changeRequired;
-    }
-
-    public boolean isChangeRequired() {
-        return changeRequired;
-    }
-
-    public void setChangeDescription(boolean changeDescription) {
-        this.changeDescription = changeDescription;
-    }
-
-    public boolean isChangeDescription() {
-        return changeDescription;
-    }
-
-    public void setChangeDeprecated(boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
-    public void setChangedSchema(ChangedSchema changedSchema) {
-        this.changedSchema = changedSchema;
-    }
-
-    public ChangedSchema getChangedSchema() {
-        return changedSchema;
-    }
-
-    public Parameter getLeftParameter() {
-        return left;
-    }
-
-    public void setLeftParameter(Parameter left) {
-        this.left = left;
-    }
-
-    public Parameter getRightParameter() {
-        return right;
-    }
-
-    public void setRightParameter(Parameter right) {
-        this.right = right;
-    }
-
-    public boolean isDeprecated() {
-        return deprecated;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getIn() {
-        return in;
-    }
-
 }

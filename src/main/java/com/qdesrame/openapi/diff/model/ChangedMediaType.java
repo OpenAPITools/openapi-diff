@@ -1,7 +1,11 @@
 package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ChangedMediaType implements RequestResponseChanged {
     private Schema oldSchema;
     private Schema newSchema;
@@ -17,31 +21,9 @@ public class ChangedMediaType implements RequestResponseChanged {
         return changedSchema.isDiff();
     }
 
-    public void setChangedSchema(ChangedSchema changedSchema) {
-        this.changedSchema = changedSchema;
-    }
-
-    public Schema getOldSchema() {
-        return oldSchema;
-    }
-
-    public Schema getNewSchema() {
-        return newSchema;
-    }
-
-    public ChangedSchema getChangedSchema() {
-        return changedSchema;
-    }
-
-    public ChangedSchema getSchema() {
-        return changedSchema;
-    }
     @Override
     public boolean isDiffBackwardCompatible(boolean isRequest) {
         return changedSchema.isDiffBackwardCompatible(isRequest);
     }
 
-    public void setSchema(ChangedSchema changedSchema) {
-        this.changedSchema = changedSchema;
-    }
 }

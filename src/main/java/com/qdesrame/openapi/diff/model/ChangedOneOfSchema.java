@@ -1,10 +1,15 @@
 package com.qdesrame.openapi.diff.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Map;
 
 /**
  * Created by adarsh.sharma on 22/12/17.
  */
+@Getter
+@Setter
 public class ChangedOneOfSchema implements RequestResponseChanged {
     private Map<String, String> oldMapping;
     private Map<String, String> newMapping;
@@ -16,38 +21,6 @@ public class ChangedOneOfSchema implements RequestResponseChanged {
     public ChangedOneOfSchema(Map<String, String> oldMapping, Map<String, String> newMapping) {
         this.oldMapping = oldMapping;
         this.newMapping = newMapping;
-    }
-
-    public Map<String, String> getOldMapping() {
-        return oldMapping;
-    }
-
-    public Map<String, String> getNewMapping() {
-        return newMapping;
-    }
-
-    public Map<String, String> getIncreasedMapping() {
-        return increasedMapping;
-    }
-
-    public void setIncreasedMapping(Map<String, String> increasedMapping) {
-        this.increasedMapping = increasedMapping;
-    }
-
-    public Map<String, String> getMissingMapping() {
-        return missingMapping;
-    }
-
-    public void setMissingMapping(Map<String, String> missingMapping) {
-        this.missingMapping = missingMapping;
-    }
-
-    public Map<String, ChangedSchema> getChangedMapping() {
-        return changedMapping;
-    }
-
-    public void setChangedMapping(Map<String, ChangedSchema> changedMapping) {
-        this.changedMapping = changedMapping;
     }
 
     @Override

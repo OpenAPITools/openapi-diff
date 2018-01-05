@@ -173,9 +173,9 @@ public class ConsoleRender implements Render {
 
     private String li_changedParam(ChangedParameter changeParam) {
         if (changeParam.isDeprecated()) {
-            return itemParam("Deprecated ", changeParam.getRightParameter());
+            return itemParam("Deprecated ", changeParam.getNewParameter());
         } else {
-            return itemParam("Changed ", changeParam.getRightParameter());
+            return itemParam("Changed ", changeParam.getNewParameter());
         }
     }
 

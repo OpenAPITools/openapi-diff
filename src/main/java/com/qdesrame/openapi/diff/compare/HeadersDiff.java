@@ -30,12 +30,12 @@ public class HeadersDiff {
             Header oldHeader = left.get(headerKey);
             Header newHeader = right.get(headerKey);
             ChangedHeader changedHeader = openApiDiff.getHeaderDiff().diff(oldHeader, newHeader);
-            if (changedHeader.isDiff()) {
+            if (changedHeader != null) {
                 changed.put(headerKey, changedHeader);
             }
         }
         changedHeaders.setChanged(changed);
 
-        return changedHeaders;
+        return changedHeaders.isDiff() ? changedHeaders : null;
     }
 }

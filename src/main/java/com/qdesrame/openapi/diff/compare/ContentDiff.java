@@ -42,6 +42,6 @@ public class ContentDiff implements Comparable<Content> {
             }
         }
         changedContent.setChanged(changedMediaTypes);
-        return changedContent;
+        return changedContent.isDiff() ? changedContent : null;
     }
 }

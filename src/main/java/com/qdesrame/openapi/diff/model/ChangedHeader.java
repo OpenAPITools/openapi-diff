@@ -1,10 +1,14 @@
 package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.headers.Header;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by adarsh.sharma on 28/12/17.
  */
+@Getter
+@Setter
 public class ChangedHeader implements Changed {
     private Header oldHeader;
     private Header newHeader;
@@ -39,88 +43,9 @@ public class ChangedHeader implements Changed {
     public boolean isDiffBackwardCompatible() {
         return changeRequired
                 && changeAllowEmptyValue
+                && changeStyle
+                && changeExplode
                 && (changedSchema == null || changedSchema.isDiffBackwardCompatible(false))
                 && (changedContent == null || changedContent.isDiffBackwardCompatible(false));
     }
-
-    public Header getOldHeader() {
-        return oldHeader;
-    }
-
-    public void setOldHeader(Header oldHeader) {
-        this.oldHeader = oldHeader;
-    }
-
-    public Header getNewHeader() {
-        return newHeader;
-    }
-
-    public void setNewHeader(Header newHeader) {
-        this.newHeader = newHeader;
-    }
-
-    public boolean isChangeDescription() {
-        return changeDescription;
-    }
-
-    public void setChangeDescription(boolean changeDescription) {
-        this.changeDescription = changeDescription;
-    }
-
-    public boolean isChangeRequired() {
-        return changeRequired;
-    }
-
-    public void setChangeRequired(boolean changeRequired) {
-        this.changeRequired = changeRequired;
-    }
-
-    public boolean isChangeDeprecated() {
-        return changeDeprecated;
-    }
-
-    public void setChangeDeprecated(boolean changeDeprecated) {
-        this.changeDeprecated = changeDeprecated;
-    }
-
-    public boolean isChangeAllowEmptyValue() {
-        return changeAllowEmptyValue;
-    }
-
-    public void setChangeAllowEmptyValue(boolean changeAllowEmptyValue) {
-        this.changeAllowEmptyValue = changeAllowEmptyValue;
-    }
-
-    public boolean isChangeStyle() {
-        return changeStyle;
-    }
-
-    public void setChangeStyle(boolean changeStyle) {
-        this.changeStyle = changeStyle;
-    }
-
-    public boolean isChangeExplode() {
-        return changeExplode;
-    }
-
-    public void setChangeExplode(boolean changeExplode) {
-        this.changeExplode = changeExplode;
-    }
-
-    public ChangedSchema getChangedSchema() {
-        return changedSchema;
-    }
-
-    public void setChangedSchema(ChangedSchema changedSchema) {
-        this.changedSchema = changedSchema;
-    }
-
-    public ChangedContent getChangedContent() {
-        return changedContent;
-    }
-
-    public void setChangedContent(ChangedContent changedContent) {
-        this.changedContent = changedContent;
-    }
-
 }

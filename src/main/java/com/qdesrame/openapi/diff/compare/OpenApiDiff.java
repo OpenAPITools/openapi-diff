@@ -2,11 +2,9 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
-import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
@@ -14,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +30,8 @@ public class OpenApiDiff {
     private ResponseDiff responseDiff;
     private HeadersDiff headersDiff;
     private HeaderDiff headerDiff;
+    private ApiResponseDiff apiResponseDiff;
+    private OperationDiff operationDiff;
 
     private OpenAPI oldSpecOpenApi;
     private OpenAPI newSpecOpenApi;
@@ -93,6 +92,8 @@ public class OpenApiDiff {
         this.responseDiff = new ResponseDiff(this);
         this.headersDiff = new HeadersDiff(this);
         this.headerDiff = new HeaderDiff(this);
+        this.apiResponseDiff = new ApiResponseDiff(this);
+        this.operationDiff = new OperationDiff(this);
     }
 
     /*
@@ -126,56 +127,25 @@ public class OpenApiDiff {
 
             Map<PathItem.HttpMethod, Operation> oldOperationMap = oldPath.readOperationsMap();
             Map<PathItem.HttpMethod, Operation> newOperationMap = newPath.readOperationsMap();
-            MapKeyDiff<PathItem.HttpMethod, Operation> operationDiff = MapKeyDiff.diff(oldOperationMap,
+            MapKeyDiff<PathItem.HttpMethod, Operation> operationsDiff = MapKeyDiff.diff(oldOperationMap,
                     newOperationMap);
-            Map<PathItem.HttpMethod, Operation> increasedOperation = operationDiff.getIncreased();
-            Map<PathItem.HttpMethod, Operation> missingOperation = operationDiff.getMissing();
+            Map<PathItem.HttpMethod, Operation> increasedOperation = operationsDiff.getIncreased();
+            Map<PathItem.HttpMethod, Operation> missingOperation = operationsDiff.getMissing();
 
             this.newEndpoints.addAll(EndpointUtils.convert2Endpoints(pathUrl, increasedOperation));
             this.missingEndpoints.addAll(EndpointUtils.convert2Endpoints(pathUrl, missingOperation));
 
-            List<PathItem.HttpMethod> sharedMethods = operationDiff.getSharedKey();
+            List<PathItem.HttpMethod> sharedMethods = operationsDiff.getSharedKey();
 
-            ChangedOperation changedOperation;
             for (PathItem.HttpMethod method : sharedMethods) {
                 Operation oldOperation = oldOperationMap.get(method);
                 Operation newOperation = newOperationMap.get(method);
-                changedOperation = new ChangedOperation(pathUrl, method, oldOperation, newOperation);
-                changedOperation.setSummary(newOperation.getSummary());
-                changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
+                ChangedOperation changedOperation = operationDiff.diff(pathUrl, method, oldOperation, newOperation);
 
-                if (oldOperation.getRequestBody() != null || newOperation.getRequestBody() != null) {
-                    changedOperation.setChangedRequestBody(requestBodyDiff.diff(oldOperation.getRequestBody(), newOperation.getRequestBody()));
-                }
-
-                ChangedParameters changedParameters = parametersDiff.diff(oldOperation.getParameters(), newOperation.getParameters());
-                changedOperation.setChangedParameters(changedParameters);
-
-                MapKeyDiff<String, ApiResponse> responseMapKeyDiff = MapKeyDiff.diff(oldOperation.getResponses(),
-                        newOperation.getResponses());
-                ChangedApiResponse changedApiResponse = new ChangedApiResponse(oldOperation.getResponses(), newOperation.getResponses());
-                changedOperation.setChangedApiResponse(changedApiResponse);
-                changedApiResponse.setAddResponses(responseMapKeyDiff.getIncreased());
-                changedApiResponse.setMissingResponses(responseMapKeyDiff.getMissing());
-                List<String> sharedResponseCodes = responseMapKeyDiff.getSharedKey();
-                Map<String, ChangedResponse> resps = new HashMap<>();
-                for (String responseCode : sharedResponseCodes) {
-                    ApiResponse oldResponse = RefPointer.Replace.response(oldSpecOpenApi.getComponents(), oldOperation.getResponses().get(responseCode));
-                    ApiResponse newResponse = RefPointer.Replace.response(newSpecOpenApi.getComponents(), newOperation.getResponses().get(responseCode));
-                    ChangedContent changedContent = contentDiff.diff(oldResponse.getContent(), newResponse.getContent());
-                    ChangedResponse changedResponse = responseDiff.diff(oldResponse, newResponse);
-                    changedResponse.setChangedContent(changedContent);
-                    if (changedResponse.isDiff()) {
-                        resps.put(responseCode, changedResponse);
-                    }
-                }
-                changedApiResponse.setChangedResponses(resps);
-
-                if (changedOperation.isDiff()) {
+                if (changedOperation != null) {
                     changedOperations.add(changedOperation);
                 }
             }
-
         }
 
         return getChangedOpenApi();
@@ -220,6 +190,14 @@ public class OpenApiDiff {
 
     public HeaderDiff getHeaderDiff() {
         return headerDiff;
+    }
+
+    public ApiResponseDiff getApiResponseDiff() {
+        return apiResponseDiff;
+    }
+
+    public OperationDiff getOperationDiff() {
+        return operationDiff;
     }
 
     public OpenAPI getOldSpecOpenApi() {

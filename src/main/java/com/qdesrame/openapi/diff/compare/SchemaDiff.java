@@ -20,7 +20,7 @@ public class SchemaDiff {
     private Components leftComponents;
     private Components rightComponents;
     private OpenApiDiff openApiDiff;
-    private SchemaDiffCache schemaDiffCache;
+    private ReferenceDiffCache<ChangedSchema> schemaDiffCache;
     private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>> schemaDiffResultClassMap = new HashMap<>();
 
     static {
@@ -58,7 +58,7 @@ public class SchemaDiff {
         this.openApiDiff = openApiDiff;
         this.leftComponents = openApiDiff.getOldSpecOpenApi() != null ? openApiDiff.getOldSpecOpenApi().getComponents() : null;
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
-        this.schemaDiffCache = new SchemaDiffCache();
+        this.schemaDiffCache = new ReferenceDiffCache();
     }
 
     public ChangedSchema diff(Schema left, Schema right) {

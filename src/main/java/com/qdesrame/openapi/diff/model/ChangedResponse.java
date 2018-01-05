@@ -1,7 +1,11 @@
 package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ChangedResponse implements Changed {
     private ApiResponse oldApiResponse;
     private ApiResponse newApiResponse;
@@ -13,38 +17,6 @@ public class ChangedResponse implements Changed {
     public ChangedResponse(ApiResponse oldApiResponse, ApiResponse newApiResponse) {
         this.oldApiResponse = oldApiResponse;
         this.newApiResponse = newApiResponse;
-    }
-
-    public boolean isChangeDescription() {
-        return changeDescription;
-    }
-
-    public void setChangeDescription(boolean changeDescription) {
-        this.changeDescription = changeDescription;
-    }
-
-    public ApiResponse getOldApiResponse() {
-        return oldApiResponse;
-    }
-
-    public ApiResponse getNewApiResponse() {
-        return newApiResponse;
-    }
-
-    public ChangedContent getChangedContent() {
-        return changedContent;
-    }
-
-    public void setChangedContent(ChangedContent changedContent) {
-        this.changedContent = changedContent;
-    }
-
-    public ChangedHeaders getChangedHeaders() {
-        return changedHeaders;
-    }
-
-    public void setChangedHeaders(ChangedHeaders changedHeaders) {
-        this.changedHeaders = changedHeaders;
     }
 
     @Override

@@ -65,11 +65,7 @@ paths:
             type: array
             items:
               type: string
-              enum:
-                - available
-                - pending
-                - sold
-              default: available
+              maxLength: 24
       responses:
         '200':
           description: successful operation
