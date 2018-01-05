@@ -52,8 +52,8 @@ public class ChangedSchema implements RequestResponseChanged {
                 || missingProperties.size() > 0
                 || changedProperties.size() > 0
                 || changeDeprecated
-                || changeRequired.getIncreased().size() > 0
-                || changeRequired.getMissing().size() > 0
+                || (changeRequired != null && changeRequired.getIncreased().size() > 0)
+                || (changeRequired != null && changeRequired.getMissing().size() > 0)
                 || discriminatorPropertyChanged
                 || (changedOneOfSchema != null && changedOneOfSchema.isDiff());
     }
