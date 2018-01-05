@@ -1,11 +1,10 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.model.ChangedApiResponse;
 import com.qdesrame.openapi.diff.model.ChangedOperation;
-import com.qdesrame.openapi.diff.model.ChangedParameters;
-import com.qdesrame.openapi.diff.model.ChangedRequestBody;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+
+import java.util.Optional;
 
 /**
  * Created by adarsh.sharma on 04/01/18.
@@ -17,25 +16,25 @@ public class OperationDiff {
         this.openApiDiff = openApiDiff;
     }
 
-    public ChangedOperation diff(String pathUrl, PathItem.HttpMethod method, Operation oldOperation, Operation newOperation) {
+    public Optional<ChangedOperation> diff(String pathUrl, PathItem.HttpMethod method, Operation oldOperation, Operation newOperation) {
         ChangedOperation changedOperation = new ChangedOperation(pathUrl, method, oldOperation, newOperation);
 
         changedOperation.setSummary(newOperation.getSummary());
         changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
         if (oldOperation.getRequestBody() != null || newOperation.getRequestBody() != null) {
-            ChangedRequestBody changedRequestBody = openApiDiff.getRequestBodyDiff().diff(oldOperation.getRequestBody(), newOperation.getRequestBody());
-            changedOperation.setChangedRequestBody(changedRequestBody);
+            openApiDiff.getRequestBodyDiff().diff(oldOperation.getRequestBody(), newOperation.getRequestBody())
+                    .ifPresent(changedOperation::setChangedRequestBody);
         }
 
-        ChangedParameters changedParameters = openApiDiff.getParametersDiff().diff(oldOperation.getParameters(), newOperation.getParameters());
-        changedOperation.setChangedParameters(changedParameters);
+        openApiDiff.getParametersDiff().diff(oldOperation.getParameters(), newOperation.getParameters())
+                .ifPresent(changedOperation::setChangedParameters);
 
         if (oldOperation.getResponses() != null || newOperation.getResponses() != null) {
-            ChangedApiResponse changedApiResponse = openApiDiff.getApiResponseDiff().diff(oldOperation.getResponses(), newOperation.getResponses());
-            changedOperation.setChangedApiResponse(changedApiResponse);
+            openApiDiff.getApiResponseDiff().diff(oldOperation.getResponses(), newOperation.getResponses())
+                    .ifPresent(changedOperation::setChangedApiResponse);
         }
 
-        return changedOperation.isDiff() ? changedOperation : null;
+        return changedOperation.isDiff() ? Optional.of(changedOperation) : Optional.empty();
     }
 }

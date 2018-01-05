@@ -1,6 +1,5 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.model.ChangedParameter;
 import com.qdesrame.openapi.diff.model.ChangedParameters;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.v3.oas.models.Components;
@@ -36,7 +35,7 @@ public class ParametersDiff {
         return Objects.equals(left.getName(), right.getName()) && Objects.equals(left.getIn(), right.getIn());
     }
 
-    public ChangedParameters diff(List<Parameter> left, List<Parameter> right) {
+    public Optional<ChangedParameters> diff(List<Parameter> left, List<Parameter> right) {
         ChangedParameters changedParameters = new ChangedParameters(left, right != null ? new ArrayList<>(right) : null);
         if (null == left) left = new ArrayList<>();
         if (null == right) right = new ArrayList<>();
@@ -49,14 +48,11 @@ public class ParametersDiff {
             } else {
                 Parameter rightPara = rightParam.get();
                 right.remove(rightPara);
-                ChangedParameter changedParameter = openApiDiff.getParameterDiff().diff(leftPara, rightPara);
-                if (changedParameter != null) {
-                    changedParameters.getChanged().add(changedParameter);
-                }
+                openApiDiff.getParameterDiff().diff(leftPara, rightPara).ifPresent(changedParameters.getChanged()::add);
             }
         }
         changedParameters.getIncreased().addAll(right);
 
-        return changedParameters.isDiff() ? changedParameters : null;
+        return changedParameters.isDiff() ? Optional.of(changedParameters) : Optional.empty();
     }
 }

@@ -24,13 +24,13 @@ public class HeaderDiff {
         this.headerReferenceDiffCache = new ReferenceDiffCache<>();
     }
 
-    public ChangedHeader diff(Header left, Header right) {
+    public Optional<ChangedHeader> diff(Header left, Header right) {
         String leftRef = left.get$ref();
         String rightRef = right.get$ref();
         boolean areBothRefHeaders = leftRef != null && rightRef != null;
         if (areBothRefHeaders) {
-            ChangedHeader changedHeaderFromCache = headerReferenceDiffCache.getFromCache(leftRef, rightRef);
-            if (changedHeaderFromCache != null) {
+            Optional<ChangedHeader> changedHeaderFromCache = headerReferenceDiffCache.getFromCache(leftRef, rightRef);
+            if (changedHeaderFromCache.isPresent()) {
                 return changedHeaderFromCache;
             }
         }
@@ -47,13 +47,13 @@ public class HeaderDiff {
         changedHeader.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
         changedHeader.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
         changedHeader.setChangedSchema(openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema()));
-        changedHeader.setChangedContent(openApiDiff.getContentDiff().diff(left.getContent(), right.getContent()));
+        openApiDiff.getContentDiff().diff(left.getContent(), right.getContent()).ifPresent(changedHeader::setChangedContent);
 
         if (areBothRefHeaders) {
             headerReferenceDiffCache.addToCache(leftRef, rightRef, changedHeader);
         }
 
-        return changedHeader.isDiff() ? changedHeader : null;
+        return changedHeader.isDiff() ? Optional.of(changedHeader) : Optional.empty();
     }
 
     private boolean getBooleanDiff(Boolean left, Boolean right) {

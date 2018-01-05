@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Created by adarsh.sharma on 28/12/17.
@@ -19,13 +20,13 @@ public class RequestBodyDiff {
         this.requestBodyDiffCache = new ReferenceDiffCache<>();
     }
 
-    public ChangedRequestBody diff(RequestBody left, RequestBody right) {
+    public Optional<ChangedRequestBody> diff(RequestBody left, RequestBody right) {
         String leftRef = left.get$ref();
         String rightRef = right.get$ref();
         boolean areBothRefs = leftRef != null && rightRef != null;
         if (areBothRefs) {
-            ChangedRequestBody changedRequestBodyCache = requestBodyDiffCache.getFromCache(leftRef, rightRef);
-            if (changedRequestBodyCache != null) {
+            Optional<ChangedRequestBody> changedRequestBodyCache = requestBodyDiffCache.getFromCache(leftRef, rightRef);
+            if (changedRequestBodyCache.isPresent()) {
                 return changedRequestBodyCache;
             }
         }
@@ -49,20 +50,20 @@ public class RequestBodyDiff {
 
         ChangedRequestBody changedRequestBody = new ChangedRequestBody(oldRequestBody, newRequestBody);
 
-        boolean leftRequired = oldRequestBody != null ? Boolean.TRUE.equals(oldRequestBody.getRequired()) : false;
-        boolean rightRequired = newRequestBody != null ? Boolean.TRUE.equals(newRequestBody.getRequired()) : false;
+        boolean leftRequired = oldRequestBody != null && Boolean.TRUE.equals(oldRequestBody.getRequired());
+        boolean rightRequired = newRequestBody != null && Boolean.TRUE.equals(newRequestBody.getRequired());
         changedRequestBody.setChangeRequired(leftRequired != rightRequired);
 
         String leftDescription = oldRequestBody != null ? oldRequestBody.getDescription() : null;
         String rightDescription = newRequestBody != null ? newRequestBody.getDescription() : null;
         changedRequestBody.setChangeDescription(!Objects.equals(leftDescription, rightDescription));
 
-        changedRequestBody.setChangedContent(openApiDiff.getContentDiff().diff(oldRequestContent, newRequestContent));
+        openApiDiff.getContentDiff().diff(oldRequestContent, newRequestContent).ifPresent(changedRequestBody::setChangedContent);
 
         if (areBothRefs) {
             requestBodyDiffCache.addToCache(leftRef, rightRef, changedRequestBody);
         }
 
-        return changedRequestBody.isDiff() ? changedRequestBody : null;
+        return changedRequestBody.isDiff() ? Optional.of(changedRequestBody) : Optional.empty();
     }
 }

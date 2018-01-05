@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ContentDiff implements Comparable<Content> {
 
@@ -23,7 +24,7 @@ public class ContentDiff implements Comparable<Content> {
         return false;
     }
 
-    public ChangedContent diff(Content left, Content right) {
+    public Optional<ChangedContent> diff(Content left, Content right) {
         ChangedContent changedContent = new ChangedContent(left, right);
 
         MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(left, right);
@@ -42,6 +43,6 @@ public class ContentDiff implements Comparable<Content> {
             }
         }
         changedContent.setChanged(changedMediaTypes);
-        return changedContent.isDiff() ? changedContent : null;
+        return changedContent.isDiff() ? Optional.of(changedContent) : Optional.empty();
     }
 }

@@ -28,13 +28,13 @@ public class ParameterDiff implements Comparable<Parameter> {
         return false;
     }
 
-    public ChangedParameter diff(Parameter left, Parameter right) {
+    public Optional<ChangedParameter> diff(Parameter left, Parameter right) {
         String leftRef = left.get$ref();
         String rightRef = right.get$ref();
         boolean areBothRefParameters = leftRef != null && rightRef != null;
         if (areBothRefParameters) {
-            ChangedParameter changedParameterFromCache = parameterReferenceDiffCache.getFromCache(leftRef, rightRef);
-            if (changedParameterFromCache != null) {
+            Optional<ChangedParameter> changedParameterFromCache = parameterReferenceDiffCache.getFromCache(leftRef, rightRef);
+            if (changedParameterFromCache.isPresent()) {
                 return changedParameterFromCache;
             }
         }
@@ -56,13 +56,14 @@ public class ParameterDiff implements Comparable<Parameter> {
         if (changedSchema != null && changedSchema.isDiff()) {
             changedParameter.setChangedSchema(changedSchema);
         }
-        changedParameter.setChangedContent(openApiDiff.getContentDiff().diff(left.getContent(), right.getContent()));
+        openApiDiff.getContentDiff().diff(left.getContent(), right.getContent())
+                .ifPresent(changedParameter::setChangedContent);
 
         if (areBothRefParameters) {
             parameterReferenceDiffCache.addToCache(leftRef, rightRef, changedParameter);
         }
 
-        return changedParameter.isDiff() ? changedParameter : null;
+        return changedParameter.isDiff() ? Optional.of(changedParameter) : Optional.empty();
     }
 
     private boolean getBooleanDiff(Boolean left, Boolean right) {

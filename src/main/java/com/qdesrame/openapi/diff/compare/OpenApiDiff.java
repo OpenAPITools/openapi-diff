@@ -1,6 +1,8 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.model.ChangedOpenApi;
+import com.qdesrame.openapi.diff.model.ChangedOperation;
+import com.qdesrame.openapi.diff.model.Endpoint;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -140,11 +142,7 @@ public class OpenApiDiff {
             for (PathItem.HttpMethod method : sharedMethods) {
                 Operation oldOperation = oldOperationMap.get(method);
                 Operation newOperation = newOperationMap.get(method);
-                ChangedOperation changedOperation = operationDiff.diff(pathUrl, method, oldOperation, newOperation);
-
-                if (changedOperation != null) {
-                    changedOperations.add(changedOperation);
-                }
+                operationDiff.diff(pathUrl, method, oldOperation, newOperation).ifPresent(changedOperations::add);
             }
         }
 

@@ -115,6 +115,9 @@ public class ConsoleRender implements Render {
 
     private String ul_content(ChangedContent changedContent, boolean isRequest) {
         StringBuilder sb = new StringBuilder();
+        if (changedContent == null) {
+            return sb.toString();
+        }
         for (String propName : changedContent.getIncreased().keySet()) {
             sb.append(itemContent("Added ", propName));
         }

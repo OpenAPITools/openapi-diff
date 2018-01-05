@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by adarsh.sharma on 04/01/18.
@@ -19,7 +20,7 @@ public class ApiResponseDiff {
         this.openApiDiff = openApiDiff;
     }
 
-    public ChangedApiResponse diff(ApiResponses left, ApiResponses right) {
+    public Optional<ChangedApiResponse> diff(ApiResponses left, ApiResponses right) {
         MapKeyDiff<String, ApiResponse> responseMapKeyDiff = MapKeyDiff.diff(left, right);
         ChangedApiResponse changedApiResponse = new ChangedApiResponse(left, right);
         changedApiResponse.setAddResponses(responseMapKeyDiff.getIncreased());
@@ -28,12 +29,10 @@ public class ApiResponseDiff {
 
         Map<String, ChangedResponse> resps = new HashMap<>();
         for (String responseCode : sharedResponseCodes) {
-            ChangedResponse changedResponse = openApiDiff.getResponseDiff().diff(left.get(responseCode), right.get(responseCode));
-            if (changedResponse != null) {
-                resps.put(responseCode, changedResponse);
-            }
+            openApiDiff.getResponseDiff().diff(left.get(responseCode), right.get(responseCode))
+                    .ifPresent(changedResponse -> resps.put(responseCode, changedResponse));
         }
         changedApiResponse.setChangedResponses(resps);
-        return changedApiResponse.isDiff() ? changedApiResponse : null;
+        return changedApiResponse.isDiff() ? Optional.of(changedApiResponse) : Optional.empty();
     }
 }

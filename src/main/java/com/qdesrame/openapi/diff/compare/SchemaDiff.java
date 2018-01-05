@@ -10,10 +10,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class SchemaDiff {
 
@@ -66,9 +63,9 @@ public class SchemaDiff {
         String rightRef = right.get$ref();
         boolean areBothRefSchemas = leftRef != null && rightRef != null;
         if (areBothRefSchemas) {
-            ChangedSchema changedSchemaFromCache = schemaDiffCache.getFromCache(leftRef, rightRef);
-            if (changedSchemaFromCache != null) {
-                return changedSchemaFromCache;
+            Optional<ChangedSchema> changedSchemaFromCache = schemaDiffCache.getFromCache(leftRef, rightRef);
+            if (changedSchemaFromCache.isPresent()) {
+                return changedSchemaFromCache.get();
             }
         }
 

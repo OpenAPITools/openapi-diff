@@ -47,6 +47,8 @@ public class SchemaDiffResult {
         Map<String, Schema> missingProp = propertyDiff.getMissing();
 
         for (String key : propertyDiff.getSharedKey()) {
+//            openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key))
+//                    .ifPresent(resultSchema -> );
             ChangedSchema resultSchema = openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key));
             if (resultSchema.isDiff()) {
                 changedSchema.getChangedProperties().put(key, resultSchema);
