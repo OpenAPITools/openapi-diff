@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedHeader;
 import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.headers.Header;
 
@@ -15,6 +16,7 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     private OpenApiDiff openApiDiff;
     private Components leftComponents;
     private Components rightComponents;
+    private static RefPointer<Header> refPointer = new RefPointer<>(RefType.HEADERS);
 
     public HeaderDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
@@ -28,8 +30,8 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
 
     @Override
     protected Optional<ChangedHeader> computeDiff(Header left, Header right) {
-        left = RefPointer.Replace.header(leftComponents, left);
-        right = RefPointer.Replace.header(rightComponents, right);
+        left = refPointer.resolveRef(leftComponents, left, left.get$ref());
+        right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
         ChangedHeader changedHeader = new ChangedHeader(left, right);
 

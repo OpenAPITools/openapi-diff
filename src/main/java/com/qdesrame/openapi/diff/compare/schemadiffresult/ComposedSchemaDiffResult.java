@@ -1,10 +1,11 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
+import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
+import com.qdesrame.openapi.diff.utils.RefType;
 import com.qdesrame.openapi.diff.model.ChangedOneOfSchema;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
-import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Discriminator;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
  * Created by adarsh.sharma on 20/12/17.
  */
 public class ComposedSchemaDiffResult extends SchemaDiffResult {
+    private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
 
     public ComposedSchemaDiffResult(OpenApiDiff openApiDiff) {
         super(openApiDiff);
@@ -77,7 +79,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
             if (ref == null) {
                 throw new IllegalArgumentException("invalid oneOf schema");
             }
-            String schemaName = RefPointer.getSchemaName(ref);
+            String schemaName = refPointer.getRefName(ref);
             if (schemaName == null) {
                 throw new IllegalArgumentException("invalid schema: " + ref);
             }

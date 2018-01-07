@@ -5,6 +5,7 @@ import com.qdesrame.openapi.diff.compare.schemadiffresult.ComposedSchemaDiffResu
 import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -17,6 +18,8 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     private Components leftComponents;
     private Components rightComponents;
     private OpenApiDiff openApiDiff;
+    private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+
     private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>> schemaDiffResultClassMap = new HashMap<>();
 
     static {
@@ -62,8 +65,8 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
     @Override
     protected Optional<ChangedSchema> computeDiff(Schema left, Schema right) {
-        left = RefPointer.Replace.schema(leftComponents, left);
-        right = RefPointer.Replace.schema(rightComponents, right);
+        left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
+        right = refPointer.resolveRef(this.rightComponents, right, right.get$ref());
 
         left = resolveComposedSchema(leftComponents, left);
         right = resolveComposedSchema(rightComponents, right);
@@ -90,7 +93,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
             List<Schema> allOfSchemaList = composedSchema.getAllOf();
             if (allOfSchemaList != null) {
                 for (Schema allOfSchema : allOfSchemaList) {
-                    allOfSchema = RefPointer.Replace.schema(components, allOfSchema);
+                    allOfSchema = refPointer.resolveRef(components, allOfSchema, allOfSchema.get$ref());
                     allOfSchema = resolveComposedSchema(components, allOfSchema);
                     schema = addSchema(schema, allOfSchema);
                 }

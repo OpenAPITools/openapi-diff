@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedParameters;
 import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
@@ -20,6 +21,7 @@ public class ParametersDiff {
     private Components leftComponents;
     private Components rightComponents;
     private OpenApiDiff openApiDiff;
+    private static RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
 
     public ParametersDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
@@ -28,7 +30,7 @@ public class ParametersDiff {
     }
 
     public static Optional<Parameter> contains(Components components, List<Parameter> parameters, Parameter parameter) {
-        return parameters.stream().filter(param -> same(RefPointer.Replace.parameter(components, param), parameter)).findFirst();
+        return parameters.stream().filter(param -> same(refPointer.resolveRef(components, param, param.get$ref()), parameter)).findFirst();
     }
 
     public static boolean same(Parameter left, Parameter right) {
@@ -41,7 +43,8 @@ public class ParametersDiff {
         if (null == right) right = new ArrayList<>();
 
         for (Parameter leftPara : left) {
-            RefPointer.Replace.parameter(leftComponents, leftPara);
+            leftPara = refPointer.resolveRef(leftComponents, leftPara, leftPara.get$ref());
+
             Optional<Parameter> rightParam = contains(rightComponents, right, leftPara);
             if (!rightParam.isPresent()) {
                 changedParameters.getMissing().add(leftPara);

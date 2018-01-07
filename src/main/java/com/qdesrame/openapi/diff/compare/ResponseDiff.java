@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedResponse;
 import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
@@ -15,6 +16,7 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
     private OpenApiDiff openApiDiff;
     private Components leftComponents;
     private Components rightComponents;
+    private static RefPointer<ApiResponse> refPointer = new RefPointer<>(RefType.RESPONSES);
 
     public ResponseDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
@@ -28,8 +30,8 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
 
     @Override
     protected Optional<ChangedResponse> computeDiff(ApiResponse left, ApiResponse right) {
-        left = RefPointer.Replace.response(leftComponents, left);
-        right = RefPointer.Replace.response(rightComponents, right);
+        left = refPointer.resolveRef(leftComponents, left, left.get$ref());
+        right = refPointer.resolveRef(rightComponents, right, left.get$ref());
 
         ChangedResponse changedResponse = new ChangedResponse(left, right);
 
