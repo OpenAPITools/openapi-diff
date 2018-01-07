@@ -13,6 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +26,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     }
 
     @Override
-    public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         ComposedSchema leftComposedSchema = (ComposedSchema) left;
         ComposedSchema rightComposedSchema = (ComposedSchema) right;
         if (CollectionUtils.isNotEmpty(leftComposedSchema.getOneOf())
@@ -40,7 +41,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 changedSchema.setOldSchema(left);
                 changedSchema.setNewSchema(right);
                 changedSchema.setDiscriminatorPropertyChanged(true);
-                return changedSchema;
+                return Optional.of(changedSchema);
             }
 
             Map<String, String> leftMapping = getMapping(leftComposedSchema);
@@ -59,9 +60,9 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 leftSchema.set$ref(leftMapping.get(key));
                 Schema rightSchema = new Schema();
                 rightSchema.set$ref(rightMapping.get(key));
-                ChangedSchema changedSchema = openApiDiff.getSchemaDiff().diff(leftSchema, rightSchema);
-                if (changedSchema.isDiff()) {
-                    changedMapping.put(key, changedSchema);
+                Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(leftSchema, rightSchema);
+                if (changedSchema.isPresent() && changedSchema.get().isDiff()) {
+                    changedMapping.put(key, changedSchema.get());
                 }
             }
             changedSchema.setChangedOneOfSchema(changedOneOfSchema);

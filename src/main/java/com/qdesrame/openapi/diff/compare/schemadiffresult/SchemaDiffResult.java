@@ -10,6 +10,7 @@ import lombok.Getter;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 public class SchemaDiffResult {
@@ -26,7 +27,7 @@ public class SchemaDiffResult {
         this.changedSchema.setType(type);
     }
 
-    public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         changedSchema.setOldSchema(left);
         changedSchema.setNewSchema(right);
         changedSchema.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
@@ -49,14 +50,14 @@ public class SchemaDiffResult {
         for (String key : propertyDiff.getSharedKey()) {
 //            openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key))
 //                    .ifPresent(resultSchema -> );
-            ChangedSchema resultSchema = openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key));
-            if (resultSchema.isDiff()) {
-                changedSchema.getChangedProperties().put(key, resultSchema);
+            Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key));
+            if (resultSchema.isPresent() && resultSchema.get().isDiff()) {
+                changedSchema.getChangedProperties().put(key, resultSchema.get());
             }
         }
         changedSchema.getIncreasedProperties().putAll(increasedProp);
         changedSchema.getMissingProperties().putAll(missingProp);
-        return changedSchema;
+        return Optional.of(changedSchema);
     }
 
 }
