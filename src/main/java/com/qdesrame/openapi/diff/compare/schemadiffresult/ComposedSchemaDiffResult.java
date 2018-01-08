@@ -1,10 +1,11 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
+import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
+import com.qdesrame.openapi.diff.utils.RefType;
 import com.qdesrame.openapi.diff.model.ChangedOneOfSchema;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
-import com.qdesrame.openapi.diff.utils.RefPointer;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Discriminator;
@@ -13,19 +14,21 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Created by adarsh.sharma on 20/12/17.
  */
 public class ComposedSchemaDiffResult extends SchemaDiffResult {
+    private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
 
     public ComposedSchemaDiffResult(OpenApiDiff openApiDiff) {
         super(openApiDiff);
     }
 
     @Override
-    public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         ComposedSchema leftComposedSchema = (ComposedSchema) left;
         ComposedSchema rightComposedSchema = (ComposedSchema) right;
         if (CollectionUtils.isNotEmpty(leftComposedSchema.getOneOf())
@@ -40,7 +43,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 changedSchema.setOldSchema(left);
                 changedSchema.setNewSchema(right);
                 changedSchema.setDiscriminatorPropertyChanged(true);
-                return changedSchema;
+                return Optional.of(changedSchema);
             }
 
             Map<String, String> leftMapping = getMapping(leftComposedSchema);
@@ -59,9 +62,9 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 leftSchema.set$ref(leftMapping.get(key));
                 Schema rightSchema = new Schema();
                 rightSchema.set$ref(rightMapping.get(key));
-                ChangedSchema changedSchema = openApiDiff.getSchemaDiff().diff(leftSchema, rightSchema);
-                if (changedSchema.isDiff()) {
-                    changedMapping.put(key, changedSchema);
+                Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(leftSchema, rightSchema);
+                if (changedSchema.isPresent() && changedSchema.get().isDiff()) {
+                    changedMapping.put(key, changedSchema.get());
                 }
             }
             changedSchema.setChangedOneOfSchema(changedOneOfSchema);
@@ -76,7 +79,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
             if (ref == null) {
                 throw new IllegalArgumentException("invalid oneOf schema");
             }
-            String schemaName = RefPointer.getSchemaName(ref);
+            String schemaName = refPointer.getRefName(ref);
             if (schemaName == null) {
                 throw new IllegalArgumentException("invalid schema: " + ref);
             }

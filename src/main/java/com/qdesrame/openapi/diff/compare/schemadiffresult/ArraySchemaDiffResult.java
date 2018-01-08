@@ -6,6 +6,8 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 
+import java.util.Optional;
+
 /**
  * Created by adarsh.sharma on 18/12/17.
  */
@@ -15,7 +17,7 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
     }
 
     @Override
-    public ChangedSchema diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
         ArraySchema leftArraySchema = (ArraySchema) left;
         ArraySchema rightArraySchema = (ArraySchema) right;
         return openApiDiff.getSchemaDiff().diff(leftArraySchema.getItems(), rightArraySchema.getItems());

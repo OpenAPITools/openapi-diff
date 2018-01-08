@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedHeader;
 import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.headers.Header;
 
@@ -11,32 +12,26 @@ import java.util.Optional;
 /**
  * Created by adarsh.sharma on 28/12/17.
  */
-public class HeaderDiff {
+public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     private OpenApiDiff openApiDiff;
     private Components leftComponents;
     private Components rightComponents;
-    private ReferenceDiffCache<ChangedHeader> headerReferenceDiffCache;
+    private static RefPointer<Header> refPointer = new RefPointer<>(RefType.HEADERS);
 
     public HeaderDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
         this.leftComponents = openApiDiff.getOldSpecOpenApi() != null ? openApiDiff.getOldSpecOpenApi().getComponents() : null;
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
-        this.headerReferenceDiffCache = new ReferenceDiffCache<>();
     }
 
     public Optional<ChangedHeader> diff(Header left, Header right) {
-        String leftRef = left.get$ref();
-        String rightRef = right.get$ref();
-        boolean areBothRefHeaders = leftRef != null && rightRef != null;
-        if (areBothRefHeaders) {
-            Optional<ChangedHeader> changedHeaderFromCache = headerReferenceDiffCache.getFromCache(leftRef, rightRef);
-            if (changedHeaderFromCache.isPresent()) {
-                return changedHeaderFromCache;
-            }
-        }
+        return super.cachedDiff(left, right, left.get$ref(), right.get$ref());
+    }
 
-        left = RefPointer.Replace.header(leftComponents, left);
-        right = RefPointer.Replace.header(rightComponents, right);
+    @Override
+    protected Optional<ChangedHeader> computeDiff(Header left, Header right) {
+        left = refPointer.resolveRef(leftComponents, left, left.get$ref());
+        right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
         ChangedHeader changedHeader = new ChangedHeader(left, right);
 
@@ -46,12 +41,8 @@ public class HeaderDiff {
         changedHeader.setChangeAllowEmptyValue(getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()));
         changedHeader.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
         changedHeader.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
-        changedHeader.setChangedSchema(openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema()));
+        openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema()).ifPresent(changedHeader::setChangedSchema);
         openApiDiff.getContentDiff().diff(left.getContent(), right.getContent()).ifPresent(changedHeader::setChangedContent);
-
-        if (areBothRefHeaders) {
-            headerReferenceDiffCache.addToCache(leftRef, rightRef, changedHeader);
-        }
 
         return changedHeader.isDiff() ? Optional.of(changedHeader) : Optional.empty();
     }

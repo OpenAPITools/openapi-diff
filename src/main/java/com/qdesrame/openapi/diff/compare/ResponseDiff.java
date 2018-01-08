@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedResponse;
 import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
@@ -11,32 +12,26 @@ import java.util.Optional;
 /**
  * Created by adarsh.sharma on 28/12/17.
  */
-public class ResponseDiff {
+public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedResponse> {
     private OpenApiDiff openApiDiff;
     private Components leftComponents;
     private Components rightComponents;
-    private ReferenceDiffCache<ChangedResponse> responseReferenceDiffCache;
+    private static RefPointer<ApiResponse> refPointer = new RefPointer<>(RefType.RESPONSES);
 
     public ResponseDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
         this.leftComponents = openApiDiff.getOldSpecOpenApi() != null ? openApiDiff.getOldSpecOpenApi().getComponents() : null;
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
-        this.responseReferenceDiffCache = new ReferenceDiffCache<>();
     }
 
     public Optional<ChangedResponse> diff(ApiResponse left, ApiResponse right) {
-        String leftRef = left.get$ref();
-        String rightRef = right.get$ref();
-        boolean areBothRefResponses = leftRef != null && rightRef != null;
-        if (areBothRefResponses) {
-            Optional<ChangedResponse> changedResponseFromCache = responseReferenceDiffCache.getFromCache(leftRef, rightRef);
-            if (changedResponseFromCache.isPresent()) {
-                return changedResponseFromCache;
-            }
-        }
+        return super.cachedDiff(left, right, left.get$ref(), right.get$ref());
+    }
 
-        left = RefPointer.Replace.response(leftComponents, left);
-        right = RefPointer.Replace.response(rightComponents, right);
+    @Override
+    protected Optional<ChangedResponse> computeDiff(ApiResponse left, ApiResponse right) {
+        left = refPointer.resolveRef(leftComponents, left, left.get$ref());
+        right = refPointer.resolveRef(rightComponents, right, left.get$ref());
 
         ChangedResponse changedResponse = new ChangedResponse(left, right);
 
@@ -44,10 +39,5 @@ public class ResponseDiff {
         openApiDiff.getHeadersDiff().diff(left.getHeaders(), right.getHeaders()).ifPresent(changedResponse::setChangedHeaders);
         changedResponse.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
 
-        if (areBothRefResponses) {
-            responseReferenceDiffCache.addToCache(leftRef, rightRef, changedResponse);
-        }
-
-        return changedResponse.isDiff() ? Optional.of(changedResponse) : Optional.empty();
-    }
+        return changedResponse.isDiff() ? Optional.of(changedResponse) : Optional.empty();    }
 }

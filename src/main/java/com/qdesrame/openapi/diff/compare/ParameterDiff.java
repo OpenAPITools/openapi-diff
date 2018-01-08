@@ -3,24 +3,24 @@ package com.qdesrame.openapi.diff.compare;
 import com.qdesrame.openapi.diff.model.ChangedParameter;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class ParameterDiff implements Comparable<Parameter> {
+public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParameter> implements Comparable<Parameter> {
 
     private Components leftComponents;
     private Components rightComponents;
     private OpenApiDiff openApiDiff;
-    private ReferenceDiffCache<ChangedParameter> parameterReferenceDiffCache;
+    private static RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
 
     public ParameterDiff(OpenApiDiff openApiDiff) {
         this.openApiDiff = openApiDiff;
         this.leftComponents = openApiDiff.getOldSpecOpenApi() != null ? openApiDiff.getOldSpecOpenApi().getComponents() : null;
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
-        this.parameterReferenceDiffCache = new ReferenceDiffCache<>();
     }
 
     @Override
@@ -29,19 +29,14 @@ public class ParameterDiff implements Comparable<Parameter> {
     }
 
     public Optional<ChangedParameter> diff(Parameter left, Parameter right) {
-        String leftRef = left.get$ref();
-        String rightRef = right.get$ref();
-        boolean areBothRefParameters = leftRef != null && rightRef != null;
-        if (areBothRefParameters) {
-            Optional<ChangedParameter> changedParameterFromCache = parameterReferenceDiffCache.getFromCache(leftRef, rightRef);
-            if (changedParameterFromCache.isPresent()) {
-                return changedParameterFromCache;
-            }
-        }
+        return super.cachedDiff(left, right, left.get$ref(), right.get$ref());
+    }
 
+    @Override
+    protected Optional<ChangedParameter> computeDiff(Parameter left, Parameter right) {
         ChangedParameter changedParameter = new ChangedParameter(right.getName(), right.getIn());
-        RefPointer.Replace.parameter(this.leftComponents, left);
-        RefPointer.Replace.parameter(this.rightComponents, right);
+        left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
+        right = refPointer.resolveRef(this.rightComponents, right, right.get$ref());
 
         changedParameter.setOldParameter(left);
         changedParameter.setNewParameter(right);
@@ -52,16 +47,12 @@ public class ParameterDiff implements Comparable<Parameter> {
         changedParameter.setChangeAllowEmptyValue(getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()));
         changedParameter.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
         changedParameter.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
-        ChangedSchema changedSchema = openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema());
-        if (changedSchema != null && changedSchema.isDiff()) {
-            changedParameter.setChangedSchema(changedSchema);
+        Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema());
+        if (changedSchema.isPresent()) {
+            changedParameter.setChangedSchema(changedSchema.get());
         }
         openApiDiff.getContentDiff().diff(left.getContent(), right.getContent())
                 .ifPresent(changedParameter::setChangedContent);
-
-        if (areBothRefParameters) {
-            parameterReferenceDiffCache.addToCache(leftRef, rightRef, changedParameter);
-        }
 
         return changedParameter.isDiff() ? Optional.of(changedParameter) : Optional.empty();
     }
