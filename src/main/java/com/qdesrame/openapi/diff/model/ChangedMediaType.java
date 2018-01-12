@@ -18,12 +18,12 @@ public class ChangedMediaType implements RequestResponseChanged {
 
     @Override
     public boolean isDiff() {
-        return changedSchema.isDiff();
+        return (changedSchema != null && changedSchema.isDiff());
     }
 
     @Override
     public boolean isDiffBackwardCompatible(boolean isRequest) {
-        return changedSchema.isDiffBackwardCompatible(isRequest);
+        return (changedSchema == null || changedSchema.isDiffBackwardCompatible(isRequest));
     }
 
 }

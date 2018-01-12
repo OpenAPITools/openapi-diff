@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.compare;
 
+import com.qdesrame.openapi.diff.SecurityRequirementDiff;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
 import com.qdesrame.openapi.diff.model.ChangedOperation;
 import com.qdesrame.openapi.diff.model.Endpoint;
@@ -7,6 +8,7 @@ import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class OpenApiDiff {
 
@@ -34,6 +37,11 @@ public class OpenApiDiff {
     private HeaderDiff headerDiff;
     private ApiResponseDiff apiResponseDiff;
     private OperationDiff operationDiff;
+    private SecurityRequirementsDiff securityRequirementsDiff;
+    private SecurityRequirementDiff securityRequirementDiff;
+    private SecuritySchemeDiff securitySchemeDiff;
+    private OAuthFlowsDiff oAuthFlowsDiff;
+    private OAuthFlowDiff oAuthFlowDiff;
 
     private OpenAPI oldSpecOpenApi;
     private OpenAPI newSpecOpenApi;
@@ -96,6 +104,11 @@ public class OpenApiDiff {
         this.headerDiff = new HeaderDiff(this);
         this.apiResponseDiff = new ApiResponseDiff(this);
         this.operationDiff = new OperationDiff(this);
+        this.securityRequirementsDiff = new SecurityRequirementsDiff(this);
+        this.securityRequirementDiff = new SecurityRequirementDiff(this);
+        this.securitySchemeDiff = new SecuritySchemeDiff(this);
+        this.oAuthFlowsDiff = new OAuthFlowsDiff(this);
+        this.oAuthFlowDiff = new OAuthFlowDiff(this);
     }
 
     /*
@@ -114,6 +127,8 @@ public class OpenApiDiff {
     }
 
     private ChangedOpenApi compare() {
+        preProcess(oldSpecOpenApi);
+        preProcess(newSpecOpenApi);
         Map<String, PathItem> oldPaths = oldSpecOpenApi.getPaths();
         Map<String, PathItem> newPaths = newSpecOpenApi.getPaths();
         MapKeyDiff<String, PathItem> pathDiff = MapKeyDiff.diff(oldPaths, newPaths);
@@ -147,6 +162,24 @@ public class OpenApiDiff {
         }
 
         return getChangedOpenApi();
+    }
+
+    private void preProcess(OpenAPI openApi) {
+        List<SecurityRequirement> securityRequirements = openApi.getSecurity();
+
+        if (securityRequirements != null) {
+            List<SecurityRequirement> distinctSecurityRequirements = securityRequirements.stream().distinct().collect(Collectors.toList());
+            Map<String, PathItem> paths = openApi.getPaths();
+            if (paths != null) {
+                paths.values().forEach(pathItem -> pathItem.readOperationsMap().values().stream()
+                        .filter(operation -> operation.getSecurity() == null)
+                        .forEach(operation -> operation.setSecurity(distinctSecurityRequirements)));
+                paths.values().forEach(pathItem -> pathItem.readOperationsMap().values().stream()
+                        .filter(operation -> operation.getSecurity() != null)
+                        .forEach(operation -> operation.setSecurity(operation.getSecurity().stream().distinct().collect(Collectors.toList()))));
+            }
+            openApi.setSecurity(null);
+        }
     }
 
     private ChangedOpenApi getChangedOpenApi() {
@@ -196,6 +229,26 @@ public class OpenApiDiff {
 
     public OperationDiff getOperationDiff() {
         return operationDiff;
+    }
+
+    public SecurityRequirementsDiff getSecurityRequirementsDiff() {
+        return securityRequirementsDiff;
+    }
+
+    public SecurityRequirementDiff getSecurityRequirementDiff() {
+        return securityRequirementDiff;
+    }
+
+    public SecuritySchemeDiff getSecuritySchemeDiff() {
+        return securitySchemeDiff;
+    }
+
+    public OAuthFlowsDiff getoAuthFlowsDiff() {
+        return oAuthFlowsDiff;
+    }
+
+    public OAuthFlowDiff getoAuthFlowDiff() {
+        return oAuthFlowDiff;
     }
 
     public OpenAPI getOldSpecOpenApi() {

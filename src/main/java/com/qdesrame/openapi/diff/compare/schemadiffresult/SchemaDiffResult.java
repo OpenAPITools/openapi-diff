@@ -57,7 +57,7 @@ public class SchemaDiffResult {
         }
         changedSchema.getIncreasedProperties().putAll(increasedProp);
         changedSchema.getMissingProperties().putAll(missingProp);
-        return Optional.of(changedSchema);
+        return changedSchema.isDiff()? Optional.of(changedSchema): Optional.empty();
     }
 
 }
