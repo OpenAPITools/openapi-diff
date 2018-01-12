@@ -31,7 +31,7 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
     @Override
     protected Optional<ChangedResponse> computeDiff(ApiResponse left, ApiResponse right) {
         left = refPointer.resolveRef(leftComponents, left, left.get$ref());
-        right = refPointer.resolveRef(rightComponents, right, left.get$ref());
+        right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
         ChangedResponse changedResponse = new ChangedResponse(left, right);
 
