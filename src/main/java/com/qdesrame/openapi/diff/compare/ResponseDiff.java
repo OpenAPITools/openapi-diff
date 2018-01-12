@@ -39,5 +39,6 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
         openApiDiff.getHeadersDiff().diff(left.getHeaders(), right.getHeaders()).ifPresent(changedResponse::setChangedHeaders);
         changedResponse.setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()));
 
-        return changedResponse.isDiff() ? Optional.of(changedResponse) : Optional.empty();    }
+        return changedResponse.isDiff() ? Optional.of(changedResponse) : Optional.empty();
+    }
 }

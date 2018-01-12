@@ -35,6 +35,11 @@ public class OperationDiff {
                     .ifPresent(changedOperation::setChangedApiResponse);
         }
 
+        if(oldOperation.getSecurity() != null || newOperation.getSecurity() != null) {
+            openApiDiff.getSecurityRequirementsDiff().diff(oldOperation.getSecurity(), newOperation.getSecurity())
+                    .ifPresent(changedOperation::setChangedSecurityRequirements);
+        }
+
         return changedOperation.isDiff() ? Optional.of(changedOperation) : Optional.empty();
     }
 }

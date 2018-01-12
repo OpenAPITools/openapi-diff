@@ -26,7 +26,6 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
         schemaDiffResultClassMap.put(Schema.class, SchemaDiffResult.class);
         schemaDiffResultClassMap.put(ArraySchema.class, ArraySchemaDiffResult.class);
         schemaDiffResultClassMap.put(ComposedSchema.class, ComposedSchemaDiffResult.class);
-        //TODO add other classes for different schema types
     }
 
     public static SchemaDiffResult getSchemaDiffResult(OpenApiDiff openApiDiff) {

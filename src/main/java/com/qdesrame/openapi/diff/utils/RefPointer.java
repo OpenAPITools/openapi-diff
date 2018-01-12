@@ -17,7 +17,7 @@ public class RefPointer<T> {
 
     public T resolveRef(Components components, T t, String ref) {
         if (ref != null) {
-            String refName = getRefName(refType.getName(), ref);
+            String refName = getRefName(ref);
             T result = getMap(components).get(refName);
             if (result == null) {
                 throw new IllegalArgumentException(String.format("ref '%s' doesn't exist.", ref));
@@ -56,18 +56,18 @@ public class RefPointer<T> {
         return String.format("%s%s/", BASE_REF, type);
     }
 
-    private String getRefName(String type, String ref) {
-        final String baseRef = getBaseRefForType(type);
+    public String getRefName(String ref) {
+        if (ref == null) {
+            return null;
+        }
+        if (refType == RefType.SECURITY_SCHEMES) {
+            return ref;
+        }
+
+        final String baseRef = getBaseRefForType(refType.getName());
         if (!ref.startsWith(baseRef)) {
             throw new IllegalArgumentException("Invalid ref: " + ref);
         }
         return ref.substring(baseRef.length());
-    }
-
-    public String getRefName(String ref) {
-        if (ref != null) {
-            return getRefName(refType.getName(), ref);
-        }
-        return null;
     }
 }

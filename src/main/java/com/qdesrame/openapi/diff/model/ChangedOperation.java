@@ -17,6 +17,7 @@ public class ChangedOperation implements Changed {
     private ChangedParameters changedParameters;
     private ChangedRequestBody changedRequestBody;
     private ChangedApiResponse changedApiResponse;
+    private ChangedSecurityRequirements changedSecurityRequirements;
 
     public ChangedOperation(String pathUrl, PathItem.HttpMethod httpMethod, Operation oldOperation, Operation newOperation) {
         this.httpMethod = httpMethod;
@@ -27,14 +28,15 @@ public class ChangedOperation implements Changed {
 
     @Override
     public boolean isDiff() {
-        return deprecated || isDiffParam() || isDiffRequest() || isDiffResponse();
+        return deprecated || isDiffParam() || isDiffRequest() || isDiffResponse() || isDiffSecurity();
     }
 
     @Override
     public boolean isDiffBackwardCompatible() {
         return (changedParameters == null || changedParameters.isDiffBackwardCompatible())
                 && (changedRequestBody == null || changedRequestBody.isDiffBackwardCompatible())
-                && (changedApiResponse == null || changedApiResponse.isDiffBackwardCompatible());
+                && (changedApiResponse == null || changedApiResponse.isDiffBackwardCompatible())
+                && (changedSecurityRequirements == null || changedSecurityRequirements.isDiffBackwardCompatible());
     }
 
     public boolean isDiffParam() {
@@ -49,4 +51,7 @@ public class ChangedOperation implements Changed {
         return changedRequestBody != null && changedRequestBody.isDiff();
     }
 
+    public boolean isDiffSecurity() {
+        return changedSecurityRequirements != null && changedSecurityRequirements.isDiff();
+    }
 }
