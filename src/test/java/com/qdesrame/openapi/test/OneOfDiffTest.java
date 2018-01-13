@@ -3,6 +3,7 @@ package com.qdesrame.openapi.test;
 import org.junit.Test;
 
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
+import static com.qdesrame.openapi.test.TestUtils.assertOpenApiBackwardIncompatible;
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiChangedEndpoints;
 
 /**
@@ -13,6 +14,8 @@ public class OneOfDiffTest {
     private final String OPENAPI_DOC1 = "oneOf_diff_1.yaml";
     private final String OPENAPI_DOC2 = "oneOf_diff_2.yaml";
     private final String OPENAPI_DOC3 = "oneOf_diff_3.yaml";
+    private final String OPENAPI_DOC4 = "composed_schema_1.yaml";
+    private final String OPENAPI_DOC5 = "composed_schema_2.yaml";
 
     @Test
     public void testDiffSame() {
@@ -27,6 +30,11 @@ public class OneOfDiffTest {
     @Test
     public void testDiffSameWithOneOf() {
         assertOpenApiAreEquals(OPENAPI_DOC2, OPENAPI_DOC3);
+    }
+
+    @Test
+    public void testComposedSchema() {
+        assertOpenApiBackwardIncompatible(OPENAPI_DOC4, OPENAPI_DOC5);
     }
 
 }
