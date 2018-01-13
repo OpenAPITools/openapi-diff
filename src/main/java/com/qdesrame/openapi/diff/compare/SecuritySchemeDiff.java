@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Created by adarsh.sharma on 11/01/18.
  */
-public class SecuritySchemeDiff {
+public class SecuritySchemeDiff  extends ReferenceDiffCache<SecurityScheme, ChangedSecurityScheme>{
     private OpenApiDiff openApiDiff;
     private Components leftComponents;
     private Components rightComponents;
@@ -26,7 +26,20 @@ public class SecuritySchemeDiff {
     public Optional<ChangedSecurityScheme> diff(String leftSchemeRef, List<String> leftScopes, String rightSchemeRef, List<String> rightScopes) {
         SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(leftSchemeRef);
         SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(rightSchemeRef);
+        Optional<ChangedSecurityScheme> changedSecuritySchemeOpt = cachedDiff(leftSecurityScheme, rightSecurityScheme, leftSchemeRef, rightSchemeRef);
 
+        if(changedSecuritySchemeOpt.isPresent() && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
+            ListDiff<String> scopesDiff = ListDiff.diff(leftScopes, rightScopes);
+            if (!scopesDiff.getIncreased().isEmpty() || !scopesDiff.getMissing().isEmpty()) {
+                changedSecuritySchemeOpt.get().setChangedScopes(scopesDiff);
+            }
+        }
+
+        return changedSecuritySchemeOpt;
+    }
+
+    @Override
+    protected Optional<ChangedSecurityScheme> computeDiff(SecurityScheme leftSecurityScheme, SecurityScheme rightSecurityScheme) {
         ChangedSecurityScheme changedSecurityScheme = new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme);
 
         changedSecurityScheme.setChangedDescription(!Objects.equals(leftSecurityScheme.getDescription(), rightSecurityScheme.getDescription()));
@@ -39,10 +52,6 @@ public class SecuritySchemeDiff {
             case OAUTH2:
                 openApiDiff.getoAuthFlowsDiff().diff(leftSecurityScheme.getFlows(), rightSecurityScheme.getFlows())
                         .ifPresent(changedSecurityScheme::setChangedOAuthFlows);
-                ListDiff<String> scopesDiff = ListDiff.diff(leftScopes, rightScopes);
-                if (!scopesDiff.getIncreased().isEmpty() || !scopesDiff.getMissing().isEmpty()) {
-                    changedSecurityScheme.setChangedScopes(scopesDiff);
-                }
                 break;
 
             case HTTP:

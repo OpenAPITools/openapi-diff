@@ -25,7 +25,7 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     }
 
     public Optional<ChangedHeader> diff(Header left, Header right) {
-        return super.cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(left, right, left.get$ref(), right.get$ref());
     }
 
     @Override
