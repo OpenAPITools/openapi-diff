@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Created by adarsh.sharma on 11/01/18.
  */
-public class SecuritySchemeDiff  extends ReferenceDiffCache<SecurityScheme, ChangedSecurityScheme>{
+public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, ChangedSecurityScheme> {
     private OpenApiDiff openApiDiff;
     private Components leftComponents;
     private Components rightComponents;
@@ -27,15 +27,17 @@ public class SecuritySchemeDiff  extends ReferenceDiffCache<SecurityScheme, Chan
         SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(leftSchemeRef);
         SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(rightSchemeRef);
         Optional<ChangedSecurityScheme> changedSecuritySchemeOpt = cachedDiff(leftSecurityScheme, rightSecurityScheme, leftSchemeRef, rightSchemeRef);
+        ChangedSecurityScheme changedSecurityScheme = changedSecuritySchemeOpt.orElse(new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme));
+        changedSecurityScheme = getCopyWithoutScopes(changedSecurityScheme);
 
-        if(changedSecuritySchemeOpt.isPresent() && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
+        if (changedSecurityScheme != null && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
             ListDiff<String> scopesDiff = ListDiff.diff(leftScopes, rightScopes);
             if (!scopesDiff.getIncreased().isEmpty() || !scopesDiff.getMissing().isEmpty()) {
-                changedSecuritySchemeOpt.get().setChangedScopes(scopesDiff);
+                changedSecurityScheme.setChangedScopes(scopesDiff);
             }
         }
 
-        return changedSecuritySchemeOpt;
+        return changedSecurityScheme.isDiff() ? Optional.of(changedSecurityScheme) : Optional.empty();
     }
 
     @Override
@@ -65,6 +67,18 @@ public class SecuritySchemeDiff  extends ReferenceDiffCache<SecurityScheme, Chan
                 break;
         }
 
-        return changedSecurityScheme.isDiff() ? Optional.of(changedSecurityScheme) : Optional.empty();
+        return Optional.of(changedSecurityScheme);
+    }
+
+    private ChangedSecurityScheme getCopyWithoutScopes(ChangedSecurityScheme original) {
+        ChangedSecurityScheme changedSecurityScheme = new ChangedSecurityScheme(original.getOldSecurityScheme(), original.getNewSecurityScheme());
+        changedSecurityScheme.setChangedType(original.isChangedType());
+        changedSecurityScheme.setChangedDescription(original.isChangedDescription());
+        changedSecurityScheme.setChangedIn(original.isChangedIn());
+        changedSecurityScheme.setChangedScheme(original.isChangedScheme());
+        changedSecurityScheme.setChangedBearerFormat(original.isChangedBearerFormat());
+        changedSecurityScheme.setChangedOAuthFlows(original.getChangedOAuthFlows());
+        changedSecurityScheme.setChangedOpenIdConnectUrl(original.isChangedOpenIdConnectUrl());
+        return changedSecurityScheme;
     }
 }
