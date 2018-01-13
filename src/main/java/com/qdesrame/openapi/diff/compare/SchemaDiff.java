@@ -62,6 +62,14 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
         return cachedDiff(left, right, left.get$ref(), right.get$ref());
     }
 
+    public Optional<ChangedSchema> getTypeChangedSchema(Schema left, Schema right) {
+        ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult(openApiDiff).getChangedSchema();
+        changedSchema.setOldSchema(left);
+        changedSchema.setNewSchema(right);
+        changedSchema.setChangedType(true);
+        return Optional.of(changedSchema);
+    }
+
     @Override
     protected Optional<ChangedSchema> computeDiff(Schema left, Schema right) {
         left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
@@ -74,11 +82,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
         // return the object
         if (!Objects.equals(left.getType(), right.getType()) ||
                 !Objects.equals(left.getFormat(), right.getFormat())) {
-            ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult(openApiDiff).getChangedSchema();
-            changedSchema.setOldSchema(left);
-            changedSchema.setNewSchema(right);
-            changedSchema.setChangedType(true);
-            return Optional.of(changedSchema);
+            return getTypeChangedSchema(left, right);
         }
 
         //If schema type is same then get specific SchemaDiffResult and compare the properties
