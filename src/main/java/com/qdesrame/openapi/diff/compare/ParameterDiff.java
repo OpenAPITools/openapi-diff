@@ -10,7 +10,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParameter> implements Comparable<Parameter> {
+public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParameter> {
 
     private Components leftComponents;
     private Components rightComponents;
@@ -23,13 +23,8 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
     }
 
-    @Override
-    public boolean compare(Parameter left, Parameter right) {
-        return false;
-    }
-
     public Optional<ChangedParameter> diff(Parameter left, Parameter right) {
-        return super.cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(left, right, left.get$ref(), right.get$ref());
     }
 
     @Override

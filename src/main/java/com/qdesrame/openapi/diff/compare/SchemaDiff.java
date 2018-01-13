@@ -59,7 +59,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     }
 
     public Optional<ChangedSchema> diff(Schema left, Schema right) {
-        return super.cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(left, right, left.get$ref(), right.get$ref());
     }
 
     @Override

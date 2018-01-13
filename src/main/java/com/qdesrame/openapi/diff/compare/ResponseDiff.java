@@ -25,7 +25,7 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
     }
 
     public Optional<ChangedResponse> diff(ApiResponse left, ApiResponse right) {
-        return super.cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(left, right, left.get$ref(), right.get$ref());
     }
 
     @Override
