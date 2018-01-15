@@ -172,11 +172,11 @@ public class OpenApiDiff {
             Map<String, PathItem> paths = openApi.getPaths();
             if (paths != null) {
                 paths.values().forEach(pathItem -> pathItem.readOperationsMap().values().stream()
-                        .filter(operation -> operation.getSecurity() == null)
-                        .forEach(operation -> operation.setSecurity(distinctSecurityRequirements)));
-                paths.values().forEach(pathItem -> pathItem.readOperationsMap().values().stream()
                         .filter(operation -> operation.getSecurity() != null)
                         .forEach(operation -> operation.setSecurity(operation.getSecurity().stream().distinct().collect(Collectors.toList()))));
+                paths.values().forEach(pathItem -> pathItem.readOperationsMap().values().stream()
+                        .filter(operation -> operation.getSecurity() == null)
+                        .forEach(operation -> operation.setSecurity(distinctSecurityRequirements)));
             }
             openApi.setSecurity(null);
         }

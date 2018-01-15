@@ -12,7 +12,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -49,17 +51,14 @@ public class SecurityRequirementsDiff {
         List<Pair<SecurityScheme.Type, SecurityScheme.In>> leftTypes = getListOfSecuritySchemes(leftComponents, left);
         List<Pair<SecurityScheme.Type, SecurityScheme.In>> rightTypes = getListOfSecuritySchemes(rightComponents, right);
 
-        if (CollectionUtils.isEqualCollection(leftTypes, rightTypes)) {
-            return true;
-        }
+        return CollectionUtils.isEqualCollection(leftTypes, rightTypes);
 
-        return false;
     }
 
     private List<Pair<SecurityScheme.Type, SecurityScheme.In>> getListOfSecuritySchemes(Components components, SecurityRequirement securityRequirement) {
         return securityRequirement.keySet().stream()
                 .map(x -> components.getSecuritySchemes().get(x))
-                .map(x -> getPair(x))
+                .map(this::getPair)
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -69,11 +68,11 @@ public class SecurityRequirementsDiff {
     }
 
     protected Optional<ChangedSecurityRequirements> diff(List<SecurityRequirement> left, List<SecurityRequirement> right) {
-        ChangedSecurityRequirements changedSecurityRequirements
-                = new ChangedSecurityRequirements(left, right == null ? new ArrayList<>() : getCopy(right));
-
         left = left == null ? new ArrayList<>() : left;
-        right = right == null ? new ArrayList<>() : right;
+        right = right == null ? new ArrayList<>() : getCopy(right);
+
+        ChangedSecurityRequirements changedSecurityRequirements = new ChangedSecurityRequirements(left, right);
+
 
         for (SecurityRequirement leftSecurity : left) {
             Optional<SecurityRequirement> rightSecOpt = contains(right, leftSecurity);
@@ -86,14 +85,14 @@ public class SecurityRequirementsDiff {
                 diff.ifPresent(changedSecurityRequirements::addChanged);
             }
         }
-        right.stream().forEach(changedSecurityRequirements::addIncreased);
+        right.forEach(changedSecurityRequirements::addIncreased);
 
         return changedSecurityRequirements.isDiff() ? Optional.of(changedSecurityRequirements) : Optional.empty();
     }
 
     private List<SecurityRequirement> getCopy(List<SecurityRequirement> right) {
         return right.stream()
-                .map(securityRequirement -> SecurityRequirementDiff.getCopy(securityRequirement))
+                .map(SecurityRequirementDiff::getCopy)
                 .collect(Collectors.toList());
     }
 
