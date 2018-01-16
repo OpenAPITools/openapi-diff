@@ -34,59 +34,55 @@ public class MarkdownRender implements Render {
         sb.append(listEndpoints("What's New", diff.getNewEndpoints()))
                 .append(listEndpoints("What's Deleted", diff.getMissingEndpoints()))
                 .append(listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints()))
-                .append(H3).append("What's Changed").append("\n").append(HR)
-                .append(ol_changed(diff.getChangedOperations()));
+                .append(listEndpoints(diff.getChangedOperations()));
         return sb.toString();
+    }
+
+    private String sectionTitle(String title) {
+        return H3 + title + '\n' + HR + '\n';
     }
 
     private String listEndpoints(String title, List<Endpoint> endpoints) {
         if (null == endpoints || endpoints.size() == 0) return "";
-        StringBuilder sb = new StringBuilder();
-        sb.append(H3).append(title).append("\n").append(HR);
-        for (Endpoint endpoint : endpoints) {
-            sb.append(itemEndpoint(endpoint.getMethod().toString(), endpoint.getPathUrl(), endpoint.getSummary()));
-        }
+        StringBuilder sb = new StringBuilder(sectionTitle(title));
+        endpoints.stream().map(e -> itemEndpoint(e.getMethod().toString(), e.getPathUrl(), e.getSummary())).forEach(sb::append);
         return sb.toString();
     }
 
     private String itemEndpoint(String method, String path, String summary) {
         StringBuilder sb = new StringBuilder();
         sb.append(H4).append(CODE).append(method).append(CODE).append(" ")
-                .append(path).append("\n").append(description(summary)).append("  \n\n");
+                .append(path).append("\n\n").append(description(summary)).append("\n");
         /*.append(desc.replaceAll("\n", "\n> "))*/
         return sb.toString();
     }
 
-    private String ol_changed(List<ChangedOperation> changedOperations) {
-        if (null == changedOperations || changedOperations.size() == 0) return "N/A";
-        StringBuilder sb = new StringBuilder();
-        for (ChangedOperation changedOperation : changedOperations) {
-            String pathUrl = changedOperation.getPathUrl();
+    private String titleH5(String title) {
+        return H5 + title + '\n';
+    }
 
-            String method = changedOperation.getHttpMethod().toString();
-            String desc = changedOperation.getSummary();
-
-            StringBuilder ul_detail = new StringBuilder();
-            if (changedOperation.isDiffParam()) {
-                ul_detail.append(H5).append("Parameters: ")
-                        .append(ul_param(changedOperation.getChangedParameters()));
+    private String listEndpoints(List<ChangedOperation> changedOperations) {
+        if (null == changedOperations || changedOperations.size() == 0) return "";
+        StringBuilder sb = new StringBuilder(sectionTitle("What's Changed"));
+        changedOperations.stream().map(operation -> {
+            StringBuilder details = new StringBuilder()
+                    .append(itemEndpoint(operation.getHttpMethod().toString(), operation.getPathUrl(), operation.getSummary()));
+            if (operation.isDiffParam()) {
+                details.append(titleH5("Parameters:")).append(parameters(operation.getChangedParameters()));
             }
-            if (changedOperation.isDiffRequest()) {
-                ul_detail.append(H5).append("Request: ")
-                        .append(bodyContent(changedOperation.getChangedRequestBody().getChangedContent()));
+            if (operation.isDiffRequest()) {
+                details.append(titleH5("Request:")).append(bodyContent(operation.getChangedRequestBody().getChangedContent()));
             }
-            if (changedOperation.isDiffResponse()) {
-                ul_detail.append(H5).append("Return Type: ")
-                        .append(responses(changedOperation.getChangedApiResponse()));
+            if (operation.isDiffResponse()) {
+                details.append(titleH5("Return Type:")).append(responses(operation.getChangedApiResponse()));
             }
-            sb.append(H4).append(CODE).append(method).append(CODE).append(" ").append(pathUrl)
-                    .append('\n').append(description(desc)).append("\n").append(ul_detail);
-        }
+            return details.toString();
+        }).forEach(sb::append);
         return sb.toString();
     }
 
     private String responses(ChangedApiResponse changedApiResponse) {
-        StringBuilder sb = new StringBuilder("\n\n");
+        StringBuilder sb = new StringBuilder("\n");
         sb.append(listResponse("New response", changedApiResponse.getAddResponses()));
         sb.append(listResponse("Deleted response", changedApiResponse.getMissingResponses()));
         changedApiResponse.getChangedResponses().entrySet().stream().map(e -> this.itemResponse(e.getKey(), e.getValue())).forEach(sb::append);
@@ -120,7 +116,7 @@ public class MarkdownRender implements Render {
         }
         sb.append(String.format("%s : **%s %s**\n", title, code, status));
         sb.append(description(description));
-        return sb.append("\n").toString();
+        return sb.toString();
     }
 
     private String headers(ChangedHeaders headers) {
@@ -158,7 +154,7 @@ public class MarkdownRender implements Render {
     }
 
     private String bodyContent(String prefix, ChangedContent changedContent) {
-        StringBuilder sb = new StringBuilder("\n\n");
+        StringBuilder sb = new StringBuilder("\n");
         sb.append(listContent(prefix, "New content type", changedContent.getIncreased()));
         sb.append(listContent(prefix, "Deleted content type", changedContent.getMissing()));
         changedContent.getChanged().entrySet().stream().map(e -> this.itemContent(e.getKey(), e.getValue())).forEach(e -> sb.append(prefix).append(e));
@@ -193,53 +189,39 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String ul_param(ChangedParameters changedParameters) {
-        List<Parameter> addParameters = changedParameters.getIncreased();
-        List<Parameter> delParameters = changedParameters.getMissing();
+    private String parameters(ChangedParameters changedParameters) {
         List<ChangedParameter> changed = changedParameters.getChanged();
-        StringBuilder sb = new StringBuilder("\n\n");
-        sb.append(parameters("Added", addParameters)).append(parameters("Deleted", delParameters));
-        for (ChangedParameter param : changed) {
-            boolean changeRequired = param.isChangeRequired();
-            boolean changeDescription = param.isChangeDescription();
-            if (changeRequired || changeDescription) sb.append(PRE_LI)
-                    .append(PRE_CODE).append(li_changedParam(param)).append("\n").append(PRE_CODE);
-        }
+        StringBuilder sb = new StringBuilder("\n");
+        sb.append(listParameter("Added", changedParameters.getIncreased()))
+                .append(listParameter("Deleted", changedParameters.getMissing()));
+        changed.stream().map(this::itemParameter).forEach(sb::append);
         return sb.toString();
     }
 
-    private String parameters(String title, List<Parameter> parameters) {
+    private String listParameter(String title, List<Parameter> parameters) {
         StringBuilder sb = new StringBuilder("");
-        if (parameters.size() > 0) {
-            for (Parameter parameter : parameters) {
-                sb.append(String.format("%s: ", title)).append(code(parameter.getName()))
-                        .append(" in ").append(code(parameter.getIn()))
-                        .append(description(parameter.getDescription())).append('\n');
-            }
-        }
+        parameters.stream().map(p -> itemParameter(title, p)).forEach(sb::append);
         return sb.toString();
     }
 
-    private String li_changedParam(ChangedParameter changeParam) {
-        boolean changeRequired = changeParam.isChangeRequired();
-        boolean changeDescription = changeParam.isChangeDescription();
-        Parameter rightParam = changeParam.getNewParameter();
-        Parameter leftParam = changeParam.getNewParameter();
-        StringBuilder sb = new StringBuilder("");
-        sb.append(rightParam.getName());
-        if (changeRequired) {
-            sb.append(" change into " + (rightParam.getRequired() ? "required" : "not required"));
+    private String itemParameter(String title, Parameter parameter) {
+        return this.itemParameter(title, parameter.getName(), parameter.getIn(), parameter.getDescription());
+    }
+
+    private String itemParameter(String title, String name, String in, String description) {
+        return String.format("%s: ", title) + code(name) + " in " + code(in) + '\n' + description(description) + '\n';
+    }
+
+    private String itemParameter(ChangedParameter param) {
+        Parameter rightParam = param.getNewParameter();
+        if (param.isDeprecated()) {
+            return itemParameter("Deprecated", rightParam.getName(), rightParam.getIn(), rightParam.getDescription());
         }
-        if (changeDescription) {
-            sb.append(" Notes ").append(leftParam.getDescription()).append(" change into ")
-                    .append(rightParam.getDescription());
-        }
-        return sb.toString();
+        return itemParameter("Changed", rightParam.getName(), rightParam.getIn(), rightParam.getDescription());
     }
 
     private String code(String string) {
-        StringBuilder sb = new StringBuilder();
-        return sb.append(CODE).append(string).append(CODE).toString();
+        return CODE + string + CODE;
     }
 
     private String description(String description) {
@@ -248,7 +230,7 @@ public class MarkdownRender implements Render {
             description = "";
         }
         if (!description.equals("")) {
-            result = "> " + description.replaceAll("\n", "\n> ") + '\n';
+            result = "> " + description.trim().replaceAll("\n", "\n> ") + '\n';
         }
         return result;
     }
