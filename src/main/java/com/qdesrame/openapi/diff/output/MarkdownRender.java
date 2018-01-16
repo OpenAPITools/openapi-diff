@@ -104,7 +104,9 @@ public class MarkdownRender implements Render {
         sb.append(this.itemResponse("Changed response", code, null == response.getNewApiResponse() ?
                 "" : response.getNewApiResponse().getDescription()));
         sb.append(headers(response.getChangedHeaders()));
-        sb.append(this.bodyContent(LI, response.getChangedContent()));
+        if (response.getChangedContent() != null) {
+            sb.append(this.bodyContent(LI, response.getChangedContent()));
+        }
         return sb.toString();
     }
 
