@@ -1,12 +1,9 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.SecurityRequirementDiff;
-import com.qdesrame.openapi.diff.model.ChangedOpenApi;
-import com.qdesrame.openapi.diff.model.ChangedOperation;
-import com.qdesrame.openapi.diff.model.Endpoint;
+import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -18,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class OpenApiDiff {
@@ -27,6 +25,8 @@ public class OpenApiDiff {
     private static Logger logger = LoggerFactory.getLogger(OpenApiDiff.class);
 
     private ChangedOpenApi changedOpenApi;
+    private PathsDiff pathsDiff;
+    private PathDiff pathDiff;
     private SchemaDiff schemaDiff;
     private ContentDiff contentDiff;
     private ParametersDiff parametersDiff;
@@ -94,6 +94,8 @@ public class OpenApiDiff {
     }
 
     private void initializeFields() {
+        this.pathsDiff = new PathsDiff(this);
+        this.pathDiff = new PathDiff(this);
         this.schemaDiff = new SchemaDiff(this);
         this.contentDiff = new ContentDiff(this);
         this.parametersDiff = new ParametersDiff(this);
@@ -129,38 +131,20 @@ public class OpenApiDiff {
     private ChangedOpenApi compare() {
         preProcess(oldSpecOpenApi);
         preProcess(newSpecOpenApi);
-        Map<String, PathItem> oldPaths = oldSpecOpenApi.getPaths();
-        Map<String, PathItem> newPaths = newSpecOpenApi.getPaths();
-        MapKeyDiff<String, PathItem> pathDiff = MapKeyDiff.diff(oldPaths, newPaths);
-        this.newEndpoints = EndpointUtils.convert2EndpointList(pathDiff.getIncreased());
-        this.missingEndpoints = EndpointUtils.convert2EndpointList(pathDiff.getMissing());
-
+        Optional<ChangedPaths> paths = this.pathsDiff.diff(oldSpecOpenApi.getPaths(), newSpecOpenApi.getPaths());
+        this.newEndpoints = new ArrayList<>();
+        this.missingEndpoints = new ArrayList<>();
         this.changedOperations = new ArrayList<>();
-
-        List<String> sharedKey = pathDiff.getSharedKey();
-        for (String pathUrl : sharedKey) {
-            PathItem oldPath = oldPaths.get(pathUrl);
-            PathItem newPath = newPaths.get(pathUrl);
-
-            Map<PathItem.HttpMethod, Operation> oldOperationMap = oldPath.readOperationsMap();
-            Map<PathItem.HttpMethod, Operation> newOperationMap = newPath.readOperationsMap();
-            MapKeyDiff<PathItem.HttpMethod, Operation> operationsDiff = MapKeyDiff.diff(oldOperationMap,
-                    newOperationMap);
-            Map<PathItem.HttpMethod, Operation> increasedOperation = operationsDiff.getIncreased();
-            Map<PathItem.HttpMethod, Operation> missingOperation = operationsDiff.getMissing();
-
-            this.newEndpoints.addAll(EndpointUtils.convert2Endpoints(pathUrl, increasedOperation));
-            this.missingEndpoints.addAll(EndpointUtils.convert2Endpoints(pathUrl, missingOperation));
-
-            List<PathItem.HttpMethod> sharedMethods = operationsDiff.getSharedKey();
-
-            for (PathItem.HttpMethod method : sharedMethods) {
-                Operation oldOperation = oldOperationMap.get(method);
-                Operation newOperation = newOperationMap.get(method);
-                operationDiff.diff(pathUrl, method, oldOperation, newOperation).ifPresent(changedOperations::add);
-            }
-        }
-
+        paths.ifPresent(changedPaths -> {
+            this.newEndpoints = EndpointUtils.convert2EndpointList(changedPaths.getIncreased());
+            this.missingEndpoints = EndpointUtils.convert2EndpointList(changedPaths.getMissing());
+            changedPaths.getChanged().keySet().forEach(path -> {
+                ChangedPath changedPath = changedPaths.getChanged().get(path);
+                this.newEndpoints.addAll(EndpointUtils.convert2Endpoints(path, changedPath.getIncreased()));
+                this.missingEndpoints.addAll(EndpointUtils.convert2Endpoints(path, changedPath.getMissing()));
+                changedOperations.addAll(changedPath.getChanged());
+            });
+        });
         return getChangedOpenApi();
     }
 
@@ -189,6 +173,14 @@ public class OpenApiDiff {
         changedOpenApi.setOldSpecOpenApi(oldSpecOpenApi);
         changedOpenApi.setChangedOperations(changedOperations);
         return changedOpenApi;
+    }
+
+    public PathsDiff getPathsDiff() {
+        return pathsDiff;
+    }
+
+    public PathDiff getPathDiff() {
+        return pathDiff;
     }
 
     public SchemaDiff getSchemaDiff() {
