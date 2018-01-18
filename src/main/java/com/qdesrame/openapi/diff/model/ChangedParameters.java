@@ -32,8 +32,7 @@ public class ChangedParameters implements Changed {
 
     @Override
     public boolean isDiffBackwardCompatible() {
-        return increased.stream().noneMatch(p -> p.getRequired())
-                && missing.isEmpty()
-                && changed.stream().allMatch(p -> p.isDiffBackwardCompatible());
+        return increased.stream().noneMatch(Parameter::getRequired) && missing.isEmpty()
+                && changed.stream().allMatch(ChangedParameter::isDiffBackwardCompatible);
     }
 }

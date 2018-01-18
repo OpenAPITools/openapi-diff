@@ -36,7 +36,7 @@ public class EndpointUtils {
     }
 
     public static List<Endpoint> convert2EndpointList(Map<String, PathItem> map) {
-        List<Endpoint> endpoints = new ArrayList<Endpoint>();
+        List<Endpoint> endpoints = new ArrayList<>();
         if (null == map) return endpoints;
         for (Map.Entry<String, PathItem> entry : map.entrySet()) {
             String url = entry.getKey();
