@@ -2,7 +2,9 @@ package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.apache.commons.httpclient.HttpStatus;
@@ -19,6 +21,7 @@ public class MarkdownRender implements Render {
     private final String H3 = "### ";
     private final String H4 = "#### ";
     private final String H5 = "##### ";
+    private final String H6 = "###### ";
     private final String BLOCKQUOTE = "> ";
     private final String CODE = "`";
     private final String PRE_CODE = "    ";
@@ -39,7 +42,7 @@ public class MarkdownRender implements Render {
     }
 
     private String sectionTitle(String title) {
-        return H3 + title + '\n' + HR + '\n';
+        return H4 + title + '\n' + HR + '\n';
     }
 
     private String listEndpoints(String title, List<Endpoint> endpoints) {
@@ -51,14 +54,14 @@ public class MarkdownRender implements Render {
 
     private String itemEndpoint(String method, String path, String summary) {
         StringBuilder sb = new StringBuilder();
-        sb.append(H4).append(CODE).append(method).append(CODE).append(" ")
+        sb.append(H5).append(CODE).append(method).append(CODE).append(" ")
                 .append(path).append("\n\n").append(description(summary)).append("\n");
         /*.append(desc.replaceAll("\n", "\n> "))*/
         return sb.toString();
     }
 
     private String titleH5(String title) {
-        return H5 + title + '\n';
+        return H6 + title + '\n';
     }
 
     private String listEndpoints(List<ChangedOperation> changedOperations) {
@@ -159,7 +162,13 @@ public class MarkdownRender implements Render {
         StringBuilder sb = new StringBuilder("\n");
         sb.append(listContent(prefix, "New content type", changedContent.getIncreased()));
         sb.append(listContent(prefix, "Deleted content type", changedContent.getMissing()));
-        changedContent.getChanged().entrySet().stream().map(e -> this.itemContent(e.getKey(), e.getValue())).forEach(e -> sb.append(prefix).append(e));
+        final int deepness;
+        if (StringUtils.isNotBlank(prefix)) {
+            deepness = 1;
+        } else {
+            deepness = 0;
+        }
+        changedContent.getChanged().entrySet().stream().map(e -> this.itemContent(deepness, e.getKey(), e.getValue())).forEach(e -> sb.append(prefix).append(e));
         return sb.toString();
     }
 
@@ -185,10 +194,48 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String itemContent(String mediaType, ChangedMediaType content) {
+    private String itemContent(int deepness, String mediaType, ChangedMediaType content) {
         StringBuilder sb = new StringBuilder("");
         sb.append(itemContent("Changed content type", mediaType));
+        sb.append(schema(deepness, content.getChangedSchema()));
         return sb.toString();
+    }
+
+    private String schema(ChangedSchema schema) {
+        return schema(1, schema);
+    }
+
+    private String schema(int deepness, ChangedSchema schema) {
+        StringBuilder sb = new StringBuilder("");
+        sb.append(properties(deepness, "Added property", schema.getIncreasedProperties()));
+        sb.append(properties(deepness, "Deleted property", schema.getMissingProperties()));
+        schema.getChangedProperties().forEach((name, property) -> sb.append(property(deepness, name, property)));
+        return sb.toString();
+    }
+
+    private String properties(int deepness, String title, Map<String, Schema> properties) {
+        StringBuilder sb = new StringBuilder("");
+        properties.entrySet().stream().map((entry) -> property(deepness, title, entry.getKey(), entry.getValue())).forEach(sb::append);
+        return sb.toString();
+    }
+
+    private String property(int deepness, String name, ChangedSchema schema) {
+        StringBuilder sb = new StringBuilder();
+        String type = type(schema.getNewSchema());
+        if (schema.isChangedType()) {
+            type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
+        }
+        sb.append(property(deepness, "Changed property", name, type, schema.getNewSchema().getDescription()));
+        sb.append(schema(++deepness, schema));
+        return sb.toString();
+    }
+
+    private String property(int deepness, String title, String name, Schema schema) {
+        return property(deepness, title, name, schema.getType(), schema.getDescription());
+    }
+
+    private String property(int deepness, String title, String name, String type, String description) {
+        return String.format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type, description(indent(deepness + 1), description));
     }
 
     private String parameters(ChangedParameters changedParameters) {
@@ -227,13 +274,36 @@ public class MarkdownRender implements Render {
     }
 
     private String description(String description) {
+        return description("", description);
+    }
+
+    private String description(String beginning, String description) {
         String result = "";
         if (StringUtils.isBlank(description)) {
             description = "";
         }
+        String blockquote = beginning + BLOCKQUOTE;
         if (!description.equals("")) {
-            result = "> " + description.trim().replaceAll("\n", "\n> ") + '\n';
+            result = blockquote + description.trim().replaceAll("\n", "\n" + blockquote) + '\n';
         }
         return result;
+    }
+
+    private String type(Schema schema) {
+        String result = "object";
+        if (schema instanceof ArraySchema) {
+            result = "array";
+        } else if (schema.getType() != null) {
+            result = schema.getType();
+        }
+        return result;
+    }
+
+    private String indent(int deepness) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < deepness; i++) {
+            sb.append(PRE_LI);
+        }
+        return sb.toString();
     }
 }
