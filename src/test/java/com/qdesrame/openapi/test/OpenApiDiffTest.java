@@ -1,8 +1,8 @@
 package com.qdesrame.openapi.test;
 
-import com.qdesrame.openapi.diff.compare.OpenApiDiff;
-import com.qdesrame.openapi.diff.model.ChangedOperation;
+import com.qdesrame.openapi.diff.OpenApiCompare;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
+import com.qdesrame.openapi.diff.model.ChangedOperation;
 import com.qdesrame.openapi.diff.model.Endpoint;
 import com.qdesrame.openapi.diff.output.HtmlRender;
 import com.qdesrame.openapi.diff.output.MarkdownRender;
@@ -29,7 +29,7 @@ public class OpenApiDiffTest {
 
     @Test
     public void testNewApi() {
-        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_EMPTY_DOC, OPENAPI_DOC2);
+        ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_EMPTY_DOC, OPENAPI_DOC2);
         List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
         List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
         List<ChangedOperation> changedEndPoints = changedOpenApi.getChangedOperations();
@@ -54,7 +54,7 @@ public class OpenApiDiffTest {
 
     @Test
     public void testDeprecatedApi() {
-        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_EMPTY_DOC);
+        ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_EMPTY_DOC);
         List<Endpoint> newEndpoints = changedOpenApi.getNewEndpoints();
         List<Endpoint> missingEndpoints = changedOpenApi.getMissingEndpoints();
         List<ChangedOperation> changedEndPoints = changedOpenApi.getChangedOperations();
@@ -79,7 +79,7 @@ public class OpenApiDiffTest {
 
     @Test
     public void testDiff() {
-        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
+        ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
         List<ChangedOperation> changedEndPoints = changedOpenApi.getChangedOperations();
         String html = new HtmlRender("Changelog",
                 "http://deepoove.com/swagger-diff/stylesheets/demo.css")
@@ -99,7 +99,7 @@ public class OpenApiDiffTest {
 
     @Test
     public void testDiffAndMarkdown() {
-        ChangedOpenApi diff = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
+        ChangedOpenApi diff = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
         String render = new MarkdownRender().render(diff);
         try {
             FileWriter fw = new FileWriter(

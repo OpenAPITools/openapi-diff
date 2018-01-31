@@ -1,6 +1,6 @@
 package com.qdesrame.openapi.test;
 
-import com.qdesrame.openapi.diff.compare.OpenApiDiff;
+import com.qdesrame.openapi.diff.OpenApiCompare;
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class SecurityDiffTest {
 
     @Test
     public void testDiffDifferent() {
-        ChangedOpenApi changedOpenApi = OpenApiDiff.compare(OPENAPI_DOC1, OPENAPI_DOC2);
+        ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
 
         assertTrue(changedOpenApi.getChangedOperations().size() == 3);
 

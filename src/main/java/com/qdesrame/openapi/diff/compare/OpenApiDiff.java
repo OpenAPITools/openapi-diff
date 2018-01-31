@@ -5,9 +5,6 @@ import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.parser.OpenAPIV3Parser;
-import io.swagger.v3.parser.core.models.AuthorizationValue;
-import io.swagger.v3.parser.core.models.ParseOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,48 +45,23 @@ public class OpenApiDiff {
     private List<Endpoint> missingEndpoints;
     private List<ChangedOperation> changedOperations;
 
-    /**
-     * compare two openapi doc
-     *
-     * @param oldSpec old api-doc location:Json or Http
-     * @param newSpec new api-doc location:Json or Http
+    /*
+     * @param oldSpecOpenApi
+     * @param newSpecOpenApi
      */
-    public static ChangedOpenApi compare(String oldSpec, String newSpec) {
-        return compare(oldSpec, newSpec, null);
-    }
-
-    /**
-     * @param oldSpec
-     * @param newSpec
-     * @param auths
-     */
-    private OpenApiDiff(String oldSpec, String newSpec, List<AuthorizationValue> auths) {
-        this();
-        OpenAPIV3Parser openApiParser = new OpenAPIV3Parser();
-        ParseOptions options = new ParseOptions();
-        options.setResolve(true);
-        oldSpecOpenApi = openApiParser.read(oldSpec, auths, options);
-        if (oldSpecOpenApi == null) {
-            throw new RuntimeException("Cannot read old OpenAPI spec");
-        }
-        newSpecOpenApi = openApiParser.read(newSpec, auths, options);
-        if (null == newSpecOpenApi) {
-            throw new RuntimeException("Cannot read new OpenAPI spec");
+    private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi) {
+        this.changedOpenApi = new ChangedOpenApi();
+        this.oldSpecOpenApi = oldSpecOpenApi;
+        this.newSpecOpenApi = newSpecOpenApi;
+        if (null == oldSpecOpenApi || null == newSpecOpenApi) {
+            throw new RuntimeException(
+                    "one of the old or new object is null");
         }
         initializeFields();
     }
 
-    private OpenApiDiff() {
-        this.changedOpenApi = new ChangedOpenApi();
-    }
-
-    public static ChangedOpenApi compare(OpenAPI oldOpenAPI, OpenAPI newOpenAPI) {
-        return new OpenApiDiff(oldOpenAPI, newOpenAPI).compare();
-    }
-
-    public static ChangedOpenApi compare(String oldSpec, String newSpec,
-                                         List<AuthorizationValue> auths) {
-        return new OpenApiDiff(oldSpec, newSpec, auths).compare();
+    public static ChangedOpenApi compare(OpenAPI oldSpec, OpenAPI newSpec) {
+        return new OpenApiDiff(oldSpec, newSpec).compare();
     }
 
     private void initializeFields() {
@@ -110,21 +82,6 @@ public class OpenApiDiff {
         this.securitySchemeDiff = new SecuritySchemeDiff(this);
         this.oAuthFlowsDiff = new OAuthFlowsDiff(this);
         this.oAuthFlowDiff = new OAuthFlowDiff(this);
-    }
-
-    /*
-     * @param oldSpecOpenApi
-     * @param newSpecOpenApi
-     */
-    private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi) {
-        this();
-        this.oldSpecOpenApi = oldSpecOpenApi;
-        this.newSpecOpenApi = newSpecOpenApi;
-        if (null == oldSpecOpenApi || null == newSpecOpenApi) {
-            throw new RuntimeException(
-                    "one of the old or new object is null");
-        }
-        initializeFields();
     }
 
     private ChangedOpenApi compare() {

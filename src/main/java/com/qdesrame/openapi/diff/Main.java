@@ -1,6 +1,5 @@
 package com.qdesrame.openapi.diff;
 
-import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
 import com.qdesrame.openapi.diff.output.ConsoleRender;
 import com.qdesrame.openapi.diff.output.HtmlRender;
@@ -88,7 +87,7 @@ public class Main {
             }
             String oldPath = line.getArgList().get(0);
             String newPath = line.getArgList().get(1);
-            ChangedOpenApi result = OpenApiDiff.compare(oldPath, newPath);
+            ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath);
             ConsoleRender consoleRender = new ConsoleRender();
             System.out.println(consoleRender.render(result));
             HtmlRender htmlRender = new HtmlRender();
