@@ -1,6 +1,5 @@
-package com.qdesrame.openapi.diff;
+package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSecurityRequirement;
 import com.qdesrame.openapi.diff.model.ChangedSecurityScheme;
 import io.swagger.v3.oas.models.Components;

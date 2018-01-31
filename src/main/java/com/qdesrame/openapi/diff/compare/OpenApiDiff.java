@@ -1,6 +1,5 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.SecurityRequirementDiff;
 import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;

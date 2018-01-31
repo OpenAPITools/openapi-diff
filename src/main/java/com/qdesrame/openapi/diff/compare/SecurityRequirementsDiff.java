@@ -1,6 +1,5 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.SecurityRequirementDiff;
 import com.qdesrame.openapi.diff.model.ChangedSecurityRequirement;
 import com.qdesrame.openapi.diff.model.ChangedSecurityRequirements;
 import com.qdesrame.openapi.diff.utils.RefPointer;
