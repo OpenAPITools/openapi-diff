@@ -14,11 +14,13 @@ Compare two OpenAPI specifications(3.x) and render the difference to html file o
 
 # Maven
 
+Available on [Maven Central](https://search.maven.org/#artifactdetails%7Ccom.qdesrame%7Copenapi-diff%7C1.1.0%7Cjar)
+
 ```xml
 <dependency>
-        <groupId>com.qdesrame</groupId>
-        <artifactId>openapi-diff</artifactId>
-	<version>1.1.0</version>
+    <groupId>com.qdesrame</groupId>
+    <artifactId>openapi-diff</artifactId>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -51,10 +53,16 @@ usage: openapi-diff <old> <new>
 ## Direct Invocation
 
 ```java
-final String OPENAPI_V3_DOC1 = "petstore_v3_1.json";
-final String OPENAPI_V3_DOC2 = "http://petstore.swagger.io/v2/swagger.json";
+public class Main {
+    public static final String OPENAPI_DOC1 = "petstore_v3_1.json";
+    public static final String OPENAPI_DOC2 = "petstore_v2_2.yaml";
+        
+    public static void main(String[] args) {
+        ChangedOpenApi diff = OpenApiCompare.fromLocations(SWAGGER_V3_DOC1, SWAGGER_V3_DOC2);
 
-SwaggerDiff diff = OpenApiDiff.compare(SWAGGER_V3_DOC1, SWAGGER_V3_DOC2);
+        //...
+    }
+}
 ```
 
 ### Render difference
