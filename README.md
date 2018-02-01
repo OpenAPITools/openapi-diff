@@ -18,7 +18,7 @@ Compare two OpenAPI specifications(3.x) and render the difference to html file o
 <dependency>
         <groupId>com.qdesrame</groupId>
         <artifactId>openapi-diff</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 </dependency>
 ```
 
