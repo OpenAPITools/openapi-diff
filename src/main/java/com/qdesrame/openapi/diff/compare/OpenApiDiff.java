@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.qdesrame.openapi.diff.compare.PathsDiff.valOrEmpty;
+
 public class OpenApiDiff {
 
     public static final String SWAGGER_VERSION_V2 = "2.0";
@@ -87,7 +89,7 @@ public class OpenApiDiff {
     private ChangedOpenApi compare() {
         preProcess(oldSpecOpenApi);
         preProcess(newSpecOpenApi);
-        Optional<ChangedPaths> paths = this.pathsDiff.diff(oldSpecOpenApi.getPaths(), newSpecOpenApi.getPaths());
+        Optional<ChangedPaths> paths = this.pathsDiff.diff(valOrEmpty(oldSpecOpenApi.getPaths()), valOrEmpty(newSpecOpenApi.getPaths()));
         this.newEndpoints = new ArrayList<>();
         this.missingEndpoints = new ArrayList<>();
         this.changedOperations = new ArrayList<>();

@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedPaths;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -52,5 +53,12 @@ public class PathsDiff {
             }
         });
         return changedPaths.isDiff() ? Optional.of(changedPaths) : Optional.empty();
+    }
+
+    public static Paths valOrEmpty(Paths path) {
+        if (path == null) {
+            path = new Paths();
+        }
+        return path;
     }
 }
