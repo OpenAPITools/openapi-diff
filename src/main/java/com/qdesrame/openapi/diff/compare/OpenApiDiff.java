@@ -5,7 +5,6 @@ import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
@@ -18,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.qdesrame.openapi.diff.compare.PathsDiff.valOrEmpty;
 
 public class OpenApiDiff {
 
@@ -132,9 +133,7 @@ public class OpenApiDiff {
     private ChangedOpenApi compare() {
         preProcess(oldSpecOpenApi);
         preProcess(newSpecOpenApi);
-        Paths oldPaths = oldSpecOpenApi.getPaths() == null? new Paths(): oldSpecOpenApi.getPaths();
-        Paths newPaths = newSpecOpenApi.getPaths() == null? new Paths(): newSpecOpenApi.getPaths();
-        Optional<ChangedPaths> paths = this.pathsDiff.diff(oldPaths, newPaths);
+        Optional<ChangedPaths> paths = this.pathsDiff.diff(valOrEmpty(oldSpecOpenApi.getPaths()), valOrEmpty(newSpecOpenApi.getPaths()));
         this.newEndpoints = new ArrayList<>();
         this.missingEndpoints = new ArrayList<>();
         this.changedOperations = new ArrayList<>();
