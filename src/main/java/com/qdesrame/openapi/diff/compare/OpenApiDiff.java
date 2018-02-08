@@ -5,6 +5,7 @@ import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
@@ -131,7 +132,9 @@ public class OpenApiDiff {
     private ChangedOpenApi compare() {
         preProcess(oldSpecOpenApi);
         preProcess(newSpecOpenApi);
-        Optional<ChangedPaths> paths = this.pathsDiff.diff(oldSpecOpenApi.getPaths(), newSpecOpenApi.getPaths());
+        Paths oldPaths = oldSpecOpenApi.getPaths() == null? new Paths(): oldSpecOpenApi.getPaths();
+        Paths newPaths = newSpecOpenApi.getPaths() == null? new Paths(): newSpecOpenApi.getPaths();
+        Optional<ChangedPaths> paths = this.pathsDiff.diff(oldPaths, newPaths);
         this.newEndpoints = new ArrayList<>();
         this.missingEndpoints = new ArrayList<>();
         this.changedOperations = new ArrayList<>();
