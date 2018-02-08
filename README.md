@@ -58,7 +58,7 @@ public class Main {
     public static final String OPENAPI_DOC2 = "petstore_v2_2.yaml";
         
     public static void main(String[] args) {
-        ChangedOpenApi diff = OpenApiCompare.fromLocations(SWAGGER_V3_DOC1, SWAGGER_V3_DOC2);
+        ChangedOpenApi diff = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
 
         //...
     }
