@@ -9,7 +9,7 @@
 
     <groupId>com.qdesrame</groupId>
     <artifactId>openapi-diff</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>openapi-diff</name>
@@ -34,7 +34,7 @@
         <connection>scm:git:http://github.com/quen2404/openapi-diff.git</connection>
         <developerConnection>scm:git:http://github.com/quen2404/openapi-diff.git</developerConnection>
         <url>https://github.com/quen2404/openapi-diff</url>
-        <tag>1.1.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
