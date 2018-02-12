@@ -14,13 +14,13 @@ Compare two OpenAPI specifications(3.x) and render the difference to html file o
 
 # Maven
 
-Available on [Maven Central](https://search.maven.org/#artifactdetails%7Ccom.qdesrame%7Copenapi-diff%7C1.1.0%7Cjar)
+Available on [Maven Central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.qdesrame%22%20AND%20a%3A%22openapi-diff%22)
 
 ```xml
 <dependency>
     <groupId>com.qdesrame</groupId>
     <artifactId>openapi-diff</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
