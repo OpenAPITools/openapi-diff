@@ -6,6 +6,7 @@ import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,11 +26,11 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
     }
 
     public Optional<ChangedResponse> diff(ApiResponse left, ApiResponse right) {
-        return cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref());
     }
 
     @Override
-    protected Optional<ChangedResponse> computeDiff(ApiResponse left, ApiResponse right) {
+    protected Optional<ChangedResponse> computeDiff(HashSet<String> refSet, ApiResponse left, ApiResponse right) {
         left = refPointer.resolveRef(leftComponents, left, left.get$ref());
         right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 

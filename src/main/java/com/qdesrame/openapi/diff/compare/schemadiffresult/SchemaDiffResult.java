@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public class SchemaDiffResult {
         this.changedSchema.setType(type);
     }
 
-    public Optional<ChangedSchema> diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right) {
         changedSchema.setOldSchema(left);
         changedSchema.setNewSchema(right);
         changedSchema.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
@@ -50,7 +51,7 @@ public class SchemaDiffResult {
         for (String key : propertyDiff.getSharedKey()) {
 //            openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key))
 //                    .ifPresent(resultSchema -> );
-            Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key));
+            Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(refSet, leftProperties.get(key), rightProperties.get(key));
             if (resultSchema.isPresent() && resultSchema.get().isDiff()) {
                 changedSchema.getChangedProperties().put(key, resultSchema.get());
             }

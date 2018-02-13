@@ -7,6 +7,7 @@ import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -24,11 +25,11 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
     }
 
     public Optional<ChangedParameter> diff(Parameter left, Parameter right) {
-        return cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref());
     }
 
     @Override
-    protected Optional<ChangedParameter> computeDiff(Parameter left, Parameter right) {
+    protected Optional<ChangedParameter> computeDiff(HashSet<String> refSet, Parameter left, Parameter right) {
         ChangedParameter changedParameter = new ChangedParameter(right.getName(), right.getIn());
         left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
         right = refPointer.resolveRef(this.rightComponents, right, right.get$ref());
@@ -42,7 +43,7 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
         changedParameter.setChangeAllowEmptyValue(getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()));
         changedParameter.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
         changedParameter.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
-        Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema());
+        Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, left.getSchema(), right.getSchema());
         if (changedSchema.isPresent()) {
             changedParameter.setChangedSchema(changedSchema.get());
         }

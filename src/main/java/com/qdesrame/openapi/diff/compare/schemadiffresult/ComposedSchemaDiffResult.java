@@ -1,11 +1,11 @@
 package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
-import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
-import com.qdesrame.openapi.diff.utils.RefType;
 import com.qdesrame.openapi.diff.model.ChangedOneOfSchema;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Discriminator;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     }
 
     @Override
-    public Optional<ChangedSchema> diff(Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right) {
         if(left instanceof ComposedSchema) {
             ComposedSchema leftComposedSchema = (ComposedSchema) left;
             ComposedSchema rightComposedSchema = (ComposedSchema) right;
@@ -63,14 +64,14 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                     leftSchema.set$ref(leftMapping.get(key));
                     Schema rightSchema = new Schema();
                     rightSchema.set$ref(rightMapping.get(key));
-                    Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(leftSchema, rightSchema);
+                    Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, leftSchema, rightSchema);
                     if (changedSchema.isPresent() && changedSchema.get().isDiff()) {
                         changedMapping.put(key, changedSchema.get());
                     }
                 }
                 changedSchema.setChangedOneOfSchema(changedOneOfSchema);
             }
-            return super.diff(leftComponents, rightComponents, left, right);
+            return super.diff(refSet, leftComponents, rightComponents, left, right);
         } else {
             return openApiDiff.getSchemaDiff().getTypeChangedSchema(left, right);
         }
