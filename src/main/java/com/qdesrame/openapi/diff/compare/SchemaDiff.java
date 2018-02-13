@@ -58,8 +58,8 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
     }
 
-    public Optional<ChangedSchema> diff(Schema left, Schema right) {
-        return cachedDiff(left, right, left.get$ref(), right.get$ref());
+    public Optional<ChangedSchema> diff(HashSet<String> refSet, Schema left, Schema right) {
+        return cachedDiff(refSet, left, right, left.get$ref(), right.get$ref());
     }
 
     public Optional<ChangedSchema> getTypeChangedSchema(Schema left, Schema right) {
@@ -71,7 +71,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     }
 
     @Override
-    protected Optional<ChangedSchema> computeDiff(Schema left, Schema right) {
+    protected Optional<ChangedSchema> computeDiff(HashSet<String> refSet, Schema left, Schema right) {
         left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
         right = refPointer.resolveRef(this.rightComponents, right, right.get$ref());
 
@@ -87,7 +87,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
         //If schema type is same then get specific SchemaDiffResult and compare the properties
         SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
-        return result.diff(leftComponents, rightComponents, left, right);
+        return result.diff(refSet, leftComponents, rightComponents, left, right);
     }
 
     protected static Schema resolveComposedSchema(Components components, Schema schema) {

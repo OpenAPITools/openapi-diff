@@ -6,6 +6,7 @@ import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.headers.Header;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,11 +26,11 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     }
 
     public Optional<ChangedHeader> diff(Header left, Header right) {
-        return cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref());
     }
 
     @Override
-    protected Optional<ChangedHeader> computeDiff(Header left, Header right) {
+    protected Optional<ChangedHeader> computeDiff(HashSet<String> refSet, Header left, Header right) {
         left = refPointer.resolveRef(leftComponents, left, left.get$ref());
         right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
@@ -41,7 +42,7 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
         changedHeader.setChangeAllowEmptyValue(getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()));
         changedHeader.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
         changedHeader.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
-        openApiDiff.getSchemaDiff().diff(left.getSchema(), right.getSchema()).ifPresent(changedHeader::setChangedSchema);
+        openApiDiff.getSchemaDiff().diff(new HashSet<>(), left.getSchema(), right.getSchema()).ifPresent(changedHeader::setChangedSchema);
         openApiDiff.getContentDiff().diff(left.getContent(), right.getContent()).ifPresent(changedHeader::setChangedContent);
 
         return changedHeader.isDiff() ? Optional.of(changedHeader) : Optional.empty();

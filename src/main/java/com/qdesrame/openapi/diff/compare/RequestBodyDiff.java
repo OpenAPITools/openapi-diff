@@ -6,6 +6,7 @@ import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -21,11 +22,11 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
     }
 
     public Optional<ChangedRequestBody> diff(RequestBody left, RequestBody right) {
-        return cachedDiff(left, right, left.get$ref(), right.get$ref());
+        return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref());
     }
 
     @Override
-    protected Optional<ChangedRequestBody> computeDiff(RequestBody left, RequestBody right) {
+    protected Optional<ChangedRequestBody> computeDiff(HashSet<String> refSet, RequestBody left, RequestBody right) {
         Content oldRequestContent = new Content();
         Content newRequestContent = new Content();
         RequestBody oldRequestBody = null;

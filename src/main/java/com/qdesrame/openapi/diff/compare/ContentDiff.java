@@ -5,10 +5,7 @@ import com.qdesrame.openapi.diff.model.ChangedMediaType;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class ContentDiff implements Comparable<Content> {
 
@@ -35,7 +32,7 @@ public class ContentDiff implements Comparable<Content> {
             MediaType oldMediaType = left.get(mediaTypeKey);
             MediaType newMediaType = right.get(mediaTypeKey);
             ChangedMediaType changedMediaType = new ChangedMediaType(oldMediaType.getSchema(), newMediaType.getSchema());
-            openApiDiff.getSchemaDiff().diff(oldMediaType.getSchema(), newMediaType.getSchema()).ifPresent(changedMediaType::setChangedSchema);
+            openApiDiff.getSchemaDiff().diff(new HashSet<>(), oldMediaType.getSchema(), newMediaType.getSchema()).ifPresent(changedMediaType::setChangedSchema);
             if (changedMediaType.isDiff()) {
                 changedMediaTypes.put(mediaTypeKey, changedMediaType);
             }

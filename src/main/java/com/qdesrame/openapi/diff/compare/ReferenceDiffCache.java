@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,24 +28,37 @@ public abstract class ReferenceDiffCache<C, D> {
         changedSchemaMap.put(rightRef, changed);
     }
 
-    public Optional<D> cachedDiff(C left, C right, String leftRef, String rightRef) {
+    public Optional<D> cachedDiff(HashSet<String> refSet, C left, C right, String leftRef, String rightRef) {
         boolean areBothRefParameters = leftRef != null && rightRef != null;
         if (areBothRefParameters) {
             Optional<D> changedFromRef = getFromCache(leftRef, rightRef);
             if (changedFromRef.isPresent()) {
                 return changedFromRef;
+            } else {
+                String refKey = getRefKey(leftRef, rightRef);
+                if(refSet.contains(refKey)) {
+                    return Optional.empty();
+                } else {
+                    refSet.add(refKey);
+                    Optional<D> changed = computeDiff(refSet, left, right);
+
+                    if(areBothRefParameters) {
+                        addToCache(leftRef, rightRef, changed.isPresent()? changed.get(): null);
+                    }
+                    refSet.remove(refKey);
+
+                    return changed;
+                }
             }
+        } else {
+            return computeDiff(refSet, left, right);
         }
-
-        Optional<D> changed = computeDiff(left, right);
-
-        if(areBothRefParameters) {
-            addToCache(leftRef, rightRef, changed.isPresent()? changed.get(): null);
-        }
-
-        return changed;
     }
 
-    protected abstract Optional<D> computeDiff(C left, C right);
+    protected String getRefKey(String leftRef, String rightRef) {
+        return leftRef + ":" + rightRef;
+    }
+
+    protected abstract Optional<D> computeDiff(HashSet<String> refSet, C left, C right);
 
 }
