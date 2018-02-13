@@ -1,6 +1,8 @@
-# OpenAPI-diff
+# OpenAPI-diff 
 
 Compare two OpenAPI specifications(3.x) and render the difference to html file or markdown file.
+
+[![CircleCI](https://circleci.com/gh/quen2404/openapi-diff/tree/master.svg?style=svg)](https://circleci.com/gh/quen2404/openapi-diff/tree/master)
 
 # Requirements
 `jdk1.8+`
