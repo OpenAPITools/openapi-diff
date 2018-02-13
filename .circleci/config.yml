@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+
+    working_directory: ~/openapi-diff
+
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+
+    steps:
+
+      - checkout
+
+      - restore_cache:
+          key: openapi-diff-{{ checksum "pom.xml" }}
+
+      - run: mvn dependency:go-offline
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: openapi-diff-{{ checksum "pom.xml" }}
+
+      - run: mvn package
+
+      - store_test_results:
+          path: target/surefire-reports
+
+      - store_artifacts:
+          path: target/openapi-diff-*-SNAPSHOT.jar
