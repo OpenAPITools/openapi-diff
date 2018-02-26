@@ -56,6 +56,20 @@ public class SchemaDiffResult {
                 changedSchema.getChangedProperties().put(key, resultSchema.get());
             }
         }
+
+        if(left.getAdditionalProperties() != null || right.getAdditionalProperties() != null) {
+            ChangedSchema apChangedSchema = new ChangedSchema();
+            apChangedSchema.setOldSchema(left.getAdditionalProperties());
+            apChangedSchema.setNewSchema(right.getAdditionalProperties());
+            if(left.getAdditionalProperties() != null && right.getAdditionalProperties() != null) {
+                Optional<ChangedSchema> addPropChangedSchemaOP
+                        = openApiDiff.getSchemaDiff().diff(refSet, left.getAdditionalProperties(), right.getAdditionalProperties());
+                addPropChangedSchemaOP.ifPresent(x -> changedSchema.setAddPropChangedSchema(x));
+            } else {
+                changedSchema.setAddPropChangedSchema(apChangedSchema);
+            }
+        }
+
         changedSchema.getIncreasedProperties().putAll(increasedProp);
         changedSchema.getMissingProperties().putAll(missingProp);
         return changedSchema.isDiff()? Optional.of(changedSchema): Optional.empty();
