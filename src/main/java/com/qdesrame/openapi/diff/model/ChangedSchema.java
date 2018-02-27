@@ -33,6 +33,7 @@ public class ChangedSchema implements RequestResponseChanged {
     protected boolean changedMaxLength;
     protected boolean discriminatorPropertyChanged;
     protected ChangedOneOfSchema changedOneOfSchema;
+    protected ChangedSchema addPropChangedSchema;
 
     public ChangedSchema() {
         increasedProperties = new HashMap<>();
@@ -43,6 +44,8 @@ public class ChangedSchema implements RequestResponseChanged {
     @Override
     public boolean isDiff() {
         return Boolean.TRUE.equals(changedType)
+                || (oldSchema != null && newSchema == null)
+                || (oldSchema == null && newSchema != null)
                 || changeWriteOnly
                 || changedMaxLength
                 || changeReadOnly
@@ -55,6 +58,7 @@ public class ChangedSchema implements RequestResponseChanged {
                 || (changeRequired != null && changeRequired.getIncreased().size() > 0)
                 || (changeRequired != null && changeRequired.getMissing().size() > 0)
                 || discriminatorPropertyChanged
+                || (addPropChangedSchema != null)
                 || (changedOneOfSchema != null && changedOneOfSchema.isDiff());
     }
 
@@ -62,11 +66,13 @@ public class ChangedSchema implements RequestResponseChanged {
     public boolean isDiffBackwardCompatible(boolean isRequest) {
         boolean backwardCompatibleForRequest = (changeEnum == null || changeEnum.getMissing().isEmpty()) &&
                 (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getIncreased())) &&
+                (oldSchema != null || newSchema == null) &&
                 (!changedMaxLength || newSchema.getMaxLength() == null ||
                         (oldSchema.getMaxLength() != null && oldSchema.getMaxLength()<= newSchema.getMaxLength()));
 
         boolean backwardCompatibleForResponse = (changeEnum == null || changeEnum.getIncreased().isEmpty()) &&
                 missingProperties.isEmpty() &&
+                (oldSchema == null || newSchema != null) &&
                 (!changedMaxLength || oldSchema.getMaxLength() == null ||
                         (newSchema.getMaxLength() != null && newSchema.getMaxLength() <= oldSchema.getMaxLength()));
 
@@ -74,6 +80,7 @@ public class ChangedSchema implements RequestResponseChanged {
                 && !changedType
                 && !discriminatorPropertyChanged
                 && (changedOneOfSchema == null || changedOneOfSchema.isDiffBackwardCompatible(isRequest))
+                && (addPropChangedSchema == null || addPropChangedSchema.isDiffBackwardCompatible(isRequest))
                 && changedProperties.values().stream().allMatch(p -> p.isDiffBackwardCompatible(isRequest));
     }
 }
