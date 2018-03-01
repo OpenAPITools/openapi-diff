@@ -49,30 +49,34 @@ public class SchemaDiffResult {
         Map<String, Schema> missingProp = propertyDiff.getMissing();
 
         for (String key : propertyDiff.getSharedKey()) {
-//            openApiDiff.getSchemaDiff().diff(leftProperties.get(key), rightProperties.get(key))
-//                    .ifPresent(resultSchema -> );
             Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(refSet, leftProperties.get(key), rightProperties.get(key));
             if (resultSchema.isPresent() && resultSchema.get().isDiff()) {
                 changedSchema.getChangedProperties().put(key, resultSchema.get());
             }
         }
 
-        if(left.getAdditionalProperties() != null || right.getAdditionalProperties() != null) {
-            ChangedSchema apChangedSchema = new ChangedSchema();
-            apChangedSchema.setOldSchema(left.getAdditionalProperties());
-            apChangedSchema.setNewSchema(right.getAdditionalProperties());
-            if(left.getAdditionalProperties() != null && right.getAdditionalProperties() != null) {
-                Optional<ChangedSchema> addPropChangedSchemaOP
-                        = openApiDiff.getSchemaDiff().diff(refSet, left.getAdditionalProperties(), right.getAdditionalProperties());
-                addPropChangedSchemaOP.ifPresent(x -> changedSchema.setAddPropChangedSchema(x));
-            } else {
-                changedSchema.setAddPropChangedSchema(apChangedSchema);
-            }
-        }
+        compareAdditionalProperties(refSet, left, right);
 
         changedSchema.getIncreasedProperties().putAll(increasedProp);
         changedSchema.getMissingProperties().putAll(missingProp);
-        return changedSchema.isDiff()? Optional.of(changedSchema): Optional.empty();
+        return changedSchema.isDiff() ? Optional.of(changedSchema) : Optional.empty();
     }
 
+    private void compareAdditionalProperties(HashSet<String> refSet, Schema leftSchema, Schema rightSchema) {
+        Schema left = leftSchema.getAdditionalProperties();
+        Schema right = rightSchema.getAdditionalProperties();
+        if (left != null || right != null) {
+            ChangedSchema apChangedSchema = new ChangedSchema();
+            apChangedSchema.setOldSchema(left);
+            apChangedSchema.setNewSchema(right);
+            if (left != null && right != null) {
+                Optional<ChangedSchema> addPropChangedSchemaOP
+                        = openApiDiff.getSchemaDiff().diff(refSet, left, right);
+                apChangedSchema = addPropChangedSchemaOP.orElse(apChangedSchema);
+            }
+            if (apChangedSchema.isDiff()) {
+                changedSchema.setAddPropChangedSchema(apChangedSchema);
+            }
+        }
+    }
 }
