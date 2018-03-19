@@ -90,7 +90,7 @@ public class Main {
             String newPath = line.getArgList().get(1);
             ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath);
             ConsoleRender consoleRender = new ConsoleRender();
-            if (logLevel.equals("OFF")) {
+            if (!logLevel.equals("OFF")) {
                 System.out.println(consoleRender.render(result));
             }
             HtmlRender htmlRender = new HtmlRender();
@@ -130,11 +130,9 @@ public class Main {
         } catch (ParseException e) {
             // oops, something went wrong
             System.err.println("Parsing failed. Reason: " + e.getMessage());
-            printHelp(options);
             System.exit(2);
         } catch (Exception e) {
             System.err.println("Unexpected exception. Reason: " + e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
-            printHelp(options);
             System.exit(2);
         }
 
