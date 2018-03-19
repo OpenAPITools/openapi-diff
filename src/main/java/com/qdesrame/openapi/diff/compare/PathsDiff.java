@@ -38,6 +38,9 @@ public class PathsDiff {
             String template = normalizePath(url);
             Optional<String> result = right.keySet().stream().filter(s -> normalizePath(s).equals(template)).findFirst();
             if (result.isPresent()) {
+                if (!changedPaths.getIncreased().containsKey(result.get())) {
+                    throw new IllegalArgumentException("Two path items have the same signature: " + template);
+                }
                 PathItem rightPath = changedPaths.getIncreased().remove(result.get());
                 Map<String, String> params = new HashMap<>();
                 if (!url.equals(result.get())) {
