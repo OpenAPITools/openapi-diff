@@ -89,7 +89,9 @@ public class Main {
             String newPath = line.getArgList().get(1);
             ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath);
             ConsoleRender consoleRender = new ConsoleRender();
-            System.out.println(consoleRender.render(result));
+            if (logLevel.equals("OFF")) {
+                System.out.println(consoleRender.render(result));
+            }
             HtmlRender htmlRender = new HtmlRender();
             MarkdownRender mdRender = new MarkdownRender();
             String output = null;
