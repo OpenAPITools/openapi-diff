@@ -6,6 +6,7 @@ import com.qdesrame.openapi.diff.output.HtmlRender;
 import com.qdesrame.openapi.diff.output.MarkdownRender;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.slf4j.Logger;
@@ -126,9 +127,13 @@ public class Main {
                 }
             }
             System.exit(result.isDiff() ? 1 : 0);
-        } catch (ParseException exp) {
+        } catch (ParseException e) {
             // oops, something went wrong
-            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+            System.err.println("Parsing failed. Reason: " + e.getMessage());
+            printHelp(options);
+            System.exit(2);
+        } catch (Exception e) {
+            System.err.println("Unexpected exception. Reason: " + e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
             printHelp(options);
             System.exit(2);
         }
