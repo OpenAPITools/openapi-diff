@@ -130,6 +130,7 @@ public class Main {
         } catch (ParseException e) {
             // oops, something went wrong
             System.err.println("Parsing failed. Reason: " + e.getMessage());
+            printHelp(options);
             System.exit(2);
         } catch (Exception e) {
             System.err.println("Unexpected exception. Reason: " + e.getMessage() + "\n" + ExceptionUtils.getStackTrace(e));
