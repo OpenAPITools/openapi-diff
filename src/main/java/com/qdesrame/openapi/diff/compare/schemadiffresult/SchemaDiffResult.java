@@ -63,15 +63,17 @@ public class SchemaDiffResult {
     }
 
     private void compareAdditionalProperties(HashSet<String> refSet, Schema leftSchema, Schema rightSchema) {
-        Schema left = leftSchema.getAdditionalProperties();
-        Schema right = rightSchema.getAdditionalProperties();
-        if (left != null || right != null) {
+        Object left = leftSchema.getAdditionalProperties();
+        Object right = rightSchema.getAdditionalProperties();
+        if ((left != null && left instanceof Schema) || (right != null && right instanceof Schema)) {
+            Schema leftAdditionalSchema = (Schema) left;
+            Schema rightAdditionalSchema = (Schema) right;
             ChangedSchema apChangedSchema = new ChangedSchema();
-            apChangedSchema.setOldSchema(left);
-            apChangedSchema.setNewSchema(right);
+            apChangedSchema.setOldSchema(leftAdditionalSchema);
+            apChangedSchema.setNewSchema(rightAdditionalSchema);
             if (left != null && right != null) {
                 Optional<ChangedSchema> addPropChangedSchemaOP
-                        = openApiDiff.getSchemaDiff().diff(refSet, left, right);
+                        = openApiDiff.getSchemaDiff().diff(refSet, leftAdditionalSchema, rightAdditionalSchema);
                 apChangedSchema = addPropChangedSchemaOP.orElse(apChangedSchema);
             }
             if (apChangedSchema.isDiff()) {
