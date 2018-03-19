@@ -56,7 +56,13 @@ public class SecurityRequirementsDiff {
 
     private List<Pair<SecurityScheme.Type, SecurityScheme.In>> getListOfSecuritySchemes(Components components, SecurityRequirement securityRequirement) {
         return securityRequirement.keySet().stream()
-                .map(x -> components.getSecuritySchemes().get(x))
+                .map(x -> {
+                    SecurityScheme result = components.getSecuritySchemes().get(x);
+                    if (result == null) {
+                        throw new IllegalArgumentException("Impossible to find security scheme: " + x);
+                    }
+                    return result;
+                })
                 .map(this::getPair)
                 .distinct()
                 .collect(Collectors.toList());

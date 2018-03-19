@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 public class SecurityDiffTest {
     private final String OPENAPI_DOC1 = "security_diff_1.yaml";
     private final String OPENAPI_DOC2 = "security_diff_2.yaml";
+    private final String OPENAPI_DOC3 = "security_diff_3.yaml";
 
 
     @Test
@@ -58,5 +59,10 @@ public class SecurityDiffTest {
         SecurityRequirement securityRequirement3 = changedSecurityRequirements3.getIncreased().get(0);
         assertTrue(securityRequirement3.size() == 1);
         assertTrue(securityRequirement3.get("petstore_auth").size() == 2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWithUnknownSecurityScheme() {
+        OpenApiCompare.fromLocations(OPENAPI_DOC3, OPENAPI_DOC3);
     }
 }
