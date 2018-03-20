@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -238,6 +239,13 @@ public class MarkdownRender implements Render {
                     .map(schema1 -> refPointer.resolveRef(diff.getNewSpecOpenApi().getComponents(), schema1, schema1.get$ref()))
                     .forEach(composedChild -> sb.append(schema(deepness, composedChild)));
         }
+//        if (schema.getOneOf() != null && schema.getOneOf() != null) {
+//            LOGGER.debug("One of schema");
+//            sb.append(format("%sOne of:\n\n", indent(deepness)));
+//            schema.getOneOf().stream()
+//                    .map(schema1 -> refPointer.resolveRef(diff.getNewSpecOpenApi().getComponents(), schema1, schema1.get$ref()))
+//                    .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild)));
+//        }
         return sb.toString();
     }
 
@@ -247,7 +255,17 @@ public class MarkdownRender implements Render {
         sb.append(properties(deepness, "Property", schema.getProperties(), true));
         if (schema instanceof ComposedSchema) {
             sb.append(schema(deepness, (ComposedSchema) schema));
+        } else if (schema instanceof ArraySchema) {
+            sb.append(items(deepness, ((ArraySchema) schema).getItems()));
         }
+        return sb.toString();
+    }
+
+    private String items(int deepness, Schema schema) {
+        StringBuilder sb = new StringBuilder("");
+        sb.append(format("%sItems (%s)%s\n", indent(deepness), type(schema), Arrays.asList("object", "array").contains(type(schema)) ? " :\n" : ""));
+        description(indent(deepness + 1), schema.getDescription());
+        sb.append(schema(deepness, schema));
         return sb.toString();
     }
 
@@ -276,11 +294,11 @@ public class MarkdownRender implements Render {
     }
 
     private String property(int deepness, String title, String name, Schema schema) {
-        return property(deepness, title, name, schema.getType(), schema.getDescription());
+        return property(deepness, title, name, type(schema), schema.getDescription());
     }
 
     private String property(int deepness, String title, String name, String type, String description) {
-        return format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type == null ? "object" : type, description(indent(deepness + 1), description));
+        return format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type, description(indent(deepness + 1), description));
     }
 
     private String listDiff(int deepness, String name, ListDiff listDiff) {
