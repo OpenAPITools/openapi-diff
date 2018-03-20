@@ -1,8 +1,11 @@
 package com.qdesrame.openapi.diff.output;
 
 import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -18,6 +21,7 @@ import java.util.Map;
 import static java.lang.String.format;
 
 public class MarkdownRender implements Render {
+
     public static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
 
     private final String H3 = "### ";
@@ -31,10 +35,14 @@ public class MarkdownRender implements Render {
     private final String LI = "* ";
     private final String HR = "---\n";
 
+    private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+    private ChangedOpenApi diff;
+
     public MarkdownRender() {
     }
 
     public String render(ChangedOpenApi diff) {
+        this.diff = diff;
         StringBuilder sb = new StringBuilder();
         sb.append(listEndpoints("What's New", diff.getNewEndpoints()))
                 .append(listEndpoints("What's Deleted", diff.getMissingEndpoints()))
@@ -209,6 +217,12 @@ public class MarkdownRender implements Render {
 
     private String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
+        if (schema.isDiscriminatorPropertyChanged()) {
+            LOGGER.debug("Discriminator property changed");
+        }
+        if (schema.getChangedOneOfSchema() != null) {
+            LOGGER.debug("One of schema changed");
+        }
         sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
         sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true));
         sb.append(properties(deepness, "Deleted property", schema.getMissingProperties(), false));
@@ -216,11 +230,24 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
+    private String schema(int deepness, ComposedSchema schema) {
+        StringBuilder sb = new StringBuilder("");
+        if (schema.getAllOf() != null && schema.getAllOf() != null) {
+            LOGGER.debug("All of schema");
+            schema.getAllOf().stream()
+                    .map(schema1 -> refPointer.resolveRef(diff.getNewSpecOpenApi().getComponents(), schema1, schema1.get$ref()))
+                    .forEach(composedChild -> sb.append(schema(deepness, composedChild)));
+        }
+        return sb.toString();
+    }
 
     private String schema(int deepness, Schema schema) {
         StringBuilder sb = new StringBuilder("");
         sb.append(listItem(deepness, "Enum", schema.getEnum()));
         sb.append(properties(deepness, "Property", schema.getProperties(), true));
+        if (schema instanceof ComposedSchema) {
+            sb.append(schema(deepness, (ComposedSchema) schema));
+        }
         return sb.toString();
     }
 
