@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
+
 public class MarkdownRender implements Render {
     public static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
 
@@ -119,7 +121,7 @@ public class MarkdownRender implements Render {
         if (!code.equals("default")) {
             status = HttpStatus.getStatusText(Integer.parseInt(code));
         }
-        sb.append(String.format("%s : **%s %s**\n", title, code, status));
+        sb.append(format("%s : **%s %s**\n", title, code, status));
         sb.append(description(description));
         return sb.toString();
     }
@@ -153,7 +155,7 @@ public class MarkdownRender implements Render {
 
     private String itemHeader(String title, String mediaType, String description) {
         StringBuilder sb = new StringBuilder("");
-        sb.append(String.format("%s : `%s`\n\n", title, mediaType));
+        sb.append(format("%s : `%s`\n\n", title, mediaType));
         sb.append(description(description)).append('\n');
         return sb.toString();
     }
@@ -184,7 +186,7 @@ public class MarkdownRender implements Render {
 
     private String itemContent(String title, String mediaType) {
         StringBuilder sb = new StringBuilder("");
-        sb.append(String.format("%s : `%s`\n\n", title, mediaType));
+        sb.append(format("%s : `%s`\n\n", title, mediaType));
         return sb.toString();
     }
 
@@ -207,6 +209,7 @@ public class MarkdownRender implements Render {
 
     private String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
+        sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
         sb.append(properties(deepness, "Added property", schema.getIncreasedProperties()));
         sb.append(properties(deepness, "Deleted property", schema.getMissingProperties()));
         schema.getChangedProperties().forEach((name, property) -> sb.append(property(deepness, name, property)));
@@ -235,7 +238,24 @@ public class MarkdownRender implements Render {
     }
 
     private String property(int deepness, String title, String name, String type, String description) {
-        return String.format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type, description(indent(deepness + 1), description));
+        return format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type, description(indent(deepness + 1), description));
+    }
+
+    private String listDiff(int deepness, String name, ListDiff listDiff) {
+        if (listDiff == null) {
+            return "";
+        }
+        return listItem(deepness, "Added " + name, listDiff.getIncreased()) +
+                listItem(deepness, "Removed " + name, listDiff.getMissing());
+    }
+
+    private <T> String listItem(int deepness, String name, List<T> list) {
+        StringBuilder sb = new StringBuilder("");
+        if (list != null && list.size() > 0) {
+            sb.append(format("%s%s value%s:\n\n", indent(deepness), name, list.size() > 1 ? "s" : ""));
+            list.forEach(p -> sb.append(format("%s* `%s`\n", indent(deepness), p)));
+        }
+        return sb.toString();
     }
 
     private String parameters(ChangedParameters changedParameters) {
@@ -258,7 +278,7 @@ public class MarkdownRender implements Render {
     }
 
     private String itemParameter(String title, String name, String in, String description) {
-        return String.format("%s: ", title) + code(name) + " in " + code(in) + '\n' + description(description) + '\n';
+        return format("%s: ", title) + code(name) + " in " + code(in) + '\n' + description(description) + '\n';
     }
 
     private String itemParameter(ChangedParameter param) {
