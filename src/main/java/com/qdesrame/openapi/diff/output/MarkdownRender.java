@@ -210,15 +210,30 @@ public class MarkdownRender implements Render {
     private String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
         sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
-        sb.append(properties(deepness, "Added property", schema.getIncreasedProperties()));
-        sb.append(properties(deepness, "Deleted property", schema.getMissingProperties()));
+        sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true));
+        sb.append(properties(deepness, "Deleted property", schema.getMissingProperties(), false));
         schema.getChangedProperties().forEach((name, property) -> sb.append(property(deepness, name, property)));
         return sb.toString();
     }
 
-    private String properties(int deepness, String title, Map<String, Schema> properties) {
+
+    private String schema(int deepness, Schema schema) {
         StringBuilder sb = new StringBuilder("");
-        properties.entrySet().stream().map((entry) -> property(deepness, title, entry.getKey(), entry.getValue())).forEach(sb::append);
+        sb.append(listItem(deepness, "Enum", schema.getEnum()));
+        sb.append(properties(deepness, "Property", schema.getProperties(), true));
+        return sb.toString();
+    }
+
+    private String properties(final int deepness, String title, Map<String, Schema> properties, boolean showContent) {
+        StringBuilder sb = new StringBuilder("");
+        if (properties != null) {
+            properties.forEach((key, value) -> {
+                sb.append(property(deepness, title, key, value));
+                if (showContent) {
+                    sb.append(schema(deepness + 1, value));
+                }
+            });
+        }
         return sb.toString();
     }
 
@@ -238,7 +253,7 @@ public class MarkdownRender implements Render {
     }
 
     private String property(int deepness, String title, String name, String type, String description) {
-        return format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type, description(indent(deepness + 1), description));
+        return format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type == null ? "object" : type, description(indent(deepness + 1), description));
     }
 
     private String listDiff(int deepness, String name, ListDiff listDiff) {
