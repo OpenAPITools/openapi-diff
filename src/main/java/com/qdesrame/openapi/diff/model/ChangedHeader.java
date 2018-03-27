@@ -16,7 +16,6 @@ public class ChangedHeader implements Changed {
     private boolean changeDescription;
     private boolean changeRequired;
     private boolean changeDeprecated;
-    private boolean changeAllowEmptyValue;
     private boolean changeStyle;
     private boolean changeExplode;
     private ChangedSchema changedSchema;
@@ -32,7 +31,6 @@ public class ChangedHeader implements Changed {
         return changeDescription
                 || changeRequired
                 || changeDeprecated
-                || changeAllowEmptyValue
                 || changeStyle
                 || changeExplode
                 || (changedSchema != null && changedSchema.isDiff())
@@ -42,7 +40,6 @@ public class ChangedHeader implements Changed {
     @Override
     public boolean isDiffBackwardCompatible() {
         return changeRequired
-                && changeAllowEmptyValue
                 && changeStyle
                 && changeExplode
                 && (changedSchema == null || changedSchema.isDiffBackwardCompatible(false))
