@@ -174,12 +174,12 @@ public class MarkdownRender implements Render {
         sb.append(listContent(prefix, "New content type", changedContent.getIncreased()));
         sb.append(listContent(prefix, "Deleted content type", changedContent.getMissing()));
         final int deepness;
-        if (StringUtils.isNotBlank(prefix)) {
-            deepness = 1;
-        } else {
-            deepness = 0;
-        }
-        changedContent.getChanged().entrySet().stream().map(e -> this.itemContent(deepness, e.getKey(), e.getValue())).forEach(e -> sb.append(prefix).append(e));
+//        if (StringUtils.isNotBlank(prefix)) {
+//            deepness = 1;
+//        } else {
+        deepness = 0;
+//        }
+        changedContent.getChanged().entrySet().stream().findFirst().map(e -> this.itemContent(deepness, e.getKey(), e.getValue())).map(sb::append);
         return sb.toString();
     }
 
@@ -189,7 +189,7 @@ public class MarkdownRender implements Render {
 
     private String listContent(String prefix, String title, Map<String, MediaType> mediaTypes) {
         StringBuilder sb = new StringBuilder();
-        mediaTypes.entrySet().stream().map(e -> this.itemContent(title, e.getKey(), e.getValue())).forEach(e -> sb.append(prefix).append(e));
+        mediaTypes.entrySet().stream().findFirst().map(e -> this.itemContent(title, e.getKey(), e.getValue())).map(e -> sb.append(prefix).append(e));
         return sb.toString();
     }
 
@@ -207,8 +207,13 @@ public class MarkdownRender implements Render {
 
     private String itemContent(int deepness, String mediaType, ChangedMediaType content) {
         StringBuilder sb = new StringBuilder("");
-        sb.append(itemContent("Changed content type", mediaType));
-        sb.append(schema(deepness, content.getChangedSchema()));
+//        sb.append(itemContent("Changed content type", mediaType));
+        String schema = schema(deepness, content.getChangedSchema());
+        if (StringUtils.isNotBlank(schema)) {
+            sb.append(schema);
+        } else {
+            sb.append(indent(deepness)).append("> **/!\\ TODO /!\\**\n\n");
+        }
         return sb.toString();
     }
 
@@ -282,7 +287,12 @@ public class MarkdownRender implements Render {
             type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
         }
         sb.append(property(deepness, "Changed property", name, type, schema.getNewSchema().getDescription()));
-        sb.append(schema(++deepness, schema));
+        String strSchema = schema(++deepness, schema);
+        if (StringUtils.isNotBlank(strSchema)) {
+            sb.append(strSchema);
+        } else {
+            sb.append(indent(deepness)).append("> ** /!\\ TODO /!\\ **\n\n");
+        }
         return sb.toString();
     }
 
