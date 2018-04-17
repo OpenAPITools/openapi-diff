@@ -47,6 +47,8 @@ usage: openapi-diff <old> <new>
                                 output in file
     --off                       No information printed
     --query <property=value>    use query param for authorisation
+    --state                     Only output diff state: no_changes,
+                                incompatible, compatible
     --trace                     be extra verbose
     --version                   print the version information and exit
     --warn                      Print warning information
