@@ -236,16 +236,9 @@ public class MarkdownRender implements Render {
         if (schema.getAllOf() != null && schema.getAllOf() != null) {
             LOGGER.debug("All of schema");
             schema.getAllOf().stream()
-                    .map(schema1 -> refPointer.resolveRef(diff.getNewSpecOpenApi().getComponents(), schema1, schema1.get$ref()))
+                    .map(this::resolve)
                     .forEach(composedChild -> sb.append(schema(deepness, composedChild)));
         }
-//        if (schema.getOneOf() != null && schema.getOneOf() != null) {
-//            LOGGER.debug("One of schema");
-//            sb.append(format("%sOne of:\n\n", indent(deepness)));
-//            schema.getOneOf().stream()
-//                    .map(schema1 -> refPointer.resolveRef(diff.getNewSpecOpenApi().getComponents(), schema1, schema1.get$ref()))
-//                    .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild)));
-//        }
         return sb.toString();
     }
 
@@ -256,7 +249,7 @@ public class MarkdownRender implements Render {
         if (schema instanceof ComposedSchema) {
             sb.append(schema(deepness, (ComposedSchema) schema));
         } else if (schema instanceof ArraySchema) {
-            sb.append(items(deepness, ((ArraySchema) schema).getItems()));
+            sb.append(items(deepness, resolve(((ArraySchema) schema).getItems())));
         }
         return sb.toString();
     }
@@ -273,9 +266,9 @@ public class MarkdownRender implements Render {
         StringBuilder sb = new StringBuilder("");
         if (properties != null) {
             properties.forEach((key, value) -> {
-                sb.append(property(deepness, title, key, value));
+                sb.append(property(deepness, title, key, resolve(value)));
                 if (showContent) {
-                    sb.append(schema(deepness + 1, value));
+                    sb.append(schema(deepness + 1, resolve(value)));
                 }
             });
         }
@@ -385,5 +378,9 @@ public class MarkdownRender implements Render {
             sb.append(PRE_LI);
         }
         return sb.toString();
+    }
+
+    private Schema resolve(Schema schema) {
+        return refPointer.resolveRef(diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
     }
 }
