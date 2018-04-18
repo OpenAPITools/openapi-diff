@@ -274,6 +274,24 @@ try {
         Changed response : [200] //successful operation
 ```
 
+# Docker
+
+## Build image
+```bash
+docker build -t openapi-diff .
+```
+
+## Run an instance
+
+In this example the `$(pwd)/src/test/resources` directory is mounted in the `/specs` directory of the container
+in readonly mode (`ro`).
+
+```bash
+docker run -t \
+  -v $(pwd)/src/test/resources:/specs:ro \
+  openapi-diff /specs/path_1.yaml /specs/path_2.yaml
+```
+
 # License
 openapi-diff is released under the Apache License 2.0.
 
