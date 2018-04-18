@@ -29,7 +29,7 @@ public class ResponseHeaderDiffTest {
         Assert.assertTrue(changedResponses.size() > 0);
         Assert.assertTrue(changedResponses.containsKey("200"));
         ChangedHeaders changedHeaders = changedResponses.get("200").getChangedHeaders();
-        Assert.assertTrue(changedHeaders.isDiff());
+        Assert.assertTrue(changedHeaders.isDifferent());
         Assert.assertTrue(changedHeaders.getChanged().size() == 1);
         Assert.assertTrue(changedHeaders.getIncreased().size() == 1);
         Assert.assertTrue(changedHeaders.getMissing().size() == 1);

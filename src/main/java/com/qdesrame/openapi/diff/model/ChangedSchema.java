@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,8 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public class ChangedSchema implements RequestResponseChanged {
+public class ChangedSchema implements Changed {
+    protected DiffContext context;
     protected Schema oldSchema;
     protected Schema newSchema;
     protected String type;
@@ -42,33 +44,21 @@ public class ChangedSchema implements RequestResponseChanged {
     }
 
     @Override
-    public boolean isDiff() {
-        return Boolean.TRUE.equals(changedType)
-                || (oldSchema != null && newSchema == null)
-                || (oldSchema == null && newSchema != null)
-                || changeWriteOnly
-                || changedMaxLength
-                || changeReadOnly
-                || (changeEnum != null && (changeEnum.getIncreased().size() > 0 || changeEnum.getMissing().size() > 0))
-                || changeFormat
-                || increasedProperties.size() > 0
-                || missingProperties.size() > 0
-                || changedProperties.size() > 0
-                || changeDeprecated
-                || (changeRequired != null && changeRequired.getIncreased().size() > 0)
-                || (changeRequired != null && changeRequired.getMissing().size() > 0)
-                || discriminatorPropertyChanged
-                || (addPropChangedSchema != null)
-                || (changedOneOfSchema != null && changedOneOfSchema.isDiff());
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible(boolean isRequest) {
+    public DiffResult isChanged() {
+        if (!changedType && (oldSchema == null && newSchema == null || oldSchema != null && newSchema != null)
+                && !changeWriteOnly && !changedMaxLength && !changeReadOnly
+                && (changeEnum == null || changeEnum.isUnchanged())
+                && !changeFormat && increasedProperties.size() == 0 && missingProperties.size() == 0
+                && changedProperties.values().size() == 0 && !changeDeprecated
+                && (changeRequired == null || changeRequired.isUnchanged()) && !discriminatorPropertyChanged
+                && ChangedUtils.isUnchanged(addPropChangedSchema) && ChangedUtils.isUnchanged(changedOneOfSchema)) {
+            return DiffResult.NO_CHANGES;
+        }
         boolean backwardCompatibleForRequest = (changeEnum == null || changeEnum.getMissing().isEmpty()) &&
                 (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getIncreased())) &&
                 (oldSchema != null || newSchema == null) &&
                 (!changedMaxLength || newSchema.getMaxLength() == null ||
-                        (oldSchema.getMaxLength() != null && oldSchema.getMaxLength()<= newSchema.getMaxLength()));
+                        (oldSchema.getMaxLength() != null && oldSchema.getMaxLength() <= newSchema.getMaxLength()));
 
         boolean backwardCompatibleForResponse = (changeEnum == null || changeEnum.getIncreased().isEmpty()) &&
                 missingProperties.isEmpty() &&
@@ -76,11 +66,13 @@ public class ChangedSchema implements RequestResponseChanged {
                 (!changedMaxLength || oldSchema.getMaxLength() == null ||
                         (newSchema.getMaxLength() != null && newSchema.getMaxLength() <= oldSchema.getMaxLength()));
 
-        return (isRequest && backwardCompatibleForRequest || !isRequest && backwardCompatibleForResponse )
-                && !changedType
-                && !discriminatorPropertyChanged
-                && (changedOneOfSchema == null || changedOneOfSchema.isDiffBackwardCompatible(isRequest))
-                && (addPropChangedSchema == null || addPropChangedSchema.isDiffBackwardCompatible(isRequest))
-                && changedProperties.values().stream().allMatch(p -> p.isDiffBackwardCompatible(isRequest));
+        if ((context.isRequest() && backwardCompatibleForRequest || context.isResponse() && backwardCompatibleForResponse)
+                && !changedType && !discriminatorPropertyChanged && ChangedUtils.isCompatible(changedOneOfSchema)
+                && ChangedUtils.isCompatible(addPropChangedSchema)
+                && changedProperties.values().stream().allMatch(Changed::isCompatible)) {
+            return DiffResult.COMPATIBLE;
+        }
+
+        return DiffResult.INCOMPATIBLE;
     }
 }

@@ -4,6 +4,7 @@ import com.qdesrame.openapi.diff.compare.schemadiffresult.ArraySchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemadiffresult.ComposedSchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
@@ -58,20 +59,21 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
     }
 
-    public Optional<ChangedSchema> diff(HashSet<String> refSet, Schema left, Schema right) {
-        return cachedDiff(refSet, left, right, left.get$ref(), right.get$ref());
+    public Optional<ChangedSchema> diff(HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
+        return cachedDiff(refSet, left, right, left.get$ref(), right.get$ref(), context);
     }
 
-    public Optional<ChangedSchema> getTypeChangedSchema(Schema left, Schema right) {
+    public Optional<ChangedSchema> getTypeChangedSchema(Schema left, Schema right, DiffContext context) {
         ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult(openApiDiff).getChangedSchema();
         changedSchema.setOldSchema(left);
         changedSchema.setNewSchema(right);
         changedSchema.setChangedType(true);
+        changedSchema.setContext(context);
         return Optional.of(changedSchema);
     }
 
     @Override
-    protected Optional<ChangedSchema> computeDiff(HashSet<String> refSet, Schema left, Schema right) {
+    protected Optional<ChangedSchema> computeDiff(HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
         left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
         right = refPointer.resolveRef(this.rightComponents, right, right.get$ref());
 
@@ -82,12 +84,28 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
         // return the object
         if (!Objects.equals(left.getType(), right.getType()) ||
                 !Objects.equals(left.getFormat(), right.getFormat())) {
-            return getTypeChangedSchema(left, right);
+            return getTypeChangedSchema(left, right, context);
         }
 
         //If schema type is same then get specific SchemaDiffResult and compare the properties
         SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
-        return result.diff(refSet, leftComponents, rightComponents, left, right);
+        Optional<ChangedSchema> schema = result.diff(refSet, leftComponents, rightComponents, left, right, context);
+        if (schema.isPresent()) {
+            if (context.isResponse()) {
+                if (Boolean.TRUE.equals(schema.get().getNewSchema().getWriteOnly())) {
+                    if (!schema.get().isChangeWriteOnly()) {
+                        schema = Optional.empty();
+                    }
+                }
+            } else if (context.isRequest()) {
+                if (Boolean.TRUE.equals(schema.get().getNewSchema().getReadOnly())) {
+                    if (!schema.get().isChangeReadOnly()) {
+                        schema = Optional.empty();
+                    }
+                }
+            }
+        }
+        return schema;
     }
 
     protected static Schema resolveComposedSchema(Components components, Schema schema) {

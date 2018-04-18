@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedSecurityRequirement;
 import com.qdesrame.openapi.diff.model.ChangedSecurityRequirements;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 /**
  * Created by adarsh.sharma on 07/01/18.
@@ -72,7 +75,7 @@ public class SecurityRequirementsDiff {
         return new ImmutablePair<>(securityScheme.getType(), securityScheme.getIn());
     }
 
-    protected Optional<ChangedSecurityRequirements> diff(List<SecurityRequirement> left, List<SecurityRequirement> right) {
+    protected Optional<ChangedSecurityRequirements> diff(List<SecurityRequirement> left, List<SecurityRequirement> right, DiffContext context) {
         left = left == null ? new ArrayList<>() : left;
         right = right == null ? new ArrayList<>() : getCopy(right);
 
@@ -86,13 +89,13 @@ public class SecurityRequirementsDiff {
             } else {
                 SecurityRequirement rightSec = rightSecOpt.get();
                 right.remove(rightSec);
-                Optional<ChangedSecurityRequirement> diff = openApiDiff.getSecurityRequirementDiff().diff(leftSecurity, rightSec);
+                Optional<ChangedSecurityRequirement> diff = openApiDiff.getSecurityRequirementDiff().diff(leftSecurity, rightSec, context);
                 diff.ifPresent(changedSecurityRequirements::addChanged);
             }
         }
         right.forEach(changedSecurityRequirements::addIncreased);
 
-        return changedSecurityRequirements.isDiff() ? Optional.of(changedSecurityRequirements) : Optional.empty();
+        return isChanged(changedSecurityRequirements);
     }
 
     private List<SecurityRequirement> getCopy(List<SecurityRequirement> right) {

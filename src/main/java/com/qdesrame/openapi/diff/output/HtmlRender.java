@@ -121,14 +121,14 @@ public class HtmlRender implements Render {
             String desc = changedOperation.getSummary();
 
             ContainerTag ul_detail = ul().withClass("detail");
-            if (changedOperation.isDiffParam()) {
+            if (changedOperation.isChangedParam().isDifferent()) {
                 ul_detail.with(li().with(h3("Parameters")).with(ul_param(changedOperation.getChangedParameters())));
             }
-            if (changedOperation.isDiffRequest()) {
+            if (changedOperation.isChangedRequest().isDifferent()) {
                 ul_detail.with(li().with(h3("Request")).with(ul_request(changedOperation.getChangedRequestBody().getChangedContent())));
             } else {
             }
-            if (changedOperation.isDiffResponse()) {
+            if (changedOperation.isChangedResponse().isDifferent()) {
                 ul_detail.with(li().with(h3("Response")).with(ul_response(changedOperation.getChangedApiResponse())));
             }
             ol.with(li().with(span(method).withClass(method)).withText(pathUrl + " ").with(span(desc))

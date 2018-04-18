@@ -1,12 +1,15 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedPaths;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 public class PathsDiff {
     private static final String REGEX_PATH = "\\{([^/]+)\\}";
@@ -50,12 +53,15 @@ public class PathsDiff {
                         params.put(oldParams.get(i), newParams.get(i));
                     }
                 }
-                openApiDiff.getPathDiff().diff(url, params, leftPath, rightPath).ifPresent(path -> changedPaths.getChanged().put(result.get(), path));
+                DiffContext context = new DiffContext();
+                context.setUrl(url);
+                context.setParameters(params);
+                openApiDiff.getPathDiff().diff(leftPath, rightPath, context).ifPresent(path -> changedPaths.getChanged().put(result.get(), path));
             } else {
                 changedPaths.getMissing().put(url, leftPath);
             }
         });
-        return changedPaths.isDiff() ? Optional.of(changedPaths) : Optional.empty();
+        return isChanged(changedPaths);
     }
 
     public static Paths valOrEmpty(Paths path) {

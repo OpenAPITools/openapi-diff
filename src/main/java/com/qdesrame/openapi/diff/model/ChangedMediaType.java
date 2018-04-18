@@ -6,24 +6,27 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChangedMediaType implements RequestResponseChanged {
-    private Schema oldSchema;
-    private Schema newSchema;
+public class ChangedMediaType implements Changed {
+    private final Schema oldSchema;
+    private final Schema newSchema;
+    private final DiffContext context;
     private ChangedSchema changedSchema;
 
-    public ChangedMediaType(Schema oldSchema, Schema newSchema) {
+    public ChangedMediaType(Schema oldSchema, Schema newSchema, DiffContext context) {
         this.oldSchema = oldSchema;
         this.newSchema = newSchema;
+        this.context = context;
     }
 
     @Override
-    public boolean isDiff() {
-        return (changedSchema != null && changedSchema.isDiff());
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible(boolean isRequest) {
-        return (changedSchema == null || changedSchema.isDiffBackwardCompatible(isRequest));
+    public DiffResult isChanged() {
+        if (this.changedSchema == null || this.changedSchema.isUnchanged()) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (this.changedSchema.isCompatible()) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 
 }

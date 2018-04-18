@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedRequestBody;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.media.Content;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 /**
  * Created by adarsh.sharma on 28/12/17.
@@ -21,12 +24,12 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
         this.openApiDiff = openApiDiff;
     }
 
-    public Optional<ChangedRequestBody> diff(RequestBody left, RequestBody right) {
-        return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref());
+    public Optional<ChangedRequestBody> diff(RequestBody left, RequestBody right, DiffContext context) {
+        return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref(), context);
     }
 
     @Override
-    protected Optional<ChangedRequestBody> computeDiff(HashSet<String> refSet, RequestBody left, RequestBody right) {
+    protected Optional<ChangedRequestBody> computeDiff(HashSet<String> refSet, RequestBody left, RequestBody right, DiffContext context) {
         Content oldRequestContent = new Content();
         Content newRequestContent = new Content();
         RequestBody oldRequestBody = null;
@@ -43,8 +46,10 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
                 newRequestContent = newRequestBody.getContent();
             }
         }
+        context.setRequest(true);
+        context.setResponse(false);
 
-        ChangedRequestBody changedRequestBody = new ChangedRequestBody(oldRequestBody, newRequestBody);
+        ChangedRequestBody changedRequestBody = new ChangedRequestBody(oldRequestBody, newRequestBody, context);
 
         boolean leftRequired = oldRequestBody != null && Boolean.TRUE.equals(oldRequestBody.getRequired());
         boolean rightRequired = newRequestBody != null && Boolean.TRUE.equals(newRequestBody.getRequired());
@@ -54,8 +59,8 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
         String rightDescription = newRequestBody != null ? newRequestBody.getDescription() : null;
         changedRequestBody.setChangeDescription(!Objects.equals(leftDescription, rightDescription));
 
-        openApiDiff.getContentDiff().diff(oldRequestContent, newRequestContent).ifPresent(changedRequestBody::setChangedContent);
+        openApiDiff.getContentDiff().diff(oldRequestContent, newRequestContent, context).ifPresent(changedRequestBody::setChangedContent);
 
-        return changedRequestBody.isDiff() ? Optional.of(changedRequestBody) : Optional.empty();
+        return isChanged(changedRequestBody);
     }
 }

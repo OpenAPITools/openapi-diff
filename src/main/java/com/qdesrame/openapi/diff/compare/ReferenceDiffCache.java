@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
+import com.qdesrame.openapi.diff.model.DiffContext;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,7 +30,11 @@ public abstract class ReferenceDiffCache<C, D> {
         changedSchemaMap.put(rightRef, changed);
     }
 
-    public Optional<D> cachedDiff(HashSet<String> refSet, C left, C right, String leftRef, String rightRef) {
+    //    public Optional<D> cachedDiff(HashSet<String> refSet, C left, C right, String leftRef, String rightRef) {
+//        return cachedDiff(refSet, left, right, leftRef, rightRef, null);
+//    }
+//
+    public Optional<D> cachedDiff(HashSet<String> refSet, C left, C right, String leftRef, String rightRef, DiffContext context) {
         boolean areBothRefParameters = leftRef != null && rightRef != null;
         if (areBothRefParameters) {
             Optional<D> changedFromRef = getFromCache(leftRef, rightRef);
@@ -36,22 +42,19 @@ public abstract class ReferenceDiffCache<C, D> {
                 return changedFromRef;
             } else {
                 String refKey = getRefKey(leftRef, rightRef);
-                if(refSet.contains(refKey)) {
+                if (refSet.contains(refKey)) {
                     return Optional.empty();
                 } else {
                     refSet.add(refKey);
-                    Optional<D> changed = computeDiff(refSet, left, right);
-
-                    if(areBothRefParameters) {
-                        addToCache(leftRef, rightRef, changed.isPresent()? changed.get(): null);
-                    }
+                    Optional<D> changed = computeDiff(refSet, left, right, context);
+                    addToCache(leftRef, rightRef, changed.orElse(null));
                     refSet.remove(refKey);
 
                     return changed;
                 }
             }
         } else {
-            return computeDiff(refSet, left, right);
+            return computeDiff(refSet, left, right, context);
         }
     }
 
@@ -59,6 +62,6 @@ public abstract class ReferenceDiffCache<C, D> {
         return leftRef + ":" + rightRef;
     }
 
-    protected abstract Optional<D> computeDiff(HashSet<String> refSet, C left, C right);
+    protected abstract Optional<D> computeDiff(HashSet<String> refSet, C left, C right, DiffContext context);
 
 }
