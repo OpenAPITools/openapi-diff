@@ -26,6 +26,27 @@ Available on [Maven Central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%2
 </dependency>
 ```
 
+# Docker
+
+Available on [Docker Hub](https://hub.docker.com/r/quen2404/openapi-diff/)
+
+## Build image
+
+```bash
+docker build -t openapi-diff .
+```
+
+## Run an instance
+
+In this example the `$(pwd)/src/test/resources` directory is mounted in the `/specs` directory of the container
+in readonly mode (`ro`).
+
+```bash
+docker run -t \
+  -v $(pwd)/src/test/resources:/specs:ro \
+  openapi-diff /specs/path_1.yaml /specs/path_2.yaml
+```
+
 # Usage
 OpenDiff can read swagger api spec from json file or http.
 
@@ -272,24 +293,6 @@ try {
     Return Type
 
         Changed response : [200] //successful operation
-```
-
-# Docker
-
-## Build image
-```bash
-docker build -t openapi-diff .
-```
-
-## Run an instance
-
-In this example the `$(pwd)/src/test/resources` directory is mounted in the `/specs` directory of the container
-in readonly mode (`ro`).
-
-```bash
-docker run -t \
-  -v $(pwd)/src/test/resources:/specs:ro \
-  openapi-diff /specs/path_1.yaml /specs/path_2.yaml
 ```
 
 # License
