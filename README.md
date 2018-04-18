@@ -38,7 +38,7 @@ This is only required if you want to try new changes in the Dockerfile of this p
 docker build -t local-openapi-diff .
 ```
 
-You can replace the local image name `dev-openapi-diff` by any name of your choice.
+You can replace the local image name `local-openapi-diff` by any name of your choice.
 
 ## Run an instance
 
