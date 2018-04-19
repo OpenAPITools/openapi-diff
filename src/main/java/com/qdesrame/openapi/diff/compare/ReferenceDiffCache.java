@@ -11,33 +11,25 @@ import java.util.Optional;
  * Created by adarsh.sharma on 07/01/18.
  */
 public abstract class ReferenceDiffCache<C, D> {
-    private Map<String, Map<String, D>> refDiffMap;
+    private Map<CacheKey, D> refDiffMap;
 
     public ReferenceDiffCache() {
         this.refDiffMap = new HashMap<>();
     }
 
-    private Optional<D> getFromCache(String leftRef, String rightRef) {
-        Optional<Map<String, D>> changedSchemaMap = Optional.ofNullable(refDiffMap.get(leftRef));
-        if (changedSchemaMap.isPresent()) {
-            return Optional.ofNullable(changedSchemaMap.get().get(rightRef));
-        }
-        return Optional.empty();
+    private Optional<D> getFromCache(CacheKey cacheKey) {
+        return Optional.ofNullable(refDiffMap.get(cacheKey));
     }
 
-    private void addToCache(String leftRef, String rightRef, D changed) {
-        Map<String, D> changedSchemaMap = refDiffMap.computeIfAbsent(leftRef, k -> new HashMap<>());
-        changedSchemaMap.put(rightRef, changed);
+    private void addToCache(CacheKey cacheKey, D changed) {
+        refDiffMap.put(cacheKey, changed);
     }
 
-    //    public Optional<D> cachedDiff(HashSet<String> refSet, C left, C right, String leftRef, String rightRef) {
-//        return cachedDiff(refSet, left, right, leftRef, rightRef, null);
-//    }
-//
     public Optional<D> cachedDiff(HashSet<String> refSet, C left, C right, String leftRef, String rightRef, DiffContext context) {
         boolean areBothRefParameters = leftRef != null && rightRef != null;
         if (areBothRefParameters) {
-            Optional<D> changedFromRef = getFromCache(leftRef, rightRef);
+            CacheKey key = new CacheKey(leftRef, rightRef, context);
+            Optional<D> changedFromRef = getFromCache(key);
             if (changedFromRef.isPresent()) {
                 return changedFromRef;
             } else {
@@ -47,9 +39,8 @@ public abstract class ReferenceDiffCache<C, D> {
                 } else {
                     refSet.add(refKey);
                     Optional<D> changed = computeDiff(refSet, left, right, context);
-                    addToCache(leftRef, rightRef, changed.orElse(null));
+                    addToCache(key, changed.orElse(null));
                     refSet.remove(refKey);
-
                     return changed;
                 }
             }

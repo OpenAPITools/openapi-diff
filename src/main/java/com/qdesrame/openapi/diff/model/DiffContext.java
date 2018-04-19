@@ -1,6 +1,8 @@
 package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.PathItem;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,5 +91,33 @@ public class DiffContext {
     public DiffContext setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DiffContext that = (DiffContext) o;
+
+        return new EqualsBuilder()
+                .append(response, that.response)
+                .append(request, that.request)
+                .append(url, that.url)
+                .append(parameters, that.parameters)
+                .append(method, that.method)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(url)
+                .append(parameters)
+                .append(method)
+                .append(response)
+                .append(request)
+                .toHashCode();
     }
 }
