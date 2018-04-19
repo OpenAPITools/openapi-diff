@@ -144,6 +144,9 @@ components:
       properties:
         bark:
           type: string
+        test:
+          writeOnly: true
+          type: string
     Lizard:
       type: object
       properties:

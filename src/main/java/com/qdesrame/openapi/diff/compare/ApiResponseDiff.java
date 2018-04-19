@@ -29,8 +29,6 @@ public class ApiResponseDiff {
         changedApiResponse.setAddResponses(responseMapKeyDiff.getIncreased());
         changedApiResponse.setMissingResponses(responseMapKeyDiff.getMissing());
         List<String> sharedResponseCodes = responseMapKeyDiff.getSharedKey();
-        context.setRequest(false);
-        context.setResponse(true);
         Map<String, ChangedResponse> resps = new HashMap<>();
         for (String responseCode : sharedResponseCodes) {
             openApiDiff.getResponseDiff().diff(left.get(responseCode), right.get(responseCode), context)

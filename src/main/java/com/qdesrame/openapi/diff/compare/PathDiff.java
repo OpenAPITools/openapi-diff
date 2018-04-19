@@ -31,8 +31,7 @@ public class PathDiff {
         for (PathItem.HttpMethod method : sharedMethods) {
             Operation oldOperation = oldOperationMap.get(method);
             Operation newOperation = newOperationMap.get(method);
-            context.setMethod(method);
-            openApiDiff.getOperationDiff().diff(oldOperation, newOperation, context).ifPresent(changedPath.getChanged()::add);
+            openApiDiff.getOperationDiff().diff(oldOperation, newOperation, context.copyWithMethod(method)).ifPresent(changedPath.getChanged()::add);
         }
         return isChanged(changedPath);
     }

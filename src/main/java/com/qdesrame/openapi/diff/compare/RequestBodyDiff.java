@@ -46,9 +46,6 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
                 newRequestContent = newRequestBody.getContent();
             }
         }
-        context.setRequest(true);
-        context.setResponse(false);
-
         ChangedRequestBody changedRequestBody = new ChangedRequestBody(oldRequestBody, newRequestBody, context);
 
         boolean leftRequired = oldRequestBody != null && Boolean.TRUE.equals(oldRequestBody.getRequired());

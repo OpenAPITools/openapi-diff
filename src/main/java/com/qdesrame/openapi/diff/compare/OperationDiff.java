@@ -29,7 +29,7 @@ public class OperationDiff {
         changedOperation.setDeprecated(!Boolean.TRUE.equals(oldOperation.getDeprecated()) && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
         if (oldOperation.getRequestBody() != null || newOperation.getRequestBody() != null) {
-            openApiDiff.getRequestBodyDiff().diff(oldOperation.getRequestBody(), newOperation.getRequestBody(), context)
+            openApiDiff.getRequestBodyDiff().diff(oldOperation.getRequestBody(), newOperation.getRequestBody(), context.copyAsRequest())
                     .ifPresent(changedOperation::setChangedRequestBody);
         }
 
@@ -40,7 +40,7 @@ public class OperationDiff {
                 });
 
         if (oldOperation.getResponses() != null || newOperation.getResponses() != null) {
-            openApiDiff.getApiResponseDiff().diff(oldOperation.getResponses(), newOperation.getResponses(), context)
+            openApiDiff.getApiResponseDiff().diff(oldOperation.getResponses(), newOperation.getResponses(), context.copyAsResponse())
                     .ifPresent(changedOperation::setChangedApiResponse);
         }
 
