@@ -22,8 +22,29 @@ Available on [Maven Central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%2
 <dependency>
     <groupId>com.qdesrame</groupId>
     <artifactId>openapi-diff</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
 </dependency>
+```
+
+# Docker
+
+Available on [Docker Hub](https://hub.docker.com/r/quen2404/openapi-diff/)
+
+## Build image
+
+```bash
+docker build -t openapi-diff .
+```
+
+## Run an instance
+
+In this example the `$(pwd)/src/test/resources` directory is mounted in the `/specs` directory of the container
+in readonly mode (`ro`).
+
+```bash
+docker run -t \
+  -v $(pwd)/src/test/resources:/specs:ro \
+  openapi-diff /specs/path_1.yaml /specs/path_2.yaml
 ```
 
 # Usage
@@ -47,6 +68,8 @@ usage: openapi-diff <old> <new>
                                 output in file
     --off                       No information printed
     --query <property=value>    use query param for authorisation
+    --state                     Only output diff state: no_changes,
+                                incompatible, compatible
     --trace                     be extra verbose
     --version                   print the version information and exit
     --warn                      Print warning information

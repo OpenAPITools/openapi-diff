@@ -2,10 +2,14 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedContent;
 import com.qdesrame.openapi.diff.model.ChangedMediaType;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 
 import java.util.*;
+
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isUnchanged;
 
 public class ContentDiff implements Comparable<Content> {
 
@@ -20,8 +24,8 @@ public class ContentDiff implements Comparable<Content> {
         return false;
     }
 
-    public Optional<ChangedContent> diff(Content left, Content right) {
-        ChangedContent changedContent = new ChangedContent(left, right);
+    public Optional<ChangedContent> diff(Content left, Content right, DiffContext context) {
+        ChangedContent changedContent = new ChangedContent(left, right, context);
 
         MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(left, right);
         changedContent.setIncreased(mediaTypeDiff.getIncreased());
@@ -31,13 +35,13 @@ public class ContentDiff implements Comparable<Content> {
         for (String mediaTypeKey : sharedMediaTypes) {
             MediaType oldMediaType = left.get(mediaTypeKey);
             MediaType newMediaType = right.get(mediaTypeKey);
-            ChangedMediaType changedMediaType = new ChangedMediaType(oldMediaType.getSchema(), newMediaType.getSchema());
-            openApiDiff.getSchemaDiff().diff(new HashSet<>(), oldMediaType.getSchema(), newMediaType.getSchema()).ifPresent(changedMediaType::setChangedSchema);
-            if (changedMediaType.isDiff()) {
+            ChangedMediaType changedMediaType = new ChangedMediaType(oldMediaType.getSchema(), newMediaType.getSchema(), context);
+            openApiDiff.getSchemaDiff().diff(new HashSet<>(), oldMediaType.getSchema(), newMediaType.getSchema(), context).ifPresent(changedMediaType::setChangedSchema);
+            if (!isUnchanged(changedMediaType)) {
                 changedMediaTypes.put(mediaTypeKey, changedMediaType);
             }
         }
         changedContent.setChanged(changedMediaTypes);
-        return changedContent.isDiff() ? Optional.of(changedContent) : Optional.empty();
+        return isChanged(changedContent);
     }
 }

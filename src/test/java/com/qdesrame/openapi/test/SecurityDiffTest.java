@@ -24,10 +24,10 @@ public class SecurityDiffTest {
 
         ChangedOperation changedOperation1 = changedOpenApi.getChangedOperations().stream().filter(x -> x.getPathUrl().equals("/pet/{petId}")).findFirst().get();
         assertNotNull(changedOperation1);
-        assertFalse(changedOperation1.isDiffBackwardCompatible());
+        assertFalse(changedOperation1.isCompatible());
         ChangedSecurityRequirements changedSecurityRequirements1 = changedOperation1.getChangedSecurityRequirements();
         assertNotNull(changedSecurityRequirements1);
-        assertFalse(changedSecurityRequirements1.isDiffBackwardCompatible());
+        assertFalse(changedSecurityRequirements1.isCompatible());
         assertTrue(changedSecurityRequirements1.getIncreased().size() == 1);
         assertTrue(changedSecurityRequirements1.getChanged().size() == 1);
         ChangedSecurityRequirement changedSecurityRequirement1 = changedSecurityRequirements1.getChanged().get(0);
@@ -39,10 +39,10 @@ public class SecurityDiffTest {
 
         ChangedOperation changedOperation2 = changedOpenApi.getChangedOperations().stream().filter(x -> x.getPathUrl().equals("/pet3")).findFirst().get();
         assertNotNull(changedOperation2);
-        assertFalse(changedOperation2.isDiffBackwardCompatible());
+        assertFalse(changedOperation2.isCompatible());
         ChangedSecurityRequirements changedSecurityRequirements2 = changedOperation2.getChangedSecurityRequirements();
         assertNotNull(changedSecurityRequirements2);
-        assertFalse(changedSecurityRequirements2.isDiffBackwardCompatible());
+        assertFalse(changedSecurityRequirements2.isCompatible());
         assertTrue(changedSecurityRequirements2.getChanged().size() == 1);
         ChangedSecurityRequirement changedSecurityRequirement2 = changedSecurityRequirements2.getChanged().get(0);
         assertTrue(changedSecurityRequirement2.getChanged().size() == 1);
@@ -52,7 +52,7 @@ public class SecurityDiffTest {
 
         ChangedOperation changedOperation3 = changedOpenApi.getChangedOperations().stream().filter(x -> x.getPathUrl().equals("/pet/findByStatus2")).findFirst().get();
         assertNotNull(changedOperation3);
-        assertTrue(changedOperation3.isDiffBackwardCompatible());
+        assertTrue(changedOperation3.isCompatible());
         ChangedSecurityRequirements changedSecurityRequirements3 = changedOperation3.getChangedSecurityRequirements();
         assertNotNull(changedSecurityRequirements3);
         assertTrue(changedSecurityRequirements3.getIncreased().size() == 1);

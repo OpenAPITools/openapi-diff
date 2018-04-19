@@ -81,13 +81,13 @@ public class MarkdownRender implements Render {
         changedOperations.stream().map(operation -> {
             StringBuilder details = new StringBuilder()
                     .append(itemEndpoint(operation.getHttpMethod().toString(), operation.getPathUrl(), operation.getSummary()));
-            if (operation.isDiffParam()) {
+            if (operation.isChangedParam().isDifferent()) {
                 details.append(titleH5("Parameters:")).append(parameters(operation.getChangedParameters()));
             }
-            if (operation.isDiffRequest()) {
+            if (operation.isChangedRequest().isDifferent()) {
                 details.append(titleH5("Request:")).append(bodyContent(operation.getChangedRequestBody().getChangedContent()));
             }
-            if (operation.isDiffResponse()) {
+            if (operation.isChangedResponse().isDifferent()) {
                 details.append(titleH5("Return Type:")).append(responses(operation.getChangedApiResponse()));
             }
             return details.toString();

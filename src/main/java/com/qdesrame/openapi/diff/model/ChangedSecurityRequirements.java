@@ -3,6 +3,7 @@ package com.qdesrame.openapi.diff.model;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +28,14 @@ public class ChangedSecurityRequirements implements Changed {
     }
 
     @Override
-    public boolean isDiff() {
-        return (missing != null && !missing.isEmpty()) ||
-                (increased != null && !increased.isEmpty()) ||
-                (changed != null && changed.stream().anyMatch(x -> x.isDiff()));
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return (missing == null || missing.isEmpty()) &&
-                (changed == null || changed.stream().allMatch(x -> x.isDiffBackwardCompatible()));
+    public DiffResult isChanged() {
+        if (CollectionUtils.isEmpty(missing) && CollectionUtils.isEmpty(increased) && CollectionUtils.isEmpty(changed)) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (CollectionUtils.isEmpty(missing) && (changed == null || changed.stream().allMatch(Changed::isCompatible))) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 
     public void addMissing(SecurityRequirement securityRequirement) {

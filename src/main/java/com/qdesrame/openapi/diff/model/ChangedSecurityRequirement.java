@@ -27,32 +27,32 @@ public class ChangedSecurityRequirement implements Changed {
     }
 
     @Override
-    public boolean isDiff() {
-        return missing != null || increased != null || CollectionUtils.isNotEmpty(changed);
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return increased == null &&
-                (changed == null || changed.stream().allMatch(x -> x.isDiffBackwardCompatible()));
+    public DiffResult isChanged() {
+        if (missing == null && increased == null && CollectionUtils.isEmpty(changed)) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (increased == null && (changed == null || changed.stream().allMatch(Changed::isCompatible))) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 
     public void addMissing(String key, List<String> scopes) {
-        if(missing == null) {
+        if (missing == null) {
             missing = new SecurityRequirement();
         }
         missing.put(key, scopes);
     }
 
     public void addIncreased(String key, List<String> scopes) {
-        if(increased == null) {
+        if (increased == null) {
             increased = new SecurityRequirement();
         }
         increased.put(key, scopes);
     }
 
     public void addChanged(ChangedSecurityScheme changedSecurityScheme) {
-        if(changed == null) {
+        if (changed == null) {
             changed = new ArrayList<>();
         }
         changed.add(changedSecurityScheme);

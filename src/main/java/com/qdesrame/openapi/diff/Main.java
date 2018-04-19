@@ -23,6 +23,7 @@ public class Main {
         Options options = new Options();
         options.addOption(Option.builder("h").longOpt("help").desc("print this message").build());
         options.addOption(Option.builder().longOpt("version").desc("print the version information and exit").build());
+        options.addOption(Option.builder().longOpt("state").desc("Only output diff state: no_changes, incompatible, compatible").build());
         options.addOption(Option.builder().longOpt("trace").desc("be extra verbose").build());
         options.addOption(Option.builder().longOpt("debug").desc("Print debugging information").build());
         options.addOption(Option.builder().longOpt("info").desc("Print additional information").build());
@@ -81,6 +82,9 @@ public class Main {
                                     logLevel));
                 }
             }
+            if (line.hasOption("state")) {
+                logLevel = "OFF";
+            }
             LogManager.getRootLogger().setLevel(Level.toLevel(logLevel));
 
             if (line.getArgList().size() < 2) {
@@ -126,7 +130,12 @@ public class Main {
                     System.exit(2);
                 }
             }
-            System.exit(result.isDiff() ? 1 : 0);
+            if (line.hasOption("state")) {
+                System.out.println(result.isChanged().getValue());
+                System.exit(0);
+            } else {
+                System.exit(result.isUnchanged() ? 0 : 1);
+            }
         } catch (ParseException e) {
             // oops, something went wrong
             System.err.println("Parsing failed. Reason: " + e.getMessage());

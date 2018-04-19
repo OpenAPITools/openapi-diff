@@ -29,38 +29,6 @@ tags:
       description: Find out more about our store
       url: 'http://swagger.io'
 paths:
-  /pet:
-    post:
-      tags:
-        - pet
-      summary: Add a new pet to the store
-      description: ''
-      operationId: addPet
-      responses:
-        '405':
-          description: Invalid input
-      requestBody:
-        $ref: '#/components/requestBodies/Pet'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MyResponseType'
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by name
-      description: name can be provided for the pet
-      operationId: getPet
-      parameters:
-        - name: name
-          in: query
-          description: name that need to be considered for filter
-          required: true
-          schema:
-            type: string
   /pet/findByStatus:
     get:
       tags:
@@ -78,7 +46,7 @@ paths:
             type: array
             items:
               type: string
-              maxLength: 36
+              maxLength: 16
       responses:
         '200':
           description: successful operation
@@ -145,7 +113,6 @@ components:
         bark:
           type: string
         test:
-          writeOnly: true
           type: string
     Lizard:
       type: object
