@@ -221,13 +221,28 @@ public class MarkdownRender implements Render {
         return schema(1, schema);
     }
 
+    private String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
+        StringBuilder sb = new StringBuilder("");
+        sb.append(format("%sSwitch `%s`:\n", indent(deepness), discriminator));
+        schema.getMissingMapping().keySet()
+                .forEach(key -> sb.append(format("%s- Removed '%s'\n", indent(deepness), key)));
+        schema.getIncreasedMapping().forEach((key, sub) ->
+                sb.append(format("%s- Added '%s':\n", indent(deepness), key)).append(schema(deepness + 1, sub)));
+        schema.getChangedMapping().forEach((key, sub) ->
+                sb.append(format("%s- Updated `%s`:\n", indent(deepness), key))
+                        .append(schema(deepness + 1, sub)));
+        return sb.toString();
+    }
+
     private String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
         if (schema.isDiscriminatorPropertyChanged()) {
             LOGGER.debug("Discriminator property changed");
         }
         if (schema.getChangedOneOfSchema() != null) {
-            LOGGER.debug("One of schema changed");
+            String discriminator = schema.getNewSchema().getDiscriminator() != null ?
+                    schema.getNewSchema().getDiscriminator().getPropertyName() : "";
+            sb.append(oneOfSchema(deepness, schema.getChangedOneOfSchema(), discriminator));
         }
         sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
         sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true));
