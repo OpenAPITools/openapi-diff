@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
+import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
 import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
@@ -29,8 +31,8 @@ public class ChangedSchema implements Changed {
     protected boolean changeDefault;
     protected ListDiff changeEnum;
     protected boolean changeFormat;
-    protected boolean changeReadOnly;
-    protected boolean changeWriteOnly;
+    protected ChangedReadOnly changedReadOnly;
+    protected ChangedWriteOnly changedWriteOnly;
     protected boolean changedType;
     protected boolean changedMaxLength;
     protected boolean discriminatorPropertyChanged;
@@ -46,8 +48,8 @@ public class ChangedSchema implements Changed {
     @Override
     public DiffResult isChanged() {
         if (!changedType && (oldSchema == null && newSchema == null || oldSchema != null && newSchema != null)
-                && !changeWriteOnly && !changedMaxLength && !changeReadOnly
-                && (changeEnum == null || changeEnum.isUnchanged())
+                && ChangedUtils.isUnchanged(changedWriteOnly) && ChangedUtils.isUnchanged(changedReadOnly)
+                && !changedMaxLength && (changeEnum == null || changeEnum.isUnchanged())
                 && !changeFormat && increasedProperties.size() == 0 && missingProperties.size() == 0
                 && changedProperties.values().size() == 0 && !changeDeprecated
                 && (changeRequired == null || changeRequired.isUnchanged()) && !discriminatorPropertyChanged

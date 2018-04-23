@@ -89,23 +89,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
         //If schema type is same then get specific SchemaDiffResult and compare the properties
         SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
-        Optional<ChangedSchema> schema = result.diff(refSet, leftComponents, rightComponents, left, right, context);
-        if (schema.isPresent()) {
-            if (context.isResponse()) {
-                if (Boolean.TRUE.equals(schema.get().getNewSchema().getWriteOnly())) {
-                    if (!schema.get().isChangeWriteOnly()) {
-                        schema = Optional.empty();
-                    }
-                }
-            } else if (context.isRequest()) {
-                if (Boolean.TRUE.equals(schema.get().getNewSchema().getReadOnly())) {
-                    if (!schema.get().isChangeReadOnly()) {
-                        schema = Optional.empty();
-                    }
-                }
-            }
-        }
-        return schema;
+        return result.diff(refSet, leftComponents, rightComponents, left, right, context);
     }
 
     protected static Schema resolveComposedSchema(Components components, Schema schema) {

@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
+import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +16,8 @@ public class ChangedOneOfSchema implements Changed {
     private final Map<String, String> newMapping;
     private final DiffContext context;
 
-    private Map<String, String> increasedMapping;
-    private Map<String, String> missingMapping;
+    private Map<String, Schema> increasedMapping;
+    private Map<String, Schema> missingMapping;
     private Map<String, ChangedSchema> changedMapping;
 
     public ChangedOneOfSchema(Map<String, String> oldMapping, Map<String, String> newMapping, DiffContext context) {
