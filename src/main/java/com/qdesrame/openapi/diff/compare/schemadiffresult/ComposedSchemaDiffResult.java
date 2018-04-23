@@ -31,7 +31,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
 
     @Override
     public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right, DiffContext context) {
-        if(left instanceof ComposedSchema) {
+        if (left instanceof ComposedSchema) {
             ComposedSchema leftComposedSchema = (ComposedSchema) left;
             ComposedSchema rightComposedSchema = (ComposedSchema) right;
             if (CollectionUtils.isNotEmpty(leftComposedSchema.getOneOf())
@@ -53,7 +53,8 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 Map<String, String> rightMapping = getMapping(rightComposedSchema);
 
                 ChangedOneOfSchema changedOneOfSchema = new ChangedOneOfSchema(leftMapping, rightMapping, context);
-                MapKeyDiff<String, String> mappingDiff = MapKeyDiff.diff(leftMapping, rightMapping);
+                MapKeyDiff<String, Schema> mappingDiff = MapKeyDiff.diff(getSchema(leftComponents, leftMapping),
+                        getSchema(rightComponents, rightMapping));
                 changedOneOfSchema.setIncreasedMapping(mappingDiff.getIncreased());
                 changedOneOfSchema.setMissingMapping(mappingDiff.getMissing());
 
@@ -74,6 +75,12 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
         } else {
             return openApiDiff.getSchemaDiff().getTypeChangedSchema(left, right, context);
         }
+    }
+
+    private Map<String, Schema> getSchema(Components components, Map<String, String> mapping) {
+        Map<String, Schema> result = new HashMap<>();
+        mapping.forEach((key, value) -> result.put(key, refPointer.resolveRef(components, new Schema(), value)));
+        return result;
     }
 
     private Map<String, String> getMapping(ComposedSchema composedSchema) {

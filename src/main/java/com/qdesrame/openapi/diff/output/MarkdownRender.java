@@ -239,6 +239,13 @@ public class MarkdownRender implements Render {
                     .map(this::resolve)
                     .forEach(composedChild -> sb.append(schema(deepness, composedChild)));
         }
+        if (schema.getOneOf() != null && schema.getOneOf() != null) {
+            LOGGER.debug("One of schema");
+            sb.append(format("%sOne of:\n\n", indent(deepness)));
+            schema.getOneOf().stream()
+                    .map(this::resolve)
+                    .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild)));
+        }
         return sb.toString();
     }
 
