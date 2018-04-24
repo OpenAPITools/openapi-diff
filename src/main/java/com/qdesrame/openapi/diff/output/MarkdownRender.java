@@ -243,6 +243,16 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
+    private String required(int deepness, String title, List<String> required) {
+        StringBuilder sb = new StringBuilder("");
+        if (required.size() > 0) {
+            sb.append(format("%s%s:\n", indent(deepness), title));
+            required.forEach(s -> sb.append(format("%s- `%s`\n", indent(deepness), s)));
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
     private String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
         if (!isDisplayed(schema)) {
@@ -255,6 +265,10 @@ public class MarkdownRender implements Render {
             String discriminator = schema.getNewSchema().getDiscriminator() != null ?
                     schema.getNewSchema().getDiscriminator().getPropertyName() : "";
             sb.append(oneOfSchema(deepness, schema.getChangedOneOfSchema(), discriminator));
+        }
+        if (schema.getChangeRequired() != null) {
+            sb.append(required(deepness, "New required properties", schema.getChangeRequired().getIncreased()));
+            sb.append(required(deepness, "New optional properties", schema.getChangeRequired().getMissing()));
         }
         sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
         sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true, schema.getContext()));
