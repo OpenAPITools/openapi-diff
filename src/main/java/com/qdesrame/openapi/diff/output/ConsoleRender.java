@@ -17,7 +17,7 @@ public class ConsoleRender implements Render {
     @Override
     public String render(ChangedOpenApi diff) {
         output = new StringBuilder();
-        if (!diff.isDiff()) {
+        if (diff.isUnchanged()) {
             output.append("No differences. Specifications are equivalents");
         } else {
             output.append(bigTitle("Api Change Log"))
@@ -39,7 +39,7 @@ public class ConsoleRender implements Render {
             output
                     .append(renderBody(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed))
                     .append(title("Result"))
-                    .append(StringUtils.center(diff.isDiffBackwardCompatible() ?
+                    .append(StringUtils.center(diff.isCompatible() ?
                             "API changes are backward compatible" : "API changes broke backward compatibility", LINE_LENGTH))
                     .append(System.lineSeparator())
                     .append(separator('-'));
@@ -57,17 +57,17 @@ public class ConsoleRender implements Render {
             String desc = operation.getSummary();
 
             StringBuilder ul_detail = new StringBuilder();
-            if (operation.isDiffParam()) {
+            if (operation.isChangedParam().isDifferent()) {
                 ul_detail.append(StringUtils.repeat(' ', 2)).append("Parameter:")
                         .append(System.lineSeparator())
                         .append(ul_param(operation.getChangedParameters()));
             }
-            if (operation.isDiffRequest()) {
+            if (operation.isChangedRequest().isDifferent()) {
                 ul_detail.append(StringUtils.repeat(' ', 2)).append("Request:")
                         .append(System.lineSeparator())
                         .append(ul_content(operation.getChangedRequestBody().getChangedContent(), true));
             }
-            if (operation.isDiffResponse()) {
+            if (operation.isChangedResponse().isDifferent()) {
                 ul_detail.append(StringUtils.repeat(' ', 2)).append("Return Type:")
                         .append(System.lineSeparator())
                         .append(ul_response(operation.getChangedApiResponse()));
@@ -142,8 +142,7 @@ public class ConsoleRender implements Render {
         sb.append(itemContent(title, contentType))
                 .append(StringUtils.repeat(' ', 10))
                 .append("Schema: ")
-                .append(changedMediaType.isDiffBackwardCompatible(isRequest) ?
-                        "Backward compatible" : "Broken compatibility")
+                .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
                 .append(System.lineSeparator());
         return sb.toString();
     }

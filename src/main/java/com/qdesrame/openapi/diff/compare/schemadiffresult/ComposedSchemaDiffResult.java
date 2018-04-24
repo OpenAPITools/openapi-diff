@@ -4,6 +4,7 @@ import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedOneOfSchema;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
@@ -29,8 +30,8 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     }
 
     @Override
-    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right) {
-        if(left instanceof ComposedSchema) {
+    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right, DiffContext context) {
+        if (left instanceof ComposedSchema) {
             ComposedSchema leftComposedSchema = (ComposedSchema) left;
             ComposedSchema rightComposedSchema = (ComposedSchema) right;
             if (CollectionUtils.isNotEmpty(leftComposedSchema.getOneOf())
@@ -51,8 +52,9 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 Map<String, String> leftMapping = getMapping(leftComposedSchema);
                 Map<String, String> rightMapping = getMapping(rightComposedSchema);
 
-                ChangedOneOfSchema changedOneOfSchema = new ChangedOneOfSchema(leftMapping, rightMapping);
-                MapKeyDiff<String, String> mappingDiff = MapKeyDiff.diff(leftMapping, rightMapping);
+                ChangedOneOfSchema changedOneOfSchema = new ChangedOneOfSchema(leftMapping, rightMapping, context);
+                MapKeyDiff<String, Schema> mappingDiff = MapKeyDiff.diff(getSchema(leftComponents, leftMapping),
+                        getSchema(rightComponents, rightMapping));
                 changedOneOfSchema.setIncreasedMapping(mappingDiff.getIncreased());
                 changedOneOfSchema.setMissingMapping(mappingDiff.getMissing());
 
@@ -64,17 +66,21 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                     leftSchema.set$ref(leftMapping.get(key));
                     Schema rightSchema = new Schema();
                     rightSchema.set$ref(rightMapping.get(key));
-                    Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, leftSchema, rightSchema);
-                    if (changedSchema.isPresent() && changedSchema.get().isDiff()) {
-                        changedMapping.put(key, changedSchema.get());
-                    }
+                    Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, leftSchema, rightSchema, context);
+                    changedSchema.ifPresent(schema -> changedMapping.put(key, schema));
                 }
                 changedSchema.setChangedOneOfSchema(changedOneOfSchema);
             }
-            return super.diff(refSet, leftComponents, rightComponents, left, right);
+            return super.diff(refSet, leftComponents, rightComponents, left, right, context);
         } else {
-            return openApiDiff.getSchemaDiff().getTypeChangedSchema(left, right);
+            return openApiDiff.getSchemaDiff().getTypeChangedSchema(left, right, context);
         }
+    }
+
+    private Map<String, Schema> getSchema(Components components, Map<String, String> mapping) {
+        Map<String, Schema> result = new HashMap<>();
+        mapping.forEach((key, value) -> result.put(key, refPointer.resolveRef(components, new Schema(), value)));
+        return result;
     }
 
     private Map<String, String> getMapping(ComposedSchema composedSchema) {

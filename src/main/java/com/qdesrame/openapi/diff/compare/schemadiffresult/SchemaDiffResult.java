@@ -3,7 +3,10 @@ package com.qdesrame.openapi.diff.compare.schemadiffresult;
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.ListDiff;
+import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
+import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
@@ -12,6 +15,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 @Getter
 public class SchemaDiffResult {
@@ -28,7 +33,8 @@ public class SchemaDiffResult {
         this.changedSchema.setType(type);
     }
 
-    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right, DiffContext context) {
+        changedSchema.setContext(context);
         changedSchema.setOldSchema(left);
         changedSchema.setNewSchema(right);
         changedSchema.setChangeDeprecated(!Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
@@ -38,8 +44,8 @@ public class SchemaDiffResult {
         changedSchema.setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()));
         changedSchema.setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()));
         changedSchema.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
-        changedSchema.setChangeReadOnly(!Boolean.TRUE.equals(left.getReadOnly()) && Boolean.TRUE.equals(right.getReadOnly()));
-        changedSchema.setChangeWriteOnly(!Boolean.TRUE.equals(left.getWriteOnly()) && Boolean.TRUE.equals(right.getWriteOnly()));
+        changedSchema.setChangedReadOnly(new ChangedReadOnly(context, left.getReadOnly(), right.getReadOnly()));
+        changedSchema.setChangedWriteOnly(new ChangedWriteOnly(context, left.getWriteOnly(), right.getWriteOnly()));
         changedSchema.setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
 
         Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
@@ -49,36 +55,33 @@ public class SchemaDiffResult {
         Map<String, Schema> missingProp = propertyDiff.getMissing();
 
         for (String key : propertyDiff.getSharedKey()) {
-            Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(refSet, leftProperties.get(key), rightProperties.get(key));
-            if (resultSchema.isPresent() && resultSchema.get().isDiff()) {
-                changedSchema.getChangedProperties().put(key, resultSchema.get());
-            }
+            Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(refSet, leftProperties.get(key), rightProperties.get(key), context);
+            resultSchema.ifPresent(changedSchema1 -> changedSchema.getChangedProperties().put(key, changedSchema1));
         }
 
-        compareAdditionalProperties(refSet, left, right);
+        compareAdditionalProperties(refSet, left, right, context);
 
         changedSchema.getIncreasedProperties().putAll(increasedProp);
         changedSchema.getMissingProperties().putAll(missingProp);
-        return changedSchema.isDiff() ? Optional.of(changedSchema) : Optional.empty();
+        return isChanged(changedSchema);
     }
 
-    private void compareAdditionalProperties(HashSet<String> refSet, Schema leftSchema, Schema rightSchema) {
+    private void compareAdditionalProperties(HashSet<String> refSet, Schema leftSchema, Schema rightSchema, DiffContext context) {
         Object left = leftSchema.getAdditionalProperties();
         Object right = rightSchema.getAdditionalProperties();
         if ((left != null && left instanceof Schema) || (right != null && right instanceof Schema)) {
             Schema leftAdditionalSchema = (Schema) left;
             Schema rightAdditionalSchema = (Schema) right;
             ChangedSchema apChangedSchema = new ChangedSchema();
+            apChangedSchema.setContext(context);
             apChangedSchema.setOldSchema(leftAdditionalSchema);
             apChangedSchema.setNewSchema(rightAdditionalSchema);
             if (left != null && right != null) {
                 Optional<ChangedSchema> addPropChangedSchemaOP
-                        = openApiDiff.getSchemaDiff().diff(refSet, leftAdditionalSchema, rightAdditionalSchema);
+                        = openApiDiff.getSchemaDiff().diff(refSet, leftAdditionalSchema, rightAdditionalSchema, context);
                 apChangedSchema = addPropChangedSchemaOP.orElse(apChangedSchema);
             }
-            if (apChangedSchema.isDiff()) {
-                changedSchema.setAddPropChangedSchema(apChangedSchema);
-            }
+            isChanged(apChangedSchema).ifPresent(changedSchema::setAddPropChangedSchema);
         }
     }
 }

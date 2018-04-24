@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,25 +28,17 @@ public class ChangedSecurityScheme implements Changed {
     }
 
     @Override
-    public boolean isDiff() {
-        return changedType ||
-                changedDescription ||
-                changedIn ||
-                changedScheme ||
-                changedBearerFormat ||
-                (changedOAuthFlows != null && changedOAuthFlows.isDiff()) ||
-                changedOpenIdConnectUrl ||
-                changedScopes != null;
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return !changedType &&
-                !changedIn &&
-                !changedScheme &&
-                !changedBearerFormat &&
-                (changedOAuthFlows == null || changedOAuthFlows.isDiffBackwardCompatible()) &&
-                !changedOpenIdConnectUrl &&
-                (changedScopes == null || changedScopes.getIncreased().isEmpty());
+    public DiffResult isChanged() {
+        if (!changedType && !changedDescription && !changedIn && !changedScheme && !changedBearerFormat
+                && ChangedUtils.isUnchanged(changedOAuthFlows) && !changedOpenIdConnectUrl
+                && (changedScopes == null || changedScopes.isUnchanged())) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (!changedType && !changedIn && !changedScheme && !changedBearerFormat
+                && ChangedUtils.isCompatible(changedOAuthFlows) && !changedOpenIdConnectUrl
+                && (changedScopes == null || changedScopes.getIncreased().isEmpty())) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 }

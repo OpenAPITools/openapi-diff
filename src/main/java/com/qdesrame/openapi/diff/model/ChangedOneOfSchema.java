@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
+import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,27 +11,30 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public class ChangedOneOfSchema implements RequestResponseChanged {
-    private Map<String, String> oldMapping;
-    private Map<String, String> newMapping;
+public class ChangedOneOfSchema implements Changed {
+    private final Map<String, String> oldMapping;
+    private final Map<String, String> newMapping;
+    private final DiffContext context;
 
-    private Map<String, String> increasedMapping;
-    private Map<String, String> missingMapping;
+    private Map<String, Schema> increasedMapping;
+    private Map<String, Schema> missingMapping;
     private Map<String, ChangedSchema> changedMapping;
 
-    public ChangedOneOfSchema(Map<String, String> oldMapping, Map<String, String> newMapping) {
+    public ChangedOneOfSchema(Map<String, String> oldMapping, Map<String, String> newMapping, DiffContext context) {
         this.oldMapping = oldMapping;
         this.newMapping = newMapping;
+        this.context = context;
     }
 
     @Override
-    public boolean isDiff() {
-        return increasedMapping.size() > 0 || missingMapping.size() > 0 || changedMapping.size() > 0;
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible(boolean isRequest) {
-        return ((isRequest && missingMapping.isEmpty()) || (!isRequest && increasedMapping.isEmpty()))
-                && changedMapping.values().stream().allMatch(m -> m.isDiffBackwardCompatible(isRequest));
+    public DiffResult isChanged() {
+        if (increasedMapping.size() == 0 && missingMapping.size() == 0 && changedMapping.size() == 0) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (((context.isRequest() && missingMapping.isEmpty()) || (context.isResponse() && increasedMapping.isEmpty()))
+                && changedMapping.values().stream().allMatch(Changed::isCompatible)) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 }

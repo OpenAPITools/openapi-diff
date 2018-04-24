@@ -23,16 +23,11 @@ public class ChangedOAuthFlow implements Changed {
     }
 
     @Override
-    public boolean isDiff() {
-        return changedAuthorizationUrl ||
-                changedTokenUrl ||
-                changedRefreshUrl;
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return !changedAuthorizationUrl &&
-                !changedTokenUrl &&
-                !changedRefreshUrl;
+    public DiffResult isChanged() {
+        if (!changedAuthorizationUrl && !changedTokenUrl && !changedRefreshUrl) {
+            return DiffResult.NO_CHANGES;
+        } else {
+            return DiffResult.INCOMPATIBLE;
+        }
     }
 }

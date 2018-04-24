@@ -10,8 +10,8 @@ import java.util.Map;
 @Getter
 @Setter
 public class ChangedPaths implements Changed {
-    private Map<String, PathItem> oldPathMap;
-    private Map<String, PathItem> newPathMap;
+    private final Map<String, PathItem> oldPathMap;
+    private final Map<String, PathItem> newPathMap;
 
     private Map<String, PathItem> increased;
     private Map<String, PathItem> missing;
@@ -26,12 +26,13 @@ public class ChangedPaths implements Changed {
     }
 
     @Override
-    public boolean isDiff() {
-        return !increased.isEmpty() || !missing.isEmpty() || !changed.isEmpty();
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return missing.isEmpty() && changed.values().stream().allMatch(ChangedPath::isDiffBackwardCompatible);
+    public DiffResult isChanged() {
+        if (increased.isEmpty() && missing.isEmpty() && changed.isEmpty()) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (missing.isEmpty() && changed.values().stream().allMatch(Changed::isCompatible)) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 }

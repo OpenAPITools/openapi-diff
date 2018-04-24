@@ -12,6 +12,7 @@ public class ChangedParameter implements Changed {
 
     private String name;
     private String in;
+    private final DiffContext context;
 
     private boolean changeDescription;
     private boolean changeRequired;
@@ -22,30 +23,32 @@ public class ChangedParameter implements Changed {
     private ChangedSchema changedSchema;
     private ChangedContent changedContent;
 
-    public ChangedParameter(String name, String in) {
+    public ChangedParameter(String name, String in, DiffContext context) {
         this.name = name;
         this.in = in;
+        this.context = context;
     }
 
     @Override
-    public boolean isDiff() {
-        return changeDescription
-                || changeRequired
-                || deprecated
-                || changeAllowEmptyValue
-                || changeStyle
-                || changeExplode
-                || (changedSchema != null && changedSchema.isDiff())
-                || (changedContent != null && changedContent.isDiff());
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return (!changeRequired || Boolean.TRUE.equals(oldParameter.getRequired()))
+    public DiffResult isChanged() {
+        if (!changeDescription
+                && !changeRequired
+                && !deprecated
+                && !changeAllowEmptyValue
+                && !changeStyle
+                && !changeExplode
+                && (changedSchema == null || changedSchema.isUnchanged())
+                && (changedContent == null || changedContent.isUnchanged())) {
+            return DiffResult.NO_CHANGES;
+        }
+        if ((!changeRequired || Boolean.TRUE.equals(oldParameter.getRequired()))
                 && (!changeAllowEmptyValue || Boolean.TRUE.equals(newParameter.getAllowEmptyValue()))
                 && !changeStyle
                 && !changeExplode
-                && (changedSchema == null || changedSchema.isDiffBackwardCompatible(true))
-                && (changedContent == null || changedContent.isDiffBackwardCompatible(true));
+                && (changedSchema == null || changedSchema.isCompatible())
+                && (changedContent == null || changedContent.isCompatible())) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 }

@@ -13,31 +13,34 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public class ChangedContent implements RequestResponseChanged {
-    private Content oldContent;
-    private Content newContent;
+public class ChangedContent implements Changed {
+    private final Content oldContent;
+    private final Content newContent;
+    private final DiffContext context;
 
     private Map<String, MediaType> increased;
     private Map<String, MediaType> missing;
     private Map<String, ChangedMediaType> changed;
 
-    public ChangedContent(Content oldContent, Content newContent) {
+    public ChangedContent(Content oldContent, Content newContent, DiffContext context) {
         this.oldContent = oldContent;
         this.newContent = newContent;
+        this.context = context;
         this.increased = new HashMap<>();
         this.missing = new HashMap<>();
         this.changed = new HashMap<>();
     }
 
     @Override
-    public boolean isDiff() {
-        return !increased.isEmpty() || !missing.isEmpty() || !changed.isEmpty();
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible(boolean isRequest) {
-        return ((isRequest && missing.isEmpty()) || (!isRequest && increased.isEmpty()))
-                && changed.values().stream().allMatch(c -> c.isDiffBackwardCompatible(isRequest));
+    public DiffResult isChanged() {
+        if (increased.isEmpty() && missing.isEmpty() && changed.isEmpty()) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (((context.isRequest() && missing.isEmpty()) || (context.isResponse() && increased.isEmpty()))
+                && changed.values().stream().allMatch(Changed::isCompatible)) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 
 }

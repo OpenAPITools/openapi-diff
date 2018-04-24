@@ -81,13 +81,13 @@ public class MarkdownRender implements Render {
         changedOperations.stream().map(operation -> {
             StringBuilder details = new StringBuilder()
                     .append(itemEndpoint(operation.getHttpMethod().toString(), operation.getPathUrl(), operation.getSummary()));
-            if (operation.isDiffParam()) {
+            if (operation.isChangedParam().isDifferent()) {
                 details.append(titleH5("Parameters:")).append(parameters(operation.getChangedParameters()));
             }
-            if (operation.isDiffRequest()) {
+            if (operation.isChangedRequest().isDifferent()) {
                 details.append(titleH5("Request:")).append(bodyContent(operation.getChangedRequestBody().getChangedContent()));
             }
-            if (operation.isDiffResponse()) {
+            if (operation.isChangedResponse().isDifferent()) {
                 details.append(titleH5("Return Type:")).append(responses(operation.getChangedApiResponse()));
             }
             return details.toString();
@@ -216,13 +216,28 @@ public class MarkdownRender implements Render {
         return schema(1, schema);
     }
 
+    private String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
+        StringBuilder sb = new StringBuilder("");
+        sb.append(format("%sSwitch `%s`:\n", indent(deepness), discriminator));
+        schema.getMissingMapping().keySet()
+                .forEach(key -> sb.append(format("%s- Removed '%s'\n", indent(deepness), key)));
+        schema.getIncreasedMapping().forEach((key, sub) ->
+                sb.append(format("%s- Added '%s':\n", indent(deepness), key)).append(schema(deepness + 1, sub)));
+        schema.getChangedMapping().forEach((key, sub) ->
+                sb.append(format("%s- Updated `%s`:\n", indent(deepness), key))
+                        .append(schema(deepness + 1, sub)));
+        return sb.toString();
+    }
+
     private String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
         if (schema.isDiscriminatorPropertyChanged()) {
             LOGGER.debug("Discriminator property changed");
         }
         if (schema.getChangedOneOfSchema() != null) {
-            LOGGER.debug("One of schema changed");
+            String discriminator = schema.getNewSchema().getDiscriminator() != null ?
+                    schema.getNewSchema().getDiscriminator().getPropertyName() : "";
+            sb.append(oneOfSchema(deepness, schema.getChangedOneOfSchema(), discriminator));
         }
         sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
         sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true));
@@ -238,6 +253,13 @@ public class MarkdownRender implements Render {
             schema.getAllOf().stream()
                     .map(this::resolve)
                     .forEach(composedChild -> sb.append(schema(deepness, composedChild)));
+        }
+        if (schema.getOneOf() != null && schema.getOneOf() != null) {
+            LOGGER.debug("One of schema");
+            sb.append(format("%sOne of:\n\n", indent(deepness)));
+            schema.getOneOf().stream()
+                    .map(this::resolve)
+                    .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild)));
         }
         return sb.toString();
     }

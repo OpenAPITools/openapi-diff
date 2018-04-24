@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedSecurityScheme;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.ListDiff;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -9,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 /**
  * Created by adarsh.sharma on 11/01/18.
@@ -24,10 +27,10 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
         this.rightComponents = openApiDiff.getNewSpecOpenApi() != null ? openApiDiff.getNewSpecOpenApi().getComponents() : null;
     }
 
-    public Optional<ChangedSecurityScheme> diff(String leftSchemeRef, List<String> leftScopes, String rightSchemeRef, List<String> rightScopes) {
+    public Optional<ChangedSecurityScheme> diff(String leftSchemeRef, List<String> leftScopes, String rightSchemeRef, List<String> rightScopes, DiffContext context) {
         SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(leftSchemeRef);
         SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(rightSchemeRef);
-        Optional<ChangedSecurityScheme> changedSecuritySchemeOpt = cachedDiff(new HashSet<>(), leftSecurityScheme, rightSecurityScheme, leftSchemeRef, rightSchemeRef);
+        Optional<ChangedSecurityScheme> changedSecuritySchemeOpt = cachedDiff(new HashSet<>(), leftSecurityScheme, rightSecurityScheme, leftSchemeRef, rightSchemeRef, context);
         ChangedSecurityScheme changedSecurityScheme = changedSecuritySchemeOpt.orElse(new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme));
         changedSecurityScheme = getCopyWithoutScopes(changedSecurityScheme);
 
@@ -38,11 +41,11 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
             }
         }
 
-        return changedSecurityScheme.isDiff() ? Optional.of(changedSecurityScheme) : Optional.empty();
+        return isChanged(changedSecurityScheme);
     }
 
     @Override
-    protected Optional<ChangedSecurityScheme> computeDiff(HashSet<String> refSet, SecurityScheme leftSecurityScheme, SecurityScheme rightSecurityScheme) {
+    protected Optional<ChangedSecurityScheme> computeDiff(HashSet<String> refSet, SecurityScheme leftSecurityScheme, SecurityScheme rightSecurityScheme, DiffContext context) {
         ChangedSecurityScheme changedSecurityScheme = new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme);
 
         changedSecurityScheme.setChangedDescription(!Objects.equals(leftSecurityScheme.getDescription(), rightSecurityScheme.getDescription()));
