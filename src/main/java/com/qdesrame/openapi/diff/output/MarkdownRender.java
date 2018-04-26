@@ -25,19 +25,18 @@ public class MarkdownRender implements Render {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
 
-    private final String H3 = "### ";
-    private final String H4 = "#### ";
-    private final String H5 = "##### ";
-    private final String H6 = "###### ";
-    private final String BLOCKQUOTE = "> ";
-    private final String CODE = "`";
-    private final String PRE_CODE = "    ";
-    private final String PRE_LI = "    ";
-    private final String LI = "* ";
-    private final String HR = "---\n";
-
-    private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
-    private ChangedOpenApi diff;
+    protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+    protected final String H3 = "### ";
+    protected final String H4 = "#### ";
+    protected final String H5 = "##### ";
+    protected final String H6 = "###### ";
+    protected final String BLOCKQUOTE = "> ";
+    protected final String CODE = "`";
+    protected final String PRE_CODE = "    ";
+    protected final String PRE_LI = "    ";
+    protected final String LI = "* ";
+    protected final String HR = "---\n";
+    protected ChangedOpenApi diff;
 
     public MarkdownRender() {
     }
@@ -52,18 +51,18 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String sectionTitle(String title) {
+    protected String sectionTitle(String title) {
         return H4 + title + '\n' + HR + '\n';
     }
 
-    private String listEndpoints(String title, List<Endpoint> endpoints) {
+    protected String listEndpoints(String title, List<Endpoint> endpoints) {
         if (null == endpoints || endpoints.size() == 0) return "";
         StringBuilder sb = new StringBuilder(sectionTitle(title));
         endpoints.stream().map(e -> itemEndpoint(e.getMethod().toString(), e.getPathUrl(), e.getSummary())).forEach(sb::append);
         return sb.toString();
     }
 
-    private String itemEndpoint(String method, String path, String summary) {
+    protected String itemEndpoint(String method, String path, String summary) {
         StringBuilder sb = new StringBuilder();
         sb.append(H5).append(CODE).append(method).append(CODE).append(" ")
                 .append(path).append("\n\n").append(description(summary)).append("\n");
@@ -71,11 +70,11 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String titleH5(String title) {
+    protected String titleH5(String title) {
         return H6 + title + '\n';
     }
 
-    private String listEndpoints(List<ChangedOperation> changedOperations) {
+    protected String listEndpoints(List<ChangedOperation> changedOperations) {
         if (null == changedOperations || changedOperations.size() == 0) return "";
         StringBuilder sb = new StringBuilder(sectionTitle("What's Changed"));
         changedOperations.stream().map(operation -> {
@@ -95,7 +94,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String responses(ChangedApiResponse changedApiResponse) {
+    protected String responses(ChangedApiResponse changedApiResponse) {
         StringBuilder sb = new StringBuilder("\n");
         sb.append(listResponse("New response", changedApiResponse.getAddResponses()));
         sb.append(listResponse("Deleted response", changedApiResponse.getMissingResponses()));
@@ -103,17 +102,17 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String listResponse(String title, Map<String, ApiResponse> responses) {
+    protected String listResponse(String title, Map<String, ApiResponse> responses) {
         StringBuilder sb = new StringBuilder();
         responses.entrySet().stream().map(e -> this.itemResponse(title, e.getKey(), e.getValue())).forEach(sb::append);
         return sb.toString();
     }
 
-    private String itemResponse(String title, String code, ApiResponse response) {
+    protected String itemResponse(String title, String code, ApiResponse response) {
         return this.itemResponse(title, code, response.getDescription());
     }
 
-    private String itemResponse(String code, ChangedResponse response) {
+    protected String itemResponse(String code, ChangedResponse response) {
         StringBuilder sb = new StringBuilder();
         sb.append(this.itemResponse("Changed response", code, null == response.getNewApiResponse() ?
                 "" : response.getNewApiResponse().getDescription()));
@@ -124,7 +123,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String itemResponse(String title, String code, String description) {
+    protected String itemResponse(String title, String code, String description) {
         StringBuilder sb = new StringBuilder("");
         String status = "";
         if (!code.equals("default")) {
@@ -135,7 +134,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String headers(ChangedHeaders headers) {
+    protected String headers(ChangedHeaders headers) {
         StringBuilder sb = new StringBuilder("");
         if (headers != null) {
             sb.append(listHeader("New header", headers.getIncreased()));
@@ -145,31 +144,31 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String listHeader(String title, Map<String, Header> headers) {
+    protected String listHeader(String title, Map<String, Header> headers) {
         StringBuilder sb = new StringBuilder();
         headers.entrySet().stream().map(e -> this.itemHeader(title, e.getKey(), e.getValue())).forEach(sb::append);
         return sb.toString();
     }
 
-    private String itemHeader(String title, String name, Header header) {
+    protected String itemHeader(String title, String name, Header header) {
         return this.itemHeader(title, name, header.getDescription());
     }
 
-    private String itemHeader(String code, ChangedHeader header) {
+    protected String itemHeader(String code, ChangedHeader header) {
         StringBuilder sb = new StringBuilder();
         sb.append(this.itemHeader("Changed header", code, null == header.getNewHeader() ?
                 "" : header.getNewHeader().getDescription()));
         return sb.toString();
     }
 
-    private String itemHeader(String title, String mediaType, String description) {
+    protected String itemHeader(String title, String mediaType, String description) {
         StringBuilder sb = new StringBuilder("");
         sb.append(format("%s : `%s`\n\n", title, mediaType));
         sb.append(description(description)).append('\n');
         return sb.toString();
     }
 
-    private String bodyContent(String prefix, ChangedContent changedContent) {
+    protected String bodyContent(String prefix, ChangedContent changedContent) {
         StringBuilder sb = new StringBuilder("\n");
         sb.append(listContent(prefix, "New content type", changedContent.getIncreased()));
         sb.append(listContent(prefix, "Deleted content type", changedContent.getMissing()));
@@ -183,40 +182,40 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String bodyContent(ChangedContent changedContent) {
+    protected String bodyContent(ChangedContent changedContent) {
         return bodyContent("", changedContent);
     }
 
-    private String listContent(String prefix, String title, Map<String, MediaType> mediaTypes) {
+    protected String listContent(String prefix, String title, Map<String, MediaType> mediaTypes) {
         StringBuilder sb = new StringBuilder();
         mediaTypes.entrySet().stream().map(e -> this.itemContent(title, e.getKey(), e.getValue())).forEach(e -> sb.append(prefix).append(e));
         return sb.toString();
     }
 
-    private String itemContent(String title, String mediaType) {
+    protected String itemContent(String title, String mediaType) {
         StringBuilder sb = new StringBuilder("");
         sb.append(format("%s : `%s`\n\n", title, mediaType));
         return sb.toString();
     }
 
-    private String itemContent(String title, String mediaType, MediaType content) {
+    protected String itemContent(String title, String mediaType, MediaType content) {
         StringBuilder sb = new StringBuilder("");
         sb.append(itemContent(title, mediaType));
         return sb.toString();
     }
 
-    private String itemContent(int deepness, String mediaType, ChangedMediaType content) {
+    protected String itemContent(int deepness, String mediaType, ChangedMediaType content) {
         StringBuilder sb = new StringBuilder("");
         sb.append(itemContent("Changed content type", mediaType));
         sb.append(schema(deepness, content.getChangedSchema()));
         return sb.toString();
     }
 
-    private String schema(ChangedSchema schema) {
+    protected String schema(ChangedSchema schema) {
         return schema(1, schema);
     }
 
-    private String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
+    protected String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
         StringBuilder sb = new StringBuilder("");
         sb.append(format("%sSwitch `%s`:\n", indent(deepness), discriminator));
         schema.getMissingMapping().keySet()
@@ -229,7 +228,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String schema(int deepness, ChangedSchema schema) {
+    protected String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
         if (schema.isDiscriminatorPropertyChanged()) {
             LOGGER.debug("Discriminator property changed");
@@ -246,7 +245,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String schema(int deepness, ComposedSchema schema) {
+    protected String schema(int deepness, ComposedSchema schema) {
         StringBuilder sb = new StringBuilder("");
         if (schema.getAllOf() != null && schema.getAllOf() != null) {
             LOGGER.debug("All of schema");
@@ -264,7 +263,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String schema(int deepness, Schema schema) {
+    protected String schema(int deepness, Schema schema) {
         StringBuilder sb = new StringBuilder("");
         sb.append(listItem(deepness, "Enum", schema.getEnum()));
         sb.append(properties(deepness, "Property", schema.getProperties(), true));
@@ -276,7 +275,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String items(int deepness, Schema schema) {
+    protected String items(int deepness, Schema schema) {
         StringBuilder sb = new StringBuilder("");
         sb.append(format("%sItems (%s)%s\n", indent(deepness), type(schema), Arrays.asList("object", "array").contains(type(schema)) ? " :\n" : ""));
         description(indent(deepness + 1), schema.getDescription());
@@ -284,7 +283,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String properties(final int deepness, String title, Map<String, Schema> properties, boolean showContent) {
+    protected String properties(final int deepness, String title, Map<String, Schema> properties, boolean showContent) {
         StringBuilder sb = new StringBuilder("");
         if (properties != null) {
             properties.forEach((key, value) -> {
@@ -297,7 +296,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String property(int deepness, String name, ChangedSchema schema) {
+    protected String property(int deepness, String name, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder();
         String type = type(schema.getNewSchema());
         if (schema.isChangedType()) {
@@ -308,15 +307,15 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String property(int deepness, String title, String name, Schema schema) {
+    protected String property(int deepness, String title, String name, Schema schema) {
         return property(deepness, title, name, type(schema), schema.getDescription());
     }
 
-    private String property(int deepness, String title, String name, String type, String description) {
+    protected String property(int deepness, String title, String name, String type, String description) {
         return format("%s* %s `%s` (%s)\n%s\n", indent(deepness), title, name, type, description(indent(deepness + 1), description));
     }
 
-    private String listDiff(int deepness, String name, ListDiff listDiff) {
+    protected String listDiff(int deepness, String name, ListDiff listDiff) {
         if (listDiff == null) {
             return "";
         }
@@ -324,7 +323,7 @@ public class MarkdownRender implements Render {
                 listItem(deepness, "Removed " + name, listDiff.getMissing());
     }
 
-    private <T> String listItem(int deepness, String name, List<T> list) {
+    protected <T> String listItem(int deepness, String name, List<T> list) {
         StringBuilder sb = new StringBuilder("");
         if (list != null && list.size() > 0) {
             sb.append(format("%s%s value%s:\n\n", indent(deepness), name, list.size() > 1 ? "s" : ""));
@@ -333,7 +332,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String parameters(ChangedParameters changedParameters) {
+    protected String parameters(ChangedParameters changedParameters) {
         List<ChangedParameter> changed = changedParameters.getChanged();
         StringBuilder sb = new StringBuilder("\n");
         sb.append(listParameter("Added", changedParameters.getIncreased()))
@@ -342,21 +341,21 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private String listParameter(String title, List<Parameter> parameters) {
+    protected String listParameter(String title, List<Parameter> parameters) {
         StringBuilder sb = new StringBuilder("");
         parameters.stream().map(p -> itemParameter(title, p)).forEach(sb::append);
         return sb.toString();
     }
 
-    private String itemParameter(String title, Parameter parameter) {
+    protected String itemParameter(String title, Parameter parameter) {
         return this.itemParameter(title, parameter.getName(), parameter.getIn(), parameter.getDescription());
     }
 
-    private String itemParameter(String title, String name, String in, String description) {
+    protected String itemParameter(String title, String name, String in, String description) {
         return format("%s: ", title) + code(name) + " in " + code(in) + '\n' + description(description) + '\n';
     }
 
-    private String itemParameter(ChangedParameter param) {
+    protected String itemParameter(ChangedParameter param) {
         Parameter rightParam = param.getNewParameter();
         if (param.isDeprecated()) {
             return itemParameter("Deprecated", rightParam.getName(), rightParam.getIn(), rightParam.getDescription());
@@ -364,15 +363,15 @@ public class MarkdownRender implements Render {
         return itemParameter("Changed", rightParam.getName(), rightParam.getIn(), rightParam.getDescription());
     }
 
-    private String code(String string) {
+    protected String code(String string) {
         return CODE + string + CODE;
     }
 
-    private String description(String description) {
+    protected String description(String description) {
         return description("", description);
     }
 
-    private String description(String beginning, String description) {
+    protected String description(String beginning, String description) {
         String result = "";
         if (StringUtils.isBlank(description)) {
             description = "";
@@ -384,7 +383,7 @@ public class MarkdownRender implements Render {
         return result;
     }
 
-    private String type(Schema schema) {
+    protected String type(Schema schema) {
         String result = "object";
         if (schema instanceof ArraySchema) {
             result = "array";
@@ -394,7 +393,7 @@ public class MarkdownRender implements Render {
         return result;
     }
 
-    private String indent(int deepness) {
+    protected String indent(int deepness) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < deepness; i++) {
             sb.append(PRE_LI);
@@ -402,7 +401,7 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    private Schema resolve(Schema schema) {
+    protected Schema resolve(Schema schema) {
         return refPointer.resolveRef(diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
     }
 }
