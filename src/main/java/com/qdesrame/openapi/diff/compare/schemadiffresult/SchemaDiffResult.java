@@ -5,6 +5,7 @@ import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.ListDiff;
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
 import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
 import io.swagger.v3.oas.models.Components;
@@ -47,6 +48,8 @@ public class SchemaDiffResult {
         changedSchema.setChangedReadOnly(new ChangedReadOnly(context, left.getReadOnly(), right.getReadOnly()));
         changedSchema.setChangedWriteOnly(new ChangedWriteOnly(context, left.getWriteOnly(), right.getWriteOnly()));
         changedSchema.setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
+        Optional<ChangedExtensions> changedExtensions = openApiDiff.getExtensionsDiff().diff(left.getExtensions(), right.getExtensions(), context);
+        changedExtensions.ifPresent(changedSchema::setChangedExtensions);
 
         Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
         Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
