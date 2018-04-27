@@ -43,12 +43,10 @@ public class MarkdownRender implements Render {
 
     public String render(ChangedOpenApi diff) {
         this.diff = diff;
-        StringBuilder sb = new StringBuilder();
-        sb.append(listEndpoints("What's New", diff.getNewEndpoints()))
-                .append(listEndpoints("What's Deleted", diff.getMissingEndpoints()))
-                .append(listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints()))
-                .append(listEndpoints(diff.getChangedOperations()));
-        return sb.toString();
+        return listEndpoints("What's New", diff.getNewEndpoints()) +
+                listEndpoints("What's Deleted", diff.getMissingEndpoints()) +
+                listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints()) +
+                listEndpoints(diff.getChangedOperations());
     }
 
     protected String sectionTitle(String title) {
@@ -63,11 +61,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String itemEndpoint(String method, String path, String summary) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(H5).append(CODE).append(method).append(CODE).append(" ")
-                .append(path).append("\n\n").append(description(summary)).append("\n");
-        /*.append(desc.replaceAll("\n", "\n> "))*/
-        return sb.toString();
+        return H5 + CODE + method + CODE + " " + path + "\n\n" + description(summary) + "\n";
     }
 
     protected String titleH5(String title) {
@@ -155,17 +149,12 @@ public class MarkdownRender implements Render {
     }
 
     protected String itemHeader(String code, ChangedHeader header) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.itemHeader("Changed header", code, null == header.getNewHeader() ?
-                "" : header.getNewHeader().getDescription()));
-        return sb.toString();
+        return this.itemHeader("Changed header", code, null == header.getNewHeader() ?
+                "" : header.getNewHeader().getDescription());
     }
 
     protected String itemHeader(String title, String mediaType, String description) {
-        StringBuilder sb = new StringBuilder("");
-        sb.append(format("%s : `%s`\n\n", title, mediaType));
-        sb.append(description(description)).append('\n');
-        return sb.toString();
+        return format("%s : `%s`\n\n", title, mediaType) + description(description) + '\n';
     }
 
     protected String bodyContent(String prefix, ChangedContent changedContent) {
@@ -193,22 +182,15 @@ public class MarkdownRender implements Render {
     }
 
     protected String itemContent(String title, String mediaType) {
-        StringBuilder sb = new StringBuilder("");
-        sb.append(format("%s : `%s`\n\n", title, mediaType));
-        return sb.toString();
+        return format("%s : `%s`\n\n", title, mediaType);
     }
 
     protected String itemContent(String title, String mediaType, MediaType content) {
-        StringBuilder sb = new StringBuilder("");
-        sb.append(itemContent(title, mediaType));
-        return sb.toString();
+        return itemContent(title, mediaType);
     }
 
     protected String itemContent(int deepness, String mediaType, ChangedMediaType content) {
-        StringBuilder sb = new StringBuilder("");
-        sb.append(itemContent("Changed content type", mediaType));
-        sb.append(schema(deepness, content.getChangedSchema()));
-        return sb.toString();
+        return itemContent("Changed content type", mediaType) + schema(deepness, content.getChangedSchema());
     }
 
     protected String schema(ChangedSchema schema) {
