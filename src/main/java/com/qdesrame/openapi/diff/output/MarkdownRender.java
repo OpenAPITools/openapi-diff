@@ -217,14 +217,14 @@ public class MarkdownRender implements Render {
 
     protected String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
         StringBuilder sb = new StringBuilder("");
-        sb.append(format("%sSwitch `%s`:\n", indent(deepness), discriminator));
         schema.getMissingMapping().keySet()
-                .forEach(key -> sb.append(format("%s- Removed '%s'\n", indent(deepness), key)));
+                .forEach(key -> sb.append(format("%sDeleted '%s' %s\n", indent(deepness), key, discriminator)));
         schema.getIncreasedMapping().forEach((key, sub) ->
-                sb.append(format("%s- Added '%s':\n", indent(deepness), key)).append(schema(deepness + 1, sub)));
+                sb.append(format("%sAdded '%s' %s:\n", indent(deepness), key, discriminator))
+                        .append(schema(deepness, sub)));
         schema.getChangedMapping().forEach((key, sub) ->
-                sb.append(format("%s- Updated `%s`:\n", indent(deepness), key))
-                        .append(schema(deepness + 1, sub)));
+                sb.append(format("%sUpdated `%s` %s:\n", indent(deepness), key, discriminator))
+                        .append(schema(deepness, sub)));
         return sb.toString();
     }
 
