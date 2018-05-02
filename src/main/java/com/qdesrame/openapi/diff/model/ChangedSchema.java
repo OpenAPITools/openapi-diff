@@ -63,6 +63,7 @@ public class ChangedSchema implements Changed {
                         (oldSchema.getMaxLength() != null && oldSchema.getMaxLength() <= newSchema.getMaxLength()));
 
         boolean backwardCompatibleForResponse = (changeEnum == null || changeEnum.getIncreased().isEmpty()) &&
+                (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getMissing())) &&
                 missingProperties.isEmpty() &&
                 (oldSchema == null || newSchema != null) &&
                 (!changedMaxLength || oldSchema.getMaxLength() == null ||
