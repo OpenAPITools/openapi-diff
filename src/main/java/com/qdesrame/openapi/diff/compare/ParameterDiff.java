@@ -46,7 +46,7 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
         changedParameter.setChangeAllowEmptyValue(getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()));
         changedParameter.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
         changedParameter.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
-        Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, left.getSchema(), right.getSchema(), context);
+        Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, left.getSchema(), right.getSchema(), context.copyWithRequired(true));
         if (changedSchema.isPresent()) {
             changedParameter.setChangedSchema(changedSchema.get());
         }

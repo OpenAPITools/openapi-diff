@@ -66,7 +66,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                     leftSchema.set$ref(leftMapping.get(key));
                     Schema rightSchema = new Schema();
                     rightSchema.set$ref(rightMapping.get(key));
-                    Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, leftSchema, rightSchema, context);
+                    Optional<ChangedSchema> changedSchema = openApiDiff.getSchemaDiff().diff(refSet, leftSchema, rightSchema, context.copyWithRequired(true));
                     changedSchema.ifPresent(schema -> changedMapping.put(key, schema));
                 }
                 changedSchema.setChangedOneOfSchema(changedOneOfSchema);

@@ -32,7 +32,7 @@ public class ChangedWriteOnly implements Changed {
             if (Boolean.TRUE.equals(newValue)) {
                 return DiffResult.INCOMPATIBLE;
             } else {
-                return DiffResult.COMPATIBLE;
+                return context.isRequired() ? DiffResult.INCOMPATIBLE : DiffResult.COMPATIBLE;
             }
         }
         return DiffResult.UNKNOWN;
