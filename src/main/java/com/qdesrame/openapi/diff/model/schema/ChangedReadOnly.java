@@ -30,9 +30,9 @@ public class ChangedReadOnly implements Changed {
         }
         if (context.isRequest()) {
             if (Boolean.TRUE.equals(newValue)) {
-                return DiffResult.COMPATIBLE;
-            } else {
                 return DiffResult.INCOMPATIBLE;
+            } else {
+                return context.isRequired() ? DiffResult.INCOMPATIBLE : DiffResult.COMPATIBLE;
             }
         }
         return DiffResult.UNKNOWN;

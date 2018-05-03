@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
 import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
 import com.qdesrame.openapi.diff.utils.ChangedUtils;
@@ -38,6 +39,7 @@ public class ChangedSchema implements Changed {
     protected boolean discriminatorPropertyChanged;
     protected ChangedOneOfSchema changedOneOfSchema;
     protected ChangedSchema addPropChangedSchema;
+    protected ChangedExtensions changedExtensions;
 
     public ChangedSchema() {
         increasedProperties = new HashMap<>();
@@ -53,7 +55,8 @@ public class ChangedSchema implements Changed {
                 && !changeFormat && increasedProperties.size() == 0 && missingProperties.size() == 0
                 && changedProperties.values().size() == 0 && !changeDeprecated
                 && (changeRequired == null || changeRequired.isUnchanged()) && !discriminatorPropertyChanged
-                && ChangedUtils.isUnchanged(addPropChangedSchema) && ChangedUtils.isUnchanged(changedOneOfSchema)) {
+                && ChangedUtils.isUnchanged(addPropChangedSchema) && ChangedUtils.isUnchanged(changedOneOfSchema)
+                && ChangedUtils.isUnchanged(changedExtensions)) {
             return DiffResult.NO_CHANGES;
         }
         boolean backwardCompatibleForRequest = (changeEnum == null || changeEnum.getMissing().isEmpty()) &&
@@ -72,7 +75,8 @@ public class ChangedSchema implements Changed {
         if ((context.isRequest() && backwardCompatibleForRequest || context.isResponse() && backwardCompatibleForResponse)
                 && !changedType && !discriminatorPropertyChanged && ChangedUtils.isCompatible(changedOneOfSchema)
                 && ChangedUtils.isCompatible(addPropChangedSchema)
-                && changedProperties.values().stream().allMatch(Changed::isCompatible)) {
+                && changedProperties.values().stream().allMatch(Changed::isCompatible)
+                && ChangedUtils.isCompatible(changedExtensions)) {
             return DiffResult.COMPATIBLE;
         }
 

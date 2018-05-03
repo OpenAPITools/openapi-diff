@@ -5,16 +5,14 @@ import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.ListDiff;
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
 import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
@@ -47,6 +45,8 @@ public class SchemaDiffResult {
         changedSchema.setChangedReadOnly(new ChangedReadOnly(context, left.getReadOnly(), right.getReadOnly()));
         changedSchema.setChangedWriteOnly(new ChangedWriteOnly(context, left.getWriteOnly(), right.getWriteOnly()));
         changedSchema.setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
+        Optional<ChangedExtensions> changedExtensions = openApiDiff.getExtensionsDiff().diff(left.getExtensions(), right.getExtensions(), context);
+        changedExtensions.ifPresent(changedSchema::setChangedExtensions);
 
         Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
         Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
@@ -55,7 +55,7 @@ public class SchemaDiffResult {
         Map<String, Schema> missingProp = propertyDiff.getMissing();
 
         for (String key : propertyDiff.getSharedKey()) {
-            Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(refSet, leftProperties.get(key), rightProperties.get(key), context);
+            Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(refSet, leftProperties.get(key), rightProperties.get(key), required(context, key, right.getRequired()));
             resultSchema.ifPresent(changedSchema1 -> changedSchema.getChangedProperties().put(key, changedSchema1));
         }
 
@@ -64,6 +64,10 @@ public class SchemaDiffResult {
         changedSchema.getIncreasedProperties().putAll(increasedProp);
         changedSchema.getMissingProperties().putAll(missingProp);
         return isChanged(changedSchema);
+    }
+
+    private DiffContext required(DiffContext context, String key, List<String> required) {
+        return context.copyWithRequired(required != null && required.contains(key));
     }
 
     private void compareAdditionalProperties(HashSet<String> refSet, Schema leftSchema, Schema rightSchema, DiffContext context) {
@@ -78,7 +82,7 @@ public class SchemaDiffResult {
             apChangedSchema.setNewSchema(rightAdditionalSchema);
             if (left != null && right != null) {
                 Optional<ChangedSchema> addPropChangedSchemaOP
-                        = openApiDiff.getSchemaDiff().diff(refSet, leftAdditionalSchema, rightAdditionalSchema, context);
+                        = openApiDiff.getSchemaDiff().diff(refSet, leftAdditionalSchema, rightAdditionalSchema, context.copyWithRequired(false));
                 apChangedSchema = addPropChangedSchemaOP.orElse(apChangedSchema);
             }
             isChanged(apChangedSchema).ifPresent(changedSchema::setAddPropChangedSchema);

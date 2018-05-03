@@ -17,6 +17,7 @@ public class DiffContext {
     private PathItem.HttpMethod method;
     private boolean response;
     private boolean request;
+    private Boolean required;
 
     public DiffContext() {
         parameters = new HashMap<>();
@@ -26,6 +27,10 @@ public class DiffContext {
 
     public DiffContext copyWithMethod(PathItem.HttpMethod method) {
         return copy().setMethod(method);
+    }
+
+    public DiffContext copyWithRequired(boolean required) {
+        return copy().setRequired(required);
     }
 
     public DiffContext copyAsRequest() {
@@ -81,6 +86,7 @@ public class DiffContext {
         context.method = this.method;
         context.response = this.response;
         context.request = this.request;
+        context.required = this.required;
         return context;
     }
 
@@ -90,6 +96,15 @@ public class DiffContext {
 
     public DiffContext setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+        return this;
+    }
+
+    public Boolean isRequired() {
+        return required;
+    }
+
+    private DiffContext setRequired(boolean required) {
+        this.required = required;
         return this;
     }
 
@@ -107,6 +122,7 @@ public class DiffContext {
                 .append(url, that.url)
                 .append(parameters, that.parameters)
                 .append(method, that.method)
+                .append(required, that.required)
                 .isEquals();
     }
 
@@ -118,6 +134,7 @@ public class DiffContext {
                 .append(method)
                 .append(response)
                 .append(request)
+                .append(required)
                 .toHashCode();
     }
 }

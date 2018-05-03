@@ -22,6 +22,6 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
     public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right, DiffContext context) {
         ArraySchema leftArraySchema = (ArraySchema) left;
         ArraySchema rightArraySchema = (ArraySchema) right;
-        return openApiDiff.getSchemaDiff().diff(refSet, leftArraySchema.getItems(), rightArraySchema.getItems(), context);
+        return openApiDiff.getSchemaDiff().diff(refSet, leftArraySchema.getItems(), rightArraySchema.getItems(), context.copyWithRequired(true));
     }
 }

@@ -36,7 +36,7 @@ public class ContentDiff implements Comparable<Content> {
             MediaType oldMediaType = left.get(mediaTypeKey);
             MediaType newMediaType = right.get(mediaTypeKey);
             ChangedMediaType changedMediaType = new ChangedMediaType(oldMediaType.getSchema(), newMediaType.getSchema(), context);
-            openApiDiff.getSchemaDiff().diff(new HashSet<>(), oldMediaType.getSchema(), newMediaType.getSchema(), context).ifPresent(changedMediaType::setChangedSchema);
+            openApiDiff.getSchemaDiff().diff(new HashSet<>(), oldMediaType.getSchema(), newMediaType.getSchema(), context.copyWithRequired(true)).ifPresent(changedMediaType::setChangedSchema);
             if (!isUnchanged(changedMediaType)) {
                 changedMediaTypes.put(mediaTypeKey, changedMediaType);
             }
