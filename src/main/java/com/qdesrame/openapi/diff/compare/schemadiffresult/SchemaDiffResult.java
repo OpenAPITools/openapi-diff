@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
@@ -51,8 +52,6 @@ public class SchemaDiffResult {
         Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
         Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
         MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
-        Map<String, Schema> increasedProp = propertyDiff.getIncreased();
-        Map<String, Schema> missingProp = propertyDiff.getMissing();
 
         for (String key : propertyDiff.getSharedKey()) {
             Optional<ChangedSchema> resultSchema = openApiDiff.getSchemaDiff().diff(refSet, leftProperties.get(key), rightProperties.get(key), required(context, key, right.getRequired()));
@@ -61,9 +60,20 @@ public class SchemaDiffResult {
 
         compareAdditionalProperties(refSet, left, right, context);
 
-        changedSchema.getIncreasedProperties().putAll(increasedProp);
-        changedSchema.getMissingProperties().putAll(missingProp);
+        changedSchema.getIncreasedProperties().putAll(filterProperties(propertyDiff.getIncreased(), context));
+        changedSchema.getMissingProperties().putAll(filterProperties(propertyDiff.getMissing(), context));
         return isChanged(changedSchema);
+    }
+
+    private Map<String, Schema> filterProperties(Map<String, Schema> properties, DiffContext context) {
+        return properties.entrySet().stream()
+                .filter(entry -> isPropertyApplicable(entry.getValue(), context))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private boolean isPropertyApplicable(Schema schema, DiffContext context) {
+        return !(context.isResponse() && Boolean.TRUE.equals(schema.getWriteOnly()))
+                && !(context.isRequest() && Boolean.TRUE.equals(schema.getReadOnly()));
     }
 
     private DiffContext required(DiffContext context, String key, List<String> required) {

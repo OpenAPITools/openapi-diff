@@ -203,10 +203,20 @@ public class MarkdownRender implements Render {
                 .forEach(key -> sb.append(format("%sDeleted '%s' %s\n", indent(deepness), key, discriminator)));
         schema.getIncreasedMapping().forEach((key, sub) ->
                 sb.append(format("%sAdded '%s' %s:\n", indent(deepness), key, discriminator))
-                        .append(schema(deepness, sub)));
+                        .append(schema(deepness, sub, schema.getContext())));
         schema.getChangedMapping().forEach((key, sub) ->
                 sb.append(format("%sUpdated `%s` %s:\n", indent(deepness), key, discriminator))
                         .append(schema(deepness, sub)));
+        return sb.toString();
+    }
+
+    protected String required(int deepness, String title, List<String> required) {
+        StringBuilder sb = new StringBuilder("");
+        if (required.size() > 0) {
+            sb.append(format("%s%s:\n", indent(deepness), title));
+            required.forEach(s -> sb.append(format("%s- `%s`\n", indent(deepness), s)));
+            sb.append("\n");
+        }
         return sb.toString();
     }
 
@@ -220,58 +230,62 @@ public class MarkdownRender implements Render {
                     schema.getNewSchema().getDiscriminator().getPropertyName() : "";
             sb.append(oneOfSchema(deepness, schema.getChangedOneOfSchema(), discriminator));
         }
+        if (schema.getChangeRequired() != null) {
+            sb.append(required(deepness, "New required properties", schema.getChangeRequired().getIncreased()));
+            sb.append(required(deepness, "New optional properties", schema.getChangeRequired().getMissing()));
+        }
         sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
-        sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true));
-        sb.append(properties(deepness, "Deleted property", schema.getMissingProperties(), false));
+        sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true, schema.getContext()));
+        sb.append(properties(deepness, "Deleted property", schema.getMissingProperties(), false, schema.getContext()));
         schema.getChangedProperties().forEach((name, property) -> sb.append(property(deepness, name, property)));
         return sb.toString();
     }
 
-    protected String schema(int deepness, ComposedSchema schema) {
+    protected String schema(int deepness, ComposedSchema schema, DiffContext context) {
         StringBuilder sb = new StringBuilder("");
         if (schema.getAllOf() != null && schema.getAllOf() != null) {
             LOGGER.debug("All of schema");
             schema.getAllOf().stream()
                     .map(this::resolve)
-                    .forEach(composedChild -> sb.append(schema(deepness, composedChild)));
+                    .forEach(composedChild -> sb.append(schema(deepness, composedChild, context)));
         }
         if (schema.getOneOf() != null && schema.getOneOf() != null) {
             LOGGER.debug("One of schema");
             sb.append(format("%sOne of:\n\n", indent(deepness)));
             schema.getOneOf().stream()
                     .map(this::resolve)
-                    .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild)));
+                    .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild, context)));
         }
         return sb.toString();
     }
 
-    protected String schema(int deepness, Schema schema) {
+    protected String schema(int deepness, Schema schema, DiffContext context) {
         StringBuilder sb = new StringBuilder("");
         sb.append(listItem(deepness, "Enum", schema.getEnum()));
-        sb.append(properties(deepness, "Property", schema.getProperties(), true));
+        sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
         if (schema instanceof ComposedSchema) {
-            sb.append(schema(deepness, (ComposedSchema) schema));
+            sb.append(schema(deepness, (ComposedSchema) schema, context));
         } else if (schema instanceof ArraySchema) {
-            sb.append(items(deepness, resolve(((ArraySchema) schema).getItems())));
+            sb.append(items(deepness, resolve(((ArraySchema) schema).getItems()), context));
         }
         return sb.toString();
     }
 
-    protected String items(int deepness, Schema schema) {
+    protected String items(int deepness, Schema schema, DiffContext context) {
         StringBuilder sb = new StringBuilder("");
         sb.append(format("%sItems (%s)%s\n", indent(deepness), type(schema), Arrays.asList("object", "array").contains(type(schema)) ? " :\n" : ""));
         description(indent(deepness + 1), schema.getDescription());
-        sb.append(schema(deepness, schema));
+        sb.append(schema(deepness, schema, context));
         return sb.toString();
     }
 
-    protected String properties(final int deepness, String title, Map<String, Schema> properties, boolean showContent) {
+    protected String properties(final int deepness, String title, Map<String, Schema> properties, boolean showContent, DiffContext context) {
         StringBuilder sb = new StringBuilder("");
         if (properties != null) {
             properties.forEach((key, value) -> {
                 sb.append(property(deepness, title, key, resolve(value)));
                 if (showContent) {
-                    sb.append(schema(deepness + 1, resolve(value)));
+                    sb.append(schema(deepness + 1, resolve(value), context));
                 }
             });
         }
