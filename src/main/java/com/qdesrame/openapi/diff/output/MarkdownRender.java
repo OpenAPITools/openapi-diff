@@ -216,15 +216,6 @@ public class MarkdownRender implements Render {
         return schema(1, schema);
     }
 
-    private static boolean isDisplayed(ChangedSchema schema) {
-        return isDisplayed(schema.getNewSchema(), schema.getContext());
-    }
-
-    private static boolean isDisplayed(Schema schema, DiffContext context) {
-        return !(Boolean.TRUE.equals(schema.getWriteOnly()) && context.isResponse())
-                || !(Boolean.TRUE.equals(schema.getReadOnly()) && context.isRequest());
-    }
-
     private String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
         StringBuilder sb = new StringBuilder("");
         sb.append(format("%sSwitch `%s`:\n", indent(deepness), discriminator));
@@ -250,9 +241,6 @@ public class MarkdownRender implements Render {
 
     private String schema(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
-        if (!isDisplayed(schema)) {
-            return sb.toString();
-        }
         if (schema.isDiscriminatorPropertyChanged()) {
             LOGGER.debug("Discriminator property changed");
         }
@@ -292,9 +280,6 @@ public class MarkdownRender implements Render {
 
     private String schema(int deepness, Schema schema, DiffContext context) {
         StringBuilder sb = new StringBuilder("");
-        if (!isDisplayed(schema, context)) {
-            return sb.toString();
-        }
         sb.append(listItem(deepness, "Enum", schema.getEnum()));
         sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
         if (schema instanceof ComposedSchema) {
