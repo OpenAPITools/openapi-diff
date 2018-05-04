@@ -62,6 +62,14 @@ public class SchemaDiffResult {
 
         changedSchema.getIncreasedProperties().putAll(filterProperties(propertyDiff.getIncreased(), context));
         changedSchema.getMissingProperties().putAll(filterProperties(propertyDiff.getMissing(), context));
+        return isApplicable(context);
+    }
+
+    protected Optional<ChangedSchema> isApplicable(DiffContext context) {
+        if (changedSchema.getChangedReadOnly().isUnchanged() && changedSchema.getChangedWriteOnly().isUnchanged()
+                && !isPropertyApplicable(changedSchema.getNewSchema(), context)) {
+            return Optional.empty();
+        }
         return isChanged(changedSchema);
     }
 

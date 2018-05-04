@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -234,6 +233,9 @@ public class MarkdownRender implements Render {
             sb.append(required(deepness, "New required properties", schema.getChangeRequired().getIncreased()));
             sb.append(required(deepness, "New optional properties", schema.getChangeRequired().getMissing()));
         }
+        if (schema.getChangedItems() != null) {
+            sb.append(items(deepness, schema.getChangedItems()));
+        }
         sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
         sb.append(properties(deepness, "Added property", schema.getIncreasedProperties(), true, schema.getContext()));
         sb.append(properties(deepness, "Deleted property", schema.getMissingProperties(), false, schema.getContext()));
@@ -271,12 +273,25 @@ public class MarkdownRender implements Render {
         return sb.toString();
     }
 
-    protected String items(int deepness, Schema schema, DiffContext context) {
+    protected String items(int deepness, ChangedSchema schema) {
         StringBuilder sb = new StringBuilder("");
-        sb.append(format("%sItems (%s)%s\n", indent(deepness), type(schema), Arrays.asList("object", "array").contains(type(schema)) ? " :\n" : ""));
-        description(indent(deepness + 1), schema.getDescription());
-        sb.append(schema(deepness, schema, context));
+        String type = type(schema.getNewSchema());
+        if (schema.isChangedType()) {
+            type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
+        }
+        sb.append(items(deepness, "Changed items", type, schema.getNewSchema().getDescription()));
+        sb.append(schema(deepness, schema));
         return sb.toString();
+    }
+
+    protected String items(int deepness, Schema schema, DiffContext context) {
+        return items(deepness, "Items", type(schema), schema.getDescription()) +
+                schema(deepness, schema, context);
+    }
+
+    protected String items(int deepness, String title, String type, String description) {
+        return format("%s%s (%s):" +
+                "\n%s\n", indent(deepness), title, type, description(indent(deepness + 1), description));
     }
 
     protected String properties(final int deepness, String title, Map<String, Schema> properties, boolean showContent, DiffContext context) {

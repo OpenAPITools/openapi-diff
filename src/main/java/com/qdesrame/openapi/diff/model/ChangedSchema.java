@@ -37,6 +37,7 @@ public class ChangedSchema implements Changed {
     protected boolean changedType;
     protected boolean changedMaxLength;
     protected boolean discriminatorPropertyChanged;
+    protected ChangedSchema changedItems;
     protected ChangedOneOfSchema changedOneOfSchema;
     protected ChangedSchema addPropChangedSchema;
     protected ChangedExtensions changedExtensions;
@@ -56,7 +57,7 @@ public class ChangedSchema implements Changed {
                 && changedProperties.values().size() == 0 && !changeDeprecated
                 && (changeRequired == null || changeRequired.isUnchanged()) && !discriminatorPropertyChanged
                 && ChangedUtils.isUnchanged(addPropChangedSchema) && ChangedUtils.isUnchanged(changedOneOfSchema)
-                && ChangedUtils.isUnchanged(changedExtensions)) {
+                && ChangedUtils.isUnchanged(changedItems) && ChangedUtils.isUnchanged(changedExtensions)) {
             return DiffResult.NO_CHANGES;
         }
         boolean backwardCompatibleForRequest = (changeEnum == null || changeEnum.getMissing().isEmpty()) &&
@@ -76,7 +77,7 @@ public class ChangedSchema implements Changed {
                 && !changedType && !discriminatorPropertyChanged && ChangedUtils.isCompatible(changedOneOfSchema)
                 && ChangedUtils.isCompatible(addPropChangedSchema)
                 && changedProperties.values().stream().allMatch(Changed::isCompatible)
-                && ChangedUtils.isCompatible(changedExtensions)) {
+                && ChangedUtils.isCompatible(changedItems) && ChangedUtils.isCompatible(changedExtensions)) {
             return DiffResult.COMPATIBLE;
         }
 
