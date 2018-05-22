@@ -2,11 +2,14 @@ package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedSecurityRequirement;
 import com.qdesrame.openapi.diff.model.ChangedSecurityScheme;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
 import java.util.*;
+
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 /**
  * Created by adarsh.sharma on 07/01/18.
@@ -49,7 +52,7 @@ public class SecurityRequirementDiff {
         return found;
     }
 
-    public Optional<ChangedSecurityRequirement> diff(SecurityRequirement left, SecurityRequirement right) {
+    public Optional<ChangedSecurityRequirement> diff(SecurityRequirement left, SecurityRequirement right, DiffContext context) {
         ChangedSecurityRequirement changedSecurityRequirement =
                 new ChangedSecurityRequirement(left, right != null ? getCopy(right) : null);
 
@@ -64,13 +67,13 @@ public class SecurityRequirementDiff {
                 String rightSchemeRef = rightSec.keySet().stream().findFirst().get();
                 right.remove(rightSchemeRef);
                 Optional<ChangedSecurityScheme> diff = openApiDiff.getSecuritySchemeDiff()
-                        .diff(leftSchemeRef, left.get(leftSchemeRef), rightSchemeRef, rightSec.get(rightSchemeRef));
+                        .diff(leftSchemeRef, left.get(leftSchemeRef), rightSchemeRef, rightSec.get(rightSchemeRef), context);
                 diff.ifPresent(changedSecurityRequirement::addChanged);
             }
         }
         right.entrySet().stream().forEach(x -> changedSecurityRequirement.addIncreased(x.getKey(), x.getValue()));
 
-        return changedSecurityRequirement.isDiff() ? Optional.of(changedSecurityRequirement) : Optional.empty();
+        return isChanged(changedSecurityRequirement);
     }
 
     public static SecurityRequirement getCopy(LinkedHashMap<String, List<String>> right) {

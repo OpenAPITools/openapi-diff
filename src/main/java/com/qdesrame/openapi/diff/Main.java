@@ -131,10 +131,10 @@ public class Main {
                 }
             }
             if (line.hasOption("state")) {
-                System.out.println(result.isDiff() ? result.isDiffBackwardCompatible() ? "compatible" : "incompatible" : "no_changes");
+                System.out.println(result.isChanged().getValue());
                 System.exit(0);
             } else {
-                System.exit(result.isDiff() ? 1 : 0);
+                System.exit(result.isUnchanged() ? 0 : 1);
             }
         } catch (ParseException e) {
             // oops, something went wrong

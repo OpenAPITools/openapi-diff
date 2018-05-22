@@ -10,8 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChangedHeader implements Changed {
-    private Header oldHeader;
-    private Header newHeader;
+    private final Header oldHeader;
+    private final Header newHeader;
+    private final DiffContext context;
 
     private boolean changeDescription;
     private boolean changeRequired;
@@ -21,28 +22,25 @@ public class ChangedHeader implements Changed {
     private ChangedSchema changedSchema;
     private ChangedContent changedContent;
 
-    public ChangedHeader(Header oldHeader, Header newHeader) {
+    public ChangedHeader(Header oldHeader, Header newHeader, DiffContext context) {
         this.oldHeader = oldHeader;
         this.newHeader = newHeader;
+        this.context = context;
     }
 
     @Override
-    public boolean isDiff() {
-        return changeDescription
-                || changeRequired
-                || changeDeprecated
-                || changeStyle
-                || changeExplode
-                || (changedSchema != null && changedSchema.isDiff())
-                || (changedContent != null && changedContent.isDiff());
+    public DiffResult isChanged() {
+        if (!changeDescription && !changeRequired && !changeDeprecated && !changeStyle && !changeExplode
+                && (changedSchema == null || changedSchema.isUnchanged())
+                && (changedContent == null || changedContent.isUnchanged())) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (!changeRequired && !changeStyle && !changeExplode
+                && (changedSchema == null || changedSchema.isCompatible())
+                && (changedContent == null || changedContent.isCompatible())) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return changeRequired
-                && changeStyle
-                && changeExplode
-                && (changedSchema == null || changedSchema.isDiffBackwardCompatible(false))
-                && (changedContent == null || changedContent.isDiffBackwardCompatible(false));
-    }
 }

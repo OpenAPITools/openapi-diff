@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
+import com.qdesrame.openapi.diff.model.DiffContext;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -18,9 +19,12 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
     }
 
     @Override
-    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right) {
+    public Optional<ChangedSchema> diff(HashSet<String> refSet, Components leftComponents, Components rightComponents, Schema left, Schema right, DiffContext context) {
         ArraySchema leftArraySchema = (ArraySchema) left;
         ArraySchema rightArraySchema = (ArraySchema) right;
-        return openApiDiff.getSchemaDiff().diff(refSet, leftArraySchema.getItems(), rightArraySchema.getItems());
+        super.diff(refSet, leftComponents, rightComponents, left, right, context);
+        openApiDiff.getSchemaDiff().diff(refSet, leftArraySchema.getItems(), rightArraySchema.getItems(), context.copyWithRequired(true))
+                .ifPresent(changedSchema::setChangedItems);
+        return isApplicable(context);
     }
 }

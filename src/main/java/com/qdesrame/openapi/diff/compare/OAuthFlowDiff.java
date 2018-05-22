@@ -6,6 +6,8 @@ import io.swagger.v3.oas.models.security.OAuthFlow;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
+
 /**
  * Created by adarsh.sharma on 12/01/18.
  */
@@ -24,6 +26,6 @@ public class OAuthFlowDiff {
             changedOAuthFlow.setChangedRefreshUrl(!Objects.equals(left.getRefreshUrl(), right.getRefreshUrl()));
         }
 
-        return changedOAuthFlow.isDiff() ? Optional.of(changedOAuthFlow) : Optional.empty();
+        return isChanged(changedOAuthFlow);
     }
 }

@@ -1,5 +1,9 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
+import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
+import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
+import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +17,8 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public class ChangedSchema implements RequestResponseChanged {
+public class ChangedSchema implements Changed {
+    protected DiffContext context;
     protected Schema oldSchema;
     protected Schema newSchema;
     protected String type;
@@ -27,13 +32,15 @@ public class ChangedSchema implements RequestResponseChanged {
     protected boolean changeDefault;
     protected ListDiff changeEnum;
     protected boolean changeFormat;
-    protected boolean changeReadOnly;
-    protected boolean changeWriteOnly;
+    protected ChangedReadOnly changedReadOnly;
+    protected ChangedWriteOnly changedWriteOnly;
     protected boolean changedType;
     protected boolean changedMaxLength;
     protected boolean discriminatorPropertyChanged;
+    protected ChangedSchema changedItems;
     protected ChangedOneOfSchema changedOneOfSchema;
     protected ChangedSchema addPropChangedSchema;
+    protected ChangedExtensions changedExtensions;
 
     public ChangedSchema() {
         increasedProperties = new HashMap<>();
@@ -42,45 +49,38 @@ public class ChangedSchema implements RequestResponseChanged {
     }
 
     @Override
-    public boolean isDiff() {
-        return Boolean.TRUE.equals(changedType)
-                || (oldSchema != null && newSchema == null)
-                || (oldSchema == null && newSchema != null)
-                || changeWriteOnly
-                || changedMaxLength
-                || changeReadOnly
-                || (changeEnum != null && (changeEnum.getIncreased().size() > 0 || changeEnum.getMissing().size() > 0))
-                || changeFormat
-                || increasedProperties.size() > 0
-                || missingProperties.size() > 0
-                || changedProperties.size() > 0
-                || changeDeprecated
-                || (changeRequired != null && changeRequired.getIncreased().size() > 0)
-                || (changeRequired != null && changeRequired.getMissing().size() > 0)
-                || discriminatorPropertyChanged
-                || (addPropChangedSchema != null)
-                || (changedOneOfSchema != null && changedOneOfSchema.isDiff());
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible(boolean isRequest) {
+    public DiffResult isChanged() {
+        if (!changedType && (oldSchema == null && newSchema == null || oldSchema != null && newSchema != null)
+                && ChangedUtils.isUnchanged(changedWriteOnly) && ChangedUtils.isUnchanged(changedReadOnly)
+                && !changedMaxLength && (changeEnum == null || changeEnum.isUnchanged())
+                && !changeFormat && increasedProperties.size() == 0 && missingProperties.size() == 0
+                && changedProperties.values().size() == 0 && !changeDeprecated
+                && (changeRequired == null || changeRequired.isUnchanged()) && !discriminatorPropertyChanged
+                && ChangedUtils.isUnchanged(addPropChangedSchema) && ChangedUtils.isUnchanged(changedOneOfSchema)
+                && ChangedUtils.isUnchanged(changedItems) && ChangedUtils.isUnchanged(changedExtensions)) {
+            return DiffResult.NO_CHANGES;
+        }
         boolean backwardCompatibleForRequest = (changeEnum == null || changeEnum.getMissing().isEmpty()) &&
                 (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getIncreased())) &&
                 (oldSchema != null || newSchema == null) &&
                 (!changedMaxLength || newSchema.getMaxLength() == null ||
-                        (oldSchema.getMaxLength() != null && oldSchema.getMaxLength()<= newSchema.getMaxLength()));
+                        (oldSchema.getMaxLength() != null && oldSchema.getMaxLength() <= newSchema.getMaxLength()));
 
         boolean backwardCompatibleForResponse = (changeEnum == null || changeEnum.getIncreased().isEmpty()) &&
+                (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getMissing())) &&
                 missingProperties.isEmpty() &&
                 (oldSchema == null || newSchema != null) &&
                 (!changedMaxLength || oldSchema.getMaxLength() == null ||
                         (newSchema.getMaxLength() != null && newSchema.getMaxLength() <= oldSchema.getMaxLength()));
 
-        return (isRequest && backwardCompatibleForRequest || !isRequest && backwardCompatibleForResponse )
-                && !changedType
-                && !discriminatorPropertyChanged
-                && (changedOneOfSchema == null || changedOneOfSchema.isDiffBackwardCompatible(isRequest))
-                && (addPropChangedSchema == null || addPropChangedSchema.isDiffBackwardCompatible(isRequest))
-                && changedProperties.values().stream().allMatch(p -> p.isDiffBackwardCompatible(isRequest));
+        if ((context.isRequest() && backwardCompatibleForRequest || context.isResponse() && backwardCompatibleForResponse)
+                && !changedType && !discriminatorPropertyChanged && ChangedUtils.isCompatible(changedOneOfSchema)
+                && ChangedUtils.isCompatible(addPropChangedSchema)
+                && changedProperties.values().stream().allMatch(Changed::isCompatible)
+                && ChangedUtils.isCompatible(changedItems) && ChangedUtils.isCompatible(changedExtensions)) {
+            return DiffResult.COMPATIBLE;
+        }
+
+        return DiffResult.INCOMPATIBLE;
     }
 }

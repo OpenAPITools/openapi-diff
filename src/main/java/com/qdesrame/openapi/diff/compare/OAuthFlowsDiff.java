@@ -5,6 +5,8 @@ import io.swagger.v3.oas.models.security.OAuthFlows;
 
 import java.util.Optional;
 
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
+
 /**
  * Created by adarsh.sharma on 12/01/18.
  */
@@ -23,6 +25,6 @@ public class OAuthFlowsDiff {
             openApiDiff.getoAuthFlowDiff().diff(left.getClientCredentials(), right.getClientCredentials()).ifPresent(changedOAuthFlows::setChangedClientCredentialOAuthFlow);
             openApiDiff.getoAuthFlowDiff().diff(left.getAuthorizationCode(), right.getAuthorizationCode()).ifPresent(changedOAuthFlows::setChangedAuthorizationCodeOAuthFlow);
         }
-        return changedOAuthFlows.isDiff() ? Optional.of(changedOAuthFlows) : Optional.empty();
+        return isChanged(changedOAuthFlows);
     }
 }

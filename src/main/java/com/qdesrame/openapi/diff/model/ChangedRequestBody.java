@@ -10,24 +10,28 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChangedRequestBody implements Changed {
-    private RequestBody oldRequestBody;
-    private RequestBody newRequestBody;
+    private final RequestBody oldRequestBody;
+    private final RequestBody newRequestBody;
+    private final DiffContext context;
+
     private boolean changeDescription;
     private boolean changeRequired;
     private ChangedContent changedContent;
 
-    public ChangedRequestBody(RequestBody oldRequestBody, RequestBody newRequestBody) {
+    public ChangedRequestBody(RequestBody oldRequestBody, RequestBody newRequestBody, DiffContext context) {
         this.oldRequestBody = oldRequestBody;
         this.newRequestBody = newRequestBody;
+        this.context = context;
     }
 
     @Override
-    public boolean isDiff() {
-        return changeDescription || changeRequired || (changedContent != null && changedContent.isDiff());
-    }
-
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return !changeRequired && (changedContent == null || changedContent.isDiffBackwardCompatible(true));
+    public DiffResult isChanged() {
+        if (!changeDescription && !changeRequired && (changedContent == null || changedContent.isUnchanged())) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (!changeRequired && (changedContent == null || changedContent.isCompatible())) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 }
