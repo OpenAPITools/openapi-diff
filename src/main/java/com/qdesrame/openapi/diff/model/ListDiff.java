@@ -44,4 +44,8 @@ public class ListDiff<T> {
         return instance;
     }
 
+    public boolean isUnchanged() {
+        return missing.size() == 0 && increased.size() == 0;
+    }
+
 }

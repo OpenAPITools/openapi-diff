@@ -23,21 +23,20 @@ public class ChangedOpenApi implements Changed {
 
     public List<Endpoint> getDeprecatedEndpoints() {
         return changedOperations.stream()
-                .filter(c -> c.isDeprecated())
+                .filter(ChangedOperation::isDeprecated)
                 .map(c -> EndpointUtils.convert2Endpoint(c.getPathUrl(), c.getHttpMethod(), c.getNewOperation()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public boolean isDiff() {
-        return newEndpoints.size() > 0
-                || missingEndpoints.size() > 0
-                || changedOperations.size() > 0;
-    }
-
-    public boolean isDiffBackwardCompatible() {
-        return missingEndpoints.size() == 0
-                && changedOperations.stream().allMatch(c -> c.isDiffBackwardCompatible());
+    public DiffResult isChanged() {
+        if (newEndpoints.size() == 0 && missingEndpoints.size() == 0 && changedOperations.size() == 0) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (missingEndpoints.size() == 0 && changedOperations.stream().allMatch(Changed::isCompatible)) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 
 }

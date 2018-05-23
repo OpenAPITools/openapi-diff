@@ -27,31 +27,32 @@ public class ChangedOperation implements Changed {
     }
 
     @Override
-    public boolean isDiff() {
-        return deprecated || isDiffParam() || isDiffRequest() || isDiffResponse() || isDiffSecurity();
+    public DiffResult isChanged() {
+        //TODO BETTER HANDLING FOR DEPRECIATION
+        if (!deprecated && isChangedParam().isUnchanged() && isChangedRequest().isUnchanged()
+                && isChangedResponse().isUnchanged() && isChangedSecurity().isUnchanged()) {
+            return DiffResult.NO_CHANGES;
+        }
+        if (isChangedParam().isCompatible() && isChangedRequest().isCompatible()
+                && isChangedResponse().isCompatible() && isChangedSecurity().isCompatible()) {
+            return DiffResult.COMPATIBLE;
+        }
+        return DiffResult.INCOMPATIBLE;
     }
 
-    @Override
-    public boolean isDiffBackwardCompatible() {
-        return (changedParameters == null || changedParameters.isDiffBackwardCompatible())
-                && (changedRequestBody == null || changedRequestBody.isDiffBackwardCompatible())
-                && (changedApiResponse == null || changedApiResponse.isDiffBackwardCompatible())
-                && (changedSecurityRequirements == null || changedSecurityRequirements.isDiffBackwardCompatible());
+    public DiffResult isChangedParam() {
+        return changedParameters == null ? DiffResult.NO_CHANGES : changedParameters.isChanged();
     }
 
-    public boolean isDiffParam() {
-        return changedParameters != null && changedParameters.isDiff();
+    public DiffResult isChangedResponse() {
+        return changedApiResponse == null ? DiffResult.NO_CHANGES : changedApiResponse.isChanged();
     }
 
-    public boolean isDiffResponse() {
-        return changedApiResponse != null && changedApiResponse.isDiff();
+    public DiffResult isChangedRequest() {
+        return changedRequestBody == null ? DiffResult.NO_CHANGES : changedRequestBody.isChanged();
     }
 
-    public boolean isDiffRequest() {
-        return changedRequestBody != null && changedRequestBody.isDiff();
-    }
-
-    public boolean isDiffSecurity() {
-        return changedSecurityRequirements != null && changedSecurityRequirements.isDiff();
+    public DiffResult isChangedSecurity() {
+        return changedSecurityRequirements == null ? DiffResult.NO_CHANGES : changedSecurityRequirements.isChanged();
     }
 }
