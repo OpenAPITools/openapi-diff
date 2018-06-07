@@ -46,6 +46,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                     changedSchema.setOldSchema(left);
                     changedSchema.setNewSchema(right);
                     changedSchema.setDiscriminatorPropertyChanged(true);
+                    changedSchema.setContext(context);
                     return Optional.of(changedSchema);
                 }
 
