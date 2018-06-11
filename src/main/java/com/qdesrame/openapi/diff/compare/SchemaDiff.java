@@ -21,7 +21,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     private OpenApiDiff openApiDiff;
     private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
 
-    private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>> schemaDiffResultClassMap = new HashMap<>();
+    private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>> schemaDiffResultClassMap = new LinkedHashMap<>();
 
     static {
         schemaDiffResultClassMap.put(Schema.class, SchemaDiffResult.class);

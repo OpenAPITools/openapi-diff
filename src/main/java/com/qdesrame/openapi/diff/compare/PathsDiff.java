@@ -45,7 +45,7 @@ public class PathsDiff {
                     throw new IllegalArgumentException("Two path items have the same signature: " + template);
                 }
                 PathItem rightPath = changedPaths.getIncreased().remove(result.get());
-                Map<String, String> params = new HashMap<>();
+                Map<String, String> params = new LinkedHashMap<>();
                 if (!url.equals(result.get())) {
                     List<String> oldParams = extractParameters(url);
                     List<String> newParams = extractParameters(result.get());

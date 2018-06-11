@@ -6,7 +6,7 @@ import com.qdesrame.openapi.diff.model.DiffContext;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +29,7 @@ public class ApiResponseDiff {
         changedApiResponse.setAddResponses(responseMapKeyDiff.getIncreased());
         changedApiResponse.setMissingResponses(responseMapKeyDiff.getMissing());
         List<String> sharedResponseCodes = responseMapKeyDiff.getSharedKey();
-        Map<String, ChangedResponse> resps = new HashMap<>();
+        Map<String, ChangedResponse> resps = new LinkedHashMap<>();
         for (String responseCode : sharedResponseCodes) {
             openApiDiff.getResponseDiff().diff(left.get(responseCode), right.get(responseCode), context)
                     .ifPresent(changedResponse -> resps.put(responseCode, changedResponse));

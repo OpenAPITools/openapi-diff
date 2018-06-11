@@ -31,7 +31,7 @@ public class ContentDiff implements Comparable<Content> {
         changedContent.setIncreased(mediaTypeDiff.getIncreased());
         changedContent.setMissing(mediaTypeDiff.getMissing());
         List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();
-        Map<String, ChangedMediaType> changedMediaTypes = new HashMap<>();
+        Map<String, ChangedMediaType> changedMediaTypes = new LinkedHashMap<>();
         for (String mediaTypeKey : sharedMediaTypes) {
             MediaType oldMediaType = left.get(mediaTypeKey);
             MediaType newMediaType = right.get(mediaTypeKey);

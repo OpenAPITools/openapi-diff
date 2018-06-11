@@ -1,6 +1,9 @@
 package com.qdesrame.openapi.diff.compare;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -16,8 +19,8 @@ public class MapKeyDiff<K, V> {
 
     private MapKeyDiff() {
         this.sharedKey = new ArrayList<>();
-        this.increased = new HashMap<>();
-        this.missing = new HashMap<>();
+        this.increased = new LinkedHashMap<>();
+        this.missing = new LinkedHashMap<>();
     }
 
     public static <K, V> MapKeyDiff<K, V> diff(Map<K, V> mapLeft,

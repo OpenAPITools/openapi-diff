@@ -5,7 +5,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -26,9 +26,9 @@ public class ChangedContent implements Changed {
         this.oldContent = oldContent;
         this.newContent = newContent;
         this.context = context;
-        this.increased = new HashMap<>();
-        this.missing = new HashMap<>();
-        this.changed = new HashMap<>();
+        this.increased = new LinkedHashMap<>();
+        this.missing = new LinkedHashMap<>();
+        this.changed = new LinkedHashMap<>();
     }
 
     @Override

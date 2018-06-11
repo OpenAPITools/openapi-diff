@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -43,9 +43,9 @@ public class ChangedSchema implements Changed {
     protected ChangedExtensions changedExtensions;
 
     public ChangedSchema() {
-        increasedProperties = new HashMap<>();
-        missingProperties = new HashMap<>();
-        changedProperties = new HashMap<>();
+        increasedProperties = new LinkedHashMap<>();
+        missingProperties = new LinkedHashMap<>();
+        changedProperties = new LinkedHashMap<>();
     }
 
     @Override

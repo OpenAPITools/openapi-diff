@@ -13,8 +13,8 @@ import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,7 +59,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 changedOneOfSchema.setIncreasedMapping(mappingDiff.getIncreased());
                 changedOneOfSchema.setMissingMapping(mappingDiff.getMissing());
 
-                Map<String, ChangedSchema> changedMapping = new HashMap<>();
+                Map<String, ChangedSchema> changedMapping = new LinkedHashMap<>();
                 changedOneOfSchema.setChangedMapping(changedMapping);
 
                 for (String key : mappingDiff.getSharedKey()) {
@@ -79,13 +79,13 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     }
 
     private Map<String, Schema> getSchema(Components components, Map<String, String> mapping) {
-        Map<String, Schema> result = new HashMap<>();
+        Map<String, Schema> result = new LinkedHashMap<>();
         mapping.forEach((key, value) -> result.put(key, refPointer.resolveRef(components, new Schema(), value)));
         return result;
     }
 
     private Map<String, String> getMapping(ComposedSchema composedSchema) {
-        Map<String, String> reverseMapping = new HashMap<>();
+        Map<String, String> reverseMapping = new LinkedHashMap<>();
         for (Schema schema : composedSchema.getOneOf()) {
             String ref = schema.get$ref();
             if (ref == null) {

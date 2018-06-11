@@ -5,7 +5,7 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -25,9 +25,9 @@ public class ChangedApiResponse implements Changed {
         this.oldApiResponses = oldApiResponses;
         this.newApiResponses = newApiResponses;
         this.context = context;
-        this.missingResponses = new HashMap<>();
-        this.addResponses = new HashMap<>();
-        this.changedResponses = new HashMap<>();
+        this.missingResponses = new LinkedHashMap<>();
+        this.addResponses = new LinkedHashMap<>();
+        this.changedResponses = new LinkedHashMap<>();
     }
 
     @Override

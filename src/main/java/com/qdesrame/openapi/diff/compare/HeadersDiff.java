@@ -5,7 +5,7 @@ import com.qdesrame.openapi.diff.model.ChangedHeaders;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import io.swagger.v3.oas.models.headers.Header;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +29,7 @@ public class HeadersDiff {
         changedHeaders.setMissing(headerMapDiff.getMissing());
         List<String> sharedHeaderKeys = headerMapDiff.getSharedKey();
 
-        Map<String, ChangedHeader> changed = new HashMap<>();
+        Map<String, ChangedHeader> changed = new LinkedHashMap<>();
         for (String headerKey : sharedHeaderKeys) {
             Header oldHeader = left.get(headerKey);
             Header newHeader = right.get(headerKey);

@@ -22,9 +22,9 @@ public class ExtensionsDiff {
     }
 
     public Optional<ChangedExtensions> diff(Map<String, Object> left, Map<String, Object> right, DiffContext context) {
-        if (null == left) left = new HashMap<>();
-        if (null == right) right = new HashMap<>();
-        ChangedExtensions changedExtensions = new ChangedExtensions(left, new HashMap<>(right), context);
+        if (null == left) left = new LinkedHashMap<>();
+        if (null == right) right = new LinkedHashMap<>();
+        ChangedExtensions changedExtensions = new ChangedExtensions(left, new LinkedHashMap<>(right), context);
         changedExtensions.getIncreased().putAll(right);
         for (String key : left.keySet()) {
             if (changedExtensions.getIncreased().containsKey(key)) {
