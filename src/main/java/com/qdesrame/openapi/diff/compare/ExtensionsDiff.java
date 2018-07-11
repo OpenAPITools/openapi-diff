@@ -1,9 +1,13 @@
 package com.qdesrame.openapi.diff.compare;
 
+import com.qdesrame.openapi.diff.model.Change;
+import com.qdesrame.openapi.diff.model.Changed;
+import com.qdesrame.openapi.diff.model.CompatibleChanged;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
@@ -21,23 +25,49 @@ public class ExtensionsDiff {
         }
     }
 
+    public boolean isParentApplicable(Change.Type type, Object parent, Map<String, Object> extensions, DiffContext context) {
+        if (extensions.size() == 0) {
+            return true;
+        }
+        return extensions.entrySet().stream()
+                .map(entry -> executeExtension(entry.getKey(), extensionDiff -> extensionDiff.isParentApplicable(type, parent, entry.getValue(), context)))
+                .allMatch(aBoolean -> aBoolean.orElse(true));
+    }
+
+    public Optional<ExtensionDiff> getExtensionDiff(String name) {
+        return extensionsDiff.stream()
+                .filter(diff -> ("x-" + diff.getName()).equals(name))
+                .findFirst();
+    }
+
+    public <T> Optional<T> executeExtension(String name, Function<ExtensionDiff, T> predicate) {
+        return getExtensionDiff(name)
+                .map(extensionDiff -> extensionDiff.setOpenApiDiff(openApiDiff))
+                .map(predicate);
+    }
+
     public Optional<ChangedExtensions> diff(Map<String, Object> left, Map<String, Object> right, DiffContext context) {
         if (null == left) left = new LinkedHashMap<>();
         if (null == right) right = new LinkedHashMap<>();
         ChangedExtensions changedExtensions = new ChangedExtensions(left, new LinkedHashMap<>(right), context);
-        changedExtensions.getIncreased().putAll(right);
         for (String key : left.keySet()) {
-            if (changedExtensions.getIncreased().containsKey(key)) {
-                Optional<ExtensionDiff> extensionDiff = extensionsDiff.stream()
-                        .filter(diff -> ("x-" + diff.getName()).equals(key)).findFirst();
-                Object leftValue = left.get(key);
-                Object rightValue = changedExtensions.getIncreased().remove(key);
-                extensionDiff.ifPresent(diff -> diff.setOpenApiDiff(openApiDiff).diff(leftValue, rightValue, context)
-                        .ifPresent(changed -> changedExtensions.getChanged().put(key, changed)));
+            Object leftValue = left.get(key);
+            if (right.containsKey(key)) {
+                Object rightValue = right.remove(key);
+                executeExtensionDiff(key, Change.changed(leftValue, rightValue), context)
+                        .ifPresent(changed -> changedExtensions.getChanged().put(key, changed));
             } else {
-                changedExtensions.getMissing().put(key, left.get(key));
+                executeExtensionDiff(key, Change.removed(leftValue), context)
+                        .ifPresent(changed -> changedExtensions.getMissing().put(key, changed));
             }
         }
+        right.forEach((key, value) -> executeExtensionDiff(key, Change.added(value), context)
+                .ifPresent(changed -> changedExtensions.getIncreased().put(key, changed)));
         return isChanged(changedExtensions);
+    }
+
+    private Optional<Changed> executeExtensionDiff(String name, Change change, DiffContext context) {
+        return executeExtension(name, diff -> diff.setOpenApiDiff(openApiDiff).diff(change, context))
+                .orElse(Optional.of(CompatibleChanged.compatible(change)));
     }
 }

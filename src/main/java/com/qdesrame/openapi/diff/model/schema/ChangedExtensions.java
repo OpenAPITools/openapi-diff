@@ -16,8 +16,8 @@ public class ChangedExtensions implements Changed {
     private final Map<String, Object> newExtensions;
     private final DiffContext context;
 
-    private Map<String, Object> increased;
-    private Map<String, Object> missing;
+    private Map<String, Changed> increased;
+    private Map<String, Changed> missing;
     private Map<String, Changed> changed;
 
     public ChangedExtensions(Map<String, Object> oldExtensions, Map<String, Object> newExtensions, DiffContext context) {
