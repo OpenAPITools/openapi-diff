@@ -33,6 +33,8 @@ public class PathDiff {
             Operation newOperation = newOperationMap.get(method);
             openApiDiff.getOperationDiff().diff(oldOperation, newOperation, context.copyWithMethod(method)).ifPresent(changedPath.getChanged()::add);
         }
+        openApiDiff.getExtensionsDiff().diff(left.getExtensions(), right.getExtensions(), context)
+                .ifPresent(changedPath::setChangedExtensions);
         return isChanged(changedPath);
     }
 }

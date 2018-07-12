@@ -49,6 +49,9 @@ public class OperationDiff {
                     .ifPresent(changedOperation::setChangedSecurityRequirements);
         }
 
+        openApiDiff.getExtensionsDiff().diff(oldOperation.getExtensions(), newOperation.getExtensions(), context)
+                .ifPresent(changedOperation::setChangedExtensions);
+
         return isChanged(changedOperation);
     }
 

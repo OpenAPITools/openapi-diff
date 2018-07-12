@@ -8,10 +8,12 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
+import static java.util.Optional.ofNullable;
 
 /**
  * Created by adarsh.sharma on 28/12/17.
@@ -28,6 +30,10 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
         String leftRef = left != null ? left.get$ref() : null,
                 rightRef = right != null ? right.get$ref() : null;
         return cachedDiff(new HashSet<>(), left, right, leftRef, rightRef, context);
+    }
+
+    private static Map<String, Object> getExtensions(RequestBody body) {
+        return ofNullable(body).map(RequestBody::getExtensions).orElse(null);
     }
 
     @Override
@@ -59,6 +65,8 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
         changedRequestBody.setChangeDescription(!Objects.equals(leftDescription, rightDescription));
 
         openApiDiff.getContentDiff().diff(oldRequestContent, newRequestContent, context).ifPresent(changedRequestBody::setChangedContent);
+        openApiDiff.getExtensionsDiff().diff(getExtensions(left), getExtensions(right), context)
+                .ifPresent(changedRequestBody::setChangedExtensions);
 
         return isChanged(changedRequestBody);
     }

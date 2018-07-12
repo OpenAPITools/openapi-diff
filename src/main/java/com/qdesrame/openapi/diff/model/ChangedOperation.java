@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
+import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import lombok.Getter;
@@ -18,6 +20,7 @@ public class ChangedOperation implements Changed {
     private ChangedRequestBody changedRequestBody;
     private ChangedApiResponse changedApiResponse;
     private ChangedSecurityRequirements changedSecurityRequirements;
+    private ChangedExtensions changedExtensions;
 
     public ChangedOperation(String pathUrl, PathItem.HttpMethod httpMethod, Operation oldOperation, Operation newOperation) {
         this.httpMethod = httpMethod;
@@ -30,11 +33,13 @@ public class ChangedOperation implements Changed {
     public DiffResult isChanged() {
         //TODO BETTER HANDLING FOR DEPRECIATION
         if (!deprecated && isChangedParam().isUnchanged() && isChangedRequest().isUnchanged()
-                && isChangedResponse().isUnchanged() && isChangedSecurity().isUnchanged()) {
+                && isChangedResponse().isUnchanged() && isChangedSecurity().isUnchanged()
+                && ChangedUtils.isUnchanged(changedExtensions)) {
             return DiffResult.NO_CHANGES;
         }
         if (isChangedParam().isCompatible() && isChangedRequest().isCompatible()
-                && isChangedResponse().isCompatible() && isChangedSecurity().isCompatible()) {
+                && isChangedResponse().isCompatible() && isChangedSecurity().isCompatible()
+                && ChangedUtils.isCompatible(changedExtensions)) {
             return DiffResult.COMPATIBLE;
         }
         return DiffResult.INCOMPATIBLE;
