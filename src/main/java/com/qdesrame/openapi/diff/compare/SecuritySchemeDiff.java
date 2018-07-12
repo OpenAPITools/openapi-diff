@@ -70,6 +70,8 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
                         .getOpenIdConnectUrl()));
                 break;
         }
+        openApiDiff.getExtensionsDiff().diff(leftSecurityScheme.getExtensions(), rightSecurityScheme.getExtensions(), context)
+                .ifPresent(changedSecurityScheme::setChangedExtensions);
 
         return Optional.of(changedSecurityScheme);
     }

@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
@@ -47,6 +48,8 @@ public class OpenApiDiff {
     private List<Endpoint> newEndpoints;
     private List<Endpoint> missingEndpoints;
     private List<ChangedOperation> changedOperations;
+    private ChangedExtensions changedExtensions;
+
 
     /*
      * @param oldSpecOpenApi
@@ -105,7 +108,13 @@ public class OpenApiDiff {
                 changedOperations.addAll(changedPath.getChanged());
             });
         });
+        getExtensionsDiff().diff(oldSpecOpenApi.getExtensions(), newSpecOpenApi.getExtensions())
+                .ifPresent(this::setChangedExtension);
         return getChangedOpenApi();
+    }
+
+    private void setChangedExtension(ChangedExtensions changedExtension) {
+        this.changedExtensions = changedExtension;
     }
 
     private void preProcess(OpenAPI openApi) {
@@ -132,6 +141,7 @@ public class OpenApiDiff {
         changedOpenApi.setNewSpecOpenApi(newSpecOpenApi);
         changedOpenApi.setOldSpecOpenApi(oldSpecOpenApi);
         changedOpenApi.setChangedOperations(changedOperations);
+        changedOpenApi.setChangedExtensions(changedExtensions);
         return changedOpenApi;
     }
 

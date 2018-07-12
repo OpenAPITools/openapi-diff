@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
+import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +19,7 @@ public class ChangedOAuthFlows implements Changed {
     private ChangedOAuthFlow changedPasswordOAuthFlow;
     private ChangedOAuthFlow changedClientCredentialOAuthFlow;
     private ChangedOAuthFlow changedAuthorizationCodeOAuthFlow;
+    private ChangedExtensions changedExtensions;
 
     public ChangedOAuthFlows(OAuthFlows oldOAuthFlows, OAuthFlows newOAuthFlows) {
         this.oldOAuthFlows = oldOAuthFlows;
@@ -26,15 +29,17 @@ public class ChangedOAuthFlows implements Changed {
     @Override
     public DiffResult isChanged() {
         if ((changedImplicitOAuthFlow == null || changedImplicitOAuthFlow.isUnchanged())
-                && (changedPasswordOAuthFlow == null || changedPasswordOAuthFlow.isUnchanged())
-                && (changedClientCredentialOAuthFlow == null || changedClientCredentialOAuthFlow.isUnchanged())
-                && (changedAuthorizationCodeOAuthFlow == null || changedAuthorizationCodeOAuthFlow.isUnchanged())) {
+                && ChangedUtils.isUnchanged(changedPasswordOAuthFlow)
+                && ChangedUtils.isUnchanged(changedClientCredentialOAuthFlow)
+                && ChangedUtils.isUnchanged(changedAuthorizationCodeOAuthFlow)
+                && ChangedUtils.isUnchanged(changedExtensions)) {
             return DiffResult.NO_CHANGES;
         }
         if ((changedImplicitOAuthFlow == null || changedImplicitOAuthFlow.isCompatible())
-                && (changedPasswordOAuthFlow == null || changedPasswordOAuthFlow.isCompatible())
-                && (changedClientCredentialOAuthFlow == null || changedClientCredentialOAuthFlow.isCompatible())
-                && (changedAuthorizationCodeOAuthFlow == null || changedAuthorizationCodeOAuthFlow.isCompatible())) {
+                && ChangedUtils.isCompatible(changedPasswordOAuthFlow)
+                && ChangedUtils.isCompatible(changedClientCredentialOAuthFlow)
+                && ChangedUtils.isCompatible(changedAuthorizationCodeOAuthFlow)
+                && ChangedUtils.isCompatible(changedExtensions)) {
             return DiffResult.COMPATIBLE;
         }
         return DiffResult.INCOMPATIBLE;

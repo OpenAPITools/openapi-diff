@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
+import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Getter;
@@ -20,6 +22,7 @@ public class ChangedOpenApi implements Changed {
     private List<Endpoint> newEndpoints;
     private List<Endpoint> missingEndpoints;
     private List<ChangedOperation> changedOperations;
+    private ChangedExtensions changedExtensions;
 
     public List<Endpoint> getDeprecatedEndpoints() {
         return changedOperations.stream()
@@ -30,10 +33,12 @@ public class ChangedOpenApi implements Changed {
 
     @Override
     public DiffResult isChanged() {
-        if (newEndpoints.size() == 0 && missingEndpoints.size() == 0 && changedOperations.size() == 0) {
+        if (newEndpoints.size() == 0 && missingEndpoints.size() == 0 && changedOperations.size() == 0
+                && ChangedUtils.isUnchanged(changedExtensions)) {
             return DiffResult.NO_CHANGES;
         }
-        if (missingEndpoints.size() == 0 && changedOperations.stream().allMatch(Changed::isCompatible)) {
+        if (missingEndpoints.size() == 0 && changedOperations.stream().allMatch(Changed::isCompatible)
+                && ChangedUtils.isCompatible(changedExtensions)) {
             return DiffResult.COMPATIBLE;
         }
         return DiffResult.INCOMPATIBLE;

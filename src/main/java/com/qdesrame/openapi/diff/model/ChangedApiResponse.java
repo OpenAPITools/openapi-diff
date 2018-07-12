@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
+import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
+import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import lombok.Getter;
@@ -20,6 +22,7 @@ public class ChangedApiResponse implements Changed {
     private Map<String, ApiResponse> missingResponses;
     private Map<String, ApiResponse> addResponses;
     private Map<String, ChangedResponse> changedResponses;
+    private ChangedExtensions changedExtensions;
 
     public ChangedApiResponse(ApiResponses oldApiResponses, ApiResponses newApiResponses, DiffContext context) {
         this.oldApiResponses = oldApiResponses;
@@ -32,10 +35,12 @@ public class ChangedApiResponse implements Changed {
 
     @Override
     public DiffResult isChanged() {
-        if (addResponses.size() == 0 && missingResponses.size() == 0 && changedResponses.size() == 0) {
+        if (addResponses.size() == 0 && missingResponses.size() == 0 && changedResponses.size() == 0
+                && ChangedUtils.isUnchanged(changedExtensions)) {
             return DiffResult.NO_CHANGES;
         }
-        if (missingResponses.size() == 0 && changedResponses.values().stream().allMatch(Changed::isCompatible)) {
+        if (missingResponses.size() == 0 && changedResponses.values().stream().allMatch(Changed::isCompatible)
+                && ChangedUtils.isCompatible(changedExtensions)) {
             return DiffResult.COMPATIBLE;
         }
         return DiffResult.INCOMPATIBLE;

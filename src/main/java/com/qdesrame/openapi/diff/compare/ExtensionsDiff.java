@@ -46,6 +46,10 @@ public class ExtensionsDiff {
                 .map(predicate);
     }
 
+    public Optional<ChangedExtensions> diff(Map<String, Object> left, Map<String, Object> right) {
+        return this.diff(left, right, null);
+    }
+
     public Optional<ChangedExtensions> diff(Map<String, Object> left, Map<String, Object> right, DiffContext context) {
         if (null == left) left = new LinkedHashMap<>();
         if (null == right) right = new LinkedHashMap<>();

@@ -35,6 +35,8 @@ public class ApiResponseDiff {
                     .ifPresent(changedResponse -> resps.put(responseCode, changedResponse));
         }
         changedApiResponse.setChangedResponses(resps);
+        openApiDiff.getExtensionsDiff().diff(left.getExtensions(), right.getExtensions(), context)
+                .ifPresent(changedApiResponse::setChangedExtensions);
         return isChanged(changedApiResponse);
     }
 }
