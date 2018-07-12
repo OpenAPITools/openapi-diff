@@ -2,6 +2,7 @@ package com.qdesrame.openapi.diff.compare.schemadiffresult;
 
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
+import com.qdesrame.openapi.diff.model.Change;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.ListDiff;
@@ -13,9 +14,9 @@ import io.swagger.v3.oas.models.media.Schema;
 import lombok.Getter;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
+import static java.util.Optional.ofNullable;
 
 @Getter
 public class SchemaDiffResult {
@@ -60,8 +61,8 @@ public class SchemaDiffResult {
 
         compareAdditionalProperties(refSet, left, right, context);
 
-        changedSchema.getIncreasedProperties().putAll(filterProperties(propertyDiff.getIncreased(), context));
-        changedSchema.getMissingProperties().putAll(filterProperties(propertyDiff.getMissing(), context));
+        changedSchema.getIncreasedProperties().putAll(filterProperties(Change.Type.ADDED, propertyDiff.getIncreased(), context));
+        changedSchema.getMissingProperties().putAll(filterProperties(Change.Type.REMOVED, propertyDiff.getMissing(), context));
         return isApplicable(context);
     }
 
@@ -73,10 +74,19 @@ public class SchemaDiffResult {
         return isChanged(changedSchema);
     }
 
-    private Map<String, Schema> filterProperties(Map<String, Schema> properties, DiffContext context) {
-        return properties.entrySet().stream()
-                .filter(entry -> isPropertyApplicable(entry.getValue(), context))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    private Map<String, Schema> filterProperties(Change.Type type, Map<String, Schema> properties, DiffContext context) {
+        Map<String, Schema> result = new LinkedHashMap<>();
+        for (Map.Entry<String, Schema> entry : properties.entrySet()) {
+            if (isPropertyApplicable(entry.getValue(), context)
+                    && openApiDiff.getExtensionsDiff()
+                    .isParentApplicable(
+                            type,
+                            entry.getValue(),
+                            ofNullable(entry.getValue().getExtensions()).orElse(new LinkedHashMap()), context)) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
     }
 
     private boolean isPropertyApplicable(Schema schema, DiffContext context) {

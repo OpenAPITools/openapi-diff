@@ -52,7 +52,8 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
         }
         openApiDiff.getContentDiff().diff(left.getContent(), right.getContent(), context)
                 .ifPresent(changedParameter::setChangedContent);
-
+        openApiDiff.getExtensionsDiff().diff(left.getExtensions(), right.getExtensions(), context)
+                .ifPresent(changedParameter::setChangedExtensions);
         return isChanged(changedParameter);
     }
 

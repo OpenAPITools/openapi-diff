@@ -117,7 +117,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String itemResponse(String title, String code, String description) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         String status = "";
         if (!code.equals("default")) {
             status = HttpStatus.getStatusText(Integer.parseInt(code));
@@ -128,7 +128,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String headers(ChangedHeaders headers) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (headers != null) {
             sb.append(listHeader("New header", headers.getIncreased()));
             sb.append(listHeader("Deleted header", headers.getMissing()));
@@ -197,7 +197,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         schema.getMissingMapping().keySet()
                 .forEach(key -> sb.append(format("%sDeleted '%s' %s\n", indent(deepness), key, discriminator)));
         schema.getIncreasedMapping().forEach((key, sub) ->
@@ -210,7 +210,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String required(int deepness, String title, List<String> required) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (required.size() > 0) {
             sb.append(format("%s%s:\n", indent(deepness), title));
             required.forEach(s -> sb.append(format("%s- `%s`\n", indent(deepness), s)));
@@ -220,7 +220,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String schema(int deepness, ChangedSchema schema) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (schema.isDiscriminatorPropertyChanged()) {
             LOGGER.debug("Discriminator property changed");
         }
@@ -244,7 +244,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String schema(int deepness, ComposedSchema schema, DiffContext context) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (schema.getAllOf() != null && schema.getAllOf() != null) {
             LOGGER.debug("All of schema");
             schema.getAllOf().stream()
@@ -262,7 +262,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String schema(int deepness, Schema schema, DiffContext context) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         sb.append(listItem(deepness, "Enum", schema.getEnum()));
         sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
         if (schema instanceof ComposedSchema) {
@@ -274,7 +274,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String items(int deepness, ChangedSchema schema) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         String type = type(schema.getNewSchema());
         if (schema.isChangedType()) {
             type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
@@ -295,7 +295,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String properties(final int deepness, String title, Map<String, Schema> properties, boolean showContent, DiffContext context) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (properties != null) {
             properties.forEach((key, value) -> {
                 sb.append(property(deepness, title, key, resolve(value)));
@@ -335,7 +335,7 @@ public class MarkdownRender implements Render {
     }
 
     protected <T> String listItem(int deepness, String name, List<T> list) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (list != null && list.size() > 0) {
             sb.append(format("%s%s value%s:\n\n", indent(deepness), name, list.size() > 1 ? "s" : ""));
             list.forEach(p -> sb.append(format("%s* `%s`\n", indent(deepness), p)));
@@ -353,7 +353,7 @@ public class MarkdownRender implements Render {
     }
 
     protected String listParameter(String title, List<Parameter> parameters) {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         parameters.stream().map(p -> itemParameter(title, p)).forEach(sb::append);
         return sb.toString();
     }
