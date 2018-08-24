@@ -84,6 +84,9 @@ public class SchemaDiffResult {
                             entry.getValue(),
                             ofNullable(entry.getValue().getExtensions()).orElse(new LinkedHashMap()), context)) {
                 result.put(entry.getKey(), entry.getValue());
+            } else {
+                // Child property is not applicable, so she can't be added as require
+                changedSchema.getChangeRequired().getIncreased().remove(entry.getKey());
             }
         }
         return result;
