@@ -60,6 +60,9 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     }
 
     public Optional<ChangedSchema> diff(HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
+        if (left == null || right == null) {
+            return Optional.empty();
+        }
         return cachedDiff(refSet, left, right, left.get$ref(), right.get$ref(), context);
     }
 
