@@ -82,7 +82,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
 
       case OAUTH2:
         openApiDiff
-            .getoAuthFlowsDiff()
+            .getOAuthFlowsDiff()
             .diff(leftSecurityScheme.getFlows(), rightSecurityScheme.getFlows())
             .ifPresent(changedSecurityScheme::setChangedOAuthFlows);
         break;

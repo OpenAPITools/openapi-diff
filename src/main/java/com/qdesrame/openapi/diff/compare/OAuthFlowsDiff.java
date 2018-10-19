@@ -24,19 +24,19 @@ public class OAuthFlowsDiff {
     ChangedOAuthFlows changedOAuthFlows = new ChangedOAuthFlows(left, right);
     if (left != null && right != null) {
       openApiDiff
-          .getoAuthFlowDiff()
+          .getOAuthFlowDiff()
           .diff(left.getImplicit(), right.getImplicit())
           .ifPresent(changedOAuthFlows::setChangedImplicitOAuthFlow);
       openApiDiff
-          .getoAuthFlowDiff()
+          .getOAuthFlowDiff()
           .diff(left.getPassword(), right.getPassword())
           .ifPresent(changedOAuthFlows::setChangedPasswordOAuthFlow);
       openApiDiff
-          .getoAuthFlowDiff()
+          .getOAuthFlowDiff()
           .diff(left.getClientCredentials(), right.getClientCredentials())
           .ifPresent(changedOAuthFlows::setChangedClientCredentialOAuthFlow);
       openApiDiff
-          .getoAuthFlowDiff()
+          .getOAuthFlowDiff()
           .diff(left.getAuthorizationCode(), right.getAuthorizationCode())
           .ifPresent(changedOAuthFlows::setChangedAuthorizationCodeOAuthFlow);
     }

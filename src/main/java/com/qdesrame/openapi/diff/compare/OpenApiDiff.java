@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Getter
 public class OpenApiDiff {
 
   public static final String SWAGGER_VERSION_V2 = "2.0";
@@ -172,97 +174,5 @@ public class OpenApiDiff {
     changedOpenApi.setChangedOperations(changedOperations);
     changedOpenApi.setChangedExtensions(changedExtensions);
     return changedOpenApi;
-  }
-
-  public PathsDiff getPathsDiff() {
-    return pathsDiff;
-  }
-
-  public PathDiff getPathDiff() {
-    return pathDiff;
-  }
-
-  public SchemaDiff getSchemaDiff() {
-    return schemaDiff;
-  }
-
-  public ContentDiff getContentDiff() {
-    return contentDiff;
-  }
-
-  public ParametersDiff getParametersDiff() {
-    return parametersDiff;
-  }
-
-  public ParameterDiff getParameterDiff() {
-    return parameterDiff;
-  }
-
-  public RequestBodyDiff getRequestBodyDiff() {
-    return requestBodyDiff;
-  }
-
-  public ResponseDiff getResponseDiff() {
-    return responseDiff;
-  }
-
-  public HeadersDiff getHeadersDiff() {
-    return headersDiff;
-  }
-
-  public HeaderDiff getHeaderDiff() {
-    return headerDiff;
-  }
-
-  public ApiResponseDiff getApiResponseDiff() {
-    return apiResponseDiff;
-  }
-
-  public OperationDiff getOperationDiff() {
-    return operationDiff;
-  }
-
-  public SecurityRequirementsDiff getSecurityRequirementsDiff() {
-    return securityRequirementsDiff;
-  }
-
-  public SecurityRequirementDiff getSecurityRequirementDiff() {
-    return securityRequirementDiff;
-  }
-
-  public SecuritySchemeDiff getSecuritySchemeDiff() {
-    return securitySchemeDiff;
-  }
-
-  public OAuthFlowsDiff getoAuthFlowsDiff() {
-    return oAuthFlowsDiff;
-  }
-
-  public OAuthFlowDiff getoAuthFlowDiff() {
-    return oAuthFlowDiff;
-  }
-
-  public ExtensionsDiff getExtensionsDiff() {
-    return extensionsDiff;
-  }
-
-  public OpenAPI getOldSpecOpenApi() {
-    return oldSpecOpenApi;
-  }
-
-  public OpenAPI getNewSpecOpenApi() {
-    return newSpecOpenApi;
-  }
-
-  public List<Endpoint> getNewEndpoints() {
-    return newEndpoints;
-  }
-
-  public List<Endpoint> getMissingEndpoints() {
-    return missingEndpoints;
-  }
-
-  public List<ChangedOperation> getChangedOperations() {
-    return changedOperations;
   }
 }
