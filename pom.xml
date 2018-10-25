@@ -221,6 +221,37 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.coveo</groupId>
+                <artifactId>fmt-maven-plugin</artifactId>
+                <version>2.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.github.phillipuniverse</groupId>
+                <artifactId>githook-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                        <configuration>
+                            <hooks>
+                                <pre-commit>
+                                    mvn com.coveo:fmt-maven-plugin:format
+                                </pre-commit>
+                            </hooks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
