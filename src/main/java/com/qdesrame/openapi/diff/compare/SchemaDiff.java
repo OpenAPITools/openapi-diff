@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
+import static java.util.Optional.ofNullable;
+
 import com.qdesrame.openapi.diff.compare.schemadiffresult.ArraySchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemadiffresult.ComposedSchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
@@ -15,11 +17,7 @@ import java.util.*;
 
 public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
-  private Components leftComponents;
-  private Components rightComponents;
-  private OpenApiDiff openApiDiff;
   private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
-
   private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>>
       schemaDiffResultClassMap = new LinkedHashMap<>();
 
@@ -27,6 +25,22 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     schemaDiffResultClassMap.put(Schema.class, SchemaDiffResult.class);
     schemaDiffResultClassMap.put(ArraySchema.class, ArraySchemaDiffResult.class);
     schemaDiffResultClassMap.put(ComposedSchema.class, ComposedSchemaDiffResult.class);
+  }
+
+  private Components leftComponents;
+  private Components rightComponents;
+  private OpenApiDiff openApiDiff;
+
+  public SchemaDiff(OpenApiDiff openApiDiff) {
+    this.openApiDiff = openApiDiff;
+    this.leftComponents =
+        openApiDiff.getOldSpecOpenApi() != null
+            ? openApiDiff.getOldSpecOpenApi().getComponents()
+            : null;
+    this.rightComponents =
+        openApiDiff.getNewSpecOpenApi() != null
+            ? openApiDiff.getNewSpecOpenApi().getComponents()
+            : null;
   }
 
   public static SchemaDiffResult getSchemaDiffResult(OpenApiDiff openApiDiff) {
@@ -52,55 +66,6 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     } catch (Exception e) {
       throw new IllegalArgumentException("type " + classType + " is illegal");
     }
-  }
-
-  public SchemaDiff(OpenApiDiff openApiDiff) {
-    this.openApiDiff = openApiDiff;
-    this.leftComponents =
-        openApiDiff.getOldSpecOpenApi() != null
-            ? openApiDiff.getOldSpecOpenApi().getComponents()
-            : null;
-    this.rightComponents =
-        openApiDiff.getNewSpecOpenApi() != null
-            ? openApiDiff.getNewSpecOpenApi().getComponents()
-            : null;
-  }
-
-  public Optional<ChangedSchema> diff(
-      HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
-    return cachedDiff(refSet, left, right, left.get$ref(), right.get$ref(), context);
-  }
-
-  public Optional<ChangedSchema> getTypeChangedSchema(
-      Schema left, Schema right, DiffContext context) {
-    ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult(openApiDiff).getChangedSchema();
-    changedSchema.setOldSchema(left);
-    changedSchema.setNewSchema(right);
-    changedSchema.setChangedType(true);
-    changedSchema.setContext(context);
-    return Optional.of(changedSchema);
-  }
-
-  @Override
-  protected Optional<ChangedSchema> computeDiff(
-      HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
-    left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
-    right = refPointer.resolveRef(this.rightComponents, right, right.get$ref());
-
-    left = resolveComposedSchema(leftComponents, left);
-    right = resolveComposedSchema(rightComponents, right);
-
-    // If type of schemas are different, just set old & new schema, set changedType to true in
-    // SchemaDiffResult and
-    // return the object
-    if (!Objects.equals(left.getType(), right.getType())
-        || !Objects.equals(left.getFormat(), right.getFormat())) {
-      return getTypeChangedSchema(left, right, context);
-    }
-
-    // If schema type is same then get specific SchemaDiffResult and compare the properties
-    SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
-    return result.diff(refSet, leftComponents, rightComponents, left, right, context);
   }
 
   protected static Schema resolveComposedSchema(Components components, Schema schema) {
@@ -137,5 +102,50 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     }
     // TODO copy other things from fromSchema
     return schema;
+  }
+
+  private static String getSchemaRef(Schema schema) {
+    return ofNullable(schema).map(Schema::get$ref).orElse(null);
+  }
+
+  public Optional<ChangedSchema> diff(
+      HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
+    if (left == null && right == null) {
+      return Optional.empty();
+    }
+    return cachedDiff(refSet, left, right, getSchemaRef(left), getSchemaRef(right), context);
+  }
+
+  public Optional<ChangedSchema> getTypeChangedSchema(
+      Schema left, Schema right, DiffContext context) {
+    ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult(openApiDiff).getChangedSchema();
+    changedSchema.setOldSchema(left);
+    changedSchema.setNewSchema(right);
+    changedSchema.setChangedType(true);
+    changedSchema.setContext(context);
+    return Optional.of(changedSchema);
+  }
+
+  @Override
+  protected Optional<ChangedSchema> computeDiff(
+      HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
+    left = refPointer.resolveRef(this.leftComponents, left, getSchemaRef(left));
+    right = refPointer.resolveRef(this.rightComponents, right, getSchemaRef(right));
+
+    left = resolveComposedSchema(leftComponents, left);
+    right = resolveComposedSchema(rightComponents, right);
+
+    // If type of schemas are different, just set old & new schema, set changedType to true in
+    // SchemaDiffResult and
+    // return the object
+    if ((left == null || right == null)
+        || !Objects.equals(left.getType(), right.getType())
+        || !Objects.equals(left.getFormat(), right.getFormat())) {
+      return getTypeChangedSchema(left, right, context);
+    }
+
+    // If schema type is same then get specific SchemaDiffResult and compare the properties
+    SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
+    return result.diff(refSet, leftComponents, rightComponents, left, right, context);
   }
 }

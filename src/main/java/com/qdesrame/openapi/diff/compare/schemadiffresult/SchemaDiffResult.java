@@ -39,23 +39,23 @@ public class SchemaDiffResult {
       Schema left,
       Schema right,
       DiffContext context) {
-    changedSchema.setContext(context);
-    changedSchema.setOldSchema(left);
-    changedSchema.setNewSchema(right);
-    changedSchema.setChangeDeprecated(
-        !Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
-    changedSchema.setChangeDescription(
-        !Objects.equals(left.getDescription(), right.getDescription()));
-    changedSchema.setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()));
-    changedSchema.setChangeRequired(ListDiff.diff(left.getRequired(), right.getRequired()));
-    changedSchema.setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()));
-    changedSchema.setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()));
-    changedSchema.setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()));
-    changedSchema.setChangedReadOnly(
-        new ChangedReadOnly(context, left.getReadOnly(), right.getReadOnly()));
-    changedSchema.setChangedWriteOnly(
-        new ChangedWriteOnly(context, left.getWriteOnly(), right.getWriteOnly()));
-    changedSchema.setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
+    changedSchema
+        .setContext(context)
+        .setOldSchema(left)
+        .setNewSchema(right)
+        .setChangeDeprecated(
+            !Boolean.TRUE.equals(left.getDeprecated())
+                && Boolean.TRUE.equals(right.getDeprecated()))
+        .setChangeDescription(!Objects.equals(left.getDescription(), right.getDescription()))
+        .setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()))
+        .setChangeRequired(ListDiff.diff(left.getRequired(), right.getRequired()))
+        .setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()))
+        .setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()))
+        .setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()))
+        .setChangedReadOnly(new ChangedReadOnly(context, left.getReadOnly(), right.getReadOnly()))
+        .setChangedWriteOnly(
+            new ChangedWriteOnly(context, left.getWriteOnly(), right.getWriteOnly()))
+        .setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
     Optional<ChangedExtensions> changedExtensions =
         openApiDiff.getExtensionsDiff().diff(left.getExtensions(), right.getExtensions(), context);
     changedExtensions.ifPresent(changedSchema::setChangedExtensions);
@@ -134,10 +134,11 @@ public class SchemaDiffResult {
     if ((left != null && left instanceof Schema) || (right != null && right instanceof Schema)) {
       Schema leftAdditionalSchema = (Schema) left;
       Schema rightAdditionalSchema = (Schema) right;
-      ChangedSchema apChangedSchema = new ChangedSchema();
-      apChangedSchema.setContext(context);
-      apChangedSchema.setOldSchema(leftAdditionalSchema);
-      apChangedSchema.setNewSchema(rightAdditionalSchema);
+      ChangedSchema apChangedSchema =
+          new ChangedSchema()
+              .setContext(context)
+              .setOldSchema(leftAdditionalSchema)
+              .setNewSchema(rightAdditionalSchema);
       if (left != null && right != null) {
         Optional<ChangedSchema> addPropChangedSchemaOP =
             openApiDiff

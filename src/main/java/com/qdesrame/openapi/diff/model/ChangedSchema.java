@@ -9,11 +9,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
 /** Created by adarsh.sharma on 22/12/17. */
 @Getter
 @Setter
+@Accessors(chain = true)
 public class ChangedSchema implements Changed {
   protected DiffContext context;
   protected Schema oldSchema;
