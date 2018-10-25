@@ -13,55 +13,52 @@ import java.util.Map.Entry;
  */
 public class MapKeyDiff<K, V> {
 
-    private Map<K, V> increased;
-    private Map<K, V> missing;
-    private List<K> sharedKey;
+  private Map<K, V> increased;
+  private Map<K, V> missing;
+  private List<K> sharedKey;
 
-    private MapKeyDiff() {
-        this.sharedKey = new ArrayList<>();
-        this.increased = new LinkedHashMap<>();
-        this.missing = new LinkedHashMap<>();
+  private MapKeyDiff() {
+    this.sharedKey = new ArrayList<>();
+    this.increased = new LinkedHashMap<>();
+    this.missing = new LinkedHashMap<>();
+  }
+
+  public static <K, V> MapKeyDiff<K, V> diff(Map<K, V> mapLeft, Map<K, V> mapRight) {
+    MapKeyDiff<K, V> instance = new MapKeyDiff<>();
+    if (null == mapLeft && null == mapRight) return instance;
+    if (null == mapLeft) {
+      instance.increased = mapRight;
+      return instance;
     }
-
-    public static <K, V> MapKeyDiff<K, V> diff(Map<K, V> mapLeft,
-                                               Map<K, V> mapRight) {
-        MapKeyDiff<K, V> instance = new MapKeyDiff<>();
-        if (null == mapLeft && null == mapRight) return instance;
-        if (null == mapLeft) {
-            instance.increased = mapRight;
-            return instance;
-        }
-        if (null == mapRight) {
-            instance.missing = mapLeft;
-            return instance;
-        }
-        instance.increased = new LinkedHashMap<>(mapRight);
-        instance.missing = new LinkedHashMap<>();
-        for (Entry<K, V> entry : mapLeft.entrySet()) {
-            K leftKey = entry.getKey();
-            V leftValue = entry.getValue();
-            if (mapRight.containsKey(leftKey)) {
-                instance.increased.remove(leftKey);
-                instance.sharedKey.add(leftKey);
-
-            } else {
-                instance.missing.put(leftKey, leftValue);
-            }
-
-        }
-        return instance;
+    if (null == mapRight) {
+      instance.missing = mapLeft;
+      return instance;
     }
+    instance.increased = new LinkedHashMap<>(mapRight);
+    instance.missing = new LinkedHashMap<>();
+    for (Entry<K, V> entry : mapLeft.entrySet()) {
+      K leftKey = entry.getKey();
+      V leftValue = entry.getValue();
+      if (mapRight.containsKey(leftKey)) {
+        instance.increased.remove(leftKey);
+        instance.sharedKey.add(leftKey);
 
-    public Map<K, V> getIncreased() {
-        return increased;
+      } else {
+        instance.missing.put(leftKey, leftValue);
+      }
     }
+    return instance;
+  }
 
-    public Map<K, V> getMissing() {
-        return missing;
-    }
+  public Map<K, V> getIncreased() {
+    return increased;
+  }
 
-    public List<K> getSharedKey() {
-        return sharedKey;
-    }
+  public Map<K, V> getMissing() {
+    return missing;
+  }
 
+  public List<K> getSharedKey() {
+    return sharedKey;
+  }
 }
