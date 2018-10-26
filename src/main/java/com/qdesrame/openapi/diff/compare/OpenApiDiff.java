@@ -43,6 +43,7 @@ public class OpenApiDiff {
   private OAuthFlowsDiff oAuthFlowsDiff;
   private OAuthFlowDiff oAuthFlowDiff;
   private ExtensionsDiff extensionsDiff;
+  private MetadataDiff metadataDiff;
 
   private OpenAPI oldSpecOpenApi;
   private OpenAPI newSpecOpenApi;
@@ -88,6 +89,7 @@ public class OpenApiDiff {
     this.oAuthFlowsDiff = new OAuthFlowsDiff(this);
     this.oAuthFlowDiff = new OAuthFlowDiff(this);
     this.extensionsDiff = new ExtensionsDiff(this);
+    this.metadataDiff = new MetadataDiff(this);
   }
 
   private ChangedOpenApi compare() {

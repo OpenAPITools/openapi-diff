@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.output;
 
+import static com.qdesrame.openapi.diff.utils.ChangedUtils.isUnchanged;
 import static java.lang.String.format;
 
 import com.qdesrame.openapi.diff.model.*;
@@ -14,6 +15,8 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,6 +38,12 @@ public class MarkdownRender implements Render {
   protected final String LI = "* ";
   protected final String HR = "---\n";
   protected ChangedOpenApi diff;
+
+  /**
+   * A paramater which indicates whether or not metadata (summary and metadata) changes should be
+   * logged in the changelog file.
+   */
+  @Getter @Setter protected boolean showChangedMetadata;
 
   public MarkdownRender() {}
 
@@ -61,7 +70,11 @@ public class MarkdownRender implements Render {
   }
 
   protected String itemEndpoint(String method, String path, String summary) {
-    return H5 + CODE + method + CODE + " " + path + "\n\n" + description(summary) + "\n";
+    return H5 + CODE + method + CODE + " " + path + "\n\n" + metadata(summary) + "\n";
+  }
+
+  protected String itemEndpoint(String method, String path, ChangedMetadata summary) {
+    return H5 + CODE + method + CODE + " " + path + "\n\n" + metadata("summary", summary) + "\n";
   }
 
   protected String titleH5(String title) {
@@ -82,20 +95,20 @@ public class MarkdownRender implements Render {
                               operation.getHttpMethod().toString(),
                               operation.getPathUrl(),
                               operation.getSummary()));
-              if (operation.isChangedParam().isDifferent()) {
+              if (operation.resultParameters().isDifferent()) {
                 details
                     .append(titleH5("Parameters:"))
-                    .append(parameters(operation.getChangedParameters()));
+                    .append(parameters(operation.getParameters()));
               }
-              if (operation.isChangedRequest().isDifferent()) {
+              if (operation.resultRequestBody().isDifferent()) {
                 details
                     .append(titleH5("Request:"))
-                    .append(bodyContent(operation.getChangedRequestBody().getChangedContent()));
+                    .append(bodyContent(operation.getRequestBody().getChangedContent()));
               }
-              if (operation.isChangedResponse().isDifferent()) {
+              if (operation.resultApiResponses().isDifferent()) {
                 details
                     .append(titleH5("Return Type:"))
-                    .append(responses(operation.getChangedApiResponse()));
+                    .append(responses(operation.getApiResponses()));
               }
               return details.toString();
             })
@@ -153,7 +166,7 @@ public class MarkdownRender implements Render {
       status = HttpStatus.getStatusText(Integer.parseInt(code));
     }
     sb.append(format("%s : **%s %s**\n", title, code, status));
-    sb.append(description(description));
+    sb.append(metadata(description));
     return sb.toString();
   }
 
@@ -194,7 +207,7 @@ public class MarkdownRender implements Render {
   }
 
   protected String itemHeader(String title, String mediaType, String description) {
-    return format("%s : `%s`\n\n", title, mediaType) + description(description) + '\n';
+    return format("%s : `%s`\n\n", title, mediaType) + metadata(description) + '\n';
   }
 
   protected String bodyContent(String prefix, ChangedContent changedContent) {
@@ -374,7 +387,7 @@ public class MarkdownRender implements Render {
   protected String items(int deepness, String title, String type, String description) {
     return format(
         "%s%s (%s):" + "\n%s\n",
-        indent(deepness), title, type, description(indent(deepness + 1), description));
+        indent(deepness), title, type, metadata(indent(deepness + 1), description));
   }
 
   protected String properties(
@@ -416,7 +429,7 @@ public class MarkdownRender implements Render {
       int deepness, String title, String name, String type, String description) {
     return format(
         "%s* %s `%s` (%s)\n%s\n",
-        indent(deepness), title, name, type, description(indent(deepness + 1), description));
+        indent(deepness), title, name, type, metadata(indent(deepness + 1), description));
   }
 
   protected String listDiff(int deepness, String name, ListDiff listDiff) {
@@ -462,7 +475,7 @@ public class MarkdownRender implements Render {
         + " in "
         + code(in)
         + '\n'
-        + description(description)
+        + metadata(description)
         + '\n';
   }
 
@@ -480,20 +493,50 @@ public class MarkdownRender implements Render {
     return CODE + string + CODE;
   }
 
-  protected String description(String description) {
-    return description("", description);
+  protected String metadata(String name, ChangedMetadata changedMetadata) {
+    return metadata("", name, changedMetadata);
   }
 
-  protected String description(String beginning, String description) {
-    String result = "";
-    if (StringUtils.isBlank(description)) {
-      description = "";
+  protected String metadata(String beginning, String name, ChangedMetadata changedMetadata) {
+    if (changedMetadata == null) {
+      return "";
     }
-    String blockquote = beginning + BLOCKQUOTE;
-    if (!description.equals("")) {
-      result = blockquote + description.trim().replaceAll("\n", "\n" + blockquote) + '\n';
+    if (isUnchanged(changedMetadata) && showChangedMetadata) {
+      return format(
+          "Changed %s:\n%s\nto:\n%s\n\n",
+          name,
+          metadata(beginning, changedMetadata.getLeft()),
+          metadata(beginning, changedMetadata.getRight()));
+    } else {
+      return metadata(beginning, name, changedMetadata.getRight());
     }
-    return result;
+  }
+
+  protected String metadata(String metadata) {
+    return metadata("", metadata);
+  }
+
+  protected String metadata(String beginning, String name, String metadata) {
+    if (StringUtils.isBlank(metadata)) {
+      return "";
+    }
+    return blockquote(beginning, metadata);
+  }
+
+  protected String metadata(String beginning, String metadata) {
+    if (StringUtils.isBlank(metadata)) {
+      return "";
+    }
+    return blockquote(beginning, metadata);
+  }
+
+  protected String blockquote(String beginning) {
+    return beginning + BLOCKQUOTE;
+  }
+
+  protected String blockquote(String beginning, String text) {
+    String blockquote = blockquote(beginning);
+    return blockquote + text.trim().replaceAll("\n", "\n" + blockquote) + '\n';
   }
 
   protected String type(Schema schema) {

@@ -29,7 +29,7 @@ public class SecurityDiffTest {
     assertNotNull(changedOperation1);
     assertFalse(changedOperation1.isCompatible());
     ChangedSecurityRequirements changedSecurityRequirements1 =
-        changedOperation1.getChangedSecurityRequirements();
+        changedOperation1.getSecurityRequirements();
     assertNotNull(changedSecurityRequirements1);
     assertFalse(changedSecurityRequirements1.isCompatible());
     assertTrue(changedSecurityRequirements1.getIncreased().size() == 1);
@@ -53,7 +53,7 @@ public class SecurityDiffTest {
     assertNotNull(changedOperation2);
     assertFalse(changedOperation2.isCompatible());
     ChangedSecurityRequirements changedSecurityRequirements2 =
-        changedOperation2.getChangedSecurityRequirements();
+        changedOperation2.getSecurityRequirements();
     assertNotNull(changedSecurityRequirements2);
     assertFalse(changedSecurityRequirements2.isCompatible());
     assertTrue(changedSecurityRequirements2.getChanged().size() == 1);
@@ -79,7 +79,7 @@ public class SecurityDiffTest {
     assertNotNull(changedOperation3);
     assertTrue(changedOperation3.isCompatible());
     ChangedSecurityRequirements changedSecurityRequirements3 =
-        changedOperation3.getChangedSecurityRequirements();
+        changedOperation3.getSecurityRequirements();
     assertNotNull(changedSecurityRequirements3);
     assertTrue(changedSecurityRequirements3.getIncreased().size() == 1);
     SecurityRequirement securityRequirement3 = changedSecurityRequirements3.getIncreased().get(0);

@@ -23,7 +23,7 @@ public class ResponseHeaderDiffTest {
     Assert.assertTrue(changedOpenApi.getChangedOperations().size() > 0);
 
     Map<String, ChangedResponse> changedResponses =
-        changedOpenApi.getChangedOperations().get(0).getChangedApiResponse().getChangedResponses();
+        changedOpenApi.getChangedOperations().get(0).getApiResponses().getChangedResponses();
     Assert.assertTrue(changedResponses.size() > 0);
     Assert.assertTrue(changedResponses.containsKey("200"));
     ChangedHeaders changedHeaders = changedResponses.get("200").getChangedHeaders();

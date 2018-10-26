@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class HtmlRender implements Render {
 
@@ -116,22 +117,25 @@ public class HtmlRender implements Render {
     for (ChangedOperation changedOperation : changedOperations) {
       String pathUrl = changedOperation.getPathUrl();
       String method = changedOperation.getHttpMethod().toString();
-      String desc = changedOperation.getSummary();
+      String desc =
+          Optional.ofNullable(changedOperation.getSummary())
+              .map(ChangedMetadata::getRight)
+              .orElse("");
 
       ContainerTag ul_detail = ul().withClass("detail");
-      if (changedOperation.isChangedParam().isDifferent()) {
+      if (changedOperation.resultParameters().isDifferent()) {
         ul_detail.with(
-            li().with(h3("Parameters")).with(ul_param(changedOperation.getChangedParameters())));
+            li().with(h3("Parameters")).with(ul_param(changedOperation.getParameters())));
       }
-      if (changedOperation.isChangedRequest().isDifferent()) {
+      if (changedOperation.resultRequestBody().isDifferent()) {
         ul_detail.with(
             li().with(h3("Request"))
-                .with(ul_request(changedOperation.getChangedRequestBody().getChangedContent())));
+                .with(ul_request(changedOperation.getRequestBody().getChangedContent())));
       } else {
       }
-      if (changedOperation.isChangedResponse().isDifferent()) {
+      if (changedOperation.resultApiResponses().isDifferent()) {
         ul_detail.with(
-            li().with(h3("Response")).with(ul_response(changedOperation.getChangedApiResponse())));
+            li().with(h3("Response")).with(ul_response(changedOperation.getApiResponses())));
       }
       ol.with(
           li().with(span(method).withClass(method))

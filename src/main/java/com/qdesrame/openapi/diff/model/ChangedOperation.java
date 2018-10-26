@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.model;
 
+import static com.qdesrame.openapi.diff.model.Changed.result;
+
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.Operation;
@@ -14,13 +16,14 @@ public class ChangedOperation implements Changed {
   private PathItem.HttpMethod httpMethod;
   private Operation oldOperation;
   private Operation newOperation;
-  private String summary;
+  private ChangedMetadata summary;
+  private ChangedMetadata description;
   private boolean deprecated;
-  private ChangedParameters changedParameters;
-  private ChangedRequestBody changedRequestBody;
-  private ChangedApiResponse changedApiResponse;
-  private ChangedSecurityRequirements changedSecurityRequirements;
-  private ChangedExtensions changedExtensions;
+  private ChangedParameters parameters;
+  private ChangedRequestBody requestBody;
+  private ChangedApiResponse apiResponses;
+  private ChangedSecurityRequirements securityRequirements;
+  private ChangedExtensions extensions;
 
   public ChangedOperation(
       String pathUrl,
@@ -37,38 +40,55 @@ public class ChangedOperation implements Changed {
   public DiffResult isChanged() {
     // TODO BETTER HANDLING FOR DEPRECIATION
     if (!deprecated
-        && isChangedParam().isUnchanged()
-        && isChangedRequest().isUnchanged()
-        && isChangedResponse().isUnchanged()
-        && isChangedSecurity().isUnchanged()
-        && ChangedUtils.isUnchanged(changedExtensions)) {
+        && resultParameters().isUnchanged()
+        && resultRequestBody().isUnchanged()
+        && resultApiResponses().isUnchanged()
+        && resultSecurityRequirements().isUnchanged()
+        && resultExtensions().isUnchanged()
+        && resultDescription().isUnchanged()
+        && resultSummary().isUnchanged()) {
       return DiffResult.NO_CHANGES;
     }
-    if (isChangedParam().isCompatible()
-        && isChangedRequest().isCompatible()
-        && isChangedResponse().isCompatible()
-        && isChangedSecurity().isCompatible()
-        && ChangedUtils.isCompatible(changedExtensions)) {
+    if (resultDescription().isMetaChanged()
+        || resultSummary().isMetaChanged()
+        || resultExtensions().isMetaChanged()) {
+      return DiffResult.METADATA;
+    }
+    if (resultParameters().isCompatible()
+        && resultRequestBody().isCompatible()
+        && resultApiResponses().isCompatible()
+        && resultSecurityRequirements().isCompatible()
+        && ChangedUtils.isCompatible(extensions)) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;
   }
 
-  public DiffResult isChangedParam() {
-    return changedParameters == null ? DiffResult.NO_CHANGES : changedParameters.isChanged();
+  public DiffResult resultParameters() {
+    return result(parameters);
   }
 
-  public DiffResult isChangedResponse() {
-    return changedApiResponse == null ? DiffResult.NO_CHANGES : changedApiResponse.isChanged();
+  public DiffResult resultApiResponses() {
+    return result(apiResponses);
   }
 
-  public DiffResult isChangedRequest() {
-    return changedRequestBody == null ? DiffResult.NO_CHANGES : changedRequestBody.isChanged();
+  public DiffResult resultRequestBody() {
+    return requestBody == null ? DiffResult.NO_CHANGES : requestBody.isChanged();
   }
 
-  public DiffResult isChangedSecurity() {
-    return changedSecurityRequirements == null
-        ? DiffResult.NO_CHANGES
-        : changedSecurityRequirements.isChanged();
+  public DiffResult resultSecurityRequirements() {
+    return securityRequirements == null ? DiffResult.NO_CHANGES : securityRequirements.isChanged();
+  }
+
+  public DiffResult resultDescription() {
+    return result(description);
+  }
+
+  public DiffResult resultSummary() {
+    return result(summary);
+  }
+
+  public DiffResult resultExtensions() {
+    return result(extensions);
   }
 }

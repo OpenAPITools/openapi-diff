@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,29 +59,30 @@ public class ConsoleRender implements Render {
     for (ChangedOperation operation : operations) {
       String pathUrl = operation.getPathUrl();
       String method = operation.getHttpMethod().toString();
-      String desc = operation.getSummary();
+      String desc =
+          Optional.ofNullable(operation.getSummary()).map(ChangedMetadata::getRight).orElse("");
 
       StringBuilder ul_detail = new StringBuilder();
-      if (operation.isChangedParam().isDifferent()) {
+      if (operation.resultParameters().isDifferent()) {
         ul_detail
             .append(StringUtils.repeat(' ', 2))
             .append("Parameter:")
             .append(System.lineSeparator())
-            .append(ul_param(operation.getChangedParameters()));
+            .append(ul_param(operation.getParameters()));
       }
-      if (operation.isChangedRequest().isDifferent()) {
+      if (operation.resultRequestBody().isDifferent()) {
         ul_detail
             .append(StringUtils.repeat(' ', 2))
             .append("Request:")
             .append(System.lineSeparator())
-            .append(ul_content(operation.getChangedRequestBody().getChangedContent(), true));
+            .append(ul_content(operation.getRequestBody().getChangedContent(), true));
       }
-      if (operation.isChangedResponse().isDifferent()) {
+      if (operation.resultApiResponses().isDifferent()) {
         ul_detail
             .append(StringUtils.repeat(' ', 2))
             .append("Return Type:")
             .append(System.lineSeparator())
-            .append(ul_response(operation.getChangedApiResponse()));
+            .append(ul_response(operation.getApiResponses()));
       }
       sb.append(itemEndpoint(method, pathUrl, desc)).append(ul_detail);
     }
