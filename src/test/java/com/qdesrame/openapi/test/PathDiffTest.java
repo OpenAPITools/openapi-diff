@@ -1,8 +1,9 @@
 package com.qdesrame.openapi.test;
 
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PathDiffTest {
 
@@ -15,8 +16,9 @@ public class PathDiffTest {
     assertOpenApiAreEquals(OPENAPI_PATH1, OPENAPI_PATH2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testMultiplePathWithSameSignature() {
-    assertOpenApiAreEquals(OPENAPI_PATH3, OPENAPI_PATH3);
+    assertThrows(
+        IllegalArgumentException.class, () -> assertOpenApiAreEquals(OPENAPI_PATH3, OPENAPI_PATH3));
   }
 }

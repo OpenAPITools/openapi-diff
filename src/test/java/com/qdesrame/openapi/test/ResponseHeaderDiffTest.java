@@ -1,12 +1,13 @@
 package com.qdesrame.openapi.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.qdesrame.openapi.diff.OpenApiCompare;
 import com.qdesrame.openapi.diff.model.ChangedHeaders;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
 import com.qdesrame.openapi.diff.model.ChangedResponse;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Created by adarsh.sharma on 28/12/17. */
 public class ResponseHeaderDiffTest {
@@ -18,18 +19,18 @@ public class ResponseHeaderDiffTest {
   public void testDiffDifferent() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
 
-    Assert.assertTrue(changedOpenApi.getNewEndpoints().isEmpty());
-    Assert.assertTrue(changedOpenApi.getMissingEndpoints().isEmpty());
-    Assert.assertTrue(changedOpenApi.getChangedOperations().size() > 0);
+    assertThat(changedOpenApi.getNewEndpoints()).isEmpty();
+    assertThat(changedOpenApi.getMissingEndpoints()).isEmpty();
+    assertThat(changedOpenApi.getChangedOperations()).isNotEmpty();
 
     Map<String, ChangedResponse> changedResponses =
         changedOpenApi.getChangedOperations().get(0).getApiResponses().getChanged();
-    Assert.assertTrue(changedResponses.size() > 0);
-    Assert.assertTrue(changedResponses.containsKey("200"));
+    assertThat(changedResponses).isNotEmpty();
+    assertThat(changedResponses).containsKey("200");
     ChangedHeaders changedHeaders = changedResponses.get("200").getHeaders();
-    Assert.assertTrue(changedHeaders.isDifferent());
-    Assert.assertTrue(changedHeaders.getChanged().size() == 1);
-    Assert.assertTrue(changedHeaders.getIncreased().size() == 1);
-    Assert.assertTrue(changedHeaders.getMissing().size() == 1);
+    assertThat(changedHeaders.isDifferent()).isTrue();
+    assertThat(changedHeaders.getChanged()).hasSize(1);
+    assertThat(changedHeaders.getIncreased()).hasSize(1);
+    assertThat(changedHeaders.getMissing()).hasSize(1);
   }
 }

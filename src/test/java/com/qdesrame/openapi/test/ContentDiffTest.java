@@ -1,9 +1,10 @@
 package com.qdesrame.openapi.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.qdesrame.openapi.diff.OpenApiCompare;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ContentDiffTest {
 
@@ -13,18 +14,18 @@ public class ContentDiffTest {
   @Test
   public void testContentDiffWithOneEmptyMediaType() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
-    Assert.assertTrue(changedOpenApi.isIncompatible());
+    assertThat(changedOpenApi.isIncompatible()).isTrue();
   }
 
   @Test
   public void testContentDiffWithEmptyMediaTypes() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC1);
-    Assert.assertTrue(changedOpenApi.isUnchanged());
+    assertThat(changedOpenApi.isUnchanged()).isTrue();
   }
 
   @Test
   public void testSameContentDiff() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC2, OPENAPI_DOC2);
-    Assert.assertTrue(changedOpenApi.isUnchanged());
+    assertThat(changedOpenApi.isUnchanged()).isTrue();
   }
 }
