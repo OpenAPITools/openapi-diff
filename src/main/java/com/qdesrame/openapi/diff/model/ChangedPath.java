@@ -1,19 +1,22 @@
 package com.qdesrame.openapi.diff.model;
 
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
-import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
-public class ChangedPath implements Changed {
+@Accessors(chain = true)
+public class ChangedPath implements ComposedChanged {
   private final String pathUrl;
   private final PathItem oldPath;
   private final PathItem newPath;
@@ -22,7 +25,7 @@ public class ChangedPath implements Changed {
   Map<PathItem.HttpMethod, Operation> increased;
   Map<PathItem.HttpMethod, Operation> missing;
   List<ChangedOperation> changed;
-  private ChangedExtensions changedExtensions;
+  private ChangedExtensions extensions;
 
   public ChangedPath(String pathUrl, PathItem oldPath, PathItem newPath, DiffContext context) {
     this.pathUrl = pathUrl;
@@ -35,16 +38,16 @@ public class ChangedPath implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (increased.isEmpty()
-        && missing.isEmpty()
-        && changed.isEmpty()
-        && ChangedUtils.isUnchanged(changedExtensions)) {
+  public List<Changed> getChangedElements() {
+    return Stream.concat(changed.stream(), Stream.of(extensions)).collect(Collectors.toList());
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (missing.isEmpty()
-        && changed.stream().allMatch(Changed::isCompatible)
-        && ChangedUtils.isCompatible(changedExtensions)) {
+    if (missing.isEmpty()) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

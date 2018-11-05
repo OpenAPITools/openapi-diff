@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.output;
 
+import static com.qdesrame.openapi.diff.model.Changed.result;
+
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -63,7 +65,7 @@ public class ConsoleRender implements Render {
           Optional.ofNullable(operation.getSummary()).map(ChangedMetadata::getRight).orElse("");
 
       StringBuilder ul_detail = new StringBuilder();
-      if (operation.resultParameters().isDifferent()) {
+      if (result(operation.getParameters()).isDifferent()) {
         ul_detail
             .append(StringUtils.repeat(' ', 2))
             .append("Parameter:")
@@ -75,7 +77,7 @@ public class ConsoleRender implements Render {
             .append(StringUtils.repeat(' ', 2))
             .append("Request:")
             .append(System.lineSeparator())
-            .append(ul_content(operation.getRequestBody().getChangedContent(), true));
+            .append(ul_content(operation.getRequestBody().getContent(), true));
       }
       if (operation.resultApiResponses().isDifferent()) {
         ul_detail
@@ -90,9 +92,9 @@ public class ConsoleRender implements Render {
   }
 
   private String ul_response(ChangedApiResponse changedApiResponse) {
-    Map<String, ApiResponse> addResponses = changedApiResponse.getAddResponses();
-    Map<String, ApiResponse> delResponses = changedApiResponse.getMissingResponses();
-    Map<String, ChangedResponse> changedResponses = changedApiResponse.getChangedResponses();
+    Map<String, ApiResponse> addResponses = changedApiResponse.getIncreased();
+    Map<String, ApiResponse> delResponses = changedApiResponse.getMissing();
+    Map<String, ChangedResponse> changedResponses = changedApiResponse.getChanged();
     StringBuilder sb = new StringBuilder();
     for (String propName : addResponses.keySet()) {
       sb.append(itemResponse("Add ", propName));
@@ -126,7 +128,7 @@ public class ConsoleRender implements Render {
     StringBuilder sb = new StringBuilder();
     sb.append(itemResponse(title, contentType));
     sb.append(StringUtils.repeat(' ', 6)).append("Media types:").append(System.lineSeparator());
-    sb.append(ul_content(response.getChangedContent(), false));
+    sb.append(ul_content(response.getContent(), false));
     return sb.toString();
   }
 

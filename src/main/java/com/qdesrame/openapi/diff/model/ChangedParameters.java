@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
-public class ChangedParameters implements Changed {
+@Accessors(chain = true)
+public class ChangedParameters implements ComposedChanged {
   private final List<Parameter> oldParameterList;
   private final List<Parameter> newParameterList;
   private final DiffContext context;
@@ -28,13 +30,16 @@ public class ChangedParameters implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (increased.isEmpty() && missing.isEmpty() && changed.isEmpty()) {
+  public List<Changed> getChangedElements() {
+    return new ArrayList<>(changed);
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (increased.stream().noneMatch(Parameter::getRequired)
-        && missing.isEmpty()
-        && changed.stream().allMatch(Changed::isCompatible)) {
+    if (increased.stream().noneMatch(Parameter::getRequired) && missing.isEmpty()) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

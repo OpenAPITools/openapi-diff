@@ -24,11 +24,8 @@ public class ContentDiff implements Comparable<Content> {
   }
 
   public Optional<ChangedContent> diff(Content left, Content right, DiffContext context) {
-    ChangedContent changedContent = new ChangedContent(left, right, context);
 
     MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(left, right);
-    changedContent.setIncreased(mediaTypeDiff.getIncreased());
-    changedContent.setMissing(mediaTypeDiff.getMissing());
     List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();
     Map<String, ChangedMediaType> changedMediaTypes = new LinkedHashMap<>();
     for (String mediaTypeKey : sharedMediaTypes) {
@@ -43,12 +40,15 @@ public class ContentDiff implements Comparable<Content> {
               oldMediaType.getSchema(),
               newMediaType.getSchema(),
               context.copyWithRequired(true))
-          .ifPresent(changedMediaType::setChangedSchema);
+          .ifPresent(changedMediaType::setSchema);
       if (!isUnchanged(changedMediaType)) {
         changedMediaTypes.put(mediaTypeKey, changedMediaType);
       }
     }
-    changedContent.setChanged(changedMediaTypes);
-    return isChanged(changedContent);
+    return isChanged(
+        new ChangedContent(left, right, context)
+            .setIncreased(mediaTypeDiff.getIncreased())
+            .setMissing(mediaTypeDiff.getMissing())
+            .setChanged(changedMediaTypes));
   }
 }

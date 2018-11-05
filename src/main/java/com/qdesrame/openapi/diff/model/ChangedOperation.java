@@ -3,19 +3,23 @@ package com.qdesrame.openapi.diff.model;
 import static com.qdesrame.openapi.diff.model.Changed.result;
 
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
-import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
-public class ChangedOperation implements Changed {
-  private String pathUrl;
-  private PathItem.HttpMethod httpMethod;
+@Accessors(chain = true)
+public class ChangedOperation implements ComposedChanged {
   private Operation oldOperation;
   private Operation newOperation;
+
+  private String pathUrl;
+  private PathItem.HttpMethod httpMethod;
   private ChangedMetadata summary;
   private ChangedMetadata description;
   private boolean deprecated;
@@ -37,35 +41,24 @@ public class ChangedOperation implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    // TODO BETTER HANDLING FOR DEPRECIATION
-    if (!deprecated
-        && resultParameters().isUnchanged()
-        && resultRequestBody().isUnchanged()
-        && resultApiResponses().isUnchanged()
-        && resultSecurityRequirements().isUnchanged()
-        && resultExtensions().isUnchanged()
-        && resultDescription().isUnchanged()
-        && resultSummary().isUnchanged()) {
-      return DiffResult.NO_CHANGES;
-    }
-    if (resultDescription().isMetaChanged()
-        || resultSummary().isMetaChanged()
-        || resultExtensions().isMetaChanged()) {
-      return DiffResult.METADATA;
-    }
-    if (resultParameters().isCompatible()
-        && resultRequestBody().isCompatible()
-        && resultApiResponses().isCompatible()
-        && resultSecurityRequirements().isCompatible()
-        && ChangedUtils.isCompatible(extensions)) {
-      return DiffResult.COMPATIBLE;
-    }
-    return DiffResult.INCOMPATIBLE;
+  public List<Changed> getChangedElements() {
+    return Arrays.asList(
+        summary,
+        description,
+        parameters,
+        requestBody,
+        apiResponses,
+        securityRequirements,
+        extensions);
   }
 
-  public DiffResult resultParameters() {
-    return result(parameters);
+  @Override
+  public DiffResult isCoreChanged() {
+    // TODO BETTER HANDLING FOR DEPRECIATION
+    if (deprecated) {
+      return DiffResult.COMPATIBLE;
+    }
+    return DiffResult.NO_CHANGES;
   }
 
   public DiffResult resultApiResponses() {
@@ -74,21 +67,5 @@ public class ChangedOperation implements Changed {
 
   public DiffResult resultRequestBody() {
     return requestBody == null ? DiffResult.NO_CHANGES : requestBody.isChanged();
-  }
-
-  public DiffResult resultSecurityRequirements() {
-    return securityRequirements == null ? DiffResult.NO_CHANGES : securityRequirements.isChanged();
-  }
-
-  public DiffResult resultDescription() {
-    return result(description);
-  }
-
-  public DiffResult resultSummary() {
-    return result(summary);
-  }
-
-  public DiffResult resultExtensions() {
-    return result(extensions);
   }
 }

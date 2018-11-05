@@ -18,15 +18,15 @@ public class PathDiff {
   }
 
   public Optional<ChangedPath> diff(PathItem left, PathItem right, DiffContext context) {
-    ChangedPath changedPath = new ChangedPath(context.getUrl(), left, right, context);
-
     Map<PathItem.HttpMethod, Operation> oldOperationMap = left.readOperationsMap();
     Map<PathItem.HttpMethod, Operation> newOperationMap = right.readOperationsMap();
     MapKeyDiff<PathItem.HttpMethod, Operation> operationsDiff =
         MapKeyDiff.diff(oldOperationMap, newOperationMap);
-    changedPath.setIncreased(operationsDiff.getIncreased());
-    changedPath.setMissing(operationsDiff.getMissing());
     List<PathItem.HttpMethod> sharedMethods = operationsDiff.getSharedKey();
+    ChangedPath changedPath =
+        new ChangedPath(context.getUrl(), left, right, context)
+            .setIncreased(operationsDiff.getIncreased())
+            .setMissing(operationsDiff.getMissing());
     for (PathItem.HttpMethod method : sharedMethods) {
       Operation oldOperation = oldOperationMap.get(method);
       Operation newOperation = newOperationMap.get(method);
@@ -38,7 +38,7 @@ public class PathDiff {
     openApiDiff
         .getExtensionsDiff()
         .diff(left.getExtensions(), right.getExtensions(), context)
-        .ifPresent(changedPath::setChangedExtensions);
+        .ifPresent(changedPath::setExtensions);
     return isChanged(changedPath);
   }
 }

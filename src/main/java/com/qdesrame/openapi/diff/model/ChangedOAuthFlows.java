@@ -1,23 +1,26 @@
 package com.qdesrame.openapi.diff.model;
 
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
-import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.security.OAuthFlows;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /** Created by adarsh.sharma on 12/01/18. */
 @Getter
 @Setter
-public class ChangedOAuthFlows implements Changed {
+@Accessors(chain = true)
+public class ChangedOAuthFlows implements ComposedChanged {
   private final OAuthFlows oldOAuthFlows;
   private final OAuthFlows newOAuthFlows;
 
-  private ChangedOAuthFlow changedImplicitOAuthFlow;
-  private ChangedOAuthFlow changedPasswordOAuthFlow;
-  private ChangedOAuthFlow changedClientCredentialOAuthFlow;
-  private ChangedOAuthFlow changedAuthorizationCodeOAuthFlow;
-  private ChangedExtensions changedExtensions;
+  private ChangedOAuthFlow implicitOAuthFlow;
+  private ChangedOAuthFlow passwordOAuthFlow;
+  private ChangedOAuthFlow clientCredentialOAuthFlow;
+  private ChangedOAuthFlow authorizationCodeOAuthFlow;
+  private ChangedExtensions extensions;
 
   public ChangedOAuthFlows(OAuthFlows oldOAuthFlows, OAuthFlows newOAuthFlows) {
     this.oldOAuthFlows = oldOAuthFlows;
@@ -25,21 +28,17 @@ public class ChangedOAuthFlows implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    if ((changedImplicitOAuthFlow == null || changedImplicitOAuthFlow.isUnchanged())
-        && ChangedUtils.isUnchanged(changedPasswordOAuthFlow)
-        && ChangedUtils.isUnchanged(changedClientCredentialOAuthFlow)
-        && ChangedUtils.isUnchanged(changedAuthorizationCodeOAuthFlow)
-        && ChangedUtils.isUnchanged(changedExtensions)) {
-      return DiffResult.NO_CHANGES;
-    }
-    if ((changedImplicitOAuthFlow == null || changedImplicitOAuthFlow.isCompatible())
-        && ChangedUtils.isCompatible(changedPasswordOAuthFlow)
-        && ChangedUtils.isCompatible(changedClientCredentialOAuthFlow)
-        && ChangedUtils.isCompatible(changedAuthorizationCodeOAuthFlow)
-        && ChangedUtils.isCompatible(changedExtensions)) {
-      return DiffResult.COMPATIBLE;
-    }
-    return DiffResult.INCOMPATIBLE;
+  public List<Changed> getChangedElements() {
+    return Arrays.asList(
+        implicitOAuthFlow,
+        passwordOAuthFlow,
+        clientCredentialOAuthFlow,
+        authorizationCodeOAuthFlow,
+        extensions);
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    return DiffResult.NO_CHANGES;
   }
 }

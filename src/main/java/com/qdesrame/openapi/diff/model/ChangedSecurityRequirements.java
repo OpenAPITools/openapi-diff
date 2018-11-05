@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.collections4.CollectionUtils;
 
 /** Created by adarsh.sharma on 06/01/18. */
 @Getter
 @Setter
-public class ChangedSecurityRequirements implements Changed {
+@Accessors(chain = true)
+public class ChangedSecurityRequirements implements ComposedChanged {
   private List<SecurityRequirement> oldSecurityRequirements;
   private List<SecurityRequirement> newSecurityRequirements;
 
@@ -23,17 +25,20 @@ public class ChangedSecurityRequirements implements Changed {
       List<SecurityRequirement> newSecurityRequirements) {
     this.oldSecurityRequirements = oldSecurityRequirements;
     this.newSecurityRequirements = newSecurityRequirements;
+    this.changed = new ArrayList<>();
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (CollectionUtils.isEmpty(missing)
-        && CollectionUtils.isEmpty(increased)
-        && CollectionUtils.isEmpty(changed)) {
+  public List<Changed> getChangedElements() {
+    return new ArrayList<>(changed);
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    if (CollectionUtils.isEmpty(missing) && CollectionUtils.isEmpty(increased)) {
       return DiffResult.NO_CHANGES;
     }
-    if (CollectionUtils.isEmpty(missing)
-        && (changed == null || changed.stream().allMatch(Changed::isCompatible))) {
+    if (CollectionUtils.isEmpty(missing)) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

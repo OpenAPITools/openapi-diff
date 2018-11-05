@@ -27,12 +27,12 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
   }
 
   @Override
-  public Optional<ChangedSchema> diff(
+  public <T extends Schema<X>, X> Optional<ChangedSchema> diff(
       HashSet<String> refSet,
       Components leftComponents,
       Components rightComponents,
-      Schema left,
-      Schema right,
+      T left,
+      T right,
       DiffContext context) {
     if (left instanceof ComposedSchema) {
       ComposedSchema leftComposedSchema = (ComposedSchema) left;
@@ -61,17 +61,10 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
         Map<String, String> leftMapping = getMapping(leftComposedSchema);
         Map<String, String> rightMapping = getMapping(rightComposedSchema);
 
-        ChangedOneOfSchema changedOneOfSchema =
-            new ChangedOneOfSchema(leftMapping, rightMapping, context);
         MapKeyDiff<String, Schema> mappingDiff =
             MapKeyDiff.diff(
                 getSchema(leftComponents, leftMapping), getSchema(rightComponents, rightMapping));
-        changedOneOfSchema.setIncreasedMapping(mappingDiff.getIncreased());
-        changedOneOfSchema.setMissingMapping(mappingDiff.getMissing());
-
         Map<String, ChangedSchema> changedMapping = new LinkedHashMap<>();
-        changedOneOfSchema.setChangedMapping(changedMapping);
-
         for (String key : mappingDiff.getSharedKey()) {
           Schema leftSchema = new Schema();
           leftSchema.set$ref(leftMapping.get(key));
@@ -83,7 +76,11 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                   .diff(refSet, leftSchema, rightSchema, context.copyWithRequired(true));
           changedSchema.ifPresent(schema -> changedMapping.put(key, schema));
         }
-        changedSchema.setChangedOneOfSchema(changedOneOfSchema);
+        changedSchema.setOneOfSchema(
+            new ChangedOneOfSchema(leftMapping, rightMapping, context)
+                .setIncreased(mappingDiff.getIncreased())
+                .setMissing(mappingDiff.getMissing())
+                .setChanged(changedMapping));
       }
       return super.diff(refSet, leftComponents, rightComponents, left, right, context);
     } else {

@@ -28,6 +28,15 @@ public class SecurityRequirementDiff {
             : null;
   }
 
+  public static SecurityRequirement getCopy(LinkedHashMap<String, List<String>> right) {
+    SecurityRequirement newSecurityRequirement = new SecurityRequirement();
+    right
+        .entrySet()
+        .stream()
+        .forEach(e -> newSecurityRequirement.put(e.getKey(), new ArrayList<>(e.getValue())));
+    return newSecurityRequirement;
+  }
+
   private LinkedHashMap<String, List<String>> contains(
       SecurityRequirement right, String schemeRef) {
     SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(schemeRef);
@@ -83,20 +92,8 @@ public class SecurityRequirementDiff {
         diff.ifPresent(changedSecurityRequirement::addChanged);
       }
     }
-    right
-        .entrySet()
-        .stream()
-        .forEach(x -> changedSecurityRequirement.addIncreased(x.getKey(), x.getValue()));
+    right.forEach(changedSecurityRequirement::addIncreased);
 
     return isChanged(changedSecurityRequirement);
-  }
-
-  public static SecurityRequirement getCopy(LinkedHashMap<String, List<String>> right) {
-    SecurityRequirement newSecurityRequirement = new SecurityRequirement();
-    right
-        .entrySet()
-        .stream()
-        .forEach(e -> newSecurityRequirement.put(e.getKey(), new ArrayList<>(e.getValue())));
-    return newSecurityRequirement;
   }
 }

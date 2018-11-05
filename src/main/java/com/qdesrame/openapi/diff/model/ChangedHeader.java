@@ -1,27 +1,30 @@
 package com.qdesrame.openapi.diff.model;
 
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
-import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.headers.Header;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /** Created by adarsh.sharma on 28/12/17. */
 @Getter
 @Setter
-public class ChangedHeader implements Changed {
+@Accessors(chain = true)
+public class ChangedHeader implements ComposedChanged {
   private final Header oldHeader;
   private final Header newHeader;
   private final DiffContext context;
 
-  private boolean changeDescription;
-  private boolean changeRequired;
-  private boolean changeDeprecated;
-  private boolean changeStyle;
-  private boolean changeExplode;
-  private ChangedSchema changedSchema;
-  private ChangedContent changedContent;
-  private ChangedExtensions changedExtensions;
+  private boolean required;
+  private boolean deprecated;
+  private boolean style;
+  private boolean explode;
+  private ChangedMetadata description;
+  private ChangedSchema schema;
+  private ChangedContent content;
+  private ChangedExtensions extensions;
 
   public ChangedHeader(Header oldHeader, Header newHeader, DiffContext context) {
     this.oldHeader = oldHeader;
@@ -30,23 +33,16 @@ public class ChangedHeader implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (!changeDescription
-        && !changeRequired
-        && !changeDeprecated
-        && !changeStyle
-        && !changeExplode
-        && ChangedUtils.isUnchanged(changedSchema)
-        && ChangedUtils.isUnchanged(changedContent)
-        && ChangedUtils.isUnchanged(changedExtensions)) {
+  public List<Changed> getChangedElements() {
+    return Arrays.asList(description, schema, content, extensions);
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    if (!required && !deprecated && !style && !explode) {
       return DiffResult.NO_CHANGES;
     }
-    if (!changeRequired
-        && !changeStyle
-        && !changeExplode
-        && ChangedUtils.isCompatible(changedSchema)
-        && ChangedUtils.isCompatible(changedContent)
-        && ChangedUtils.isCompatible(changedExtensions)) {
+    if (!required && !style && !explode) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

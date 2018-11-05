@@ -3,10 +3,12 @@ package com.qdesrame.openapi.diff.model;
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
 import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
-import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -16,7 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ChangedSchema implements Changed {
+public class ChangedSchema implements ComposedChanged {
   protected DiffContext context;
   protected Schema oldSchema;
   protected Schema newSchema;
@@ -25,21 +27,21 @@ public class ChangedSchema implements Changed {
   protected Map<String, Schema> increasedProperties;
   protected Map<String, Schema> missingProperties;
   protected boolean changeDeprecated;
-  protected boolean changeDescription;
+  protected ChangedMetadata description;
   protected boolean changeTitle;
   protected ListDiff<String> changeRequired;
   protected boolean changeDefault;
   protected ListDiff changeEnum;
   protected boolean changeFormat;
-  protected ChangedReadOnly changedReadOnly;
-  protected ChangedWriteOnly changedWriteOnly;
+  protected ChangedReadOnly readOnly;
+  protected ChangedWriteOnly writeOnly;
   protected boolean changedType;
   protected boolean changedMaxLength;
   protected boolean discriminatorPropertyChanged;
-  protected ChangedSchema changedItems;
-  protected ChangedOneOfSchema changedOneOfSchema;
-  protected ChangedSchema addPropChangedSchema;
-  protected ChangedExtensions changedExtensions;
+  protected ChangedSchema items;
+  protected ChangedOneOfSchema oneOfSchema;
+  protected ChangedSchema addProp;
+  private ChangedExtensions extensions;
 
   public ChangedSchema() {
     increasedProperties = new LinkedHashMap<>();
@@ -48,11 +50,17 @@ public class ChangedSchema implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
+  public List<Changed> getChangedElements() {
+    return Stream.concat(
+            changedProperties.values().stream(),
+            Stream.of(description, readOnly, writeOnly, items, oneOfSchema, addProp, extensions))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
     if (!changedType
         && (oldSchema == null && newSchema == null || oldSchema != null && newSchema != null)
-        && ChangedUtils.isUnchanged(changedWriteOnly)
-        && ChangedUtils.isUnchanged(changedReadOnly)
         && !changedMaxLength
         && (changeEnum == null || changeEnum.isUnchanged())
         && !changeFormat
@@ -61,14 +69,10 @@ public class ChangedSchema implements Changed {
         && changedProperties.values().size() == 0
         && !changeDeprecated
         && (changeRequired == null || changeRequired.isUnchanged())
-        && !discriminatorPropertyChanged
-        && ChangedUtils.isUnchanged(addPropChangedSchema)
-        && ChangedUtils.isUnchanged(changedOneOfSchema)
-        && ChangedUtils.isUnchanged(changedItems)
-        && ChangedUtils.isUnchanged(changedExtensions)) {
+        && !discriminatorPropertyChanged) {
       return DiffResult.NO_CHANGES;
     }
-    boolean backwardCompatibleForRequest =
+    boolean compatibleForRequest =
         (changeEnum == null || changeEnum.getMissing().isEmpty())
             && (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getIncreased()))
             && (oldSchema != null || newSchema == null)
@@ -77,7 +81,7 @@ public class ChangedSchema implements Changed {
                 || (oldSchema.getMaxLength() != null
                     && oldSchema.getMaxLength() <= newSchema.getMaxLength()));
 
-    boolean backwardCompatibleForResponse =
+    boolean compatibleForResponse =
         (changeEnum == null || changeEnum.getIncreased().isEmpty())
             && (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getMissing()))
             && missingProperties.isEmpty()
@@ -86,19 +90,12 @@ public class ChangedSchema implements Changed {
                 || oldSchema.getMaxLength() == null
                 || (newSchema.getMaxLength() != null
                     && newSchema.getMaxLength() <= oldSchema.getMaxLength()));
-
-    if ((context.isRequest() && backwardCompatibleForRequest
-            || context.isResponse() && backwardCompatibleForResponse)
+    if ((context.isRequest() && compatibleForRequest
+            || context.isResponse() && compatibleForResponse)
         && !changedType
-        && !discriminatorPropertyChanged
-        && ChangedUtils.isCompatible(changedOneOfSchema)
-        && ChangedUtils.isCompatible(addPropChangedSchema)
-        && changedProperties.values().stream().allMatch(Changed::isCompatible)
-        && ChangedUtils.isCompatible(changedItems)
-        && ChangedUtils.isCompatible(changedExtensions)) {
+        && !discriminatorPropertyChanged) {
       return DiffResult.COMPATIBLE;
     }
-
     return DiffResult.INCOMPATIBLE;
   }
 }

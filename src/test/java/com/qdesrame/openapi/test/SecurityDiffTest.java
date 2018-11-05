@@ -61,13 +61,9 @@ public class SecurityDiffTest {
         changedSecurityRequirements2.getChanged().get(0);
     assertTrue(changedSecurityRequirement2.getChanged().size() == 1);
     ChangedOAuthFlow changedImplicitOAuthFlow2 =
-        changedSecurityRequirement2
-            .getChanged()
-            .get(0)
-            .getChangedOAuthFlows()
-            .getChangedImplicitOAuthFlow();
+        changedSecurityRequirement2.getChanged().get(0).getOAuthFlows().getImplicitOAuthFlow();
     assertNotNull(changedImplicitOAuthFlow2);
-    assertTrue(changedImplicitOAuthFlow2.isChangedAuthorizationUrl());
+    assertTrue(changedImplicitOAuthFlow2.isAuthorizationUrl());
 
     ChangedOperation changedOperation3 =
         changedOpenApi

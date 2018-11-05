@@ -9,15 +9,14 @@ import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 
 /** Created by adarsh.sharma on 28/12/17. */
 public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedResponse> {
+  private static RefPointer<ApiResponse> refPointer = new RefPointer<>(RefType.RESPONSES);
   private OpenApiDiff openApiDiff;
   private Components leftComponents;
   private Components rightComponents;
-  private static RefPointer<ApiResponse> refPointer = new RefPointer<>(RefType.RESPONSES);
 
   public ResponseDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
@@ -42,21 +41,22 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
     right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
     ChangedResponse changedResponse = new ChangedResponse(left, right, context);
-
+    openApiDiff
+        .getMetadataDiff()
+        .diff(left.getDescription(), right.getDescription(), context)
+        .ifPresent(changedResponse::setDescription);
     openApiDiff
         .getContentDiff()
         .diff(left.getContent(), right.getContent(), context)
-        .ifPresent(changedResponse::setChangedContent);
+        .ifPresent(changedResponse::setContent);
     openApiDiff
         .getHeadersDiff()
         .diff(left.getHeaders(), right.getHeaders(), context)
-        .ifPresent(changedResponse::setChangedHeaders);
-    changedResponse.setChangeDescription(
-        !Objects.equals(left.getDescription(), right.getDescription()));
+        .ifPresent(changedResponse::setHeaders);
     openApiDiff
         .getExtensionsDiff()
         .diff(left.getExtensions(), right.getExtensions(), context)
-        .ifPresent(changedResponse::setChangedExtensions);
+        .ifPresent(changedResponse::setExtensions);
     return isChanged(changedResponse);
   }
 }

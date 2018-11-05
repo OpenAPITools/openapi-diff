@@ -71,8 +71,10 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
     ChangedSecurityScheme changedSecurityScheme =
         new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme);
 
-    changedSecurityScheme.setChangedDescription(
-        !Objects.equals(leftSecurityScheme.getDescription(), rightSecurityScheme.getDescription()));
+    openApiDiff
+        .getMetadataDiff()
+        .diff(leftSecurityScheme.getDescription(), rightSecurityScheme.getDescription(), context)
+        .ifPresent(changedSecurityScheme::setDescription);
 
     switch (leftSecurityScheme.getType()) {
       case APIKEY:
@@ -84,7 +86,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
         openApiDiff
             .getOAuthFlowsDiff()
             .diff(leftSecurityScheme.getFlows(), rightSecurityScheme.getFlows())
-            .ifPresent(changedSecurityScheme::setChangedOAuthFlows);
+            .ifPresent(changedSecurityScheme::setOAuthFlows);
         break;
 
       case HTTP:
@@ -105,21 +107,20 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
     openApiDiff
         .getExtensionsDiff()
         .diff(leftSecurityScheme.getExtensions(), rightSecurityScheme.getExtensions(), context)
-        .ifPresent(changedSecurityScheme::setChangedExtensions);
+        .ifPresent(changedSecurityScheme::setExtensions);
 
     return Optional.of(changedSecurityScheme);
   }
 
   private ChangedSecurityScheme getCopyWithoutScopes(ChangedSecurityScheme original) {
-    ChangedSecurityScheme changedSecurityScheme =
-        new ChangedSecurityScheme(original.getOldSecurityScheme(), original.getNewSecurityScheme());
-    changedSecurityScheme.setChangedType(original.isChangedType());
-    changedSecurityScheme.setChangedDescription(original.isChangedDescription());
-    changedSecurityScheme.setChangedIn(original.isChangedIn());
-    changedSecurityScheme.setChangedScheme(original.isChangedScheme());
-    changedSecurityScheme.setChangedBearerFormat(original.isChangedBearerFormat());
-    changedSecurityScheme.setChangedOAuthFlows(original.getChangedOAuthFlows());
-    changedSecurityScheme.setChangedOpenIdConnectUrl(original.isChangedOpenIdConnectUrl());
-    return changedSecurityScheme;
+    return new ChangedSecurityScheme(
+            original.getOldSecurityScheme(), original.getNewSecurityScheme())
+        .setChangedType(original.isChangedType())
+        .setChangedIn(original.isChangedIn())
+        .setChangedScheme(original.isChangedScheme())
+        .setChangedBearerFormat(original.isChangedBearerFormat())
+        .setDescription(original.getDescription())
+        .setOAuthFlows(original.getOAuthFlows())
+        .setChangedOpenIdConnectUrl(original.isChangedOpenIdConnectUrl());
   }
 }

@@ -1,26 +1,30 @@
 package com.qdesrame.openapi.diff.model;
 
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
-import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /** Created by adarsh.sharma on 11/01/18. */
 @Getter
 @Setter
-public class ChangedSecurityScheme implements Changed {
+@Accessors(chain = true)
+public class ChangedSecurityScheme implements ComposedChanged {
   private SecurityScheme oldSecurityScheme;
   private SecurityScheme newSecurityScheme;
+
   private boolean changedType;
-  private boolean changedDescription;
   private boolean changedIn;
   private boolean changedScheme;
   private boolean changedBearerFormat;
-  private ChangedOAuthFlows changedOAuthFlows;
   private boolean changedOpenIdConnectUrl;
   private ListDiff<String> changedScopes;
-  private ChangedExtensions changedExtensions;
+  private ChangedMetadata description;
+  private ChangedOAuthFlows oAuthFlows;
+  private ChangedExtensions extensions;
 
   public ChangedSecurityScheme(SecurityScheme oldSecurityScheme, SecurityScheme newSecurityScheme) {
     this.oldSecurityScheme = oldSecurityScheme;
@@ -28,26 +32,26 @@ public class ChangedSecurityScheme implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
+  public List<Changed> getChangedElements() {
+    return Arrays.asList(description, oAuthFlows, extensions);
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
     if (!changedType
-        && !changedDescription
         && !changedIn
         && !changedScheme
         && !changedBearerFormat
-        && ChangedUtils.isUnchanged(changedOAuthFlows)
         && !changedOpenIdConnectUrl
-        && (changedScopes == null || changedScopes.isUnchanged())
-        && ChangedUtils.isUnchanged(changedExtensions)) {
+        && (changedScopes == null || changedScopes.isUnchanged())) {
       return DiffResult.NO_CHANGES;
     }
     if (!changedType
         && !changedIn
         && !changedScheme
         && !changedBearerFormat
-        && ChangedUtils.isCompatible(changedOAuthFlows)
         && !changedOpenIdConnectUrl
-        && (changedScopes == null || changedScopes.getIncreased().isEmpty())
-        && ChangedUtils.isCompatible(changedExtensions)) {
+        && (changedScopes == null || changedScopes.getIncreased().isEmpty())) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

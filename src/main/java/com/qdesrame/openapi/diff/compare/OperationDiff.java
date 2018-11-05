@@ -70,7 +70,7 @@ public class OperationDiff {
     openApiDiff
         .getExtensionsDiff()
         .diff(oldOperation.getExtensions(), newOperation.getExtensions(), context)
-        .ifPresent(changedOperation::setExtensions);
+        .ifPresent(extensions -> changedOperation.setExtensions(extensions));
 
     return isChanged(changedOperation);
   }

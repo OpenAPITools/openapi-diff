@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.output;
 
+import static com.qdesrame.openapi.diff.model.Changed.result;
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isUnchanged;
 import static java.lang.String.format;
 
@@ -95,7 +96,7 @@ public class MarkdownRender implements Render {
                               operation.getHttpMethod().toString(),
                               operation.getPathUrl(),
                               operation.getSummary()));
-              if (operation.resultParameters().isDifferent()) {
+              if (result(operation.getParameters()).isDifferent()) {
                 details
                     .append(titleH5("Parameters:"))
                     .append(parameters(operation.getParameters()));
@@ -103,7 +104,7 @@ public class MarkdownRender implements Render {
               if (operation.resultRequestBody().isDifferent()) {
                 details
                     .append(titleH5("Request:"))
-                    .append(bodyContent(operation.getRequestBody().getChangedContent()));
+                    .append(bodyContent(operation.getRequestBody().getContent()));
               }
               if (operation.resultApiResponses().isDifferent()) {
                 details
@@ -118,10 +119,10 @@ public class MarkdownRender implements Render {
 
   protected String responses(ChangedApiResponse changedApiResponse) {
     StringBuilder sb = new StringBuilder("\n");
-    sb.append(listResponse("New response", changedApiResponse.getAddResponses()));
-    sb.append(listResponse("Deleted response", changedApiResponse.getMissingResponses()));
+    sb.append(listResponse("New response", changedApiResponse.getIncreased()));
+    sb.append(listResponse("Deleted response", changedApiResponse.getMissing()));
     changedApiResponse
-        .getChangedResponses()
+        .getChanged()
         .entrySet()
         .stream()
         .map(e -> this.itemResponse(e.getKey(), e.getValue()))
@@ -152,9 +153,9 @@ public class MarkdownRender implements Render {
             null == response.getNewApiResponse()
                 ? ""
                 : response.getNewApiResponse().getDescription()));
-    sb.append(headers(response.getChangedHeaders()));
-    if (response.getChangedContent() != null) {
-      sb.append(this.bodyContent(LI, response.getChangedContent()));
+    sb.append(headers(response.getHeaders()));
+    if (response.getContent() != null) {
+      sb.append(this.bodyContent(LI, response.getContent()));
     }
     return sb.toString();
   }
@@ -252,8 +253,7 @@ public class MarkdownRender implements Render {
   }
 
   protected String itemContent(int deepness, String mediaType, ChangedMediaType content) {
-    return itemContent("Changed content type", mediaType)
-        + schema(deepness, content.getChangedSchema());
+    return itemContent("Changed content type", mediaType) + schema(deepness, content.getSchema());
   }
 
   protected String schema(ChangedSchema schema) {
@@ -263,18 +263,18 @@ public class MarkdownRender implements Render {
   protected String oneOfSchema(int deepness, ChangedOneOfSchema schema, String discriminator) {
     StringBuilder sb = new StringBuilder();
     schema
-        .getMissingMapping()
+        .getMissing()
         .keySet()
         .forEach(
             key -> sb.append(format("%sDeleted '%s' %s\n", indent(deepness), key, discriminator)));
     schema
-        .getIncreasedMapping()
+        .getIncreased()
         .forEach(
             (key, sub) ->
                 sb.append(format("%sAdded '%s' %s:\n", indent(deepness), key, discriminator))
                     .append(schema(deepness, sub, schema.getContext())));
     schema
-        .getChangedMapping()
+        .getChanged()
         .forEach(
             (key, sub) ->
                 sb.append(format("%sUpdated `%s` %s:\n", indent(deepness), key, discriminator))
@@ -297,12 +297,12 @@ public class MarkdownRender implements Render {
     if (schema.isDiscriminatorPropertyChanged()) {
       LOGGER.debug("Discriminator property changed");
     }
-    if (schema.getChangedOneOfSchema() != null) {
+    if (schema.getOneOfSchema() != null) {
       String discriminator =
           schema.getNewSchema().getDiscriminator() != null
               ? schema.getNewSchema().getDiscriminator().getPropertyName()
               : "";
-      sb.append(oneOfSchema(deepness, schema.getChangedOneOfSchema(), discriminator));
+      sb.append(oneOfSchema(deepness, schema.getOneOfSchema(), discriminator));
     }
     if (schema.getChangeRequired() != null) {
       sb.append(
@@ -310,8 +310,8 @@ public class MarkdownRender implements Render {
       sb.append(
           required(deepness, "New optional properties", schema.getChangeRequired().getMissing()));
     }
-    if (schema.getChangedItems() != null) {
-      sb.append(items(deepness, schema.getChangedItems()));
+    if (schema.getItems() != null) {
+      sb.append(items(deepness, schema.getItems()));
     }
     sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
     sb.append(
