@@ -5,7 +5,7 @@ jobs:
     working_directory: ~/openapi-diff
 
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:8-jdk-node-browsers
 
     steps:
 
