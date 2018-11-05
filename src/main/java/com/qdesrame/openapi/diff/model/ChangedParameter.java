@@ -1,30 +1,31 @@
 package com.qdesrame.openapi.diff.model;
 
 import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
-import com.qdesrame.openapi.diff.utils.ChangedUtils;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
-public class ChangedParameter implements Changed {
+@Accessors(chain = true)
+public class ChangedParameter implements ComposedChanged {
+  private final DiffContext context;
   private Parameter oldParameter;
   private Parameter newParameter;
-
   private String name;
   private String in;
-  private final DiffContext context;
-
-  private boolean changeDescription;
   private boolean changeRequired;
   private boolean deprecated;
   private boolean changeStyle;
   private boolean changeExplode;
   private boolean changeAllowEmptyValue;
-  private ChangedSchema changedSchema;
-  private ChangedContent changedContent;
-  private ChangedExtensions changedExtensions;
+  private ChangedMetadata description;
+  private ChangedSchema schema;
+  private ChangedContent content;
+  private ChangedExtensions extensions;
 
   public ChangedParameter(String name, String in, DiffContext context) {
     this.name = name;
@@ -33,25 +34,23 @@ public class ChangedParameter implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (!changeDescription
-        && !changeRequired
+  public List<Changed> getChangedElements() {
+    return Arrays.asList(description, schema, content, extensions);
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    if (!changeRequired
         && !deprecated
         && !changeAllowEmptyValue
         && !changeStyle
-        && !changeExplode
-        && ChangedUtils.isUnchanged(changedSchema)
-        && ChangedUtils.isUnchanged(changedContent)
-        && ChangedUtils.isUnchanged(changedExtensions)) {
+        && !changeExplode) {
       return DiffResult.NO_CHANGES;
     }
     if ((!changeRequired || Boolean.TRUE.equals(oldParameter.getRequired()))
         && (!changeAllowEmptyValue || Boolean.TRUE.equals(newParameter.getAllowEmptyValue()))
         && !changeStyle
-        && !changeExplode
-        && ChangedUtils.isCompatible(changedSchema)
-        && ChangedUtils.isCompatible(changedContent)
-        && ChangedUtils.isCompatible(changedExtensions)) {
+        && !changeExplode) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

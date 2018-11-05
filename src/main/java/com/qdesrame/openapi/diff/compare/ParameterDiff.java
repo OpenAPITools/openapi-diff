@@ -3,7 +3,6 @@ package com.qdesrame.openapi.diff.compare;
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 import com.qdesrame.openapi.diff.model.ChangedParameter;
-import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
@@ -15,10 +14,10 @@ import java.util.Optional;
 
 public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParameter> {
 
+  private static RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
   private Components leftComponents;
   private Components rightComponents;
   private OpenApiDiff openApiDiff;
-  private static RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
 
   public ParameterDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
@@ -39,38 +38,37 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
   @Override
   protected Optional<ChangedParameter> computeDiff(
       HashSet<String> refSet, Parameter left, Parameter right, DiffContext context) {
-    ChangedParameter changedParameter =
-        new ChangedParameter(right.getName(), right.getIn(), context);
     left = refPointer.resolveRef(this.leftComponents, left, left.get$ref());
     right = refPointer.resolveRef(this.rightComponents, right, right.get$ref());
 
-    changedParameter.setOldParameter(left);
-    changedParameter.setNewParameter(right);
-
-    changedParameter.setChangeDescription(
-        !Objects.equals(left.getDescription(), right.getDescription()));
-    changedParameter.setChangeRequired(getBooleanDiff(left.getRequired(), right.getRequired()));
-    changedParameter.setDeprecated(
-        !Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
-    changedParameter.setChangeAllowEmptyValue(
-        getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()));
-    changedParameter.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
-    changedParameter.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
-    Optional<ChangedSchema> changedSchema =
-        openApiDiff
-            .getSchemaDiff()
-            .diff(refSet, left.getSchema(), right.getSchema(), context.copyWithRequired(true));
-    if (changedSchema.isPresent()) {
-      changedParameter.setChangedSchema(changedSchema.get());
-    }
+    ChangedParameter changedParameter =
+        new ChangedParameter(right.getName(), right.getIn(), context)
+            .setOldParameter(left)
+            .setNewParameter(right)
+            .setChangeRequired(getBooleanDiff(left.getRequired(), right.getRequired()))
+            .setDeprecated(
+                !Boolean.TRUE.equals(left.getDeprecated())
+                    && Boolean.TRUE.equals(right.getDeprecated()))
+            .setChangeAllowEmptyValue(
+                getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()))
+            .setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()))
+            .setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
+    openApiDiff
+        .getSchemaDiff()
+        .diff(refSet, left.getSchema(), right.getSchema(), context.copyWithRequired(true))
+        .ifPresent(changedParameter::setSchema);
+    openApiDiff
+        .getMetadataDiff()
+        .diff(left.getDescription(), right.getDescription(), context)
+        .ifPresent(changedParameter::setDescription);
     openApiDiff
         .getContentDiff()
         .diff(left.getContent(), right.getContent(), context)
-        .ifPresent(changedParameter::setChangedContent);
+        .ifPresent(changedParameter::setContent);
     openApiDiff
         .getExtensionsDiff()
         .diff(left.getExtensions(), right.getExtensions(), context)
-        .ifPresent(changedParameter::setChangedExtensions);
+        .ifPresent(changedParameter::setExtensions);
     return isChanged(changedParameter);
   }
 

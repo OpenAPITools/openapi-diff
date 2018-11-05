@@ -1,5 +1,6 @@
 package com.qdesrame.openapi.diff.output;
 
+import static com.qdesrame.openapi.diff.model.Changed.result;
 import static j2html.TagCreator.*;
 
 import com.qdesrame.openapi.diff.model.*;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class HtmlRender implements Render {
 
@@ -116,22 +118,25 @@ public class HtmlRender implements Render {
     for (ChangedOperation changedOperation : changedOperations) {
       String pathUrl = changedOperation.getPathUrl();
       String method = changedOperation.getHttpMethod().toString();
-      String desc = changedOperation.getSummary();
+      String desc =
+          Optional.ofNullable(changedOperation.getSummary())
+              .map(ChangedMetadata::getRight)
+              .orElse("");
 
       ContainerTag ul_detail = ul().withClass("detail");
-      if (changedOperation.isChangedParam().isDifferent()) {
+      if (result(changedOperation.getParameters()).isDifferent()) {
         ul_detail.with(
-            li().with(h3("Parameters")).with(ul_param(changedOperation.getChangedParameters())));
+            li().with(h3("Parameters")).with(ul_param(changedOperation.getParameters())));
       }
-      if (changedOperation.isChangedRequest().isDifferent()) {
+      if (changedOperation.resultRequestBody().isDifferent()) {
         ul_detail.with(
             li().with(h3("Request"))
-                .with(ul_request(changedOperation.getChangedRequestBody().getChangedContent())));
+                .with(ul_request(changedOperation.getRequestBody().getContent())));
       } else {
       }
-      if (changedOperation.isChangedResponse().isDifferent()) {
+      if (changedOperation.resultApiResponses().isDifferent()) {
         ul_detail.with(
-            li().with(h3("Response")).with(ul_response(changedOperation.getChangedApiResponse())));
+            li().with(h3("Response")).with(ul_response(changedOperation.getApiResponses())));
       }
       ol.with(
           li().with(span(method).withClass(method))
@@ -143,9 +148,9 @@ public class HtmlRender implements Render {
   }
 
   private ContainerTag ul_response(ChangedApiResponse changedApiResponse) {
-    Map<String, ApiResponse> addResponses = changedApiResponse.getAddResponses();
-    Map<String, ApiResponse> delResponses = changedApiResponse.getMissingResponses();
-    Map<String, ChangedResponse> changedResponses = changedApiResponse.getChangedResponses();
+    Map<String, ApiResponse> addResponses = changedApiResponse.getIncreased();
+    Map<String, ApiResponse> delResponses = changedApiResponse.getMissing();
+    Map<String, ChangedResponse> changedResponses = changedApiResponse.getChanged();
     ContainerTag ul = ul().withClass("change response");
     for (String propName : addResponses.keySet()) {
       ul.with(li_addResponse(propName, addResponses.get(propName)));
@@ -181,7 +186,7 @@ public class HtmlRender implements Render {
                     ? ""
                     : ("//" + response.getNewApiResponse().getDescription()))
                 .withClass("comment"))
-        .with(ul_request(response.getChangedContent()));
+        .with(ul_request(response.getContent()));
   }
 
   private ContainerTag ul_request(ChangedContent changedContent) {
@@ -210,7 +215,7 @@ public class HtmlRender implements Render {
 
   private ContainerTag li_changedRequest(String name, ChangedMediaType request) {
     return li().withText(String.format("Changed body: '%s'", name))
-        .with(div_changedSchema(request.getChangedSchema()));
+        .with(div_changedSchema(request.getSchema()));
   }
 
   private ContainerTag div_changedSchema(ChangedSchema schema) {
@@ -270,7 +275,7 @@ public class HtmlRender implements Render {
       return li_deprecatedParam(changeParam);
     }
     boolean changeRequired = changeParam.isChangeRequired();
-    boolean changeDescription = changeParam.isChangeDescription();
+    boolean changeDescription = changeParam.getDescription().isDifferent();
     Parameter rightParam = changeParam.getNewParameter();
     Parameter leftParam = changeParam.getNewParameter();
     ContainerTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());

@@ -16,12 +16,12 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
   }
 
   @Override
-  public Optional<ChangedSchema> diff(
+  public <T extends Schema<X>, X> Optional<ChangedSchema> diff(
       HashSet<String> refSet,
       Components leftComponents,
       Components rightComponents,
-      Schema left,
-      Schema right,
+      T left,
+      T right,
       DiffContext context) {
     ArraySchema leftArraySchema = (ArraySchema) left;
     ArraySchema rightArraySchema = (ArraySchema) right;
@@ -33,7 +33,7 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
             leftArraySchema.getItems(),
             rightArraySchema.getItems(),
             context.copyWithRequired(true))
-        .ifPresent(changedSchema::setChangedItems);
+        .ifPresent(changedSchema::setItems);
     return isApplicable(context);
   }
 }

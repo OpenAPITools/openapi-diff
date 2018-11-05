@@ -24,7 +24,14 @@ public class OperationDiff {
     ChangedOperation changedOperation =
         new ChangedOperation(context.getUrl(), context.getMethod(), oldOperation, newOperation);
 
-    changedOperation.setSummary(newOperation.getSummary());
+    openApiDiff
+        .getMetadataDiff()
+        .diff(oldOperation.getSummary(), newOperation.getSummary(), context)
+        .ifPresent(changedOperation::setSummary);
+    openApiDiff
+        .getMetadataDiff()
+        .diff(oldOperation.getDescription(), newOperation.getDescription(), context)
+        .ifPresent(changedOperation::setDescription);
     changedOperation.setDeprecated(
         !Boolean.TRUE.equals(oldOperation.getDeprecated())
             && Boolean.TRUE.equals(newOperation.getDeprecated()));
@@ -34,7 +41,7 @@ public class OperationDiff {
           .getRequestBodyDiff()
           .diff(
               oldOperation.getRequestBody(), newOperation.getRequestBody(), context.copyAsRequest())
-          .ifPresent(changedOperation::setChangedRequestBody);
+          .ifPresent(changedOperation::setRequestBody);
     }
 
     openApiDiff
@@ -43,27 +50,27 @@ public class OperationDiff {
         .ifPresent(
             params -> {
               removePathParameters(context.getParameters(), params);
-              changedOperation.setChangedParameters(params);
+              changedOperation.setParameters(params);
             });
 
     if (oldOperation.getResponses() != null || newOperation.getResponses() != null) {
       openApiDiff
           .getApiResponseDiff()
           .diff(oldOperation.getResponses(), newOperation.getResponses(), context.copyAsResponse())
-          .ifPresent(changedOperation::setChangedApiResponse);
+          .ifPresent(changedOperation::setApiResponses);
     }
 
     if (oldOperation.getSecurity() != null || newOperation.getSecurity() != null) {
       openApiDiff
           .getSecurityRequirementsDiff()
           .diff(oldOperation.getSecurity(), newOperation.getSecurity(), context)
-          .ifPresent(changedOperation::setChangedSecurityRequirements);
+          .ifPresent(changedOperation::setSecurityRequirements);
     }
 
     openApiDiff
         .getExtensionsDiff()
         .diff(oldOperation.getExtensions(), newOperation.getExtensions(), context)
-        .ifPresent(changedOperation::setChangedExtensions);
+        .ifPresent(extensions -> changedOperation.setExtensions(extensions));
 
     return isChanged(changedOperation);
   }

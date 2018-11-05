@@ -3,7 +3,7 @@ package com.qdesrame.openapi.test;
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiBackwardCompatible;
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiBackwardIncompatible;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Created by adarsh.sharma on 24/12/17. */
 public class BackwardCompatibilityTest {

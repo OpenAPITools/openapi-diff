@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.collections4.CollectionUtils;
+import lombok.experimental.Accessors;
 
 /** Created by adarsh.sharma on 06/01/18. */
 @Getter
 @Setter
-public class ChangedSecurityRequirement implements Changed {
+@Accessors(chain = true)
+public class ChangedSecurityRequirement implements ComposedChanged {
   private SecurityRequirement oldSecurityRequirement;
   private SecurityRequirement newSecurityRequirement;
 
@@ -22,15 +23,20 @@ public class ChangedSecurityRequirement implements Changed {
       SecurityRequirement oldSecurityRequirement, SecurityRequirement newSecurityRequirement) {
     this.oldSecurityRequirement = oldSecurityRequirement;
     this.newSecurityRequirement = newSecurityRequirement;
+    this.changed = new ArrayList<>();
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (missing == null && increased == null && CollectionUtils.isEmpty(changed)) {
+  public List<Changed> getChangedElements() {
+    return new ArrayList<>(changed);
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    if (increased == null && missing == null) {
       return DiffResult.NO_CHANGES;
     }
-    if (increased == null
-        && (changed == null || changed.stream().allMatch(Changed::isCompatible))) {
+    if (increased == null) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;
@@ -51,9 +57,6 @@ public class ChangedSecurityRequirement implements Changed {
   }
 
   public void addChanged(ChangedSecurityScheme changedSecurityScheme) {
-    if (changed == null) {
-      changed = new ArrayList<>();
-    }
     changed.add(changedSecurityScheme);
   }
 }

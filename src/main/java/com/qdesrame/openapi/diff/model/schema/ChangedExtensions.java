@@ -1,16 +1,23 @@
 package com.qdesrame.openapi.diff.model.schema;
 
 import com.qdesrame.openapi.diff.model.Changed;
+import com.qdesrame.openapi.diff.model.ComposedChanged;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.DiffResult;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
-public class ChangedExtensions implements Changed {
+@Accessors
+public class ChangedExtensions implements ComposedChanged {
   private final Map<String, Object> oldExtensions;
   private final Map<String, Object> newExtensions;
   private final DiffContext context;
@@ -30,13 +37,15 @@ public class ChangedExtensions implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (increased.isEmpty() && missing.isEmpty() && changed.isEmpty()) {
-      return DiffResult.NO_CHANGES;
-    }
-    if (changed.values().stream().allMatch(Changed::isCompatible)) {
-      return DiffResult.COMPATIBLE;
-    }
-    return DiffResult.INCOMPATIBLE;
+  public List<Changed> getChangedElements() {
+    return Stream.of(increased, missing, changed)
+        .map(Map::values)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    return DiffResult.NO_CHANGES;
   }
 }

@@ -21,10 +21,7 @@ public class HeadersDiff {
 
   public Optional<ChangedHeaders> diff(
       Map<String, Header> left, Map<String, Header> right, DiffContext context) {
-    ChangedHeaders changedHeaders = new ChangedHeaders(left, right, context);
     MapKeyDiff<String, Header> headerMapDiff = MapKeyDiff.diff(left, right);
-    changedHeaders.setIncreased(headerMapDiff.getIncreased());
-    changedHeaders.setMissing(headerMapDiff.getMissing());
     List<String> sharedHeaderKeys = headerMapDiff.getSharedKey();
 
     Map<String, ChangedHeader> changed = new LinkedHashMap<>();
@@ -36,8 +33,10 @@ public class HeadersDiff {
           .diff(oldHeader, newHeader, context)
           .ifPresent(changedHeader -> changed.put(headerKey, changedHeader));
     }
-    changedHeaders.setChanged(changed);
-
-    return isChanged(changedHeaders);
+    return isChanged(
+        new ChangedHeaders(left, right, context)
+            .setIncreased(headerMapDiff.getIncreased())
+            .setMissing(headerMapDiff.getMissing())
+            .setChanged(changed));
   }
 }

@@ -11,16 +11,19 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /** Created by adarsh.sharma on 28/12/17. */
 public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequestBody> {
-  private OpenApiDiff openApiDiff;
   private static RefPointer<RequestBody> refPointer = new RefPointer<>(RefType.REQUEST_BODIES);
+  private OpenApiDiff openApiDiff;
 
   public RequestBodyDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
+  }
+
+  private static Map<String, Object> getExtensions(RequestBody body) {
+    return ofNullable(body).map(RequestBody::getExtensions).orElse(null);
   }
 
   public Optional<ChangedRequestBody> diff(
@@ -28,10 +31,6 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
     String leftRef = left != null ? left.get$ref() : null,
         rightRef = right != null ? right.get$ref() : null;
     return cachedDiff(new HashSet<>(), left, right, leftRef, rightRef, context);
-  }
-
-  private static Map<String, Object> getExtensions(RequestBody body) {
-    return ofNullable(body).map(RequestBody::getExtensions).orElse(null);
   }
 
   @Override
@@ -57,27 +56,29 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
         newRequestContent = newRequestBody.getContent();
       }
     }
-    ChangedRequestBody changedRequestBody =
-        new ChangedRequestBody(oldRequestBody, newRequestBody, context);
-
     boolean leftRequired =
         oldRequestBody != null && Boolean.TRUE.equals(oldRequestBody.getRequired());
     boolean rightRequired =
         newRequestBody != null && Boolean.TRUE.equals(newRequestBody.getRequired());
-    changedRequestBody.setChangeRequired(leftRequired != rightRequired);
 
-    String leftDescription = oldRequestBody != null ? oldRequestBody.getDescription() : null;
-    String rightDescription = newRequestBody != null ? newRequestBody.getDescription() : null;
-    changedRequestBody.setChangeDescription(!Objects.equals(leftDescription, rightDescription));
-
+    ChangedRequestBody changedRequestBody =
+        new ChangedRequestBody(oldRequestBody, newRequestBody, context)
+            .setChangeRequired(leftRequired != rightRequired);
+    openApiDiff
+        .getMetadataDiff()
+        .diff(
+            oldRequestBody != null ? oldRequestBody.getDescription() : null,
+            newRequestBody != null ? newRequestBody.getDescription() : null,
+            context)
+        .ifPresent(changedRequestBody::setDescription);
     openApiDiff
         .getContentDiff()
         .diff(oldRequestContent, newRequestContent, context)
-        .ifPresent(changedRequestBody::setChangedContent);
+        .ifPresent(changedRequestBody::setContent);
     openApiDiff
         .getExtensionsDiff()
         .diff(getExtensions(left), getExtensions(right), context)
-        .ifPresent(changedRequestBody::setChangedExtensions);
+        .ifPresent(changedRequestBody::setExtensions);
 
     return isChanged(changedRequestBody);
   }

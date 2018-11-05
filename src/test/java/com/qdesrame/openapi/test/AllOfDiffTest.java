@@ -3,7 +3,7 @@ package com.qdesrame.openapi.test;
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiChangedEndpoints;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Created by adarsh.sharma on 19/12/17. */
 public class AllOfDiffTest {

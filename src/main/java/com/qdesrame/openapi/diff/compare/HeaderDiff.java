@@ -14,10 +14,10 @@ import java.util.Optional;
 
 /** Created by adarsh.sharma on 28/12/17. */
 public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
+  private static RefPointer<Header> refPointer = new RefPointer<>(RefType.HEADERS);
   private OpenApiDiff openApiDiff;
   private Components leftComponents;
   private Components rightComponents;
-  private static RefPointer<Header> refPointer = new RefPointer<>(RefType.HEADERS);
 
   public HeaderDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
@@ -41,27 +41,30 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     left = refPointer.resolveRef(leftComponents, left, left.get$ref());
     right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
-    ChangedHeader changedHeader = new ChangedHeader(left, right, context);
-
-    changedHeader.setChangeDescription(
-        !Objects.equals(left.getDescription(), right.getDescription()));
-    changedHeader.setChangeRequired(getBooleanDiff(left.getRequired(), right.getRequired()));
-    changedHeader.setChangeDeprecated(
-        !Boolean.TRUE.equals(left.getDeprecated()) && Boolean.TRUE.equals(right.getDeprecated()));
-    changedHeader.setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()));
-    changedHeader.setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
+    ChangedHeader changedHeader =
+        new ChangedHeader(left, right, context)
+            .setRequired(getBooleanDiff(left.getRequired(), right.getRequired()))
+            .setDeprecated(
+                !Boolean.TRUE.equals(left.getDeprecated())
+                    && Boolean.TRUE.equals(right.getDeprecated()))
+            .setStyle(!Objects.equals(left.getStyle(), right.getStyle()))
+            .setExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
+    openApiDiff
+        .getMetadataDiff()
+        .diff(left.getDescription(), right.getDescription(), context)
+        .ifPresent(changedHeader::setDescription);
     openApiDiff
         .getSchemaDiff()
         .diff(new HashSet<>(), left.getSchema(), right.getSchema(), context.copyWithRequired(true))
-        .ifPresent(changedHeader::setChangedSchema);
+        .ifPresent(changedHeader::setSchema);
     openApiDiff
         .getContentDiff()
         .diff(left.getContent(), right.getContent(), context)
-        .ifPresent(changedHeader::setChangedContent);
+        .ifPresent(changedHeader::setContent);
     openApiDiff
         .getExtensionsDiff()
         .diff(left.getExtensions(), right.getExtensions(), context)
-        .ifPresent(changedHeader::setChangedExtensions);
+        .ifPresent(changedHeader::setExtensions);
     return isChanged(changedHeader);
   }
 

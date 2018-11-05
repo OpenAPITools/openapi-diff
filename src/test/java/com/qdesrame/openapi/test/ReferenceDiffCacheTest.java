@@ -2,7 +2,7 @@ package com.qdesrame.openapi.test;
 
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Created by adarsh.sharma on 25/12/17. */
 public class ReferenceDiffCacheTest {

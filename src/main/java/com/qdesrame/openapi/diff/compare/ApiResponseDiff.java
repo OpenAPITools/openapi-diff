@@ -23,9 +23,6 @@ public class ApiResponseDiff {
   public Optional<ChangedApiResponse> diff(
       ApiResponses left, ApiResponses right, DiffContext context) {
     MapKeyDiff<String, ApiResponse> responseMapKeyDiff = MapKeyDiff.diff(left, right);
-    ChangedApiResponse changedApiResponse = new ChangedApiResponse(left, right, context);
-    changedApiResponse.setAddResponses(responseMapKeyDiff.getIncreased());
-    changedApiResponse.setMissingResponses(responseMapKeyDiff.getMissing());
     List<String> sharedResponseCodes = responseMapKeyDiff.getSharedKey();
     Map<String, ChangedResponse> resps = new LinkedHashMap<>();
     for (String responseCode : sharedResponseCodes) {
@@ -34,11 +31,15 @@ public class ApiResponseDiff {
           .diff(left.get(responseCode), right.get(responseCode), context)
           .ifPresent(changedResponse -> resps.put(responseCode, changedResponse));
     }
-    changedApiResponse.setChangedResponses(resps);
+    ChangedApiResponse changedApiResponse =
+        new ChangedApiResponse(left, right, context)
+            .setIncreased(responseMapKeyDiff.getIncreased())
+            .setMissing(responseMapKeyDiff.getMissing())
+            .setChanged(resps);
     openApiDiff
         .getExtensionsDiff()
         .diff(left.getExtensions(), right.getExtensions(), context)
-        .ifPresent(changedApiResponse::setChangedExtensions);
+        .ifPresent(changedApiResponse::setExtensions);
     return isChanged(changedApiResponse);
   }
 }

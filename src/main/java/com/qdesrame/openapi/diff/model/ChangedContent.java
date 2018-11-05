@@ -2,15 +2,19 @@ package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /** Created by adarsh.sharma on 22/12/17. */
 @Getter
 @Setter
-public class ChangedContent implements Changed {
+@Accessors(chain = true)
+public class ChangedContent implements ComposedChanged {
   private final Content oldContent;
   private final Content newContent;
   private final DiffContext context;
@@ -29,13 +33,16 @@ public class ChangedContent implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
-    if (increased.isEmpty() && missing.isEmpty() && changed.isEmpty()) {
+  public List<Changed> getChangedElements() {
+    return new ArrayList<>(changed.values());
+  }
+
+  @Override
+  public DiffResult isCoreChanged() {
+    if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (((context.isRequest() && missing.isEmpty())
-            || (context.isResponse() && increased.isEmpty()))
-        && changed.values().stream().allMatch(Changed::isCompatible)) {
+    if (context.isRequest() && missing.isEmpty() || context.isResponse() && increased.isEmpty()) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

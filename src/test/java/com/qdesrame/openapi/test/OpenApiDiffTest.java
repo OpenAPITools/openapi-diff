@@ -1,6 +1,7 @@
 package com.qdesrame.openapi.test;
 
 import static com.qdesrame.openapi.test.TestUtils.assertOpenApiAreEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.qdesrame.openapi.diff.OpenApiCompare;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
@@ -11,15 +12,14 @@ import com.qdesrame.openapi.diff.output.MarkdownRender;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OpenApiDiffTest {
 
+  final String SWAGGER_V2_HTTP = "http://petstore.swagger.io/v2/swagger.json";
   private final String OPENAPI_DOC1 = "petstore_v2_1.yaml";
   private final String OPENAPI_DOC2 = "petstore_v2_2.yaml";
   private final String OPENAPI_EMPTY_DOC = "petstore_v2_empty.yaml";
-  final String SWAGGER_V2_HTTP = "http://petstore.swagger.io/v2/swagger.json";
 
   @Test
   public void testEqual() {
@@ -44,9 +44,9 @@ public class OpenApiDiffTest {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    Assert.assertTrue(newEndpoints.size() > 0);
-    Assert.assertTrue(missingEndpoints.isEmpty());
-    Assert.assertTrue(changedEndPoints.isEmpty());
+    assertThat(newEndpoints).isNotEmpty();
+    assertThat(missingEndpoints).isEmpty();
+    assertThat(changedEndPoints).isEmpty();
   }
 
   @Test
@@ -67,9 +67,9 @@ public class OpenApiDiffTest {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    Assert.assertTrue(newEndpoints.isEmpty());
-    Assert.assertTrue(missingEndpoints.size() > 0);
-    Assert.assertTrue(changedEndPoints.isEmpty());
+    assertThat(newEndpoints).isEmpty();
+    assertThat(missingEndpoints).isNotEmpty();
+    assertThat(changedEndPoints).isEmpty();
   }
 
   @Test
@@ -87,7 +87,7 @@ public class OpenApiDiffTest {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    Assert.assertFalse(changedEndPoints.isEmpty());
+    assertThat(changedEndPoints).isNotEmpty();
   }
 
   @Test

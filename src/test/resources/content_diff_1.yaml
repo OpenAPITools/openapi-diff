@@ -2,7 +2,7 @@
 openapi: "3.0.1"
 info:
   title: "Test title"
-  description: "This is a test description"
+  description: "This is a test metadata"
   termsOfService: "http://test.com"
   contact:
     name: "Mark Snijder"

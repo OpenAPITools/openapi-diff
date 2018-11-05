@@ -118,12 +118,13 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
   public Optional<ChangedSchema> getTypeChangedSchema(
       Schema left, Schema right, DiffContext context) {
-    ChangedSchema changedSchema = SchemaDiff.getSchemaDiffResult(openApiDiff).getChangedSchema();
-    changedSchema.setOldSchema(left);
-    changedSchema.setNewSchema(right);
-    changedSchema.setChangedType(true);
-    changedSchema.setContext(context);
-    return Optional.of(changedSchema);
+    return Optional.of(
+        SchemaDiff.getSchemaDiffResult(openApiDiff)
+            .getChangedSchema()
+            .setOldSchema(left)
+            .setNewSchema(right)
+            .setChangedType(true)
+            .setContext(context));
   }
 
   @Override

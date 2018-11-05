@@ -1,10 +1,13 @@
 package com.qdesrame.openapi.diff.output;
 
+import static com.qdesrame.openapi.diff.model.Changed.result;
+
 import com.qdesrame.openapi.diff.model.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,29 +61,30 @@ public class ConsoleRender implements Render {
     for (ChangedOperation operation : operations) {
       String pathUrl = operation.getPathUrl();
       String method = operation.getHttpMethod().toString();
-      String desc = operation.getSummary();
+      String desc =
+          Optional.ofNullable(operation.getSummary()).map(ChangedMetadata::getRight).orElse("");
 
       StringBuilder ul_detail = new StringBuilder();
-      if (operation.isChangedParam().isDifferent()) {
+      if (result(operation.getParameters()).isDifferent()) {
         ul_detail
             .append(StringUtils.repeat(' ', 2))
             .append("Parameter:")
             .append(System.lineSeparator())
-            .append(ul_param(operation.getChangedParameters()));
+            .append(ul_param(operation.getParameters()));
       }
-      if (operation.isChangedRequest().isDifferent()) {
+      if (operation.resultRequestBody().isDifferent()) {
         ul_detail
             .append(StringUtils.repeat(' ', 2))
             .append("Request:")
             .append(System.lineSeparator())
-            .append(ul_content(operation.getChangedRequestBody().getChangedContent(), true));
+            .append(ul_content(operation.getRequestBody().getContent(), true));
       }
-      if (operation.isChangedResponse().isDifferent()) {
+      if (operation.resultApiResponses().isDifferent()) {
         ul_detail
             .append(StringUtils.repeat(' ', 2))
             .append("Return Type:")
             .append(System.lineSeparator())
-            .append(ul_response(operation.getChangedApiResponse()));
+            .append(ul_response(operation.getApiResponses()));
       }
       sb.append(itemEndpoint(method, pathUrl, desc)).append(ul_detail);
     }
@@ -88,9 +92,9 @@ public class ConsoleRender implements Render {
   }
 
   private String ul_response(ChangedApiResponse changedApiResponse) {
-    Map<String, ApiResponse> addResponses = changedApiResponse.getAddResponses();
-    Map<String, ApiResponse> delResponses = changedApiResponse.getMissingResponses();
-    Map<String, ChangedResponse> changedResponses = changedApiResponse.getChangedResponses();
+    Map<String, ApiResponse> addResponses = changedApiResponse.getIncreased();
+    Map<String, ApiResponse> delResponses = changedApiResponse.getMissing();
+    Map<String, ChangedResponse> changedResponses = changedApiResponse.getChanged();
     StringBuilder sb = new StringBuilder();
     for (String propName : addResponses.keySet()) {
       sb.append(itemResponse("Add ", propName));
@@ -124,7 +128,7 @@ public class ConsoleRender implements Render {
     StringBuilder sb = new StringBuilder();
     sb.append(itemResponse(title, contentType));
     sb.append(StringUtils.repeat(' ', 6)).append("Media types:").append(System.lineSeparator());
-    sb.append(ul_content(response.getChangedContent(), false));
+    sb.append(ul_content(response.getContent(), false));
     return sb.toString();
   }
 

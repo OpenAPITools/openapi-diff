@@ -111,45 +111,4 @@ public class SecurityRequirementsDiff {
   private List<SecurityRequirement> getCopy(List<SecurityRequirement> right) {
     return right.stream().map(SecurityRequirementDiff::getCopy).collect(Collectors.toList());
   }
-
-  //    public static void main(String[] args) {
-  //        List<SecurityScheme.Type> types1 = new
-  // ArrayList<>(Arrays.asList(SecurityScheme.Type.APIKEY, SecurityScheme.Type.APIKEY));
-  //        List<SecurityScheme.Type> types2 = new
-  // ArrayList<>(Arrays.asList(SecurityScheme.Type.APIKEY, SecurityScheme.Type.APIKEY));
-  //        List<SecurityScheme.Type> types3 = new
-  // ArrayList<>(Arrays.asList(SecurityScheme.Type.OAUTH2));
-  //        List<SecurityScheme.Type> types4 = new
-  // ArrayList<>(Arrays.asList(SecurityScheme.Type.OAUTH2, SecurityScheme.Type.APIKEY));
-  //        List<SecurityScheme.Type> types5 = new
-  // ArrayList<>(Arrays.asList(SecurityScheme.Type.APIKEY, SecurityScheme.Type.OAUTH2));
-  //
-  //        List<Pair<SecurityScheme.Type, SecurityScheme.In>> one = new ArrayList<>();
-  //        one.add(new ImmutablePair<>(SecurityScheme.Type.OAUTH2, null));
-  //        one.add(new ImmutablePair<>(SecurityScheme.Type.APIKEY, SecurityScheme.In.HEADER));
-  //
-  //        List<Pair<SecurityScheme.Type, SecurityScheme.In>> two = new ArrayList<>();
-  //        two.add(new ImmutablePair<>(SecurityScheme.Type.APIKEY, SecurityScheme.In.HEADER));
-  //        two.add(new ImmutablePair<>(SecurityScheme.Type.OAUTH2, null));
-  //
-  //        System.out.println(CollectionUtils.isEqualCollection(types1, types2));
-  //        System.out.println(CollectionUtils.isEqualCollection(types1, types3));
-  //        System.out.println(CollectionUtils.isEqualCollection(types4, types5));
-  //        System.out.println(CollectionUtils.isEqualCollection(one, two));
-  //    }
-
-  //    private List<List<SecurityDiffInfo>> getSecurityInfo(Components components,
-  // List<SecurityRequirement> securityRequirements) {
-  //        List<List<SecurityDiffInfo>> securityInfoList = new ArrayList<>();
-  //
-  //        for (LinkedHashMap<String, List<String>> securityRequirement : securityRequirements) {
-  //            securityInfoList.add(securityRequirement.entrySet().stream()
-  //                    .map(e -> new SecurityDiffInfo(e.getKey(), refPointer.resolveRef(components,
-  // new SecurityScheme(), e.getKey()), e.getValue()))
-  //                    .collect(Collectors.toList()));
-  //        }
-  //
-  //        return securityInfoList;
-  //    }
-
 }

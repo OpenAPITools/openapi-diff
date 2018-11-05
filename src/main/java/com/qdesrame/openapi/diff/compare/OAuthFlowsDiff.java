@@ -26,24 +26,24 @@ public class OAuthFlowsDiff {
       openApiDiff
           .getOAuthFlowDiff()
           .diff(left.getImplicit(), right.getImplicit())
-          .ifPresent(changedOAuthFlows::setChangedImplicitOAuthFlow);
+          .ifPresent(changedOAuthFlows::setImplicitOAuthFlow);
       openApiDiff
           .getOAuthFlowDiff()
           .diff(left.getPassword(), right.getPassword())
-          .ifPresent(changedOAuthFlows::setChangedPasswordOAuthFlow);
+          .ifPresent(changedOAuthFlows::setPasswordOAuthFlow);
       openApiDiff
           .getOAuthFlowDiff()
           .diff(left.getClientCredentials(), right.getClientCredentials())
-          .ifPresent(changedOAuthFlows::setChangedClientCredentialOAuthFlow);
+          .ifPresent(changedOAuthFlows::setClientCredentialOAuthFlow);
       openApiDiff
           .getOAuthFlowDiff()
           .diff(left.getAuthorizationCode(), right.getAuthorizationCode())
-          .ifPresent(changedOAuthFlows::setChangedAuthorizationCodeOAuthFlow);
+          .ifPresent(changedOAuthFlows::setAuthorizationCodeOAuthFlow);
     }
     openApiDiff
         .getExtensionsDiff()
         .diff(getExtensions(left), getExtensions(right))
-        .ifPresent(changedOAuthFlows::setChangedExtensions);
+        .ifPresent(changedOAuthFlows::setExtensions);
     return isChanged(changedOAuthFlows);
   }
 }

@@ -24,16 +24,16 @@ public class OAuthFlowDiff {
   public Optional<ChangedOAuthFlow> diff(OAuthFlow left, OAuthFlow right) {
     ChangedOAuthFlow changedOAuthFlow = new ChangedOAuthFlow(left, right);
     if (left != null && right != null) {
-      changedOAuthFlow.setChangedAuthorizationUrl(
-          !Objects.equals(left.getAuthorizationUrl(), right.getAuthorizationUrl()));
-      changedOAuthFlow.setChangedTokenUrl(!Objects.equals(left.getTokenUrl(), right.getTokenUrl()));
-      changedOAuthFlow.setChangedRefreshUrl(
-          !Objects.equals(left.getRefreshUrl(), right.getRefreshUrl()));
+      changedOAuthFlow
+          .setAuthorizationUrl(
+              !Objects.equals(left.getAuthorizationUrl(), right.getAuthorizationUrl()))
+          .setTokenUrl(!Objects.equals(left.getTokenUrl(), right.getTokenUrl()))
+          .setRefreshUrl(!Objects.equals(left.getRefreshUrl(), right.getRefreshUrl()));
     }
     openApiDiff
         .getExtensionsDiff()
         .diff(getExtensions(left), getExtensions(right))
-        .ifPresent(changedOAuthFlow::setChangedExtensions);
+        .ifPresent(changedOAuthFlow::setExtensions);
     return isChanged(changedOAuthFlow);
   }
 }

@@ -24,7 +24,6 @@ public class OpenApiDiff {
 
   private static Logger logger = LoggerFactory.getLogger(OpenApiDiff.class);
 
-  private ChangedOpenApi changedOpenApi;
   private PathsDiff pathsDiff;
   private PathDiff pathDiff;
   private SchemaDiff schemaDiff;
@@ -43,6 +42,7 @@ public class OpenApiDiff {
   private OAuthFlowsDiff oAuthFlowsDiff;
   private OAuthFlowDiff oAuthFlowDiff;
   private ExtensionsDiff extensionsDiff;
+  private MetadataDiff metadataDiff;
 
   private OpenAPI oldSpecOpenApi;
   private OpenAPI newSpecOpenApi;
@@ -56,7 +56,6 @@ public class OpenApiDiff {
    * @param newSpecOpenApi
    */
   private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi) {
-    this.changedOpenApi = new ChangedOpenApi();
     this.oldSpecOpenApi = oldSpecOpenApi;
     this.newSpecOpenApi = newSpecOpenApi;
     if (null == oldSpecOpenApi || null == newSpecOpenApi) {
@@ -88,6 +87,7 @@ public class OpenApiDiff {
     this.oAuthFlowsDiff = new OAuthFlowsDiff(this);
     this.oAuthFlowDiff = new OAuthFlowDiff(this);
     this.extensionsDiff = new ExtensionsDiff(this);
+    this.metadataDiff = new MetadataDiff(this);
   }
 
   private ChangedOpenApi compare() {
@@ -167,12 +167,12 @@ public class OpenApiDiff {
   }
 
   private ChangedOpenApi getChangedOpenApi() {
-    changedOpenApi.setMissingEndpoints(missingEndpoints);
-    changedOpenApi.setNewEndpoints(newEndpoints);
-    changedOpenApi.setNewSpecOpenApi(newSpecOpenApi);
-    changedOpenApi.setOldSpecOpenApi(oldSpecOpenApi);
-    changedOpenApi.setChangedOperations(changedOperations);
-    changedOpenApi.setChangedExtensions(changedExtensions);
-    return changedOpenApi;
+    return new ChangedOpenApi()
+        .setMissingEndpoints(missingEndpoints)
+        .setNewEndpoints(newEndpoints)
+        .setNewSpecOpenApi(newSpecOpenApi)
+        .setOldSpecOpenApi(oldSpecOpenApi)
+        .setChangedOperations(changedOperations)
+        .setChangedExtensions(changedExtensions);
   }
 }
