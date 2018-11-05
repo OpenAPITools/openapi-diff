@@ -21,7 +21,7 @@ jobs:
             - ~/.m2
           key: openapi-diff-{{ checksum "pom.xml" }}
 
-      - run: mvn package
+      - run: mvn package -X
 
       - store_test_results:
           path: target/surefire-reports
