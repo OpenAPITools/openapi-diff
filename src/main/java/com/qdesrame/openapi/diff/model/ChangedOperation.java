@@ -2,7 +2,6 @@ package com.qdesrame.openapi.diff.model;
 
 import static com.qdesrame.openapi.diff.model.Changed.result;
 
-import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import java.util.Arrays;

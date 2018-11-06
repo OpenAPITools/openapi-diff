@@ -5,8 +5,8 @@ import static com.qdesrame.openapi.diff.utils.Copy.copyMap;
 
 import com.qdesrame.openapi.diff.model.Change;
 import com.qdesrame.openapi.diff.model.Changed;
+import com.qdesrame.openapi.diff.model.ChangedExtensions;
 import com.qdesrame.openapi.diff.model.DiffContext;
-import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import java.util.*;
 import java.util.function.Function;
 

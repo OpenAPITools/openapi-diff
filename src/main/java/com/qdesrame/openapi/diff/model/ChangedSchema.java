@@ -1,6 +1,5 @@
 package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
 import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
 import io.swagger.v3.oas.models.media.Schema;

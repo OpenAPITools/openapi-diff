@@ -1,6 +1,5 @@
 package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
 import io.swagger.v3.oas.models.headers.Header;
 import java.util.Arrays;
 import java.util.List;

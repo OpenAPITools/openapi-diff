@@ -3,7 +3,7 @@ package com.qdesrame.openapi.diff.compare;
 import static com.qdesrame.openapi.diff.compare.PathsDiff.valOrEmpty;
 
 import com.qdesrame.openapi.diff.model.*;
-import com.qdesrame.openapi.diff.model.schema.ChangedExtensions;
+import com.qdesrame.openapi.diff.model.ChangedExtensions;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;

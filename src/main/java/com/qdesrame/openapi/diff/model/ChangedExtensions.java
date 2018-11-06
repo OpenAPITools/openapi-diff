@@ -1,9 +1,5 @@
-package com.qdesrame.openapi.diff.model.schema;
+package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.model.Changed;
-import com.qdesrame.openapi.diff.model.ComposedChanged;
-import com.qdesrame.openapi.diff.model.DiffContext;
-import com.qdesrame.openapi.diff.model.DiffResult;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
