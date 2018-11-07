@@ -38,7 +38,7 @@ public class SecurityDiffTest {
     ChangedSecurityRequirement changedSecurityRequirement1 =
         changedSecurityRequirements1.getChanged().get(0);
     assertThat(changedSecurityRequirement1.getChanged()).hasSize(1);
-    ListDiff<String> changedScopes1 =
+    ChangedSecuritySchemeScopes changedScopes1 =
         changedSecurityRequirement1.getChanged().get(0).getChangedScopes();
     assertThat(changedScopes1)
         .isNotNull()

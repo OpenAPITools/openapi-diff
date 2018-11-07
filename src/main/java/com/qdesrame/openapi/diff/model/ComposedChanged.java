@@ -20,9 +20,9 @@ public interface ComposedChanged extends Changed {
                 .stream()
                 .filter(Objects::nonNull)
                 .map(Changed::isChanged)
-                .mapToInt(diffResult -> diffResult.getWeight())
+                .mapToInt(DiffResult::getWeight)
                 .max()
-                .orElseGet(() -> 0));
+                .orElse(0));
     if (isCoreChanged().getWeight() > elementsResult.getWeight()) {
       return isCoreChanged();
     } else {

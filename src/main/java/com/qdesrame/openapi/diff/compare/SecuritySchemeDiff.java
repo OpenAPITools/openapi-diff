@@ -3,8 +3,8 @@ package com.qdesrame.openapi.diff.compare;
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 
 import com.qdesrame.openapi.diff.model.ChangedSecurityScheme;
+import com.qdesrame.openapi.diff.model.ChangedSecuritySchemeScopes;
 import com.qdesrame.openapi.diff.model.DiffContext;
-import com.qdesrame.openapi.diff.model.ListDiff;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.HashSet;
@@ -53,10 +53,8 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
 
     if (changedSecurityScheme != null
         && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
-      ListDiff<String> scopesDiff = ListDiff.diff(leftScopes, rightScopes);
-      if (!scopesDiff.getIncreased().isEmpty() || !scopesDiff.getMissing().isEmpty()) {
-        changedSecurityScheme.setChangedScopes(scopesDiff);
-      }
+      isChanged(ListDiff.diff(new ChangedSecuritySchemeScopes(leftScopes, rightScopes)))
+          .ifPresent(changedSecurityScheme::setChangedScopes);
     }
 
     return isChanged(changedSecurityScheme);

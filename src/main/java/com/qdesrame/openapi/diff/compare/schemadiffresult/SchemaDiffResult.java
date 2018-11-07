@@ -3,14 +3,13 @@ package com.qdesrame.openapi.diff.compare.schemadiffresult;
 import static com.qdesrame.openapi.diff.utils.ChangedUtils.isChanged;
 import static java.util.Optional.ofNullable;
 
+import com.qdesrame.openapi.diff.compare.ListDiff;
 import com.qdesrame.openapi.diff.compare.MapKeyDiff;
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.Change;
 import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.DiffContext;
-import com.qdesrame.openapi.diff.model.ListDiff;
-import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
-import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
+import com.qdesrame.openapi.diff.model.schema.*;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.*;
@@ -31,13 +30,15 @@ public class SchemaDiffResult {
     this.changedSchema.setType(type);
   }
 
-  public <T extends Schema<X>, X> Optional<ChangedSchema> diff(
+  public <V extends Schema<X>, X> Optional<ChangedSchema> diff(
       HashSet<String> refSet,
       Components leftComponents,
       Components rightComponents,
-      T left,
-      T right,
+      V left,
+      V right,
       DiffContext context) {
+    ChangedEnum<X> changedEnum =
+        ListDiff.diff(new ChangedEnum<>(left.getEnum(), right.getEnum(), context));
     changedSchema
         .setContext(context)
         .setOldSchema(left)
@@ -46,13 +47,14 @@ public class SchemaDiffResult {
             !Boolean.TRUE.equals(left.getDeprecated())
                 && Boolean.TRUE.equals(right.getDeprecated()))
         .setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()))
-        .setChangeRequired(ListDiff.diff(left.getRequired(), right.getRequired()))
+        .setRequired(
+            ListDiff.diff(new ChangedRequired(left.getRequired(), right.getRequired(), context)))
         .setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()))
-        .setChangeEnum(ListDiff.diff(left.getEnum(), right.getEnum()))
+        .setEnumeration(changedEnum)
         .setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()))
-        .setReadOnly(new ChangedReadOnly(context, left.getReadOnly(), right.getReadOnly()))
-        .setWriteOnly(new ChangedWriteOnly(context, left.getWriteOnly(), right.getWriteOnly()))
-        .setChangedMaxLength(!Objects.equals(left.getMaxLength(), right.getMaxLength()));
+        .setReadOnly(new ChangedReadOnly(left.getReadOnly(), right.getReadOnly(), context))
+        .setWriteOnly(new ChangedWriteOnly(left.getWriteOnly(), right.getWriteOnly(), context))
+        .setMaxLength(new ChangedMaxLength(left.getMaxLength(), right.getMaxLength(), context));
 
     openApiDiff
         .getExtensionsDiff()
@@ -114,7 +116,7 @@ public class SchemaDiffResult {
         result.put(entry.getKey(), entry.getValue());
       } else {
         // Child property is not applicable, so required cannot be applied
-        changedSchema.getChangeRequired().getIncreased().remove(entry.getKey());
+        changedSchema.getRequired().getIncreased().remove(entry.getKey());
       }
     }
     return result;

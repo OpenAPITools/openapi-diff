@@ -12,7 +12,7 @@ public class ChangedReadOnly implements Changed {
   private final boolean newValue;
   //    private final boolean required;
 
-  public ChangedReadOnly(DiffContext context, Boolean oldValue, Boolean newValue) {
+  public ChangedReadOnly(Boolean oldValue, Boolean newValue, DiffContext context) {
     this.context = context;
     this.oldValue = Optional.ofNullable(oldValue).orElse(false);
     this.newValue = Optional.ofNullable(newValue).orElse(false);

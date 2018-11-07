@@ -1,7 +1,6 @@
 package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
-import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
+import com.qdesrame.openapi.diff.model.schema.*;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.apache.commons.collections4.CollectionUtils;
 
 /** Created by adarsh.sharma on 22/12/17. */
 @Getter
@@ -28,14 +26,14 @@ public class ChangedSchema implements ComposedChanged {
   protected boolean changeDeprecated;
   protected ChangedMetadata description;
   protected boolean changeTitle;
-  protected ListDiff<String> changeRequired;
+  protected ChangedRequired required;
   protected boolean changeDefault;
-  protected ListDiff changeEnum;
+  protected ChangedEnum<?> enumeration;
   protected boolean changeFormat;
   protected ChangedReadOnly readOnly;
   protected ChangedWriteOnly writeOnly;
   protected boolean changedType;
-  protected boolean changedMaxLength;
+  protected ChangedMaxLength maxLength;
   protected boolean discriminatorPropertyChanged;
   protected ChangedSchema items;
   protected ChangedOneOfSchema oneOfSchema;
@@ -52,7 +50,17 @@ public class ChangedSchema implements ComposedChanged {
   public List<Changed> getChangedElements() {
     return Stream.concat(
             changedProperties.values().stream(),
-            Stream.of(description, readOnly, writeOnly, items, oneOfSchema, addProp, extensions))
+            Stream.of(
+                description,
+                readOnly,
+                writeOnly,
+                items,
+                oneOfSchema,
+                addProp,
+                enumeration,
+                required,
+                maxLength,
+                extensions))
         .collect(Collectors.toList());
   }
 
@@ -60,35 +68,17 @@ public class ChangedSchema implements ComposedChanged {
   public DiffResult isCoreChanged() {
     if (!changedType
         && (oldSchema == null && newSchema == null || oldSchema != null && newSchema != null)
-        && !changedMaxLength
-        && (changeEnum == null || changeEnum.isUnchanged())
         && !changeFormat
         && increasedProperties.size() == 0
         && missingProperties.size() == 0
         && changedProperties.values().size() == 0
         && !changeDeprecated
-        && (changeRequired == null || changeRequired.isUnchanged())
         && !discriminatorPropertyChanged) {
       return DiffResult.NO_CHANGES;
     }
-    boolean compatibleForRequest =
-        (changeEnum == null || changeEnum.getMissing().isEmpty())
-            && (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getIncreased()))
-            && (oldSchema != null || newSchema == null)
-            && (!changedMaxLength
-                || newSchema.getMaxLength() == null
-                || (oldSchema.getMaxLength() != null
-                    && oldSchema.getMaxLength() <= newSchema.getMaxLength()));
-
+    boolean compatibleForRequest = (oldSchema != null || newSchema == null);
     boolean compatibleForResponse =
-        (changeEnum == null || changeEnum.getIncreased().isEmpty())
-            && (changeRequired == null || CollectionUtils.isEmpty(changeRequired.getMissing()))
-            && missingProperties.isEmpty()
-            && (oldSchema == null || newSchema != null)
-            && (!changedMaxLength
-                || oldSchema.getMaxLength() == null
-                || (newSchema.getMaxLength() != null
-                    && newSchema.getMaxLength() <= oldSchema.getMaxLength()));
+        missingProperties.isEmpty() && (oldSchema == null || newSchema != null);
     if ((context.isRequest() && compatibleForRequest
             || context.isResponse() && compatibleForResponse)
         && !changedType

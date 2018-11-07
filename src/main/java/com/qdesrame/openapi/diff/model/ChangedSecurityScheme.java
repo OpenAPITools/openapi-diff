@@ -20,7 +20,7 @@ public class ChangedSecurityScheme implements ComposedChanged {
   private boolean changedScheme;
   private boolean changedBearerFormat;
   private boolean changedOpenIdConnectUrl;
-  private ListDiff<String> changedScopes;
+  private ChangedSecuritySchemeScopes changedScopes;
   private ChangedMetadata description;
   private ChangedOAuthFlows oAuthFlows;
   private ChangedExtensions extensions;

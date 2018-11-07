@@ -1,6 +1,6 @@
 package com.qdesrame.openapi.diff.compare;
 
-import com.qdesrame.openapi.diff.model.ListDiff;
+import com.qdesrame.openapi.diff.model.ChangedList;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.List;
@@ -38,13 +38,8 @@ public class SecurityDiffInfo {
 
   public static boolean sameList(
       List<SecurityDiffInfo> leftSecurities, List<SecurityDiffInfo> rightSecurities) {
-    ListDiff<SecurityDiffInfo> listDiff = ListDiff.diff(leftSecurities, rightSecurities);
-
-    if (listDiff.getMissing().isEmpty() && listDiff.getIncreased().isEmpty()) {
-      return true;
-    }
-
-    return false;
+    return ListDiff.diff(new ChangedList.SimpleChangedList<>(leftSecurities, rightSecurities))
+        .isUnchanged();
   }
 
   @Override

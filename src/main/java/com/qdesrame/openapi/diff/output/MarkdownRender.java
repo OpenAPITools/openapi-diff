@@ -304,16 +304,14 @@ public class MarkdownRender implements Render {
               : "";
       sb.append(oneOfSchema(deepness, schema.getOneOfSchema(), discriminator));
     }
-    if (schema.getChangeRequired() != null) {
-      sb.append(
-          required(deepness, "New required properties", schema.getChangeRequired().getIncreased()));
-      sb.append(
-          required(deepness, "New optional properties", schema.getChangeRequired().getMissing()));
+    if (schema.getRequired() != null) {
+      sb.append(required(deepness, "New required properties", schema.getRequired().getIncreased()));
+      sb.append(required(deepness, "New optional properties", schema.getRequired().getMissing()));
     }
     if (schema.getItems() != null) {
       sb.append(items(deepness, schema.getItems()));
     }
-    sb.append(listDiff(deepness, "enum", schema.getChangeEnum()));
+    sb.append(listDiff(deepness, "enum", schema.getEnumeration()));
     sb.append(
         properties(
             deepness,
@@ -432,7 +430,7 @@ public class MarkdownRender implements Render {
         indent(deepness), title, name, type, metadata(indent(deepness + 1), description));
   }
 
-  protected String listDiff(int deepness, String name, ListDiff listDiff) {
+  protected String listDiff(int deepness, String name, ChangedList<?> listDiff) {
     if (listDiff == null) {
       return "";
     }
