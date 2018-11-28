@@ -58,7 +58,7 @@ public class SchemaDiffResult {
 
     openApiDiff
         .getExtensionsDiff()
-        .diff(left.getExtensions(), right.getExtensions())
+        .diff(left.getExtensions(), right.getExtensions(), context)
         .ifPresent(changedSchema::setExtensions);
     openApiDiff
         .getMetadataDiff()
