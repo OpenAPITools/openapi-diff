@@ -212,6 +212,9 @@ public class MarkdownRender implements Render {
   }
 
   protected String bodyContent(String prefix, ChangedContent changedContent) {
+    if (changedContent == null) {
+      return "";
+    }
     StringBuilder sb = new StringBuilder("\n");
     sb.append(listContent(prefix, "New content type", changedContent.getIncreased()));
     sb.append(listContent(prefix, "Deleted content type", changedContent.getMissing()));
