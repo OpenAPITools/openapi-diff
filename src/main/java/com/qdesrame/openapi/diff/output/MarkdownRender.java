@@ -63,7 +63,8 @@ public class MarkdownRender implements Render {
   protected String listEndpoints(String title, List<Endpoint> endpoints) {
     if (null == endpoints || endpoints.size() == 0) return "";
     StringBuilder sb = new StringBuilder(sectionTitle(title));
-    endpoints.stream()
+    endpoints
+        .stream()
         .map(e -> itemEndpoint(e.getMethod().toString(), e.getPathUrl(), e.getSummary()))
         .forEach(sb::append);
     return sb.toString();
@@ -84,7 +85,8 @@ public class MarkdownRender implements Render {
   protected String listEndpoints(List<ChangedOperation> changedOperations) {
     if (null == changedOperations || changedOperations.size() == 0) return "";
     StringBuilder sb = new StringBuilder(sectionTitle("What's Changed"));
-    changedOperations.stream()
+    changedOperations
+        .stream()
         .map(
             operation -> {
               StringBuilder details =
@@ -120,7 +122,10 @@ public class MarkdownRender implements Render {
     StringBuilder sb = new StringBuilder("\n");
     sb.append(listResponse("New response", changedApiResponse.getIncreased()));
     sb.append(listResponse("Deleted response", changedApiResponse.getMissing()));
-    changedApiResponse.getChanged().entrySet().stream()
+    changedApiResponse
+        .getChanged()
+        .entrySet()
+        .stream()
         .map(e -> this.itemResponse(e.getKey(), e.getValue()))
         .forEach(sb::append);
     return sb.toString();
@@ -128,7 +133,9 @@ public class MarkdownRender implements Render {
 
   protected String listResponse(String title, Map<String, ApiResponse> responses) {
     StringBuilder sb = new StringBuilder();
-    responses.entrySet().stream()
+    responses
+        .entrySet()
+        .stream()
         .map(e -> this.itemResponse(title, e.getKey(), e.getValue()))
         .forEach(sb::append);
     return sb.toString();
@@ -170,7 +177,10 @@ public class MarkdownRender implements Render {
     if (headers != null) {
       sb.append(listHeader("New header", headers.getIncreased()));
       sb.append(listHeader("Deleted header", headers.getMissing()));
-      headers.getChanged().entrySet().stream()
+      headers
+          .getChanged()
+          .entrySet()
+          .stream()
           .map(e -> this.itemHeader(e.getKey(), e.getValue()))
           .forEach(sb::append);
     }
@@ -179,7 +189,9 @@ public class MarkdownRender implements Render {
 
   protected String listHeader(String title, Map<String, Header> headers) {
     StringBuilder sb = new StringBuilder();
-    headers.entrySet().stream()
+    headers
+        .entrySet()
+        .stream()
         .map(e -> this.itemHeader(title, e.getKey(), e.getValue()))
         .forEach(sb::append);
     return sb.toString();
@@ -213,7 +225,10 @@ public class MarkdownRender implements Render {
     } else {
       deepness = 0;
     }
-    changedContent.getChanged().entrySet().stream()
+    changedContent
+        .getChanged()
+        .entrySet()
+        .stream()
         .map(e -> this.itemContent(deepness, e.getKey(), e.getValue()))
         .forEach(e -> sb.append(prefix).append(e));
     return sb.toString();
@@ -225,7 +240,9 @@ public class MarkdownRender implements Render {
 
   protected String listContent(String prefix, String title, Map<String, MediaType> mediaTypes) {
     StringBuilder sb = new StringBuilder();
-    mediaTypes.entrySet().stream()
+    mediaTypes
+        .entrySet()
+        .stream()
         .map(e -> this.itemContent(title, e.getKey(), e.getValue()))
         .forEach(e -> sb.append(prefix).append(e));
     return sb.toString();
@@ -323,14 +340,18 @@ public class MarkdownRender implements Render {
     StringBuilder sb = new StringBuilder();
     if (schema.getAllOf() != null && schema.getAllOf() != null) {
       LOGGER.debug("All of schema");
-      schema.getAllOf().stream()
+      schema
+          .getAllOf()
+          .stream()
           .map(this::resolve)
           .forEach(composedChild -> sb.append(schema(deepness, composedChild, context)));
     }
     if (schema.getOneOf() != null && schema.getOneOf() != null) {
       LOGGER.debug("One of schema");
       sb.append(format("%sOne of:\n\n", indent(deepness)));
-      schema.getOneOf().stream()
+      schema
+          .getOneOf()
+          .stream()
           .map(this::resolve)
           .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild, context)));
     }
