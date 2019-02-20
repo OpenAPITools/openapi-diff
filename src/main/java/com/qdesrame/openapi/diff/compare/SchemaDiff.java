@@ -84,7 +84,7 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     return schema;
   }
 
-  protected static Schema addSchema(Schema schema, Schema fromSchema) {
+  protected static Schema addSchema(Schema<?> schema, Schema<?> fromSchema) {
     if (fromSchema.getProperties() != null) {
       if (schema.getProperties() == null) {
         schema.setProperties(fromSchema.getProperties());
