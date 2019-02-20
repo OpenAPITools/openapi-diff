@@ -175,8 +175,8 @@ public class MarkdownRender implements Render {
   protected String headers(ChangedHeaders headers) {
     StringBuilder sb = new StringBuilder();
     if (headers != null) {
-      sb.append(listHeader("New header", headers.getIncreased()));
-      sb.append(listHeader("Deleted header", headers.getMissing()));
+      sb.append(listHeader("New header", headers.getIncreased()))
+          .append(listHeader("Deleted header", headers.getMissing()));
       headers
           .getChanged()
           .entrySet()

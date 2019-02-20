@@ -28,22 +28,16 @@ public class RefPointer<T> {
     switch (refType) {
       case REQUEST_BODIES:
         return (Map<String, T>) components.getRequestBodies();
-
       case RESPONSES:
         return (Map<String, T>) components.getResponses();
-
       case PARAMETERS:
         return (Map<String, T>) components.getParameters();
-
       case SCHEMAS:
         return (Map<String, T>) components.getSchemas();
-
       case HEADERS:
-        return (Map<String, T>) components.getSchemas();
-
+        return (Map<String, T>) components.getHeaders();
       case SECURITY_SCHEMES:
         return (Map<String, T>) components.getSecuritySchemes();
-
       default:
         throw new IllegalArgumentException("Not mapped for refType: " + refType);
     }
