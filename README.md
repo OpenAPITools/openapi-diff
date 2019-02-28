@@ -312,4 +312,5 @@ openapi-diff is released under the Apache License 2.0.
 # Thanks
 * Adarsh Sharma / [adarshsharma](https://github.com/adarshsharma)
 
-
+* [Sayi](https://github.com/Sayi) for his project [swagger-diff](https://github.com/Sayi/swagger-diff) 
+  which was a source of inspiration for this tool
