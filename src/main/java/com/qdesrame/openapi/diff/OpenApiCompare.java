@@ -2,8 +2,8 @@ package com.qdesrame.openapi.diff;
 
 import com.qdesrame.openapi.diff.compare.OpenApiDiff;
 import com.qdesrame.openapi.diff.model.ChangedOpenApi;
+import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import java.io.File;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public class OpenApiCompare {
 
-  private static OpenAPIV3Parser openApiParser = new OpenAPIV3Parser();
+  private static OpenAPIParser openApiParser = new OpenAPIParser();
   private static ParseOptions options = new ParseOptions();
 
   static {
@@ -113,6 +113,6 @@ public class OpenApiCompare {
   }
 
   private static OpenAPI readLocation(String location, List<AuthorizationValue> auths) {
-    return openApiParser.read(location, auths, options);
+    return openApiParser.readLocation(location, auths, options).getOpenAPI();
   }
 }

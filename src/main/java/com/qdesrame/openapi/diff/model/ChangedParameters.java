@@ -39,7 +39,13 @@ public class ChangedParameters implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (increased.stream().noneMatch(Parameter::getRequired) && missing.isEmpty()) {
+    if (increased
+            .stream()
+            .noneMatch(
+                p -> {
+                  return p.getRequired() != null && p.getRequired();
+                })
+        && missing.isEmpty()) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;
