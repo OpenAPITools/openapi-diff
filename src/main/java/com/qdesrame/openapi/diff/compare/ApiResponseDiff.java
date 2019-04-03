@@ -36,6 +36,10 @@ public class ApiResponseDiff {
             .setIncreased(responseMapKeyDiff.getIncreased())
             .setMissing(responseMapKeyDiff.getMissing())
             .setChanged(resps);
+    if (left == null || right == null) {
+      return isChanged(changedApiResponse);
+    }
+
     openApiDiff
         .getExtensionsDiff()
         .diff(left.getExtensions(), right.getExtensions(), context)
