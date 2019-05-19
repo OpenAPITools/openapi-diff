@@ -30,11 +30,6 @@ public class Main {
             .build());
     options.addOption(
         Option.builder()
-            .longOpt("state")
-            .desc("Only output diff state: no_changes, incompatible, compatible")
-            .build());
-    options.addOption(
-        Option.builder()
             .longOpt("fail-on-incompatible")
             .desc("Fail only if API changes broke backward compatibility")
             .build());
