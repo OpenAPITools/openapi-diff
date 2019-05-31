@@ -1,5 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
+import static java.util.Optional.ofNullable;
+
 import com.qdesrame.openapi.diff.compare.schemadiffresult.ArraySchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemadiffresult.ComposedSchemaDiffResult;
 import com.qdesrame.openapi.diff.compare.schemadiffresult.SchemaDiffResult;
@@ -7,15 +9,6 @@ import com.qdesrame.openapi.diff.model.ChangedSchema;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -23,8 +16,13 @@ import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
-
-import static java.util.Optional.ofNullable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
