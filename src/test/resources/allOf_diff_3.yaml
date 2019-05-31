@@ -105,7 +105,9 @@ components:
       - pet_type
       properties:
         pet_type:
-          type: string
+          nullable: false
+          allOf:
+          - type: number
     Cat:
       description: Cat class
       allOf:

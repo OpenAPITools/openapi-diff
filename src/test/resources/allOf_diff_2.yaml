@@ -101,6 +101,7 @@ components:
       - pet_type
       properties:
         pet_type:
+          nullable: false
           type: string
     Cat:
       description: Cat class
