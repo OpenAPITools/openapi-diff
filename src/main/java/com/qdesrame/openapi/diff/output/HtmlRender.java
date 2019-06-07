@@ -8,7 +8,6 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -68,7 +67,7 @@ public class HtmlRender implements Render {
                         link().withRel("stylesheet").withHref(linkCss)),
                 body()
                     .with(
-                        header().with(h1(title)),
+                        header().with(h1(title + " " + dateChangesFormatter.format(new Date()))),
                         div()
                             .withClass("article")
                             .with(
