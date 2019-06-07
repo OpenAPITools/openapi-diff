@@ -8,6 +8,9 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,8 +20,11 @@ public class HtmlRender implements Render {
   private String title;
   private String linkCss;
 
+  private SimpleDateFormat dateChangesFormatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
   public HtmlRender() {
-    this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
+    // this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
+    this("Api Change Log", "/diff.css");
   }
 
   public HtmlRender(String title, String linkCss) {
@@ -39,11 +45,18 @@ public class HtmlRender implements Render {
     List<ChangedOperation> changedOperations = diff.getChangedOperations();
     ContainerTag ol_changed = ol_changed(changedOperations);
 
-    return renderHtml(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed);
+    ContainerTag ol_compatible = ol_compatible(diff.isCompatible());
+
+    return renderHtml(
+        ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed, ol_compatible);
   }
 
   public String renderHtml(
-      ContainerTag ol_new, ContainerTag ol_miss, ContainerTag ol_deprec, ContainerTag ol_changed) {
+      ContainerTag ol_new,
+      ContainerTag ol_miss,
+      ContainerTag ol_deprec,
+      ContainerTag ol_changed,
+      ContainerTag compatible) {
     ContainerTag html =
         html()
             .attr("lang", "en")
@@ -51,7 +64,7 @@ public class HtmlRender implements Render {
                 head()
                     .with(
                         meta().withCharset("utf-8"),
-                        title(title),
+                        title(title + " " + dateChangesFormatter.format(new Date())),
                         link().withRel("stylesheet").withHref(linkCss)),
                 body()
                     .with(
@@ -62,7 +75,8 @@ public class HtmlRender implements Render {
                                 div().with(h2("What's New"), hr(), ol_new),
                                 div().with(h2("What's Deleted"), hr(), ol_miss),
                                 div().with(h2("What's Deprecated"), hr(), ol_deprec),
-                                div().with(h2("What's Changed"), hr(), ol_changed))));
+                                div().with(h2("What's Changed"), hr(), ol_changed),
+                                div().with(h2("Result"), hr(), compatible))));
 
     return document().render() + html.render();
   }
@@ -147,6 +161,17 @@ public class HtmlRender implements Render {
     return ol;
   }
 
+  private ContainerTag ol_compatible(boolean compatible) {
+    return ol().with(
+            li().with(
+                    ul().withClass("detail")
+                        .with(
+                            h3(
+                                compatible
+                                    ? "API changes are backward compatible"
+                                    : "API changes broke backward compatibility"))));
+  }
+
   private ContainerTag ul_response(ChangedApiResponse changedApiResponse) {
     Map<String, ApiResponse> addResponses = changedApiResponse.getIncreased();
     Map<String, ApiResponse> delResponses = changedApiResponse.getMissing();
@@ -220,7 +245,19 @@ public class HtmlRender implements Render {
 
   private ContainerTag div_changedSchema(ChangedSchema schema) {
     ContainerTag div = div();
-    div.with(h3("Schema"));
+    div.with(h2("!! Schema !!"));
+    if (schema.GetChanged().size() > 0) {
+      div.with(h3("changed properties"));
+      schema.GetChanged().forEach((k, v) -> div.with(ul(k)));
+    }
+    if (schema.GetIncreased().size() > 0) {
+      div.with(h3("increased properties"));
+      schema.GetIncreased().forEach((k, v) -> div.with(ul(k)));
+    }
+    if (schema.GetMissing().size() > 0) {
+      div.with(h3("missing properties"));
+      schema.GetMissing().forEach((k, v) -> div.with(ul(k)));
+    }
     return div;
   }
 

@@ -46,6 +46,18 @@ public class ChangedSchema implements ComposedChanged {
     changedProperties = new LinkedHashMap<>();
   }
 
+  public Map<String, ChangedSchema> GetChanged() {
+    return changedProperties;
+  }
+
+  public Map<String, Schema> GetIncreased() {
+    return increasedProperties;
+  }
+
+  public Map<String, Schema> GetMissing() {
+    return missingProperties;
+  }
+
   @Override
   public List<Changed> getChangedElements() {
     return Stream.concat(
