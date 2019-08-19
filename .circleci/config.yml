@@ -24,7 +24,7 @@ jobs:
       - run: mvn package -X
 
       - store_test_results:
-          path: target/surefire-reports
+          path: cli/target/surefire-reports
 
       - store_artifacts:
-          path: target/openapi-diff-*-SNAPSHOT.jar
+          path: cli/target/openapi-diff-*-SNAPSHOT.jar
