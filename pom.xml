@@ -178,7 +178,7 @@
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
-                <version>3.2</version>
+                <version>3.8.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
