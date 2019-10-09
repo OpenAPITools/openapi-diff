@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 
@@ -168,7 +169,52 @@ public class ConsoleRender implements Render {
         .append("Schema: ")
         .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
         .append(System.lineSeparator());
+    if (!changedMediaType.isCompatible()) {
+      sb.append(incompatibility(changedMediaType));
+    }
     return sb.toString();
+  }
+
+  private String incompatibility(ComposedChanged changed) {
+    if (changed.isCoreChanged() == DiffResult.INCOMPATIBLE) {
+      if (changed instanceof ChangedSchema) {
+        ChangedSchema cs = (ChangedSchema) changed;
+
+        if (cs.getMissingProperties().size() > 0) {
+          return cs.getMissingProperties().keySet().stream().collect(Collectors.joining());
+        }
+      }
+
+      return "";
+    } else {
+      if (changed instanceof ChangedSchema) {
+        ChangedSchema cs = (ChangedSchema) changed;
+
+        return cs.getChangedProperties().keySet().stream().collect(Collectors.joining())
+            + "."
+            + cs.getChangedElements().stream()
+                .map(
+                    (c) ->
+                        c != null && c instanceof ComposedChanged
+                            ? incompatibility((ComposedChanged) c)
+                            : "")
+                .collect(Collectors.joining());
+      }
+
+      StringBuilder sb = new StringBuilder();
+      for (Changed child : changed.getChangedElements()) {
+        if (child instanceof ComposedChanged) {
+          String childIncompatibility = incompatibility((ComposedChanged) child);
+          if (!"".equals(childIncompatibility)) {
+            sb.append(StringUtils.repeat(' ', 10))
+                .append("Missing property: ")
+                .append(childIncompatibility)
+                .append(System.lineSeparator());
+          }
+        }
+      }
+      return sb.toString();
+    }
   }
 
   private String ul_param(ChangedParameters changedParameters) {
