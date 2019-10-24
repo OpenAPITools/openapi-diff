@@ -187,7 +187,7 @@ public class ConsoleRender implements Render {
                       .append(StringUtils.repeat(' ', 10))
                       .append("Missing property: ")
                       .append(propPrefix)
-                      .append(".")
+                      .append(propPrefix.isEmpty() ? "" : ".")
                       .append(propName)
                       .append(System.lineSeparator());
                 });
