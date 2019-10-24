@@ -191,6 +191,14 @@ public class ConsoleRender implements Render {
                       .append(propName)
                       .append(System.lineSeparator());
                 });
+
+        if (cs.isChangedType()) {
+          output
+              .append(StringUtils.repeat(' ', 10))
+              .append("Changed property type: ")
+              .append(propPrefix)
+              .append(System.lineSeparator());
+        }
       }
     }
 
