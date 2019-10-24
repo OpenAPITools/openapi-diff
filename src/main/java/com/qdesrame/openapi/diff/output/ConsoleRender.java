@@ -170,22 +170,28 @@ public class ConsoleRender implements Render {
         .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
         .append(System.lineSeparator());
     if (!changedMediaType.isCompatible()) {
-      sb.append(incompatibility(changedMediaType));
+      incompatibility(sb, changedMediaType, "");
     }
     return sb.toString();
   }
 
-  private String incompatibility(ComposedChanged changed) {
+  private void incompatibility(
+      final StringBuilder output, final ComposedChanged changed, final String propPrefix) {
     if (changed.isCoreChanged() == DiffResult.INCOMPATIBLE) {
       if (changed instanceof ChangedSchema) {
         ChangedSchema cs = (ChangedSchema) changed;
 
-        if (cs.getMissingProperties().size() > 0) {
-          return cs.getMissingProperties().keySet().stream().collect(Collectors.joining());
-        }
+        cs.getMissingProperties().keySet().stream()
+            .forEach(
+                (propName) -> {
+                  output
+                      .append(StringUtils.repeat(' ', 10))
+                      .append("Missing property: ")
+                      .append(propPrefix)
+                      .append(propName)
+                      .append(System.lineSeparator());
+                });
       }
-
-      return "";
     } else {
       if (changed instanceof ChangedSchema) {
         ChangedSchema cs = (ChangedSchema) changed;
@@ -196,30 +202,22 @@ public class ConsoleRender implements Render {
         } else if (cs.getItems() != null) {
           description = "[n]";
         }
-        return description
-            + "."
-            + cs.getChangedElements().stream()
-                .map(
-                    (c) ->
-                        c != null && c instanceof ComposedChanged
-                            ? incompatibility((ComposedChanged) c)
-                            : "")
-                .collect(Collectors.joining());
+        final String prefix = propPrefix + description + ".";
+        cs.getChangedElements().stream()
+            .forEach(
+                (c) -> {
+                  if (c != null && c instanceof ComposedChanged) {
+                    incompatibility(output, (ComposedChanged) c, prefix);
+                  }
+                });
+        return;
       }
 
-      StringBuilder sb = new StringBuilder();
       for (Changed child : changed.getChangedElements()) {
         if (child instanceof ComposedChanged) {
-          String childIncompatibility = incompatibility((ComposedChanged) child);
-          if (!"".equals(childIncompatibility)) {
-            sb.append(StringUtils.repeat(' ', 10))
-                .append("Missing property: ")
-                .append(childIncompatibility)
-                .append(System.lineSeparator());
-          }
+          incompatibility(output, (ComposedChanged) child, "");
         }
       }
-      return sb.toString();
     }
   }
 
