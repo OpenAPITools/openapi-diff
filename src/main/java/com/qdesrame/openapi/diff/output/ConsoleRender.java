@@ -192,31 +192,31 @@ public class ConsoleRender implements Render {
                       .append(System.lineSeparator());
                 });
       }
-    } else {
-      if (changed instanceof ChangedSchema) {
-        ChangedSchema cs = (ChangedSchema) changed;
+    }
 
-        String description = null;
-        if (!cs.getChangedProperties().isEmpty()) {
-          description = cs.getChangedProperties().keySet().stream().collect(Collectors.joining());
-        } else if (cs.getItems() != null) {
-          description = "[n]";
-        }
-        final String prefix = propPrefix + description + ".";
-        cs.getChangedElements().stream()
-            .forEach(
-                (c) -> {
-                  if (c != null && c instanceof ComposedChanged) {
-                    incompatibility(output, (ComposedChanged) c, prefix);
-                  }
-                });
-        return;
+    if (changed instanceof ChangedSchema) {
+      ChangedSchema cs = (ChangedSchema) changed;
+
+      String description = null;
+      if (!cs.getChangedProperties().isEmpty()) {
+        description = cs.getChangedProperties().keySet().stream().collect(Collectors.joining());
+      } else if (cs.getItems() != null) {
+        description = "[n]";
       }
+      final String prefix = propPrefix + description + ".";
+      cs.getChangedElements().stream()
+          .forEach(
+              (c) -> {
+                if (c != null && c instanceof ComposedChanged) {
+                  incompatibility(output, (ComposedChanged) c, prefix);
+                }
+              });
+      return;
+    }
 
-      for (Changed child : changed.getChangedElements()) {
-        if (child instanceof ComposedChanged) {
-          incompatibility(output, (ComposedChanged) child, "");
-        }
+    for (Changed child : changed.getChangedElements()) {
+      if (child instanceof ComposedChanged) {
+        incompatibility(output, (ComposedChanged) child, "");
       }
     }
   }
