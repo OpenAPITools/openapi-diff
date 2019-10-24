@@ -8,7 +8,6 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 
@@ -188,6 +187,7 @@ public class ConsoleRender implements Render {
                       .append(StringUtils.repeat(' ', 10))
                       .append("Missing property: ")
                       .append(propPrefix)
+                      .append(".")
                       .append(propName)
                       .append(System.lineSeparator());
                 });
@@ -199,18 +199,18 @@ public class ConsoleRender implements Render {
 
       String description = null;
       if (!cs.getChangedProperties().isEmpty()) {
-        description = cs.getChangedProperties().keySet().stream().collect(Collectors.joining());
+        cs.getChangedProperties().entrySet().stream()
+            .forEach(
+                (entry) -> {
+                  incompatibility(
+                      output,
+                      entry.getValue(),
+                      propPrefix + (propPrefix.isEmpty() ? "" : ".") + entry.getKey());
+                });
       } else if (cs.getItems() != null) {
-        description = "[n]";
+        incompatibility(output, cs.getItems(), propPrefix + "[n]");
       }
-      final String prefix = propPrefix + description + ".";
-      cs.getChangedElements().stream()
-          .forEach(
-              (c) -> {
-                if (c != null && c instanceof ComposedChanged) {
-                  incompatibility(output, (ComposedChanged) c, prefix);
-                }
-              });
+
       return;
     }
 
