@@ -190,7 +190,13 @@ public class ConsoleRender implements Render {
       if (changed instanceof ChangedSchema) {
         ChangedSchema cs = (ChangedSchema) changed;
 
-        return cs.getChangedProperties().keySet().stream().collect(Collectors.joining())
+        String description = null;
+        if (!cs.getChangedProperties().isEmpty()) {
+          description = cs.getChangedProperties().keySet().stream().collect(Collectors.joining());
+        } else if (cs.getItems() != null) {
+          description = "[n]";
+        }
+        return description
             + "."
             + cs.getChangedElements().stream()
                 .map(
