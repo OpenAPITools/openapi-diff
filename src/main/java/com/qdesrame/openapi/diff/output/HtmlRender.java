@@ -214,14 +214,70 @@ public class HtmlRender implements Render {
   }
 
   private ContainerTag li_changedRequest(String name, ChangedMediaType request) {
-    return li().withText(String.format("Changed body: '%s'", name))
-        .with(div_changedSchema(request.getSchema()));
+    ContainerTag li =
+        li().with(div_changedSchema(request.getSchema()))
+            .withText(String.format("Changed body: '%s'", name));
+    if (request.isIncompatible()) {
+      li = incompatibility(li, request, "");
+    }
+    return li;
   }
 
   private ContainerTag div_changedSchema(ChangedSchema schema) {
     ContainerTag div = div();
-    div.with(h3("Schema"));
+    div.with(h3("Schema" + (schema.isIncompatible() ? " incompatible" : "")));
     return div;
+  }
+
+  private ContainerTag incompatibility(
+      final ContainerTag output, final ComposedChanged changed, final String propPrefix) {
+    if (changed.isCoreChanged() == DiffResult.INCOMPATIBLE) {
+      if (changed instanceof ChangedSchema) {
+        ChangedSchema cs = (ChangedSchema) changed;
+
+        cs.getMissingProperties().keySet().stream()
+            .forEach(
+                (propName) -> {
+                  output.with(
+                      p(String.format(
+                              "Missing property: %s%s%s",
+                              propPrefix, propPrefix.isEmpty() ? "" : ".", propName))
+                          .withClass("missing"));
+                });
+
+        if (cs.isChangedType()) {
+          output.with(p("Changed property type: " + propPrefix).withClass("missing"));
+        }
+      }
+    }
+
+    if (changed instanceof ChangedSchema) {
+      ChangedSchema cs = (ChangedSchema) changed;
+
+      String description = null;
+      if (!cs.getChangedProperties().isEmpty()) {
+        cs.getChangedProperties().entrySet().stream()
+            .forEach(
+                (entry) -> {
+                  incompatibility(
+                      output,
+                      entry.getValue(),
+                      propPrefix + (propPrefix.isEmpty() ? "" : ".") + entry.getKey());
+                });
+      } else if (cs.getItems() != null) {
+        incompatibility(output, cs.getItems(), propPrefix + "[n]");
+      }
+
+      return output;
+    }
+
+    for (Changed child : changed.getChangedElements()) {
+      if (child instanceof ComposedChanged) {
+        incompatibility(output, (ComposedChanged) child, "");
+      }
+    }
+
+    return output;
   }
 
   private ContainerTag ul_param(ChangedParameters changedParameters) {
