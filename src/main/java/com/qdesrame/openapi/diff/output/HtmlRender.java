@@ -4,7 +4,11 @@ import static com.qdesrame.openapi.diff.model.Changed.result;
 import static j2html.TagCreator.*;
 
 import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
@@ -16,6 +20,8 @@ public class HtmlRender implements Render {
 
   private String title;
   private String linkCss;
+  protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  protected ChangedOpenApi diff;
 
   public HtmlRender() {
     this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
@@ -27,6 +33,8 @@ public class HtmlRender implements Render {
   }
 
   public String render(ChangedOpenApi diff) {
+    this.diff = diff;
+
     List<Endpoint> newEndpoints = diff.getNewEndpoints();
     ContainerTag ol_newEndpoint = ol_newEndpoint(newEndpoints);
 
@@ -218,7 +226,7 @@ public class HtmlRender implements Render {
         li().with(div_changedSchema(request.getSchema()))
             .withText(String.format("Changed body: '%s'", name));
     if (request.isIncompatible()) {
-      li = incompatibility(li, request, "");
+      incompatibilities(li, request.getSchema());
     }
     return li;
   }
@@ -229,55 +237,63 @@ public class HtmlRender implements Render {
     return div;
   }
 
-  private ContainerTag incompatibility(
-      final ContainerTag output, final ComposedChanged changed, final String propPrefix) {
-    if (changed.isCoreChanged() == DiffResult.INCOMPATIBLE) {
-      if (changed instanceof ChangedSchema) {
-        ChangedSchema cs = (ChangedSchema) changed;
+  private void incompatibilities(final ContainerTag output, final ChangedSchema schema) {
+    incompatibilities(output, "", schema);
+  }
 
-        cs.getMissingProperties().keySet().stream()
-            .forEach(
-                (propName) -> {
-                  output.with(
-                      p(String.format(
-                              "Missing property: %s%s%s",
-                              propPrefix, propPrefix.isEmpty() ? "" : ".", propName))
-                          .withClass("missing"));
-                });
-
-        if (cs.isChangedType()) {
-          output.with(p("Changed property type: " + propPrefix).withClass("missing"));
-        }
-      }
+  private void incompatibilities(
+      final ContainerTag output, String propName, final ChangedSchema schema) {
+    if (schema.getItems() != null) {
+      items(output, propName, schema.getItems());
     }
-
-    if (changed instanceof ChangedSchema) {
-      ChangedSchema cs = (ChangedSchema) changed;
-
-      String description = null;
-      if (!cs.getChangedProperties().isEmpty()) {
-        cs.getChangedProperties().entrySet().stream()
-            .forEach(
-                (entry) -> {
-                  incompatibility(
-                      output,
-                      entry.getValue(),
-                      propPrefix + (propPrefix.isEmpty() ? "" : ".") + entry.getKey());
-                });
-      } else if (cs.getItems() != null) {
-        incompatibility(output, cs.getItems(), propPrefix + "[n]");
-      }
-
-      return output;
+    if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
+      String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
+      property(output, propName, "Changed property type", type);
     }
+    String prefix = propName.isEmpty() ? "" : propName + ".";
+    properties(
+        output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
+    schema
+        .getChangedProperties()
+        .forEach((name, property) -> incompatibilities(output, prefix + name, property));
+  }
 
-    for (Changed child : changed.getChangedElements()) {
-      if (child instanceof ComposedChanged) {
-        incompatibility(output, (ComposedChanged) child, "");
-      }
+  private void items(ContainerTag output, String propName, ChangedSchema schema) {
+    incompatibilities(output, propName + "[n]", schema);
+  }
+
+  private void properties(
+      ContainerTag output,
+      String propPrefix,
+      String title,
+      Map<String, Schema> properties,
+      DiffContext context) {
+    if (properties != null) {
+      properties.forEach((key, value) -> property(output, propPrefix + key, title, resolve(value)));
     }
+  }
 
-    return output;
+  protected void property(ContainerTag output, String name, String title, Schema schema) {
+    property(output, name, title, type(schema));
+  }
+
+  protected void property(ContainerTag output, String name, String title, String type) {
+    output.with(p(String.format("%s: %s (%s)", title, name, type)).withClass("missing"));
+  }
+
+  protected Schema resolve(Schema schema) {
+    return refPointer.resolveRef(
+        diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
+  }
+
+  protected String type(Schema schema) {
+    String result = "object";
+    if (schema instanceof ArraySchema) {
+      result = "array";
+    } else if (schema.getType() != null) {
+      result = schema.getType();
+    }
+    return result;
   }
 
   private ContainerTag ul_param(ChangedParameters changedParameters) {

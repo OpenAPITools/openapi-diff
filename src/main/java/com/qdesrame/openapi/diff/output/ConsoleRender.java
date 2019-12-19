@@ -3,6 +3,10 @@ package com.qdesrame.openapi.diff.output;
 import static com.qdesrame.openapi.diff.model.Changed.result;
 
 import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
@@ -13,11 +17,14 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ConsoleRender implements Render {
   private static final int LINE_LENGTH = 74;
+  protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  protected ChangedOpenApi diff;
 
   private StringBuilder output;
 
   @Override
   public String render(ChangedOpenApi diff) {
+    this.diff = diff;
     output = new StringBuilder();
     if (diff.isUnchanged()) {
       output.append("No differences. Specifications are equivalents");
@@ -169,64 +176,70 @@ public class ConsoleRender implements Render {
         .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
         .append(System.lineSeparator());
     if (!changedMediaType.isCompatible()) {
-      incompatibility(sb, changedMediaType, "");
+      sb.append(incompatibilities(changedMediaType.getSchema()));
     }
     return sb.toString();
   }
 
-  private void incompatibility(
-      final StringBuilder output, final ComposedChanged changed, final String propPrefix) {
-    if (changed.isCoreChanged() == DiffResult.INCOMPATIBLE) {
-      if (changed instanceof ChangedSchema) {
-        ChangedSchema cs = (ChangedSchema) changed;
+  private String incompatibilities(final ChangedSchema schema) {
+    return incompatibilities("", schema);
+  }
 
-        cs.getMissingProperties().keySet().stream()
-            .forEach(
-                (propName) -> {
-                  output
-                      .append(StringUtils.repeat(' ', 10))
-                      .append("Missing property: ")
-                      .append(propPrefix)
-                      .append(propPrefix.isEmpty() ? "" : ".")
-                      .append(propName)
-                      .append(System.lineSeparator());
-                });
-
-        if (cs.isChangedType()) {
-          output
-              .append(StringUtils.repeat(' ', 10))
-              .append("Changed property type: ")
-              .append(propPrefix)
-              .append(System.lineSeparator());
-        }
-      }
+  private String incompatibilities(String propName, final ChangedSchema schema) {
+    StringBuilder sb = new StringBuilder();
+    if (schema.getItems() != null) {
+      sb.append(items(propName, schema.getItems()));
     }
-
-    if (changed instanceof ChangedSchema) {
-      ChangedSchema cs = (ChangedSchema) changed;
-
-      String description = null;
-      if (!cs.getChangedProperties().isEmpty()) {
-        cs.getChangedProperties().entrySet().stream()
-            .forEach(
-                (entry) -> {
-                  incompatibility(
-                      output,
-                      entry.getValue(),
-                      propPrefix + (propPrefix.isEmpty() ? "" : ".") + entry.getKey());
-                });
-      } else if (cs.getItems() != null) {
-        incompatibility(output, cs.getItems(), propPrefix + "[n]");
-      }
-
-      return;
+    if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
+      String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
+      sb.append(property(propName, "Changed property type", type));
     }
+    String prefix = propName.isEmpty() ? "" : propName + ".";
+    sb.append(
+        properties(prefix, "Missing property", schema.getMissingProperties(), schema.getContext()));
+    schema
+        .getChangedProperties()
+        .forEach((name, property) -> sb.append(incompatibilities(prefix + name, property)));
+    return sb.toString();
+  }
 
-    for (Changed child : changed.getChangedElements()) {
-      if (child instanceof ComposedChanged) {
-        incompatibility(output, (ComposedChanged) child, "");
-      }
+  private String items(String propName, ChangedSchema schema) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(incompatibilities(propName + "[n]", schema));
+    return sb.toString();
+  }
+
+  private String properties(
+      String propPrefix, String title, Map<String, Schema> properties, DiffContext context) {
+    StringBuilder sb = new StringBuilder();
+    if (properties != null) {
+      properties.forEach(
+          (key, value) -> sb.append(property(propPrefix + key, title, resolve(value))));
     }
+    return sb.toString();
+  }
+
+  protected String property(String name, String title, Schema schema) {
+    return property(name, title, type(schema));
+  }
+
+  protected String property(String name, String title, String type) {
+    return String.format("%s%s: %s (%s)\n", StringUtils.repeat(' ', 10), title, name, type);
+  }
+
+  protected Schema resolve(Schema schema) {
+    return refPointer.resolveRef(
+        diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
+  }
+
+  protected String type(Schema schema) {
+    String result = "object";
+    if (schema instanceof ArraySchema) {
+      result = "array";
+    } else if (schema.getType() != null) {
+      result = schema.getType();
+    }
+    return result;
   }
 
   private String ul_param(ChangedParameters changedParameters) {
