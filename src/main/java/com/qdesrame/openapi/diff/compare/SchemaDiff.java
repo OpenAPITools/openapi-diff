@@ -10,10 +10,19 @@ import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
 import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
-import java.util.*;
+import io.swagger.v3.oas.models.media.XML;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
@@ -87,10 +96,9 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
   protected static Schema addSchema(Schema<?> schema, Schema<?> fromSchema) {
     if (fromSchema.getProperties() != null) {
       if (schema.getProperties() == null) {
-        schema.setProperties(fromSchema.getProperties());
-      } else {
-        schema.getProperties().putAll(fromSchema.getProperties());
+        schema.setProperties(new LinkedHashMap<>());
       }
+      schema.getProperties().putAll(fromSchema.getProperties());
     }
 
     if (fromSchema.getRequired() != null) {
@@ -100,7 +108,165 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
         schema.getRequired().addAll(fromSchema.getRequired());
       }
     }
-    // TODO copy other things from fromSchema
+
+    if (fromSchema.getReadOnly() != null) {
+      schema.setReadOnly(fromSchema.getReadOnly());
+    }
+    if (fromSchema.getWriteOnly() != null) {
+      schema.setWriteOnly(fromSchema.getWriteOnly());
+    }
+    if (fromSchema.getDeprecated() != null) {
+      schema.setDeprecated(fromSchema.getDeprecated());
+    }
+    if (fromSchema.getExclusiveMaximum() != null) {
+      schema.setExclusiveMaximum(fromSchema.getExclusiveMaximum());
+    }
+    if (fromSchema.getExclusiveMinimum() != null) {
+      schema.setExclusiveMinimum(fromSchema.getExclusiveMinimum());
+    }
+    if (fromSchema.getNullable() != null) {
+      schema.setNullable(fromSchema.getNullable());
+    }
+    if (fromSchema.getUniqueItems() != null) {
+      schema.setUniqueItems(fromSchema.getUniqueItems());
+    }
+    if (fromSchema.getDescription() != null) {
+      schema.setDescription(fromSchema.getDescription());
+    }
+    if (fromSchema.getFormat() != null) {
+      schema.setFormat(fromSchema.getFormat());
+    }
+    if (fromSchema.getType() != null) {
+      schema.setType(fromSchema.getType());
+    }
+    if (fromSchema.getEnum() != null) {
+      if (schema.getEnum() == null) {
+        schema.setEnum(new ArrayList<>());
+      }
+      //noinspection unchecked
+      schema.getEnum().addAll((List) fromSchema.getEnum());
+    }
+    if (fromSchema.getExtensions() != null) {
+      if (schema.getExtensions() == null) {
+        schema.setExtensions(new LinkedHashMap<>());
+      }
+      schema.getExtensions().putAll(fromSchema.getExtensions());
+    }
+    if (fromSchema.getDiscriminator() != null) {
+      if (schema.getDiscriminator() == null) {
+        schema.setDiscriminator(new Discriminator());
+      }
+      final Discriminator discriminator = schema.getDiscriminator();
+      final Discriminator fromDiscriminator = fromSchema.getDiscriminator();
+      if (fromDiscriminator.getPropertyName() != null) {
+        discriminator.setPropertyName(fromDiscriminator.getPropertyName());
+      }
+      if (fromDiscriminator.getMapping() != null) {
+        if (discriminator.getMapping() == null) {
+          discriminator.setMapping(new LinkedHashMap<>());
+        }
+        discriminator.getMapping().putAll(fromDiscriminator.getMapping());
+      }
+    }
+    if (fromSchema.getTitle() != null) {
+      schema.setTitle(fromSchema.getTitle());
+    }
+    if (fromSchema.getName() != null) {
+      schema.setName(fromSchema.getName());
+    }
+    if (fromSchema.getAdditionalProperties() != null) {
+      schema.setAdditionalProperties(fromSchema.getAdditionalProperties());
+    }
+    if (fromSchema.getDefault() != null) {
+      schema.setDefault(fromSchema.getDefault());
+    }
+    if (fromSchema.getExample() != null) {
+      schema.setExample(fromSchema.getExample());
+    }
+    if (fromSchema.getExternalDocs() != null) {
+      if (schema.getExternalDocs() == null) {
+        schema.setExternalDocs(new ExternalDocumentation());
+      }
+      final ExternalDocumentation externalDocs = schema.getExternalDocs();
+      final ExternalDocumentation fromExternalDocs = fromSchema.getExternalDocs();
+      if (fromExternalDocs.getDescription() != null) {
+        externalDocs.setDescription(fromExternalDocs.getDescription());
+      }
+      if (fromExternalDocs.getExtensions() != null) {
+        if (externalDocs.getExtensions() == null) {
+          externalDocs.setExtensions(new LinkedHashMap<>());
+        }
+        externalDocs.getExtensions().putAll(fromExternalDocs.getExtensions());
+      }
+      if (fromExternalDocs.getUrl() != null) {
+        externalDocs.setUrl(fromExternalDocs.getUrl());
+      }
+    }
+    if (fromSchema.getMaximum() != null) {
+      schema.setMaximum(fromSchema.getMaximum());
+    }
+    if (fromSchema.getMinimum() != null) {
+      schema.setMinimum(fromSchema.getMinimum());
+    }
+    if (fromSchema.getMaxItems() != null) {
+      schema.setMaxItems(fromSchema.getMaxItems());
+    }
+    if (fromSchema.getMinItems() != null) {
+      schema.setMinItems(fromSchema.getMinItems());
+    }
+    if (fromSchema.getMaxProperties() != null) {
+      schema.setMaxProperties(fromSchema.getMaxProperties());
+    }
+    if (fromSchema.getMinProperties() != null) {
+      schema.setMinProperties(fromSchema.getMinProperties());
+    }
+    if (fromSchema.getMaxLength() != null) {
+      schema.setMaxLength(fromSchema.getMaxLength());
+    }
+    if (fromSchema.getMinLength() != null) {
+      schema.setMinLength(fromSchema.getMinLength());
+    }
+    if (fromSchema.getMultipleOf() != null) {
+      schema.setMultipleOf(fromSchema.getMultipleOf());
+    }
+    if (fromSchema.getNot() != null) {
+      if (schema.getNot() == null) {
+        schema.setNot(addSchema(new Schema(), fromSchema.getNot()));
+      } else {
+        addSchema(schema.getNot(), fromSchema.getNot());
+      }
+    }
+    if (fromSchema.getPattern() != null) {
+      schema.setPattern(fromSchema.getPattern());
+    }
+    if (fromSchema.getXml() != null) {
+      if (schema.getXml() == null) {
+        schema.setXml(new XML());
+      }
+      final XML xml = schema.getXml();
+      final XML fromXml = fromSchema.getXml();
+      if (fromXml.getAttribute() != null) {
+        xml.setAttribute(fromXml.getAttribute());
+      }
+      if (fromXml.getName() != null) {
+        xml.setName(fromXml.getName());
+      }
+      if (fromXml.getNamespace() != null) {
+        xml.setNamespace(fromXml.getNamespace());
+      }
+      if (fromXml.getExtensions() != null) {
+        if (xml.getExtensions() == null) {
+          xml.setExtensions(new LinkedHashMap<>());
+        }
+        xml.getExtensions().putAll(fromXml.getExtensions());
+      }
+      if (fromXml.getPrefix() != null) {
+        xml.setPrefix(fromXml.getPrefix());
+      }
+      if (fromXml.getWrapped() != null) {
+        xml.setWrapped(fromXml.getWrapped());
+      }
+    }
     return schema;
   }
 

@@ -102,19 +102,19 @@ components:
           type: string
     Pet:
       allOf:
-      - $ref: '#/components/schemas/BasePet'
+        - $ref: '#/components/schemas/BasePet'
       type: object
       required:
-      - pet_type
+        - pet_type
       properties:
         pet_type:
           nullable: false
           allOf:
-          - type: string
+            - type: number
     Cat:
       description: Cat class
       allOf:
-      - $ref: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/Pet'
       type: object
       properties:
         name:
@@ -122,7 +122,7 @@ components:
     Dog:
       description: Dog class
       allOf:
-      - $ref: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/Pet'
       type: object
       properties:
         bark:
