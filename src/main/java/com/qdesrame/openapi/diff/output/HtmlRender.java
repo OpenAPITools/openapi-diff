@@ -4,7 +4,11 @@ import static com.qdesrame.openapi.diff.model.Changed.result;
 import static j2html.TagCreator.*;
 
 import com.qdesrame.openapi.diff.model.*;
+import com.qdesrame.openapi.diff.utils.RefPointer;
+import com.qdesrame.openapi.diff.utils.RefType;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
@@ -16,6 +20,8 @@ public class HtmlRender implements Render {
 
   private String title;
   private String linkCss;
+  protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  protected ChangedOpenApi diff;
 
   public HtmlRender() {
     this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
@@ -27,6 +33,8 @@ public class HtmlRender implements Render {
   }
 
   public String render(ChangedOpenApi diff) {
+    this.diff = diff;
+
     List<Endpoint> newEndpoints = diff.getNewEndpoints();
     ContainerTag ol_newEndpoint = ol_newEndpoint(newEndpoints);
 
@@ -214,14 +222,78 @@ public class HtmlRender implements Render {
   }
 
   private ContainerTag li_changedRequest(String name, ChangedMediaType request) {
-    return li().withText(String.format("Changed body: '%s'", name))
-        .with(div_changedSchema(request.getSchema()));
+    ContainerTag li =
+        li().with(div_changedSchema(request.getSchema()))
+            .withText(String.format("Changed body: '%s'", name));
+    if (request.isIncompatible()) {
+      incompatibilities(li, request.getSchema());
+    }
+    return li;
   }
 
   private ContainerTag div_changedSchema(ChangedSchema schema) {
     ContainerTag div = div();
-    div.with(h3("Schema"));
+    div.with(h3("Schema" + (schema.isIncompatible() ? " incompatible" : "")));
     return div;
+  }
+
+  private void incompatibilities(final ContainerTag output, final ChangedSchema schema) {
+    incompatibilities(output, "", schema);
+  }
+
+  private void incompatibilities(
+      final ContainerTag output, String propName, final ChangedSchema schema) {
+    if (schema.getItems() != null) {
+      items(output, propName, schema.getItems());
+    }
+    if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
+      String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
+      property(output, propName, "Changed property type", type);
+    }
+    String prefix = propName.isEmpty() ? "" : propName + ".";
+    properties(
+        output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
+    schema
+        .getChangedProperties()
+        .forEach((name, property) -> incompatibilities(output, prefix + name, property));
+  }
+
+  private void items(ContainerTag output, String propName, ChangedSchema schema) {
+    incompatibilities(output, propName + "[n]", schema);
+  }
+
+  private void properties(
+      ContainerTag output,
+      String propPrefix,
+      String title,
+      Map<String, Schema> properties,
+      DiffContext context) {
+    if (properties != null) {
+      properties.forEach((key, value) -> property(output, propPrefix + key, title, resolve(value)));
+    }
+  }
+
+  protected void property(ContainerTag output, String name, String title, Schema schema) {
+    property(output, name, title, type(schema));
+  }
+
+  protected void property(ContainerTag output, String name, String title, String type) {
+    output.with(p(String.format("%s: %s (%s)", title, name, type)).withClass("missing"));
+  }
+
+  protected Schema resolve(Schema schema) {
+    return refPointer.resolveRef(
+        diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
+  }
+
+  protected String type(Schema schema) {
+    String result = "object";
+    if (schema instanceof ArraySchema) {
+      result = "array";
+    } else if (schema.getType() != null) {
+      result = schema.getType();
+    }
+    return result;
   }
 
   private ContainerTag ul_param(ChangedParameters changedParameters) {
