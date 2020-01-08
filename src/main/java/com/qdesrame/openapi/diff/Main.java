@@ -28,6 +28,11 @@ public class Main {
             .longOpt("state")
             .desc("Only output diff state: no_changes, incompatible, compatible")
             .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("fail-on-incompatible")
+            .desc("Fail only if API changes broke backward compatibility")
+            .build());
     options.addOption(Option.builder().longOpt("trace").desc("be extra verbose").build());
     options.addOption(
         Option.builder().longOpt("debug").desc("Print debugging information").build());
@@ -179,6 +184,8 @@ public class Main {
       if (line.hasOption("state")) {
         System.out.println(result.isChanged().getValue());
         System.exit(0);
+      } else if (line.hasOption("fail-on-incompatible")) {
+        System.exit(result.isCompatible() ? 0 : 1);
       } else {
         System.exit(result.isUnchanged() ? 0 : 1);
       }
