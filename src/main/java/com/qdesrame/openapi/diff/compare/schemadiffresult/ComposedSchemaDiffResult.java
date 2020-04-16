@@ -115,9 +115,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
       }
     }
 
-    return reverseMapping
-        .entrySet()
-        .stream()
+    return reverseMapping.entrySet().stream()
         .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
   }
 }

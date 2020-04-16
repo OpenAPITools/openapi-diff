@@ -39,8 +39,7 @@ public class ParametersDiff {
 
   public static Optional<Parameter> contains(
       Components components, List<Parameter> parameters, Parameter parameter) {
-    return parameters
-        .stream()
+    return parameters.stream()
         .filter(param -> same(refPointer.resolveRef(components, param, param.get$ref()), parameter))
         .findFirst();
   }

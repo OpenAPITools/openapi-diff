@@ -21,9 +21,7 @@ public class SecurityDiffTest {
     assertThat(changedOpenApi.getChangedOperations().size() == 3);
 
     ChangedOperation changedOperation1 =
-        changedOpenApi
-            .getChangedOperations()
-            .stream()
+        changedOpenApi.getChangedOperations().stream()
             .filter(x -> x.getPathUrl().equals("/pet/{petId}"))
             .findFirst()
             .get();
@@ -51,9 +49,7 @@ public class SecurityDiffTest {
                     .isEqualTo("read:pets"));
 
     ChangedOperation changedOperation2 =
-        changedOpenApi
-            .getChangedOperations()
-            .stream()
+        changedOpenApi.getChangedOperations().stream()
             .filter(x -> x.getPathUrl().equals("/pet3"))
             .findFirst()
             .get();
@@ -73,9 +69,7 @@ public class SecurityDiffTest {
     assertThat(changedImplicitOAuthFlow2.isAuthorizationUrl()).isTrue();
 
     ChangedOperation changedOperation3 =
-        changedOpenApi
-            .getChangedOperations()
-            .stream()
+        changedOpenApi.getChangedOperations().stream()
             .filter(x -> x.getPathUrl().equals("/pet/findByStatus2"))
             .findFirst()
             .get();

@@ -16,8 +16,7 @@ public interface ComposedChanged extends Changed {
   default DiffResult isChanged() {
     DiffResult elementsResult =
         DiffResult.fromWeight(
-            getChangedElements()
-                .stream()
+            getChangedElements().stream()
                 .filter(Objects::nonNull)
                 .map(Changed::isChanged)
                 .mapToInt(DiffResult::getWeight)

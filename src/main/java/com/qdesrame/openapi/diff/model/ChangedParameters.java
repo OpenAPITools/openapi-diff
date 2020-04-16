@@ -39,8 +39,7 @@ public class ChangedParameters implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (increased
-            .stream()
+    if (increased.stream()
             .noneMatch(
                 p -> {
                   return p.getRequired() != null && p.getRequired();

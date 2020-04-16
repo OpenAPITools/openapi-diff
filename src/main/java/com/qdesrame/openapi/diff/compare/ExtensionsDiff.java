@@ -29,9 +29,7 @@ public class ExtensionsDiff {
     if (extensions.size() == 0) {
       return true;
     }
-    return extensions
-        .entrySet()
-        .stream()
+    return extensions.entrySet().stream()
         .map(
             entry ->
                 executeExtension(

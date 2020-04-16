@@ -30,9 +30,7 @@ public class SecurityRequirementDiff {
 
   public static SecurityRequirement getCopy(LinkedHashMap<String, List<String>> right) {
     SecurityRequirement newSecurityRequirement = new SecurityRequirement();
-    right
-        .entrySet()
-        .stream()
+    right.entrySet().stream()
         .forEach(e -> newSecurityRequirement.put(e.getKey(), new ArrayList<>(e.getValue())));
     return newSecurityRequirement;
   }

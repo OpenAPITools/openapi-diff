@@ -23,8 +23,7 @@ public class ChangedOpenApi implements ComposedChanged {
   private ChangedExtensions changedExtensions;
 
   public List<Endpoint> getDeprecatedEndpoints() {
-    return changedOperations
-        .stream()
+    return changedOperations.stream()
         .filter(ChangedOperation::isDeprecated)
         .map(
             c ->

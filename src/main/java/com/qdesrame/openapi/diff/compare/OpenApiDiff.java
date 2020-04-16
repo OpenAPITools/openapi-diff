@@ -138,27 +138,19 @@ public class OpenApiDiff {
             .values()
             .forEach(
                 pathItem ->
-                    pathItem
-                        .readOperationsMap()
-                        .values()
-                        .stream()
+                    pathItem.readOperationsMap().values().stream()
                         .filter(operation -> operation.getSecurity() != null)
                         .forEach(
                             operation ->
                                 operation.setSecurity(
-                                    operation
-                                        .getSecurity()
-                                        .stream()
+                                    operation.getSecurity().stream()
                                         .distinct()
                                         .collect(Collectors.toList()))));
         paths
             .values()
             .forEach(
                 pathItem ->
-                    pathItem
-                        .readOperationsMap()
-                        .values()
-                        .stream()
+                    pathItem.readOperationsMap().values().stream()
                         .filter(operation -> operation.getSecurity() == null)
                         .forEach(operation -> operation.setSecurity(distinctSecurityRequirements)));
       }

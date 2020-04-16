@@ -30,8 +30,7 @@ public class SecurityDiffInfo {
 
   public static Optional<List<SecurityDiffInfo>> containsList(
       List<List<SecurityDiffInfo>> securityRequirements, List<SecurityDiffInfo> leftSecurities) {
-    return securityRequirements
-        .stream()
+    return securityRequirements.stream()
         .filter(rightSecurities -> sameList(leftSecurities, rightSecurities))
         .findFirst();
   }

@@ -39,8 +39,7 @@ public class SecurityRequirementsDiff {
 
   public Optional<SecurityRequirement> contains(
       List<SecurityRequirement> securityRequirements, SecurityRequirement left) {
-    return securityRequirements
-        .stream()
+    return securityRequirements.stream()
         .filter(rightSecurities -> same(left, rightSecurities))
         .findFirst();
   }
@@ -63,9 +62,7 @@ public class SecurityRequirementsDiff {
 
   private List<Pair<SecurityScheme.Type, SecurityScheme.In>> getListOfSecuritySchemes(
       Components components, SecurityRequirement securityRequirement) {
-    return securityRequirement
-        .keySet()
-        .stream()
+    return securityRequirement.keySet().stream()
         .map(
             x -> {
               SecurityScheme result = components.getSecuritySchemes().get(x);

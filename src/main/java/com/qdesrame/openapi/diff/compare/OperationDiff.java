@@ -84,8 +84,7 @@ public class OperationDiff {
   }
 
   public void removePathParameter(String name, List<Parameter> parameters) {
-    parameters
-        .stream()
+    parameters.stream()
         .filter(p -> "path".equals(p.getIn()) && name.equals(p.getName()))
         .findFirst()
         .ifPresent(parameters::remove);
