@@ -6,7 +6,13 @@ import com.qdesrame.openapi.diff.output.HtmlRender;
 import com.qdesrame.openapi.diff.output.MarkdownRender;
 import java.io.File;
 import java.io.IOException;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Level;
@@ -67,15 +73,6 @@ public class Main {
             .desc("use query param for authorisation")
             .build());
     options.addOption(
-        Option.builder("o")
-            .longOpt("output")
-            .hasArgs()
-            .numberOfArgs(2)
-            .valueSeparator()
-            .argName("format=file")
-            .desc("use given format (html, markdown) for output in file")
-            .build());
-    options.addOption(
         Option.builder()
             .longOpt("markdown")
             .hasArg()
@@ -88,6 +85,13 @@ public class Main {
             .hasArg()
             .argName("file")
             .desc("export diff as html in given file")
+            .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("text")
+            .hasArg()
+            .argName("file")
+            .desc("export diff as text in given file")
             .build());
 
     final String message = "Hello logging!";
@@ -148,38 +152,22 @@ public class Main {
       if (!logLevel.equals("OFF")) {
         System.out.println(consoleRender.render(result));
       }
-      HtmlRender htmlRender = new HtmlRender();
-      MarkdownRender mdRender = new MarkdownRender();
-      String output = null;
-      String outputFile = null;
       if (line.hasOption("html")) {
-        output = htmlRender.render(result);
-        outputFile = line.getOptionValue("html");
+        HtmlRender htmlRender = new HtmlRender();
+        String output = htmlRender.render(result);
+        String outputFile = line.getOptionValue("html");
+        writeOutput(output, outputFile);
       }
       if (line.hasOption("markdown")) {
-        output = mdRender.render(result);
-        outputFile = line.getOptionValue("markdown");
+        MarkdownRender mdRender = new MarkdownRender();
+        String output = mdRender.render(result);
+        String outputFile = line.getOptionValue("markdown");
+        writeOutput(output, outputFile);
       }
-      if (line.hasOption("output")) {
-        String[] outputValues = line.getOptionValues("output");
-        if (outputValues[0].equalsIgnoreCase("markdown")) {
-          output = mdRender.render(result);
-        } else if (outputValues[0].equalsIgnoreCase("html")) {
-          output = htmlRender.render(result);
-        } else {
-          throw new ParseException("Invalid output format");
-        }
-        outputFile = outputValues[1];
-      }
-      if (output != null && outputFile != null) {
-        File file = new File(outputFile);
-        logger.debug("Output file: {}", file.getAbsolutePath());
-        try {
-          FileUtils.writeStringToFile(file, output);
-        } catch (IOException e) {
-          logger.error("Impossible to write output to file {}", outputFile, e);
-          System.exit(2);
-        }
+      if (line.hasOption("text")) {
+        String output = consoleRender.render(result);
+        String outputFile = line.getOptionValue("text");
+        writeOutput(output, outputFile);
       }
       if (line.hasOption("state")) {
         System.out.println(result.isChanged().getValue());
@@ -200,6 +188,17 @@ public class Main {
               + e.getMessage()
               + "\n"
               + ExceptionUtils.getStackTrace(e));
+      System.exit(2);
+    }
+  }
+
+  private static void writeOutput(String output, String outputFile) {
+    File file = new File(outputFile);
+    logger.debug("Output file: {}", file.getAbsolutePath());
+    try {
+      FileUtils.writeStringToFile(file, output);
+    } catch (IOException e) {
+      logger.error("Impossible to write output to file {}", outputFile, e);
       System.exit(2);
     }
   }
