@@ -3,15 +3,13 @@ package com.qdesrame.openapi.diff.model;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** Created by adarsh.sharma on 27/12/17. */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedRequestBody implements ComposedChanged {
+
   private final RequestBody oldRequestBody;
   private final RequestBody newRequestBody;
   private final DiffContext context;

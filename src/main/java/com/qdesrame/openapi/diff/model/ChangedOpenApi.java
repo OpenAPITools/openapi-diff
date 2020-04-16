@@ -5,15 +5,13 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** Created by adarsh.sharma on 22/12/17. */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedOpenApi implements ComposedChanged {
+
   private OpenAPI oldSpecOpenApi;
   private OpenAPI newSpecOpenApi;
 

@@ -1,6 +1,10 @@
 package com.qdesrame.openapi.diff.model;
 
-import com.qdesrame.openapi.diff.model.schema.*;
+import com.qdesrame.openapi.diff.model.schema.ChangedEnum;
+import com.qdesrame.openapi.diff.model.schema.ChangedMaxLength;
+import com.qdesrame.openapi.diff.model.schema.ChangedReadOnly;
+import com.qdesrame.openapi.diff.model.schema.ChangedRequired;
+import com.qdesrame.openapi.diff.model.schema.ChangedWriteOnly;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.LinkedHashMap;
@@ -8,15 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** Created by adarsh.sharma on 22/12/17. */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedSchema implements ComposedChanged {
+
   protected DiffContext context;
   protected Schema oldSchema;
   protected Schema newSchema;
@@ -90,7 +92,9 @@ public class ChangedSchema implements ComposedChanged {
 
   private boolean compatibleForRequest() {
     if (PathItem.HttpMethod.PUT.equals(context.getMethod())) {
-      if (increasedProperties.size() > 0) return false;
+      if (increasedProperties.size() > 0) {
+        return false;
+      }
     }
 
     return (oldSchema != null || newSchema == null);

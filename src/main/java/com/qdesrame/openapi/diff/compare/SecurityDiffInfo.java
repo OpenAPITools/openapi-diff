@@ -6,14 +6,12 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-/** Created by adarsh.sharma on 11/01/18. */
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 public class SecurityDiffInfo {
+
   private String ref;
   private SecurityScheme securityScheme;
   private List<String> scopes;
@@ -43,14 +41,20 @@ public class SecurityDiffInfo {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     SecurityDiffInfo that = (SecurityDiffInfo) o;
 
     if (securityScheme != null
         ? !securityScheme.equals(that.securityScheme)
-        : that.securityScheme != null) return false;
+        : that.securityScheme != null) {
+      return false;
+    }
     return scopes != null ? scopes.equals(that.scopes) : that.scopes == null;
   }
 

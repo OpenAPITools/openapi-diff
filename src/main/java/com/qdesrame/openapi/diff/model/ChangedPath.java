@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedPath implements ComposedChanged {
+
   private final String pathUrl;
   private final PathItem oldPath;
   private final PathItem newPath;

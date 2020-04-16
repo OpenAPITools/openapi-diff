@@ -4,15 +4,13 @@ import io.swagger.v3.oas.models.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** Created by adarsh.sharma on 22/12/17. */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedOneOfSchema implements ComposedChanged {
+
   private final Map<String, String> oldMapping;
   private final Map<String, String> newMapping;
   private final DiffContext context;

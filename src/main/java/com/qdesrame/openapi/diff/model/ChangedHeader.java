@@ -3,15 +3,13 @@ package com.qdesrame.openapi.diff.model;
 import io.swagger.v3.oas.models.headers.Header;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** Created by adarsh.sharma on 28/12/17. */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedHeader implements ComposedChanged {
+
   private final Header oldHeader;
   private final Header newHeader;
   private final DiffContext context;

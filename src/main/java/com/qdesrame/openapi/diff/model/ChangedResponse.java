@@ -3,14 +3,13 @@ package com.qdesrame.openapi.diff.model;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedResponse implements ComposedChanged {
+
   private final ApiResponse oldApiResponse;
   private final ApiResponse newApiResponse;
   private final DiffContext context;

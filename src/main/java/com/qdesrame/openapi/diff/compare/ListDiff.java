@@ -1,9 +1,7 @@
 package com.qdesrame.openapi.diff.compare;
 
 import com.qdesrame.openapi.diff.model.ChangedList;
-import lombok.Getter;
 
-@Getter
 public class ListDiff {
 
   public static <K extends ChangedList<X>, X> K diff(K instance) {

@@ -3,14 +3,13 @@ package com.qdesrame.openapi.diff.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public abstract class ChangedList<T> implements Changed {
+
   protected DiffContext context;
   protected List<T> oldValue;
   protected List<T> newValue;

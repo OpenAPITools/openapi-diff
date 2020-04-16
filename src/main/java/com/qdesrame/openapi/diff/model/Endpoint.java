@@ -2,11 +2,9 @@ package com.qdesrame.openapi.diff.model;
 
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class Endpoint {
 
   private String pathUrl;

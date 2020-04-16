@@ -1,18 +1,13 @@
 package com.qdesrame.openapi.diff.model;
 
-import lombok.Getter;
+import lombok.Value;
 
-@Getter
+@Value
 public class Change<T> {
-  private final T oldValue;
-  private final T newValue;
-  private final Type type;
 
-  private Change(T oldValue, T newValue, Type type) {
-    this.oldValue = oldValue;
-    this.newValue = newValue;
-    this.type = type;
-  }
+  T oldValue;
+  T newValue;
+  Type type;
 
   public static <T> Change<T> changed(T oldValue, T newValue) {
     return new Change<>(oldValue, newValue, Type.CHANGED);

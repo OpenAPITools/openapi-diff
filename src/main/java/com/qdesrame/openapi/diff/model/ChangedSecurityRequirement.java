@@ -3,15 +3,13 @@ package com.qdesrame.openapi.diff.model;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** Created by adarsh.sharma on 06/01/18. */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedSecurityRequirement implements ComposedChanged {
+
   private SecurityRequirement oldSecurityRequirement;
   private SecurityRequirement newSecurityRequirement;
 

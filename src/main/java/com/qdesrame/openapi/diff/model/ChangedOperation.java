@@ -6,14 +6,13 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedOperation implements ComposedChanged {
+
   private Operation oldOperation;
   private Operation newOperation;
 

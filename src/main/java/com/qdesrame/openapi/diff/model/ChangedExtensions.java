@@ -6,14 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.Data;
 
-@Getter
-@Setter
-@Accessors
+@Data
 public class ChangedExtensions implements ComposedChanged {
+
   private final Map<String, Object> oldExtensions;
   private final Map<String, Object> newExtensions;
   private final DiffContext context;

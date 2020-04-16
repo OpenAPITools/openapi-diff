@@ -6,15 +6,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-/** Created by adarsh.sharma on 22/12/17. */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedContent implements ComposedChanged {
+
   private final Content oldContent;
   private final Content newContent;
   private final DiffContext context;

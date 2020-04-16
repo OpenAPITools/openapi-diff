@@ -4,9 +4,7 @@ import com.qdesrame.openapi.diff.model.ChangedList;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.DiffResult;
 import java.util.List;
-import lombok.Getter;
 
-@Getter
 public class ChangedRequired extends ChangedList<String> {
 
   public ChangedRequired(List<String> oldValue, List<String> newValue, DiffContext context) {

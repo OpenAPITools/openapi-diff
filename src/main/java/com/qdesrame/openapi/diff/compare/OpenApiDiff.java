@@ -2,8 +2,12 @@ package com.qdesrame.openapi.diff.compare;
 
 import static com.qdesrame.openapi.diff.compare.PathsDiff.valOrEmpty;
 
-import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.model.ChangedExtensions;
+import com.qdesrame.openapi.diff.model.ChangedOpenApi;
+import com.qdesrame.openapi.diff.model.ChangedOperation;
+import com.qdesrame.openapi.diff.model.ChangedPath;
+import com.qdesrame.openapi.diff.model.ChangedPaths;
+import com.qdesrame.openapi.diff.model.Endpoint;
 import com.qdesrame.openapi.diff.utils.EndpointUtils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
@@ -22,7 +26,7 @@ public class OpenApiDiff {
 
   public static final String SWAGGER_VERSION_V2 = "2.0";
 
-  private static Logger logger = LoggerFactory.getLogger(OpenApiDiff.class);
+  private static final Logger logger = LoggerFactory.getLogger(OpenApiDiff.class);
 
   private PathsDiff pathsDiff;
   private PathDiff pathDiff;
@@ -44,8 +48,8 @@ public class OpenApiDiff {
   private ExtensionsDiff extensionsDiff;
   private MetadataDiff metadataDiff;
 
-  private OpenAPI oldSpecOpenApi;
-  private OpenAPI newSpecOpenApi;
+  private final OpenAPI oldSpecOpenApi;
+  private final OpenAPI newSpecOpenApi;
   private List<Endpoint> newEndpoints;
   private List<Endpoint> missingEndpoints;
   private List<ChangedOperation> changedOperations;

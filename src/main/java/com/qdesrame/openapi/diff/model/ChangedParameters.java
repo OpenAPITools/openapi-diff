@@ -3,12 +3,10 @@ package com.qdesrame.openapi.diff.model;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedParameters implements ComposedChanged {
   private final List<Parameter> oldParameterList;

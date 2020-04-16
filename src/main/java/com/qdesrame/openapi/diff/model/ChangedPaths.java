@@ -5,12 +5,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class ChangedPaths implements ComposedChanged {
+
   private final Map<String, PathItem> oldPathMap;
   private final Map<String, PathItem> newPathMap;
 

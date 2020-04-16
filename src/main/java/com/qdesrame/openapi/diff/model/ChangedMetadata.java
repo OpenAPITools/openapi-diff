@@ -1,12 +1,10 @@
 package com.qdesrame.openapi.diff.model;
 
 import java.util.Objects;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 public class ChangedMetadata implements Changed {
 

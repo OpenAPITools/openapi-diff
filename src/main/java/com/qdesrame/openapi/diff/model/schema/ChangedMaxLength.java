@@ -4,17 +4,14 @@ import com.qdesrame.openapi.diff.model.Changed;
 import com.qdesrame.openapi.diff.model.DiffContext;
 import com.qdesrame.openapi.diff.model.DiffResult;
 import java.util.Objects;
+import lombok.Value;
 
+@Value
 public class ChangedMaxLength implements Changed {
-  private final Integer oldValue;
-  private final Integer newValue;
-  private final DiffContext context;
 
-  public ChangedMaxLength(Integer oldValue, Integer newValue, DiffContext context) {
-    this.oldValue = oldValue;
-    this.newValue = newValue;
-    this.context = context;
-  }
+  Integer oldValue;
+  Integer newValue;
+  DiffContext context;
 
   @Override
   public DiffResult isChanged() {
