@@ -70,8 +70,6 @@ usage: openapi-diff <old> <new>
  -l,--log <level>               use given level for log (TRACE, DEBUG,
                                 INFO, WARN, ERROR, OFF). Default: ERROR
     --markdown <file>           export diff as markdown in given file
- -o,--output <format=file>      use given format (html, markdown) for
-                                output in file
     --off                       No information printed
     --query <property=value>    use query param for authorisation
     --state                     Only output diff state: no_changes,
