@@ -39,6 +39,11 @@ public class Main {
             .longOpt("fail-on-incompatible")
             .desc("Fail only if API changes broke backward compatibility")
             .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("fail-on-changed")
+            .desc("Fail if API changed but is backward compatible")
+            .build());
     options.addOption(Option.builder().longOpt("trace").desc("be extra verbose").build());
     options.addOption(
         Option.builder().longOpt("debug").desc("Print debugging information").build());
@@ -174,7 +179,7 @@ public class Main {
         System.exit(0);
       } else if (line.hasOption("fail-on-incompatible")) {
         System.exit(result.isCompatible() ? 0 : 1);
-      } else {
+      } else if (line.hasOption("fail-on-changed")) {
         System.exit(result.isUnchanged() ? 0 : 1);
       }
     } catch (ParseException e) {
