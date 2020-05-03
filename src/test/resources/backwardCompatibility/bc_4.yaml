@@ -36,9 +36,6 @@ paths:
       summary: Add a new pet to the store
       description: ''
       operationId: addPet
-      responses:
-        '405':
-          description: Invalid input
       requestBody:
         $ref: '#/components/requestBodies/Pet'
       responses:
@@ -48,6 +45,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MyResponseType'
+        '405':
+          description: Invalid input
   /pet/findByStatus:
     get:
       tags:
