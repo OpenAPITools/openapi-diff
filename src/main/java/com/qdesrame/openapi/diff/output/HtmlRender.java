@@ -288,7 +288,9 @@ public class HtmlRender implements Render {
 
   protected String type(Schema schema) {
     String result = "object";
-    if (schema instanceof ArraySchema) {
+    if (schema == null) {
+      result = "no schema";
+    } else if (schema instanceof ArraySchema) {
       result = "array";
     } else if (schema.getType() != null) {
       result = schema.getType();
