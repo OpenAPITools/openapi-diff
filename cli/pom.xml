@@ -37,57 +37,31 @@
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>cli</id>
-            <properties>
-                <maven.javadoc.skip>true</maven.javadoc.skip>
-                <maven.source.skip>true</maven.source.skip>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.3.0</version>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.qdesrame.openapi.diff.cli.Main</mainClass>
-                                </manifest>
-                            </archive>
-                            <finalName>${project.artifactId}</finalName>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <archive>
                         <manifest>
                             <mainClass>com.qdesrame.openapi.diff.cli.Main</mainClass>
                         </manifest>
                     </archive>
+                    <finalName>openapi-diff</finalName>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
