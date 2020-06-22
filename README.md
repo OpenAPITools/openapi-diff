@@ -310,7 +310,8 @@ To build your own extension, you simply need to create a `src/main/resources/MET
 openapi-diff is released under the Apache License 2.0.
 
 # Thanks
-* Adarsh Sharma / [adarshsharma](https://github.com/adarshsharma)
 
+* Adarsh Sharma / [adarshsharma](https://github.com/adarshsharma)
+* Quentin Desramé / [quen2404](https://github.com/quen2404)
 * [Sayi](https://github.com/Sayi) for his project [swagger-diff](https://github.com/Sayi/swagger-diff) 
   which was a source of inspiration for this tool
