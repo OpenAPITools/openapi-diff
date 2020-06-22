@@ -42,12 +42,12 @@ You can replace the local image name `local-openapi-diff` by any name of your ch
 
 ## Run an instance
 
-In this example the `$(pwd)/src/test/resources` directory is mounted in the `/specs` directory of the container
+In this example the `$(pwd)/core/src/test/resources` directory is mounted in the `/specs` directory of the container
 in readonly mode (`ro`).
 
 ```bash
 docker run -t \
-  -v $(pwd)/src/test/resources:/specs:ro \
+  -v $(pwd)/core/src/test/resources:/specs:ro \
   joschi/openapi-diff /specs/path_1.yaml /specs/path_2.yaml
 ```
 
@@ -132,7 +132,7 @@ try {
 ### Extensions
 This project uses Java Service Provider Inteface (SPI) so additional extensions can be added. 
 
-To build your own extension, you simply need to create a `src/main/resources/META-INF/services/com.qdesrame.openapi.diff.compare.ExtensionDiff` file with the full classname of your implementation.  Your class must also implement the `com.qdesrame.openapi.diff.compare.ExtensionDiff` interface.  Then, including your library with the `openapi-diff` module will cause it to be triggered automatically.
+To build your own extension, you simply need to create a `src/main/resources/META-INF/services/com.qdesrame.openapi.diff.core.compare.ExtensionDiff` file with the full classname of your implementation.  Your class must also implement the `com.qdesrame.openapi.diff.core.compare.ExtensionDiff` interface.  Then, including your library with the `openapi-diff` module will cause it to be triggered automatically.
 
 # Example
 ### CLI Output
