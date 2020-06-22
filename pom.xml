@@ -8,7 +8,7 @@
         <version>7</version>
     </parent>
 
-    <groupId>com.qdesrame</groupId>
+    <groupId>com.github.joschi.openapi</groupId>
     <artifactId>openapi-diff</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -31,9 +31,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:http://github.com/quen2404/openapi-diff.git</connection>
-        <developerConnection>scm:git:http://github.com/quen2404/openapi-diff.git</developerConnection>
-        <url>https://github.com/quen2404/openapi-diff</url>
+        <connection>scm:git:http://github.com/joschi/openapi-diff.git</connection>
+        <developerConnection>scm:git:http://github.com/joschi/openapi-diff.git</developerConnection>
+        <url>https://github.com/joschi/openapi-diff</url>
         <tag>HEAD</tag>
     </scm>
 
