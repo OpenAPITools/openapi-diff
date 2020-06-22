@@ -2,7 +2,7 @@
 
 Compare two OpenAPI specifications(3.x) and render the difference to html file or markdown file.
 
-[![CircleCI](https://circleci.com/gh/quen2404/openapi-diff/tree/master.svg?style=svg)](https://circleci.com/gh/quen2404/openapi-diff/tree/master)
+[![Test](https://github.com/joschi/openapi-diff/workflows/Test/badge.svg)](https://github.com/joschi/openapi-diff/actions?query=branch%3Amaster+workflow%3ATest+)
 
 # Requirements
 `jdk1.8+`
