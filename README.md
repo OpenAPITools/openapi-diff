@@ -28,7 +28,7 @@ Available on [Maven Central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%2
 
 # Docker
 
-Available on [Docker Hub](https://hub.docker.com/r/quen2404/openapi-diff/) as `quen2404/openapi-diff`.
+Available on [Docker Hub](https://hub.docker.com/r/joschi/openapi-diff/) as `joschi/openapi-diff`.
 
 ## Build the image
 
@@ -48,10 +48,10 @@ in readonly mode (`ro`).
 ```bash
 docker run -t \
   -v $(pwd)/src/test/resources:/specs:ro \
-  quen2404/openapi-diff /specs/path_1.yaml /specs/path_2.yaml
+  joschi/openapi-diff /specs/path_1.yaml /specs/path_2.yaml
 ```
 
-The remote name `quen2404/openapi-diff` can be replaced with `local-openapi-diff` or the name you gave to your local image.
+The remote name `joschi/openapi-diff` can be replaced with `local-openapi-diff` or the name you gave to your local image.
 
 # Usage
 OpenDiff can read swagger api spec from json file or http.
