@@ -381,13 +381,21 @@ public class MarkdownRender implements Render {
     if (properties != null) {
       properties.forEach(
           (key, value) -> {
-            sb.append(property(deepness, title, key, resolve(value)));
+            sb.append(resolveProperty(deepness, value, key, title));
             if (showContent) {
               sb.append(schema(deepness + 1, resolve(value), context));
             }
           });
     }
     return sb.toString();
+  }
+
+  private String resolveProperty(int deepness, Schema value, String key, String title) {
+    try {
+      return property(deepness, title, key, resolve(value));
+    } catch (Exception e) {
+      return property(deepness, title, key, type(value), "");
+    }
   }
 
   protected String property(int deepness, String name, ChangedSchema schema) {

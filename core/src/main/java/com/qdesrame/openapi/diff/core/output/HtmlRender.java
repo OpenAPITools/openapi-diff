@@ -269,7 +269,16 @@ public class HtmlRender implements Render {
       Map<String, Schema> properties,
       DiffContext context) {
     if (properties != null) {
-      properties.forEach((key, value) -> property(output, propPrefix + key, title, resolve(value)));
+      properties.forEach((key, value) -> resolveProperty(output, propPrefix, key, value, title));
+    }
+  }
+
+  private void resolveProperty(
+      ContainerTag output, String propPrefix, String key, Schema value, String title) {
+    try {
+      property(output, propPrefix + key, title, resolve(value));
+    } catch (Exception e) {
+      property(output, propPrefix + key, title, type(value));
     }
   }
 
