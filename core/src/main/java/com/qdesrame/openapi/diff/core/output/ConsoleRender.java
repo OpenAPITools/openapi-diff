@@ -213,10 +213,17 @@ public class ConsoleRender implements Render {
       String propPrefix, String title, Map<String, Schema> properties, DiffContext context) {
     StringBuilder sb = new StringBuilder();
     if (properties != null) {
-      properties.forEach(
-          (key, value) -> sb.append(property(propPrefix + key, title, resolve(value))));
+      properties.forEach((key, value) -> sb.append(resolveProperty(propPrefix, value, key, title)));
     }
     return sb.toString();
+  }
+
+  private String resolveProperty(String propPrefix, Schema value, String key, String title) {
+    try {
+      return property(propPrefix + key, title, resolve(value));
+    } catch (Exception e) {
+      return property(propPrefix + key, title, type(value));
+    }
   }
 
   protected String property(String name, String title, Schema schema) {
