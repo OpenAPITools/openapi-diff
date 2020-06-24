@@ -35,8 +35,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:http://github.com/joschi/openapi-diff.git</connection>
-        <developerConnection>scm:git:http://github.com/joschi/openapi-diff.git</developerConnection>
+        <connection>scm:git:https://github.com/joschi/openapi-diff.git</connection>
+        <developerConnection>scm:git:https://github.com/joschi/openapi-diff.git</developerConnection>
         <url>https://github.com/joschi/openapi-diff</url>
         <tag>HEAD</tag>
     </scm>
