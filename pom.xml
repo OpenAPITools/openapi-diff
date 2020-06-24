@@ -32,6 +32,11 @@
             <name>qdesrame</name>
             <email>quen2404@gmail.com</email>
         </developer>
+        <developer>
+            <name>Jochen Schalanda</name>
+            <email>jochen@schalanda.name</email>
+            <url>https://github.com/joschi</url>
+        </developer>
     </developers>
 
     <scm>
