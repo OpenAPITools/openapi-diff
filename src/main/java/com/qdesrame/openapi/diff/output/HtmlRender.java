@@ -1,8 +1,5 @@
 package com.qdesrame.openapi.diff.output;
 
-import static com.qdesrame.openapi.diff.model.Changed.result;
-import static j2html.TagCreator.*;
-
 import com.qdesrame.openapi.diff.model.*;
 import com.qdesrame.openapi.diff.utils.RefPointer;
 import com.qdesrame.openapi.diff.utils.RefType;
@@ -12,11 +9,13 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.qdesrame.openapi.diff.model.Changed.result;
+import static j2html.TagCreator.*;
 
 public class HtmlRender implements Render {
 
@@ -349,7 +348,10 @@ public class HtmlRender implements Render {
       return li_deprecatedParam(changeParam);
     }
     boolean changeRequired = changeParam.isChangeRequired();
-    boolean changeDescription = Optional.ofNullable(changeParam.getDescription()).map(ChangedMetadata::isDifferent).orElse(false);
+    boolean changeDescription =
+        Optional.ofNullable(changeParam.getDescription())
+            .map(ChangedMetadata::isDifferent)
+            .orElse(false);
     Parameter rightParam = changeParam.getNewParameter();
     Parameter leftParam = changeParam.getNewParameter();
     ContainerTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
