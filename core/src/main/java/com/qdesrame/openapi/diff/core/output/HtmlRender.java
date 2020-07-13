@@ -358,7 +358,10 @@ public class HtmlRender implements Render {
       return li_deprecatedParam(changeParam);
     }
     boolean changeRequired = changeParam.isChangeRequired();
-    boolean changeDescription = changeParam.getDescription().isDifferent();
+    boolean changeDescription =
+        Optional.ofNullable(changeParam.getDescription())
+            .map(ChangedMetadata::isDifferent)
+            .orElse(false);
     Parameter rightParam = changeParam.getNewParameter();
     Parameter leftParam = changeParam.getNewParameter();
     ContainerTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
