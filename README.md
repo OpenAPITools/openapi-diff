@@ -1,34 +1,63 @@
 # OpenAPI-diff 
 
-Compare two OpenAPI specifications(3.x) and render the difference to html file or markdown file.
+Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, or Markdown files.
 
 [![Test](https://github.com/joschi/openapi-diff/workflows/Test/badge.svg)](https://github.com/joschi/openapi-diff/actions?query=branch%3Amaster+workflow%3ATest+)
 
 # Requirements
-`jdk1.8+`
+
+* Java 8
 
 # Feature
-* Supports OpenAPi spec v3.0.
-* Depth comparison of parameters, responses, endpoint, http method(GET,POST,PUT,DELETE...)
+
+* Supports OpenAPI spec v3.0.
+* Depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
 * Supports swagger api Authorization
 * Render difference of property with Expression Language
-* html & markdown render
+* HTML & Markdown render
 
 # Maven
 
-Available on [Maven Central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.qdesrame%22%20AND%20a%3A%22openapi-diff%22)
+Available on [Maven Central](https://search.maven.org/artifact/com.github.joschi.openapi-diff/core)
 
 ```xml
 <dependency>
-    <groupId>com.qdesrame</groupId>
-    <artifactId>openapi-diff</artifactId>
-    <version>1.2.0</version>
+  <groupId>com.github.joschi.openapi-diff</groupId>
+  <artifactId>core</artifactId>
+  <version>${openapi-diff-version}</version>
 </dependency>
 ```
 
 # Docker
 
 Available on [Docker Hub](https://hub.docker.com/r/joschi/openapi-diff/) as `joschi/openapi-diff`.
+
+```bash
+# docker run joschi/openapi-diff:latest
+usage: openapi-diff <old> <new>
+    --debug                     Print debugging information
+    --error                     Print error information
+    --fail-on-changed           Fail if API changed but is backward
+                                compatible
+    --fail-on-incompatible      Fail only if API changes broke backward
+                                compatibility
+ -h,--help                      print this message
+    --header <property=value>   use given header for authorisation
+    --html <file>               export diff as html in given file
+    --info                      Print additional information
+ -l,--log <level>               use given level for log (TRACE, DEBUG,
+                                INFO, WARN, ERROR, OFF). Default: ERROR
+    --markdown <file>           export diff as markdown in given file
+    --off                       No information printed
+    --query <property=value>    use query param for authorisation
+    --state                     Only output diff state: no_changes,
+                                incompatible, compatible
+    --text <file>               export diff as text in given file
+    --trace                     be extra verbose
+    --version                   print the version information and exit
+    --warn                      Print warning information
+```
+
 
 ## Build the image
 
@@ -54,7 +83,8 @@ docker run -t \
 The remote name `joschi/openapi-diff` can be replaced with `local-openapi-diff` or the name you gave to your local image.
 
 # Usage
-OpenDiff can read swagger api spec from json file or http.
+
+openapi-diff can read OpenAPI specs from JSON files or HTTP URLs.
 
 ## Command Line
 
@@ -99,6 +129,7 @@ public class Main {
 ### Render difference
 ---
 #### HTML
+
 ```java
 String html = new HtmlRender("Changelog",
         "http://deepoove.com/swagger-diff/stylesheets/demo.css")
@@ -116,6 +147,7 @@ try {
 ```
 
 #### Markdown
+
 ```java
 String render = new MarkdownRender().render(diff);
 try {
@@ -130,11 +162,13 @@ try {
 ```
 
 ### Extensions
+
 This project uses Java Service Provider Inteface (SPI) so additional extensions can be added. 
 
 To build your own extension, you simply need to create a `src/main/resources/META-INF/services/com.qdesrame.openapi.diff.core.compare.ExtensionDiff` file with the full classname of your implementation.  Your class must also implement the `com.qdesrame.openapi.diff.core.compare.ExtensionDiff` interface.  Then, including your library with the `openapi-diff` module will cause it to be triggered automatically.
 
-# Example
+# Examples
+
 ### CLI Output
 
 ```text
@@ -233,6 +267,7 @@ To build your own extension, you simply need to create a `src/main/resources/MET
 ```
 
 ### Markdown
+
 ```markdown
 ### What's New
 ---
@@ -307,6 +342,7 @@ To build your own extension, you simply need to create a `src/main/resources/MET
 ```
 
 # License
+
 openapi-diff is released under the Apache License 2.0.
 
 # Thanks
