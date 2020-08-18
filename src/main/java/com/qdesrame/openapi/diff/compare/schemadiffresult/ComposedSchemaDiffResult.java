@@ -42,15 +42,15 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
 
         Discriminator leftDis = leftComposedSchema.getDiscriminator();
         Discriminator rightDis = rightComposedSchema.getDiscriminator();
-        if (leftDis == null
-            || rightDis == null
-            || leftDis.getPropertyName() == null
-            || rightDis.getPropertyName() == null) {
-          throw new IllegalArgumentException(
-              "discriminator or property not found for oneOf schema");
-        } else if (!leftDis.getPropertyName().equals(rightDis.getPropertyName())
-            || (CollectionUtils.isEmpty(leftComposedSchema.getOneOf())
-                || CollectionUtils.isEmpty(rightComposedSchema.getOneOf()))) {
+        if ((leftDis == null && rightDis != null)
+        ||  (leftDis != null && rightDis == null)
+        ||  (leftDis != null && rightDis != null && (
+                (leftDis.getPropertyName() == null && rightDis.getPropertyName() != null)
+            ||  (leftDis.getPropertyName() != null && rightDis.getPropertyName() == null)
+            ||  (leftDis.getPropertyName() != null && rightDis.getPropertyName() != null &&
+                    !leftDis.getPropertyName().equals(rightDis.getPropertyName()))
+            ))
+        ) {
           changedSchema.setOldSchema(left);
           changedSchema.setNewSchema(right);
           changedSchema.setDiscriminatorPropertyChanged(true);
@@ -109,7 +109,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
       reverseMapping.put(ref, schemaName);
     }
 
-    if (composedSchema.getDiscriminator().getMapping() != null) {
+    if (composedSchema.getDiscriminator() != null && composedSchema.getDiscriminator().getMapping() != null) {
       for (String ref : composedSchema.getDiscriminator().getMapping().keySet()) {
         reverseMapping.put(composedSchema.getDiscriminator().getMapping().get(ref), ref);
       }
