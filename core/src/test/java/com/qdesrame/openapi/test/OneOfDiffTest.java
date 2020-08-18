@@ -16,6 +16,8 @@ public class OneOfDiffTest {
   private final String OPENAPI_DOC5 = "composed_schema_2.yaml";
   private final String OPENAPI_DOC6 = "oneOf_discriminator-changed_1.yaml";
   private final String OPENAPI_DOC7 = "oneOf_discriminator-changed_2.yaml";
+  private final String OPENAPI_DOC8 = "oneOf_discriminator-missing_1.yaml";
+  private final String OPENAPI_DOC9 = "oneOf_discriminator-missing_2.yaml";
 
   @Test
   public void testDiffSame() {
@@ -41,5 +43,15 @@ public class OneOfDiffTest {
   public void testOneOfDiscrimitatorChanged() {
     // The oneOf 'discriminator' changed: 'realtype' -> 'othertype':
     assertOpenApiBackwardIncompatible(OPENAPI_DOC6, OPENAPI_DOC7);
+  }
+
+  @Test
+  public void testOneOfDiscrimitatorMissingSameOrder() {
+    assertOpenApiAreEquals(OPENAPI_DOC8, OPENAPI_DOC8);
+  }
+
+  @Test
+  public void testOneOfDiscrimitatorMissingDifferentOrder() {
+    assertOpenApiAreEquals(OPENAPI_DOC8, OPENAPI_DOC9);
   }
 }
