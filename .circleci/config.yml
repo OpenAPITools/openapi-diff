@@ -31,6 +31,6 @@ jobs:
           path: ~/test-results
 
       - store_artifacts:
-          path: core/target/openapi-diff-*-SNAPSHOT.jar
+          path: core/target/core-*-SNAPSHOT.jar
       - store_artifacts:
-          path: cli/target/openapi-diff-*-SNAPSHOT.jar
+          path: cli/target/cli-*-SNAPSHOT.jar
