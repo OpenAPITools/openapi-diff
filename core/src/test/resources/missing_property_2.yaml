@@ -1,0 +1,24 @@
+openapi: 3.0.1
+info:
+  title: Title
+  version: 1.0.0
+  description: Description
+paths:
+  /:
+    get:
+      summary: Simple GET
+      operationId: simpleGet
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wrapper'
+      description: Simple GET
+components:
+  schemas:
+    Wrapper:
+      type: object
+      properties:
+        id:
+          type: string

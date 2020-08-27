@@ -14,17 +14,23 @@ jobs:
       - restore_cache:
           key: openapi-diff-{{ checksum "pom.xml" }}
 
-      - run: mvn dependency:go-offline
+      - run: ./mvnw package -X
 
       - save_cache:
           paths:
             - ~/.m2
           key: openapi-diff-{{ checksum "pom.xml" }}
 
-      - run: mvn package -X
-
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
       - store_test_results:
-          path: target/surefire-reports
+          path: ~/test-results
 
       - store_artifacts:
-          path: target/openapi-diff-*-SNAPSHOT.jar
+          path: core/target/core-*-SNAPSHOT.jar
+      - store_artifacts:
+          path: cli/target/cli-*-SNAPSHOT.jar
