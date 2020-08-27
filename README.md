@@ -2,7 +2,7 @@
 
 Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, or Markdown files.
 
-[![Test](https://github.com/joschi/openapi-diff/workflows/Test/badge.svg)](https://github.com/joschi/openapi-diff/actions?query=branch%3Amaster+workflow%3ATest+)
+[![Test](https://github.com/OpenAPITools/openapi-diff/workflows/Test/badge.svg)](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3ATest+)
 
 # Requirements
 
