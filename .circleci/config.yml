@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+
+    working_directory: ~/openapi-diff
+
+    docker:
+      - image: circleci/openjdk:8-jdk-node-browsers
+
+    steps:
+
+      - checkout
+
+      - restore_cache:
+          key: openapi-diff-{{ checksum "pom.xml" }}
+
+      - run: ./mvnw package -X
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: openapi-diff-{{ checksum "pom.xml" }}
+
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+
+      - store_artifacts:
+          path: core/target/openapi-diff-*-SNAPSHOT.jar
+      - store_artifacts:
+          path: cli/target/openapi-diff-*-SNAPSHOT.jar
