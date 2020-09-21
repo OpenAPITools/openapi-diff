@@ -3,7 +3,7 @@
 Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, or Markdown files.
 
 [![Test](https://github.com/OpenAPITools/openapi-diff/workflows/Test/badge.svg)](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3ATest+)
-
+[![Maven Central](https://img.shields.io/maven-central/v/org.openapitools.openapidiff/openapi-diff-core)](https://search.maven.org/artifact/org.openapitools.openapidiff/openapi-diff-core)
 [![Join the Slack chat room](https://img.shields.io/badge/Slack-Join%20the%20chat%20room-orange)](https://join.slack.com/t/openapi-generator/shared_invite/enQtNzAyNDMyOTU0OTE1LTY5ZDBiNDI5NzI5ZjQ1Y2E5OWVjMjZkYzY1ZGM2MWQ4YWFjMzcyNDY5MGI4NjQxNDBiMTlmZTc5NjY2ZTQ5MGM)
 
 # Requirements
@@ -20,22 +20,22 @@ Compare two OpenAPI specifications (3.x) and render the difference to HTML plain
 
 # Maven
 
-Available on [Maven Central](https://search.maven.org/artifact/com.github.joschi.openapi-diff/core)
+Available on [Maven Central](https://search.maven.org/artifact/org.openapitools.openapidiff/openapi-diff-core)
 
 ```xml
 <dependency>
-  <groupId>com.github.joschi.openapi-diff</groupId>
-  <artifactId>core</artifactId>
+  <groupId>org.openapitools.openapidiff</groupId>
+  <artifactId>openapi-diff-core</artifactId>
   <version>${openapi-diff-version}</version>
 </dependency>
 ```
 
 # Docker
 
-Available on [Docker Hub](https://hub.docker.com/r/joschi/openapi-diff/) as `joschi/openapi-diff`.
+Available on [Docker Hub](https://hub.docker.com/r/openapitools/openapi-diff/) as `openapitools/openapi-diff`.
 
 ```bash
-# docker run joschi/openapi-diff:latest
+# docker run openapitools/openapi-diff:latest
 usage: openapi-diff <old> <new>
     --debug                     Print debugging information
     --error                     Print error information
@@ -79,10 +79,10 @@ in readonly mode (`ro`).
 ```bash
 docker run -t \
   -v $(pwd)/core/src/test/resources:/specs:ro \
-  joschi/openapi-diff /specs/path_1.yaml /specs/path_2.yaml
+  openapitools/openapi-diff /specs/path_1.yaml /specs/path_2.yaml
 ```
 
-The remote name `joschi/openapi-diff` can be replaced with `local-openapi-diff` or the name you gave to your local image.
+The remote name `openapitools/openapi-diff` can be replaced with `local-openapi-diff` or the name you gave to your local image.
 
 # Usage
 
