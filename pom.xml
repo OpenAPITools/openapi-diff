@@ -12,8 +12,8 @@
         <module>cli</module>
     </modules>
 
-    <groupId>com.github.joschi.openapi-diff</groupId>
-    <artifactId>parent</artifactId>
+    <groupId>org.openapitools.openapidiff</groupId>
+    <artifactId>openapi-diff-parent</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
