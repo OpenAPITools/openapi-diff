@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '14']
+        java_version: ['8', '11', '15']
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
@@ -28,6 +28,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Build with Maven
-      run: ./mvnw -V -B -ff install '-DskipTests=true' '-Dmaven.javadoc.skip=true'
+      run: ./mvnw -V -B -ntp -ff install '-DskipTests=true' '-Dmaven.javadoc.skip=true'
     - name: Run tests
-      run: ./mvnw -V -B -ff verify
+      run: ./mvnw -V -B -ntp -ff verify
