@@ -65,7 +65,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.scm.id>github</project.scm.id>
-        <swagger-parser.version>2.0.21</swagger-parser.version>
+        <swagger-parser.version>2.0.22</swagger-parser.version>
         <slf4j.version>1.7.30</slf4j.version>
     </properties>
 
