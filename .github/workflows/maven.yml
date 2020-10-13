@@ -29,7 +29,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Run tests
-      run: ./mvnw -V -B -ntp -ff clean verify
+      run: ./mvnw -V -B -ntp -ff verify
     - name: Release Snapshot
       if: matrix.java_version == '11'
       run: ./mvnw -V -B -ntp -ff deploy
