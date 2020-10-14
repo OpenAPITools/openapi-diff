@@ -12,6 +12,7 @@
 
     <name>openapi-diff-parent</name>
     <description>Parent POM for OpenAPI-Diff</description>
+    <url>https://github.com/OpenAPITools/openapi-diff</url>
 
     <licenses>
         <license>
@@ -31,6 +32,16 @@
             <url>https://github.com/joschi</url>
         </developer>
     </developers>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/OpenAPITools/openapi-diff/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub Workflow</system>
+        <url>https://github.com/OpenAPITools/openapi-diff/actions</url>
+    </ciManagement>
 
     <scm>
         <connection>scm:git:https://github.com/OpenAPITools/openapi-diff.git</connection>
