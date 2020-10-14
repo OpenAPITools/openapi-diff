@@ -7,8 +7,14 @@ on:
       - 'docs/**'
       - '.circleci/**'
       - '.github/**'
+
+env:
+  OSS_USERNAME: ${{ secrets.OSS_USERNAME }}
+  OSS_PASSWORD: ${{ secrets.OSS_PASSWORD }}
+
 jobs:
   build:
+    name: Build on JDK ${{ matrix.java_version }}
     runs-on: 'ubuntu-latest'
     strategy:
       fail-fast: false
@@ -22,6 +28,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java_version }}
+        # Value of the distributionManagement/repository/id field of the pom.xml
+        server-id: sonatype-nexus-snapshots
+        server-username: OSS_USERNAME
+        server-password: OSS_PASSWORD
     - uses: actions/cache@v2.1.2
       with:
         path: ~/.m2/repository
