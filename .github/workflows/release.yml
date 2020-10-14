@@ -1,11 +1,14 @@
 name: Triggered Release
-on: [workflow_dispatch]
-
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: 'Default version to use when preparing a release or a branch.'
+        required: true
 env:
   OSS_USERNAME: ${{ secrets.OSS_USERNAME }}
   OSS_PASSWORD: ${{ secrets.OSS_PASSWORD }}
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -35,8 +38,8 @@ jobs:
           git config --global author.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config --global author.name "${GITHUB_ACTOR}"
       - name: Release
-        run: ./mvnw -B clean release:prepare release:perform -Prelease -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}} -Drepository.url=https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git
-      - name: 'if failure -> rollback'
+        run: ./mvnw -B -Prelease -DreleaseVersion=${{ github.event.inputs.releaseVersion }} release:prepare release:perform
+      - name: Rollback on failure
         if: ${{ failure() }}
         run: |
           ./mvnw -B release:rollback -Prelease -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}}
