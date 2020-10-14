@@ -38,9 +38,9 @@ jobs:
           git config --global author.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git config --global author.name "${GITHUB_ACTOR}"
       - name: Release
-        run: ./mvnw -B -Prelease-sign-artifacts -DreleaseVersion=${{ github.event.inputs.releaseVersion }} release:prepare release:perform
+        run: ./mvnw -B -Prelease -DreleaseVersion=${{ github.event.inputs.releaseVersion }} release:prepare release:perform
       - name: Rollback on failure
         if: ${{ failure() }}
         run: |
-          ./mvnw -B release:rollback -Prelease-sign-artifacts -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}}
+          ./mvnw -B release:rollback -Prelease -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}}
           echo "You may need to manually delete the GitHub tag, if it was created."
