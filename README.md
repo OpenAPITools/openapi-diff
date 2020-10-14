@@ -77,9 +77,9 @@ In this example the `$(pwd)/core/src/test/resources` directory is mounted in the
 in readonly mode (`ro`).
 
 ```bash
-docker run -t \
+docker run --rm -t \
   -v $(pwd)/core/src/test/resources:/specs:ro \
-  openapitools/openapi-diff /specs/path_1.yaml /specs/path_2.yaml
+  openapitools/openapi-diff:latest /specs/path_1.yaml /specs/path_2.yaml
 ```
 
 The remote name `openapitools/openapi-diff` can be replaced with `local-openapi-diff` or the name you gave to your local image.
