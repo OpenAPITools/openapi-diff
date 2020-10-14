@@ -12,6 +12,7 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
   build:
+    name: Build on JDK ${{ matrix.java_version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
