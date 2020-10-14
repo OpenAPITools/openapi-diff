@@ -1,11 +1,12 @@
-name: Test
+name: Main Build
 on:
   push:
     branches:
-    - master
-  pull_request:
-    branches:
-    - master
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - '.circleci/**'
+      - '.github/**'
 jobs:
   build:
     runs-on: 'ubuntu-latest'
@@ -18,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK
-      uses: joschi/setup-jdk@v2.3.0
+      uses: actions/setup-java@v1
       with:
         java-version: ${{ matrix.java_version }}
     - uses: actions/cache@v2.1.2
@@ -27,7 +28,8 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: Build with Maven
-      run: ./mvnw -V -B -ntp -ff install '-DskipTests=true' '-Dmaven.javadoc.skip=true'
     - name: Run tests
       run: ./mvnw -V -B -ntp -ff verify
+    - name: Release Snapshot
+      if: matrix.java_version == '11'
+      run: ./mvnw -V -B -ntp -ff deploy
