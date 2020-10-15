@@ -12,6 +12,7 @@ on:
 env:
   OSS_USERNAME: ${{ secrets.OSS_USERNAME }}
   OSS_PASSWORD: ${{ secrets.OSS_PASSWORD }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 jobs:
   build:
@@ -40,7 +41,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Run tests
-      run: ./mvnw -V -B -ntp -ff verify
+      run: ./mvnw -V -B -ntp -ff verify jacoco:report
+    - name: Static Analysis (Sonar)
+      # Sonar will require at least Java 11 soon.
+      if: matrix.java_version == '11'
+      run: ./mvnw -B -ntp -ff jacoco:report-aggregate org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=OpenAPITools_openapi-diff -Dsonar.organization=openapitools -Dsonar.host.url=https://sonarcloud.io -Dsonar.branch.name=${GITHUB_REF##*/}
     - name: Release Snapshot
       if: matrix.java_version == '11'
       run: ./mvnw -V -B -ntp -ff deploy
