@@ -171,7 +171,9 @@ try {
 
 This project uses Java Service Provider Inteface (SPI) so additional extensions can be added. 
 
-To build your own extension, you simply need to create a `src/main/resources/META-INF/services/com.qdesrame.openapi.diff.core.compare.ExtensionDiff` file with the full classname of your implementation.  Your class must also implement the `com.qdesrame.openapi.diff.core.compare.ExtensionDiff` interface.  Then, including your library with the `openapi-diff` module will cause it to be triggered automatically.
+To build your own extension, you simply need to create a `src/main/resources/META-INF/services/org.openapitools.openapidiff.core.compare.ExtensionDiff` file with the full classname of your implementation.
+Your class must also implement the `org.openapitools.openapidiff.core.compare.ExtensionDiff` interface.
+Then, including your library with the `openapi-diff` module will cause it to be triggered automatically.
 
 # Examples
 
