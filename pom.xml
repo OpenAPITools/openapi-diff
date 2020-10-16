@@ -69,6 +69,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.scm.id>github</project.scm.id>
+
+        <sonar.organization>openapitools</sonar.organization>
+        <sonar.projectKey>OpenAPITools_openapi-diff</sonar.projectKey>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+
         <swagger-parser.version>2.0.22</swagger-parser.version>
         <slf4j.version>1.7.30</slf4j.version>
     </properties>
@@ -311,6 +317,11 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.6</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -362,40 +373,7 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>jacoco-site</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-check</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <rule>
-                                    <element>PACKAGE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
-                        </configuration>
-                    </execution>
                 </executions>
-                <configuration>
-                    <excludes>
-                        <!-- Example: -->
-                        <!-- <exclude>**/gradle-wrapper.jar</exclude> -->
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>
