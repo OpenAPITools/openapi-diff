@@ -12,7 +12,6 @@ on:
 env:
   OSS_USERNAME: ${{ secrets.OSS_USERNAME }}
   OSS_PASSWORD: ${{ secrets.OSS_PASSWORD }}
-  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 jobs:
   build:
