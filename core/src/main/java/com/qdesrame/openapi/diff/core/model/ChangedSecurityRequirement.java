@@ -3,16 +3,11 @@ package com.qdesrame.openapi.diff.core.model;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import java.util.Objects;
 
-@Data
-@Accessors(chain = true)
 public class ChangedSecurityRequirement implements ComposedChanged {
-
   private SecurityRequirement oldSecurityRequirement;
   private SecurityRequirement newSecurityRequirement;
-
   private SecurityRequirement missing;
   private SecurityRequirement increased;
   private List<ChangedSecurityScheme> changed;
@@ -56,5 +51,85 @@ public class ChangedSecurityRequirement implements ComposedChanged {
 
   public void addChanged(ChangedSecurityScheme changedSecurityScheme) {
     changed.add(changedSecurityScheme);
+  }
+
+  public SecurityRequirement getOldSecurityRequirement() {
+    return this.oldSecurityRequirement;
+  }
+
+  public SecurityRequirement getNewSecurityRequirement() {
+    return this.newSecurityRequirement;
+  }
+
+  public SecurityRequirement getMissing() {
+    return this.missing;
+  }
+
+  public SecurityRequirement getIncreased() {
+    return this.increased;
+  }
+
+  public List<ChangedSecurityScheme> getChanged() {
+    return this.changed;
+  }
+
+  public ChangedSecurityRequirement setOldSecurityRequirement(
+      final SecurityRequirement oldSecurityRequirement) {
+    this.oldSecurityRequirement = oldSecurityRequirement;
+    return this;
+  }
+
+  public ChangedSecurityRequirement setNewSecurityRequirement(
+      final SecurityRequirement newSecurityRequirement) {
+    this.newSecurityRequirement = newSecurityRequirement;
+    return this;
+  }
+
+  public ChangedSecurityRequirement setMissing(final SecurityRequirement missing) {
+    this.missing = missing;
+    return this;
+  }
+
+  public ChangedSecurityRequirement setIncreased(final SecurityRequirement increased) {
+    this.increased = increased;
+    return this;
+  }
+
+  public ChangedSecurityRequirement setChanged(final List<ChangedSecurityScheme> changed) {
+    this.changed = changed;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ChangedSecurityRequirement that = (ChangedSecurityRequirement) o;
+    return Objects.equals(oldSecurityRequirement, that.oldSecurityRequirement)
+        && Objects.equals(newSecurityRequirement, that.newSecurityRequirement)
+        && Objects.equals(missing, that.missing)
+        && Objects.equals(increased, that.increased)
+        && Objects.equals(changed, that.changed);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        oldSecurityRequirement, newSecurityRequirement, missing, increased, changed);
+  }
+
+  @java.lang.Override
+  public java.lang.String toString() {
+    return "ChangedSecurityRequirement(oldSecurityRequirement="
+        + this.getOldSecurityRequirement()
+        + ", newSecurityRequirement="
+        + this.getNewSecurityRequirement()
+        + ", missing="
+        + this.getMissing()
+        + ", increased="
+        + this.getIncreased()
+        + ", changed="
+        + this.getChanged()
+        + ")";
   }
 }

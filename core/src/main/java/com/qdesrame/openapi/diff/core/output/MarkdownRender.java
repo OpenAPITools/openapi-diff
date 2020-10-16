@@ -16,17 +16,13 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MarkdownRender implements Render {
-
   public static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
-
   protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected final String H3 = "### ";
   protected final String H4 = "#### ";
@@ -39,20 +35,19 @@ public class MarkdownRender implements Render {
   protected final String LI = "* ";
   protected final String HR = "---\n";
   protected ChangedOpenApi diff;
-
   /**
    * A paramater which indicates whether or not metadata (summary and metadata) changes should be
    * logged in the changelog file.
    */
-  @Getter @Setter protected boolean showChangedMetadata;
+  protected boolean showChangedMetadata;
 
   public MarkdownRender() {}
 
   public String render(ChangedOpenApi diff) {
     this.diff = diff;
-    return listEndpoints("What's New", diff.getNewEndpoints())
-        + listEndpoints("What's Deleted", diff.getMissingEndpoints())
-        + listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints())
+    return listEndpoints("What\'s New", diff.getNewEndpoints())
+        + listEndpoints("What\'s Deleted", diff.getMissingEndpoints())
+        + listEndpoints("What\'s Deprecated", diff.getDeprecatedEndpoints())
         + listEndpoints(diff.getChangedOperations());
   }
 
@@ -83,7 +78,7 @@ public class MarkdownRender implements Render {
 
   protected String listEndpoints(List<ChangedOperation> changedOperations) {
     if (null == changedOperations || changedOperations.size() == 0) return "";
-    StringBuilder sb = new StringBuilder(sectionTitle("What's Changed"));
+    StringBuilder sb = new StringBuilder(sectionTitle("What\'s Changed"));
     changedOperations.stream()
         .map(
             operation -> {
@@ -253,12 +248,13 @@ public class MarkdownRender implements Render {
         .getMissing()
         .keySet()
         .forEach(
-            key -> sb.append(format("%sDeleted '%s' %s\n", indent(deepness), key, discriminator)));
+            key ->
+                sb.append(format("%sDeleted \'%s\' %s\n", indent(deepness), key, discriminator)));
     schema
         .getIncreased()
         .forEach(
             (key, sub) ->
-                sb.append(format("%sAdded '%s' %s:\n", indent(deepness), key, discriminator))
+                sb.append(format("%sAdded \'%s\' %s:\n", indent(deepness), key, discriminator))
                     .append(schema(deepness, sub, schema.getContext())));
     schema
         .getChanged()
@@ -549,5 +545,21 @@ public class MarkdownRender implements Render {
   protected Schema resolve(Schema schema) {
     return refPointer.resolveRef(
         diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
+  }
+
+  /**
+   * A paramater which indicates whether or not metadata (summary and metadata) changes should be
+   * logged in the changelog file.
+   */
+  public boolean isShowChangedMetadata() {
+    return this.showChangedMetadata;
+  }
+
+  /**
+   * A paramater which indicates whether or not metadata (summary and metadata) changes should be
+   * logged in the changelog file.
+   */
+  public void setShowChangedMetadata(final boolean showChangedMetadata) {
+    this.showChangedMetadata = showChangedMetadata;
   }
 }

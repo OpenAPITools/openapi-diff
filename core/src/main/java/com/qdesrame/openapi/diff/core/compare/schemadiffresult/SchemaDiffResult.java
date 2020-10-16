@@ -13,9 +13,7 @@ import com.qdesrame.openapi.diff.core.model.schema.*;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.*;
-import lombok.Getter;
 
-@Getter
 public class SchemaDiffResult {
   protected ChangedSchema changedSchema;
   protected OpenApiDiff openApiDiff;
@@ -55,7 +53,6 @@ public class SchemaDiffResult {
         .setReadOnly(new ChangedReadOnly(left.getReadOnly(), right.getReadOnly(), context))
         .setWriteOnly(new ChangedWriteOnly(left.getWriteOnly(), right.getWriteOnly(), context))
         .setMaxLength(new ChangedMaxLength(left.getMaxLength(), right.getMaxLength(), context));
-
     openApiDiff
         .getExtensionsDiff()
         .diff(left.getExtensions(), right.getExtensions(), context)
@@ -64,11 +61,9 @@ public class SchemaDiffResult {
         .getMetadataDiff()
         .diff(left.getDescription(), right.getDescription(), context)
         .ifPresent(changedSchema::setDescription);
-
     Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
     Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
     MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
-
     for (String key : propertyDiff.getSharedKey()) {
       openApiDiff
           .getSchemaDiff()
@@ -80,9 +75,7 @@ public class SchemaDiffResult {
           .ifPresent(
               changedSchema1 -> changedSchema.getChangedProperties().put(key, changedSchema1));
     }
-
     compareAdditionalProperties(refSet, left, right, context);
-
     changedSchema
         .getIncreasedProperties()
         .putAll(filterProperties(Change.Type.ADDED, propertyDiff.getIncreased(), context));
@@ -156,5 +149,13 @@ public class SchemaDiffResult {
       }
       isChanged(apChangedSchema).ifPresent(changedSchema::setAddProp);
     }
+  }
+
+  public ChangedSchema getChangedSchema() {
+    return this.changedSchema;
+  }
+
+  public OpenApiDiff getOpenApiDiff() {
+    return this.openApiDiff;
   }
 }

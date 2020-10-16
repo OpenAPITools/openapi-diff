@@ -5,16 +5,18 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data
-@AllArgsConstructor
 public class SecurityDiffInfo {
-
   private String ref;
   private SecurityScheme securityScheme;
   private List<String> scopes;
+
+  public SecurityDiffInfo(
+      final String ref, final SecurityScheme securityScheme, final List<String> scopes) {
+    this.ref = ref;
+    this.securityScheme = securityScheme;
+    this.scopes = scopes;
+  }
 
   public static SecurityRequirement getSecurityRequirement(
       List<SecurityDiffInfo> securityDiffInfoList) {
@@ -22,7 +24,6 @@ public class SecurityDiffInfo {
     for (SecurityDiffInfo securityDiffInfo : securityDiffInfoList) {
       securityRequirement.put(securityDiffInfo.getRef(), securityDiffInfo.getScopes());
     }
-
     return securityRequirement;
   }
 
@@ -47,9 +48,7 @@ public class SecurityDiffInfo {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     SecurityDiffInfo that = (SecurityDiffInfo) o;
-
     if (securityScheme != null
         ? !securityScheme.equals(that.securityScheme)
         : that.securityScheme != null) {
@@ -63,5 +62,40 @@ public class SecurityDiffInfo {
     int result = securityScheme != null ? securityScheme.hashCode() : 0;
     result = 31 * result + (scopes != null ? scopes.hashCode() : 0);
     return result;
+  }
+
+  public String getRef() {
+    return this.ref;
+  }
+
+  public SecurityScheme getSecurityScheme() {
+    return this.securityScheme;
+  }
+
+  public List<String> getScopes() {
+    return this.scopes;
+  }
+
+  public void setRef(final String ref) {
+    this.ref = ref;
+  }
+
+  public void setSecurityScheme(final SecurityScheme securityScheme) {
+    this.securityScheme = securityScheme;
+  }
+
+  public void setScopes(final List<String> scopes) {
+    this.scopes = scopes;
+  }
+
+  @java.lang.Override
+  public java.lang.String toString() {
+    return "SecurityDiffInfo(ref="
+        + this.getRef()
+        + ", securityScheme="
+        + this.getSecurityScheme()
+        + ", scopes="
+        + this.getScopes()
+        + ")";
   }
 }
