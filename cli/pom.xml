@@ -52,7 +52,7 @@
                             <shadedClassifierName>all</shadedClassifierName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.qdesrame.openapi.diff.cli.Main</mainClass>
+                                    <mainClass>org.openapitools.openapidiff.cli.Main</mainClass>
                                 </transformer>
                               <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                               <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
