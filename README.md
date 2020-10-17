@@ -3,6 +3,7 @@
 Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, or Markdown files.
 
 [![Build](https://github.com/OpenAPITools/openapi-diff/workflows/Main%20Build/badge.svg)](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3A"Main+Build")
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenAPITools_openapi-diff&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenAPITools_openapi-diff)
 [![Maven Central](https://img.shields.io/maven-central/v/org.openapitools.openapidiff/openapi-diff-core)](https://search.maven.org/artifact/org.openapitools.openapidiff/openapi-diff-core)
 [![Join the Slack chat room](https://img.shields.io/badge/Slack-Join%20the%20chat%20room-orange)](https://join.slack.com/t/openapi-generator/shared_invite/enQtNzAyNDMyOTU0OTE1LTY5ZDBiNDI5NzI5ZjQ1Y2E5OWVjMjZkYzY1ZGM2MWQ4YWFjMzcyNDY5MGI4NjQxNDBiMTlmZTc5NjY2ZTQ5MGM)
 
