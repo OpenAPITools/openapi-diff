@@ -12,7 +12,7 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 
 public class PathsDiff {
   private static final String REGEX_PATH = "\\{([^/]+)\\}";
-  private OpenApiDiff openApiDiff;
+  private final OpenApiDiff openApiDiff;
 
   public PathsDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

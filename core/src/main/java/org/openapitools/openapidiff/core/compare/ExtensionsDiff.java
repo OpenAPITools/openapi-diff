@@ -13,20 +13,20 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 public class ExtensionsDiff {
   private final OpenApiDiff openApiDiff;
 
-  private ServiceLoader<ExtensionDiff> extensionsLoader = ServiceLoader.load(ExtensionDiff.class);
-  private List<ExtensionDiff> extensionsDiff = new ArrayList<>();
+  private final List<ExtensionDiff> extensionDiffs = new ArrayList<>();
 
   public ExtensionsDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
-    this.extensionsLoader.reload();
-    for (ExtensionDiff anExtensionsLoader : this.extensionsLoader) {
-      extensionsDiff.add(anExtensionsLoader);
+    ServiceLoader<ExtensionDiff> extensionsLoader = ServiceLoader.load(ExtensionDiff.class);
+    extensionsLoader.reload();
+    for (ExtensionDiff anExtensionsLoader : extensionsLoader) {
+      extensionDiffs.add(anExtensionsLoader);
     }
   }
 
   public boolean isParentApplicable(
       Change.Type type, Object parent, Map<String, Object> extensions, DiffContext context) {
-    if (extensions.size() == 0) {
+    if (extensions.isEmpty()) {
       return true;
     }
     return extensions.entrySet().stream()
@@ -40,7 +40,7 @@ public class ExtensionsDiff {
   }
 
   public Optional<ExtensionDiff> getExtensionDiff(String name) {
-    return extensionsDiff.stream().filter(diff -> ("x-" + diff.getName()).equals(name)).findFirst();
+    return extensionDiffs.stream().filter(diff -> ("x-" + diff.getName()).equals(name)).findFirst();
   }
 
   public <T> Optional<T> executeExtension(String name, Function<ExtensionDiff, T> predicate) {

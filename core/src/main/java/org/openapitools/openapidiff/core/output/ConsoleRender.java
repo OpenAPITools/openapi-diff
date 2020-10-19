@@ -20,12 +20,10 @@ public class ConsoleRender implements Render {
   protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected ChangedOpenApi diff;
 
-  private StringBuilder output;
-
   @Override
   public String render(ChangedOpenApi diff) {
     this.diff = diff;
-    output = new StringBuilder();
+    StringBuilder output = new StringBuilder();
     if (diff.isUnchanged()) {
       output.append("No differences. Specifications are equivalents");
     } else {
@@ -62,7 +60,9 @@ public class ConsoleRender implements Render {
   }
 
   private String ol_changed(List<ChangedOperation> operations) {
-    if (null == operations || operations.size() == 0) return "";
+    if (null == operations || operations.isEmpty()) {
+      return "";
+    }
     StringBuilder sb = new StringBuilder();
     sb.append(title("What's Changed"));
     for (ChangedOperation operation : operations) {
@@ -132,11 +132,11 @@ public class ConsoleRender implements Render {
   }
 
   private String itemChangedResponse(String title, String contentType, ChangedResponse response) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(itemResponse(title, contentType));
-    sb.append(StringUtils.repeat(' ', 6)).append("Media types:").append(System.lineSeparator());
-    sb.append(ul_content(response.getContent(), false));
-    return sb.toString();
+    return itemResponse(title, contentType)
+        + StringUtils.repeat(' ', 6)
+        + "Media types:"
+        + System.lineSeparator()
+        + ul_content(response.getContent(), false);
   }
 
   private String ul_content(ChangedContent changedContent, boolean isRequest) {
@@ -158,13 +158,7 @@ public class ConsoleRender implements Render {
   }
 
   private String itemContent(String title, String contentType) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(StringUtils.repeat(' ', 8))
-        .append("- ")
-        .append(title)
-        .append(contentType)
-        .append(System.lineSeparator());
-    return sb.toString();
+    return StringUtils.repeat(' ', 8) + "- " + title + contentType + System.lineSeparator();
   }
 
   private String itemContent(
@@ -204,9 +198,7 @@ public class ConsoleRender implements Render {
   }
 
   private String items(String propName, ChangedSchema schema) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(incompatibilities(propName + "[n]", schema));
-    return sb.toString();
+    return incompatibilities(propName + "[n]", schema);
   }
 
   private String properties(
@@ -269,17 +261,14 @@ public class ConsoleRender implements Render {
   }
 
   private String itemParam(String title, Parameter param) {
-    StringBuilder sb = new StringBuilder("");
-    sb.append(StringUtils.repeat(' ', 4))
-        .append("- ")
-        .append(title)
-        .append(param.getName())
-        .append(" in ")
-        .append(param.getIn())
-        .append(System.lineSeparator());
-    //                .append(null == param.getDescription() ? ""
-    //                        : (" //" + param.getDescription()));
-    return sb.toString();
+    return ""
+        + StringUtils.repeat(' ', 4)
+        + "- "
+        + title
+        + param.getName()
+        + " in "
+        + param.getIn()
+        + System.lineSeparator();
   }
 
   private String li_changedParam(ChangedParameter changeParam) {
@@ -291,7 +280,9 @@ public class ConsoleRender implements Render {
   }
 
   private String listEndpoints(List<Endpoint> endpoints, String title) {
-    if (null == endpoints || endpoints.size() == 0) return "";
+    if (null == endpoints || endpoints.isEmpty()) {
+      return "";
+    }
     StringBuilder sb = new StringBuilder();
     sb.append(title(title));
     for (Endpoint endpoint : endpoints) {
@@ -303,15 +294,11 @@ public class ConsoleRender implements Render {
   }
 
   private String itemEndpoint(String method, String path, String desc) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(String.format("- %s %s%n", StringUtils.rightPad(method, 6), path));
-    return sb.toString();
+    return String.format("- %s %s%n", StringUtils.rightPad(method, 6), path);
   }
 
   public String renderBody(String ol_new, String ol_miss, String ol_deprec, String ol_changed) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(ol_new).append(ol_miss).append(ol_deprec).append(ol_changed);
-    return sb.toString();
+    return ol_new + ol_miss + ol_deprec + ol_changed;
   }
 
   public String bigTitle(String title) {

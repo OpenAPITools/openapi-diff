@@ -13,7 +13,7 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 
 /** Created by adarsh.sharma on 28/12/17. */
 public class HeadersDiff {
-  private OpenApiDiff openApiDiff;
+  private final OpenApiDiff openApiDiff;
 
   public HeadersDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

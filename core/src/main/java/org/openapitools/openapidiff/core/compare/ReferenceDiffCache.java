@@ -8,7 +8,7 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 
 /** Created by adarsh.sharma on 07/01/18. */
 public abstract class ReferenceDiffCache<C, D> {
-  private Map<CacheKey, D> refDiffMap;
+  private final Map<CacheKey, D> refDiffMap;
 
   public ReferenceDiffCache() {
     this.refDiffMap = new HashMap<>();

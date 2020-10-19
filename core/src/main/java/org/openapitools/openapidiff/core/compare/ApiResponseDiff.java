@@ -14,7 +14,7 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 
 /** Created by adarsh.sharma on 04/01/18. */
 public class ApiResponseDiff {
-  private OpenApiDiff openApiDiff;
+  private final OpenApiDiff openApiDiff;
 
   public ApiResponseDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

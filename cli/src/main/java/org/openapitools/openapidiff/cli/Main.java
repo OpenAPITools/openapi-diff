@@ -2,6 +2,7 @@ package org.openapitools.openapidiff.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -100,7 +101,6 @@ public class Main {
             .desc("export diff as text in given file")
             .build());
 
-    final String message = "Hello logging!";
     // create the parser
     CommandLineParser parser = new DefaultParser();
     try {
@@ -202,7 +202,7 @@ public class Main {
     File file = new File(outputFile);
     logger.debug("Output file: {}", file.getAbsolutePath());
     try {
-      FileUtils.writeStringToFile(file, output);
+      FileUtils.writeStringToFile(file, output, StandardCharsets.UTF_8);
     } catch (IOException e) {
       logger.error("Impossible to write output to file {}", outputFile, e);
       System.exit(2);

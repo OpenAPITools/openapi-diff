@@ -19,11 +19,11 @@ import org.openapitools.openapidiff.core.utils.RefType;
  * @author QDesrame
  */
 public class ParametersDiff {
+  private static final RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
 
-  private Components leftComponents;
-  private Components rightComponents;
-  private OpenApiDiff openApiDiff;
-  private static RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
+  private final Components leftComponents;
+  private final Components rightComponents;
+  private final OpenApiDiff openApiDiff;
 
   public ParametersDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

@@ -15,7 +15,7 @@ public class MapKeyDiff<K, V> {
 
   private Map<K, V> increased;
   private Map<K, V> missing;
-  private List<K> sharedKey;
+  private final List<K> sharedKey;
 
   private MapKeyDiff() {
     this.sharedKey = new ArrayList<>();

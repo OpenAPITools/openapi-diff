@@ -14,10 +14,10 @@ import org.openapitools.openapidiff.core.utils.RefType;
 
 public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParameter> {
 
-  private static RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
-  private Components leftComponents;
-  private Components rightComponents;
-  private OpenApiDiff openApiDiff;
+  private static final RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
+  private final Components leftComponents;
+  private final Components rightComponents;
+  private final OpenApiDiff openApiDiff;
 
   public ParameterDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

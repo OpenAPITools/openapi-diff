@@ -7,14 +7,13 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.*;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
-import org.openapitools.openapidiff.core.model.ChangedSecurityScheme;
 import org.openapitools.openapidiff.core.model.DiffContext;
 
 /** Created by adarsh.sharma on 07/01/18. */
 public class SecurityRequirementDiff {
-  private OpenApiDiff openApiDiff;
-  private Components leftComponents;
-  private Components rightComponents;
+  private final OpenApiDiff openApiDiff;
+  private final Components leftComponents;
+  private final Components rightComponents;
 
   public SecurityRequirementDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
@@ -30,8 +29,7 @@ public class SecurityRequirementDiff {
 
   public static SecurityRequirement getCopy(LinkedHashMap<String, List<String>> right) {
     SecurityRequirement newSecurityRequirement = new SecurityRequirement();
-    right.entrySet().stream()
-        .forEach(e -> newSecurityRequirement.put(e.getKey(), new ArrayList<>(e.getValue())));
+    right.forEach((key, value) -> newSecurityRequirement.put(key, new ArrayList<>(value)));
     return newSecurityRequirement;
   }
 
@@ -68,29 +66,31 @@ public class SecurityRequirementDiff {
     ChangedSecurityRequirement changedSecurityRequirement =
         new ChangedSecurityRequirement(left, right != null ? getCopy(right) : null);
 
-    left = left == null ? new SecurityRequirement() : left;
-    right = right == null ? new SecurityRequirement() : right;
+    SecurityRequirement leftRequirement = left == null ? new SecurityRequirement() : left;
+    SecurityRequirement rightRequirement = right == null ? new SecurityRequirement() : right;
 
-    for (String leftSchemeRef : left.keySet()) {
-      LinkedHashMap<String, List<String>> rightSec = contains(right, leftSchemeRef);
+    for (Map.Entry<String, List<String>> leftEntry : leftRequirement.entrySet()) {
+      LinkedHashMap<String, List<String>> rightSec = contains(rightRequirement, leftEntry.getKey());
       if (rightSec.isEmpty()) {
-        changedSecurityRequirement.addMissing(leftSchemeRef, left.get(leftSchemeRef));
+        changedSecurityRequirement.addMissing(leftEntry.getKey(), leftEntry.getValue());
       } else {
-        String rightSchemeRef = rightSec.keySet().stream().findFirst().get();
-        right.remove(rightSchemeRef);
-        Optional<ChangedSecurityScheme> diff =
-            openApiDiff
-                .getSecuritySchemeDiff()
-                .diff(
-                    leftSchemeRef,
-                    left.get(leftSchemeRef),
-                    rightSchemeRef,
-                    rightSec.get(rightSchemeRef),
-                    context);
-        diff.ifPresent(changedSecurityRequirement::addChanged);
+        Optional<String> rightSchemeRef = rightSec.keySet().stream().findFirst();
+        rightSchemeRef.ifPresent(rightRequirement::remove);
+        rightSchemeRef
+            .flatMap(
+                rightScheme ->
+                    openApiDiff
+                        .getSecuritySchemeDiff()
+                        .diff(
+                            leftEntry.getKey(),
+                            leftEntry.getValue(),
+                            rightScheme,
+                            rightSec.get(rightScheme),
+                            context))
+            .ifPresent(changedSecurityRequirement::addChanged);
       }
     }
-    right.forEach(changedSecurityRequirement::addIncreased);
+    rightRequirement.forEach(changedSecurityRequirement::addIncreased);
 
     return isChanged(changedSecurityRequirement);
   }

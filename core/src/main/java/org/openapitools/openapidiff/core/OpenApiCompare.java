@@ -11,8 +11,8 @@ import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class OpenApiCompare {
 
-  private static OpenAPIParser openApiParser = new OpenAPIParser();
-  private static ParseOptions options = new ParseOptions();
+  private static final OpenAPIParser openApiParser = new OpenAPIParser();
+  private static final ParseOptions options = new ParseOptions();
 
   static {
     options.setResolve(true);

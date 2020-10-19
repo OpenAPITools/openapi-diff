@@ -17,10 +17,10 @@ import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
 public class HtmlRender implements Render {
+  private static final RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
 
-  private String title;
-  private String linkCss;
-  protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  private final String title;
+  private final String linkCss;
   protected ChangedOpenApi diff;
 
   public HtmlRender() {
@@ -140,7 +140,6 @@ public class HtmlRender implements Render {
         ul_detail.with(
             li().with(h3("Request"))
                 .with(ul_request(changedOperation.getRequestBody().getContent())));
-      } else {
       }
       if (changedOperation.resultApiResponses().isDifferent()) {
         ul_detail.with(

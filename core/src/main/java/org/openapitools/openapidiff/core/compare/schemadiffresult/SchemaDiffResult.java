@@ -61,8 +61,8 @@ public class SchemaDiffResult {
         .getMetadataDiff()
         .diff(left.getDescription(), right.getDescription(), context)
         .ifPresent(changedSchema::setDescription);
-    Map<String, Schema> leftProperties = null == left ? null : left.getProperties();
-    Map<String, Schema> rightProperties = null == right ? null : right.getProperties();
+    Map<String, Schema> leftProperties = left.getProperties();
+    Map<String, Schema> rightProperties = right.getProperties();
     MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
     for (String key : propertyDiff.getSharedKey()) {
       openApiDiff
@@ -104,7 +104,7 @@ public class SchemaDiffResult {
               .isParentApplicable(
                   type,
                   entry.getValue(),
-                  ofNullable(entry.getValue().getExtensions()).orElse(new LinkedHashMap()),
+                  ofNullable(entry.getValue().getExtensions()).orElse(new LinkedHashMap<>()),
                   context)) {
         result.put(entry.getKey(), entry.getValue());
       } else {
@@ -128,7 +128,7 @@ public class SchemaDiffResult {
       HashSet<String> refSet, Schema leftSchema, Schema rightSchema, DiffContext context) {
     Object left = leftSchema.getAdditionalProperties();
     Object right = rightSchema.getAdditionalProperties();
-    if ((left != null && left instanceof Schema) || (right != null && right instanceof Schema)) {
+    if (left instanceof Schema || right instanceof Schema) {
       Schema leftAdditionalSchema = (Schema) left;
       Schema rightAdditionalSchema = (Schema) right;
       ChangedSchema apChangedSchema =
