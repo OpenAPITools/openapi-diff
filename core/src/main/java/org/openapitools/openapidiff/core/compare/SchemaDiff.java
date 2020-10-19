@@ -26,8 +26,8 @@ import org.openapitools.openapidiff.core.utils.RefType;
 
 public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
 
-  private static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
-  private static Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>>
+  private static final RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  private static final Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>>
       schemaDiffResultClassMap = new LinkedHashMap<>();
 
   static {
@@ -36,9 +36,9 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     schemaDiffResultClassMap.put(ComposedSchema.class, ComposedSchemaDiffResult.class);
   }
 
-  private Components leftComponents;
-  private Components rightComponents;
-  private OpenApiDiff openApiDiff;
+  private final Components leftComponents;
+  private final Components rightComponents;
+  private final OpenApiDiff openApiDiff;
 
   public SchemaDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

@@ -10,7 +10,7 @@ import org.openapitools.openapidiff.core.model.ChangedOAuthFlows;
 
 /** Created by adarsh.sharma on 12/01/18. */
 public class OAuthFlowsDiff {
-  private OpenApiDiff openApiDiff;
+  private final OpenApiDiff openApiDiff;
 
   public OAuthFlowsDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

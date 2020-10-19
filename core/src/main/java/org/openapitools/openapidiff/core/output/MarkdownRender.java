@@ -23,7 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class MarkdownRender implements Render {
   public static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
-  protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+
+  protected RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected final String H3 = "### ";
   protected final String H4 = "#### ";
   protected final String H5 = "##### ";
@@ -45,9 +46,9 @@ public class MarkdownRender implements Render {
 
   public String render(ChangedOpenApi diff) {
     this.diff = diff;
-    return listEndpoints("What\'s New", diff.getNewEndpoints())
-        + listEndpoints("What\'s Deleted", diff.getMissingEndpoints())
-        + listEndpoints("What\'s Deprecated", diff.getDeprecatedEndpoints())
+    return listEndpoints("What's New", diff.getNewEndpoints())
+        + listEndpoints("What's Deleted", diff.getMissingEndpoints())
+        + listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints())
         + listEndpoints(diff.getChangedOperations());
   }
 
@@ -56,7 +57,9 @@ public class MarkdownRender implements Render {
   }
 
   protected String listEndpoints(String title, List<Endpoint> endpoints) {
-    if (null == endpoints || endpoints.size() == 0) return "";
+    if (null == endpoints || endpoints.isEmpty()) {
+      return "";
+    }
     StringBuilder sb = new StringBuilder(sectionTitle(title));
     endpoints.stream()
         .map(e -> itemEndpoint(e.getMethod().toString(), e.getPathUrl(), e.getSummary()))
@@ -77,8 +80,10 @@ public class MarkdownRender implements Render {
   }
 
   protected String listEndpoints(List<ChangedOperation> changedOperations) {
-    if (null == changedOperations || changedOperations.size() == 0) return "";
-    StringBuilder sb = new StringBuilder(sectionTitle("What\'s Changed"));
+    if (null == changedOperations || changedOperations.isEmpty()) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder(sectionTitle("What's Changed"));
     changedOperations.stream()
         .map(
             operation -> {
@@ -248,13 +253,12 @@ public class MarkdownRender implements Render {
         .getMissing()
         .keySet()
         .forEach(
-            key ->
-                sb.append(format("%sDeleted \'%s\' %s\n", indent(deepness), key, discriminator)));
+            key -> sb.append(format("%sDeleted '%s' %s\n", indent(deepness), key, discriminator)));
     schema
         .getIncreased()
         .forEach(
             (key, sub) ->
-                sb.append(format("%sAdded \'%s\' %s:\n", indent(deepness), key, discriminator))
+                sb.append(format("%sAdded '%s' %s:\n", indent(deepness), key, discriminator))
                     .append(schema(deepness, sub, schema.getContext())));
     schema
         .getChanged()
@@ -317,13 +321,13 @@ public class MarkdownRender implements Render {
 
   protected String schema(int deepness, ComposedSchema schema, DiffContext context) {
     StringBuilder sb = new StringBuilder();
-    if (schema.getAllOf() != null && schema.getAllOf() != null) {
+    if (schema.getAllOf() != null) {
       LOGGER.debug("All of schema");
       schema.getAllOf().stream()
           .map(this::resolve)
           .forEach(composedChild -> sb.append(schema(deepness, composedChild, context)));
     }
-    if (schema.getOneOf() != null && schema.getOneOf() != null) {
+    if (schema.getOneOf() != null) {
       LOGGER.debug("One of schema");
       sb.append(format("%sOne of:\n\n", indent(deepness)));
       schema.getOneOf().stream()

@@ -11,7 +11,7 @@ import org.openapitools.openapidiff.core.model.ChangedPath;
 import org.openapitools.openapidiff.core.model.DiffContext;
 
 public class PathDiff {
-  private OpenApiDiff openApiDiff;
+  private final OpenApiDiff openApiDiff;
 
   public PathDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

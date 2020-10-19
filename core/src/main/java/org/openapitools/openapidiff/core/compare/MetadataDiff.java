@@ -9,9 +9,9 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 
 public class MetadataDiff {
 
-  private Components leftComponents;
-  private Components rightComponents;
-  private OpenApiDiff openApiDiff;
+  private final Components leftComponents;
+  private final Components rightComponents;
+  private final OpenApiDiff openApiDiff;
 
   public MetadataDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;

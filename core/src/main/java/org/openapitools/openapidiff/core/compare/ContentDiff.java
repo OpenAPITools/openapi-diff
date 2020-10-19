@@ -10,17 +10,12 @@ import org.openapitools.openapidiff.core.model.ChangedContent;
 import org.openapitools.openapidiff.core.model.ChangedMediaType;
 import org.openapitools.openapidiff.core.model.DiffContext;
 
-public class ContentDiff implements Comparable<Content> {
+public class ContentDiff {
 
-  private OpenApiDiff openApiDiff;
+  private final OpenApiDiff openApiDiff;
 
   public ContentDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
-  }
-
-  @Override
-  public boolean compare(Content left, Content right) {
-    return false;
   }
 
   public Optional<ChangedContent> diff(Content left, Content right, DiffContext context) {

@@ -6,7 +6,7 @@ import java.util.Map;
 /** Created by adarsh.sharma on 07/01/18. */
 public class RefPointer<T> {
   public static final String BASE_REF = "#/components/";
-  private RefType refType;
+  private final RefType refType;
 
   public RefPointer(RefType refType) {
     this.refType = refType;

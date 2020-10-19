@@ -13,10 +13,10 @@ import org.openapitools.openapidiff.core.utils.RefType;
 
 /** Created by adarsh.sharma on 28/12/17. */
 public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedResponse> {
-  private static RefPointer<ApiResponse> refPointer = new RefPointer<>(RefType.RESPONSES);
-  private OpenApiDiff openApiDiff;
-  private Components leftComponents;
-  private Components rightComponents;
+  private static final RefPointer<ApiResponse> refPointer = new RefPointer<>(RefType.RESPONSES);
+  private final OpenApiDiff openApiDiff;
+  private final Components leftComponents;
+  private final Components rightComponents;
 
   public ResponseDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
