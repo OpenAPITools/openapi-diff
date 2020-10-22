@@ -32,6 +32,10 @@ public class OperationDiff {
         .getMetadataDiff()
         .diff(oldOperation.getDescription(), newOperation.getDescription(), context)
         .ifPresent(changedOperation::setDescription);
+    openApiDiff
+        .getMetadataDiff()
+        .diff(oldOperation.getOperationId(), newOperation.getOperationId(), context)
+        .ifPresent(changedOperation::setOperationId);
     changedOperation.setDeprecated(
         !Boolean.TRUE.equals(oldOperation.getDeprecated())
             && Boolean.TRUE.equals(newOperation.getDeprecated()));
