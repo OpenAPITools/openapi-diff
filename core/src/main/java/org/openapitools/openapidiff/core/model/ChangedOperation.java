@@ -234,7 +234,7 @@ public class ChangedOperation implements ComposedChanged {
         + this.getSummary()
         + ", description="
         + this.getDescription()
-        + ", description="
+        + ", operationId="
         + this.getOperationId()
         + ", deprecated="
         + this.isDeprecated()
