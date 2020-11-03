@@ -40,6 +40,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Cache SonarCloud packages
+      if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '11' }}
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       uses: actions/cache@v2.1.3
       if: matrix.java_version == '11'
       with:
@@ -49,7 +52,7 @@ jobs:
     - name: Run tests
       run: ./mvnw -V -B -ntp -ff verify jacoco:report
     - name: Static Analysis (Sonar)
-      if: matrix.java_version == '11'
+      if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '11' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
