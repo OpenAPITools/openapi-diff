@@ -28,7 +28,7 @@ jobs:
           server-username: OSS_USERNAME
           server-password: OSS_PASSWORD
           gpg-passphrase: GPG_PASSPHRASE
-      - uses: actions/cache@v2.1.2
+      - uses: actions/cache@v2.1.3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
