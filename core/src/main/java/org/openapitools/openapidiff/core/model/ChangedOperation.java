@@ -15,6 +15,7 @@ public class ChangedOperation implements ComposedChanged {
   private PathItem.HttpMethod httpMethod;
   private ChangedMetadata summary;
   private ChangedMetadata description;
+  private ChangedMetadata operationId;
   private boolean deprecated;
   private ChangedParameters parameters;
   private ChangedRequestBody requestBody;
@@ -38,6 +39,7 @@ public class ChangedOperation implements ComposedChanged {
     return Arrays.asList(
         summary,
         description,
+        operationId,
         parameters,
         requestBody,
         apiResponses,
@@ -84,6 +86,10 @@ public class ChangedOperation implements ComposedChanged {
 
   public ChangedMetadata getDescription() {
     return this.description;
+  }
+
+  public ChangedMetadata getOperationId() {
+    return this.operationId;
   }
 
   public boolean isDeprecated() {
@@ -140,6 +146,11 @@ public class ChangedOperation implements ComposedChanged {
     return this;
   }
 
+  public ChangedOperation setOperationId(final ChangedMetadata operationId) {
+    this.operationId = operationId;
+    return this;
+  }
+
   public ChangedOperation setDeprecated(final boolean deprecated) {
     this.deprecated = deprecated;
     return this;
@@ -183,6 +194,7 @@ public class ChangedOperation implements ComposedChanged {
         && httpMethod == that.httpMethod
         && Objects.equals(summary, that.summary)
         && Objects.equals(description, that.description)
+        && Objects.equals(operationId, that.operationId)
         && Objects.equals(parameters, that.parameters)
         && Objects.equals(requestBody, that.requestBody)
         && Objects.equals(apiResponses, that.apiResponses)
@@ -199,6 +211,7 @@ public class ChangedOperation implements ComposedChanged {
         httpMethod,
         summary,
         description,
+        operationId,
         deprecated,
         parameters,
         requestBody,
@@ -221,6 +234,8 @@ public class ChangedOperation implements ComposedChanged {
         + this.getSummary()
         + ", description="
         + this.getDescription()
+        + ", operationId="
+        + this.getOperationId()
         + ", deprecated="
         + this.isDeprecated()
         + ", parameters="
