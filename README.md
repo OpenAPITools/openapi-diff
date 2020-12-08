@@ -52,6 +52,8 @@ usage: openapi-diff <old> <new>
     --header <property=value>   use given header for authorisation
     --html <file>               export diff as html in given file
     --info                      Print additional information
+    --ignore <attributesList>   comma-separated list of attributes to
+                                ignore
  -l,--log <level>               use given level for log (TRACE, DEBUG,
                                 INFO, WARN, ERROR, OFF). Default: ERROR
     --markdown <file>           export diff as markdown in given file
@@ -104,6 +106,8 @@ usage: openapi-diff <old> <new>
     --header <property=value>   use given header for authorisation
     --html <file>               export diff as html in given file
     --info                      Print additional information
+    --ignore <attributesList>   comma-separated list of attributes to
+                                ignore
  -l,--log <level>               use given level for log (TRACE, DEBUG,
                                 INFO, WARN, ERROR, OFF). Default: ERROR
     --markdown <file>           export diff as markdown in given file
@@ -349,6 +353,52 @@ Then, including your library with the `openapi-diff` module will cause it to be 
 
         Changed response : [200] //successful operation
 ```
+
+# Exclusions
+
+To ignore certain paths or http operations, use the `--ignore` argument along with a comma seperated list of (`x-`) attributes. For example, consider `--ignore x-internal,x-ignore` with the example below:
+
+```text
+paths:
+  /pet/{petId}:
+    get:
+      tags:
+        - pet
+      summary: gets a pet by id
+      description: ''
+      operationId: updatePetWithForm
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet that needs to be updated
+          required: true
+          schema:
+            type: integer
+      responses:
+        '405':
+          description: Invalid input
+      x-internal: true
+  /pet/cat/{catId}:
+    get:
+      tags:
+        - cat
+      summary: gets a cat by id
+      description: ''
+      operationId: updateCatWithForm
+      parameters:
+        - name: catId
+          in: path
+          description: ID of cat that needs to be updated
+          required: true
+          schema:
+            type: string
+      responses:
+        '405':
+          description: Invalid input
+  x-ignore: true
+```
+
+Any breaking changes in GET `/pet/{petId}` or all operations for `/pet/cat/{catId}` will be ignored.
 
 # License
 

@@ -2,6 +2,8 @@ package org.openapitools.openapidiff.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -15,6 +17,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.openapitools.openapidiff.core.OpenApiCompare;
+import org.openapitools.openapidiff.core.compare.IgnoreDiff;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.HtmlRender;
@@ -100,6 +103,13 @@ public class Main {
             .argName("file")
             .desc("export diff as text in given file")
             .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("ignore")
+            .hasArg()
+            .argName("attributesList")
+            .desc("comma-separated list of attributes to ignore")
+            .build());
 
     // create the parser
     CommandLineParser parser = new DefaultParser();
@@ -154,6 +164,14 @@ public class Main {
       String oldPath = line.getArgList().get(0);
       String newPath = line.getArgList().get(1);
       ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath);
+      List<String> ignoredAttributesList;
+      IgnoreDiff ignoreDiff;
+      if (line.hasOption("ignore")) {
+        ignoredAttributesList = Arrays.asList(line.getOptionValue("ignore").split(","));
+        ignoreDiff = new IgnoreDiff(ignoredAttributesList, oldPath);
+        ignoreDiff.setSkippedPaths();
+        result = ignoreDiff.removeSkippedPaths(result);
+      }
       ConsoleRender consoleRender = new ConsoleRender();
       if (!logLevel.equals("OFF")) {
         System.out.println(consoleRender.render(result));
