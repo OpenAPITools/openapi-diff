@@ -12,6 +12,8 @@ import org.openapitools.openapidiff.core.model.ChangedApiResponse;
 import org.openapitools.openapidiff.core.model.ChangedResponse;
 import org.openapitools.openapidiff.core.model.DiffContext;
 
+import javax.annotation.Nullable;
+
 /** Created by adarsh.sharma on 04/01/18. */
 public class ApiResponseDiff {
   private final OpenApiDiff openApiDiff;
@@ -20,15 +22,14 @@ public class ApiResponseDiff {
     this.openApiDiff = openApiDiff;
   }
 
-  public Optional<ChangedApiResponse> diff(
-      ApiResponses left, ApiResponses right, DiffContext context) {
+  public Optional<ChangedApiResponse> diff(@Nullable  ApiResponses left, @Nullable ApiResponses right, DiffContext context) {
     MapKeyDiff<String, ApiResponse> responseMapKeyDiff = MapKeyDiff.diff(left, right);
     List<String> sharedResponseCodes = responseMapKeyDiff.getSharedKey();
     Map<String, ChangedResponse> resps = new LinkedHashMap<>();
     for (String responseCode : sharedResponseCodes) {
       openApiDiff
           .getResponseDiff()
-          .diff(left.get(responseCode), right.get(responseCode), context)
+          .diff(left != null ? left.get(responseCode) : null, right != null ? right.get(responseCode) : null, context)
           .ifPresent(changedResponse -> resps.put(responseCode, changedResponse));
     }
     ChangedApiResponse changedApiResponse =
@@ -38,7 +39,7 @@ public class ApiResponseDiff {
             .setChanged(resps);
     openApiDiff
         .getExtensionsDiff()
-        .diff(left.getExtensions(), right.getExtensions(), context)
+        .diff(left != null ? left.getExtensions() : null, right != null ? right.getExtensions() : null, context)
         .ifPresent(changedApiResponse::setExtensions);
     return isChanged(changedApiResponse);
   }
