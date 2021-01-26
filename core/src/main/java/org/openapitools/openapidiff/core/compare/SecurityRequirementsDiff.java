@@ -10,7 +10,10 @@ import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
 import org.openapitools.openapidiff.core.model.DiffContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
