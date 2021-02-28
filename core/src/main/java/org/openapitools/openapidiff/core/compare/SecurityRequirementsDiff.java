@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,10 +56,16 @@ public class SecurityRequirementsDiff {
     return securityRequirement.keySet().stream()
         .map(
             x -> {
-              SecurityScheme result = components.getSecuritySchemes().get(x);
+              Map<String, SecurityScheme> securitySchemes = components.getSecuritySchemes();
+              if (securitySchemes == null) {
+                throw new IllegalArgumentException("Missing securitySchemes component definition.");
+              }
+
+              SecurityScheme result = securitySchemes.get(x);
               if (result == null) {
                 throw new IllegalArgumentException("Impossible to find security scheme: " + x);
               }
+
               return result;
             })
         .map(this::getPair)

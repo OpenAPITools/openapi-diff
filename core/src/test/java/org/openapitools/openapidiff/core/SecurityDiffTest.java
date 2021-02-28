@@ -12,6 +12,7 @@ public class SecurityDiffTest {
   private final String OPENAPI_DOC1 = "security_diff_1.yaml";
   private final String OPENAPI_DOC2 = "security_diff_2.yaml";
   private final String OPENAPI_DOC3 = "security_diff_3.yaml";
+  private final String OPENAPI_DOC4 = "security_diff_4.yaml";
 
   @Test
   public void testDiffDifferent() {
@@ -89,5 +90,8 @@ public class SecurityDiffTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> OpenApiCompare.fromLocations(OPENAPI_DOC3, OPENAPI_DOC3));
+    assertThrows(
+            IllegalArgumentException.class,
+            () -> OpenApiCompare.fromLocations(OPENAPI_DOC4, OPENAPI_DOC4));
   }
 }
