@@ -1,22 +1,21 @@
 package org.openapitools.openapidiff.core.compare;
 
+import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
 import org.openapitools.openapidiff.core.model.DiffContext;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
 
 /** Created by adarsh.sharma on 07/01/18. */
 public class SecurityRequirementsDiff {
