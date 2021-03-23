@@ -1,0 +1,22 @@
+openapi: 3.0.0
+info:
+  title: Test Service
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      name:
+                        type: string
+                  - type: object
+                    properties:
+                      name:
+                        type: number
