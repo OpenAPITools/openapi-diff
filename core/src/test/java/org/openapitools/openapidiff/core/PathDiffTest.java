@@ -21,4 +21,5 @@ public class PathDiffTest {
     assertThrows(
         IllegalArgumentException.class, () -> assertOpenApiAreEquals(OPENAPI_PATH3, OPENAPI_PATH3));
   }
+
 }
