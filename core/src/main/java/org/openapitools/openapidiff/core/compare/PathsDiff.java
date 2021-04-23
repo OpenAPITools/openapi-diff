@@ -36,25 +36,41 @@ public class PathsDiff {
       final Map<String, PathItem> left, final Map<String, PathItem> right) {
     ChangedPaths changedPaths = new ChangedPaths(left, right);
     changedPaths.getIncreased().putAll(right);
+
     left.keySet()
         .forEach(
             (String url) -> {
               PathItem leftPath = left.get(url);
               String template = normalizePath(url);
-              Optional<String> result =
-                  right.keySet().stream()
-                      .filter(s -> normalizePath(s).equals(template))
-                      .findFirst();
+              Optional<Map.Entry<String, PathItem>> result =
+                  changedPaths.getIncreased().entrySet().stream()
+                      .filter(item -> normalizePath(item.getKey()).equals(template))
+                      .min((a, b) -> {
+                        if (methodsIntersect(a.getValue(), b.getValue())) {
+                          throw new IllegalArgumentException(
+                                  "Two path items have the same signature: " + template);
+                        }
+                        if (a.getKey().equals(url)) {
+                          return -1;
+                        } else if (b.getKey().equals((url))) {
+                          return 1;
+                        } else {
+                          HashSet<PathItem.HttpMethod> methodsA = new HashSet<>(
+                              a.getValue().readOperationsMap().keySet());
+                          methodsA.retainAll(leftPath.readOperationsMap().keySet());
+                          HashSet<PathItem.HttpMethod> methodsB = new HashSet<>(
+                              b.getValue().readOperationsMap().keySet());
+                          methodsB.retainAll(leftPath.readOperationsMap().keySet());
+                       return Integer.compare(methodsB.size(), methodsA.size());
+                    }
+                  });
               if (result.isPresent()) {
-                if (!changedPaths.getIncreased().containsKey(result.get())) {
-                  throw new IllegalArgumentException(
-                      "Two path items have the same signature: " + template);
-                }
-                PathItem rightPath = changedPaths.getIncreased().remove(result.get());
+                String rightUrl = result.get().getKey();
+                PathItem rightPath = changedPaths.getIncreased().remove(rightUrl);
                 Map<String, String> params = new LinkedHashMap<>();
-                if (!url.equals(result.get())) {
+                if (!url.equals(rightUrl)) {
                   List<String> oldParams = extractParameters(url);
-                  List<String> newParams = extractParameters(result.get());
+                  List<String> newParams = extractParameters(rightUrl);
                   for (int i = 0; i < oldParams.size(); i++) {
                     params.put(oldParams.get(i), newParams.get(i));
                   }
@@ -65,7 +81,7 @@ public class PathsDiff {
                 openApiDiff
                     .getPathDiff()
                     .diff(leftPath, rightPath, context)
-                    .ifPresent(path -> changedPaths.getChanged().put(result.get(), path));
+                    .ifPresent(path -> changedPaths.getChanged().put(rightUrl, path));
               } else {
                 changedPaths.getMissing().put(url, leftPath);
               }
@@ -78,5 +94,15 @@ public class PathsDiff {
       path = new Paths();
     }
     return path;
+  }
+
+  private static boolean methodsIntersect(PathItem a, PathItem b) {
+    Set<PathItem.HttpMethod> methodsA = a.readOperationsMap().keySet();
+    for (PathItem.HttpMethod method : b.readOperationsMap().keySet()) {
+      if (methodsA.contains(method)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
