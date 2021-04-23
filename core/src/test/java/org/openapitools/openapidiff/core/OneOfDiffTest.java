@@ -18,6 +18,7 @@ public class OneOfDiffTest {
   private final String OPENAPI_DOC7 = "oneOf_discriminator-changed_2.yaml";
   private final String OPENAPI_DOC8 = "oneOf_discriminator-missing_1.yaml";
   private final String OPENAPI_DOC9 = "oneOf_discriminator-missing_2.yaml";
+  private final String OPENAPI_DOC10 = "unnamed_oneof_schema_1.yaml";
 
   @Test
   public void testDiffSame() {
@@ -39,6 +40,10 @@ public class OneOfDiffTest {
     assertOpenApiBackwardIncompatible(OPENAPI_DOC4, OPENAPI_DOC5);
   }
 
+  @Test
+  public void testComposedSchemaDiff() {
+    assertOpenApiAreEquals(OPENAPI_DOC10, OPENAPI_DOC10);
+  }
   @Test
   public void testOneOfDiscrimitatorChanged() {
     // The oneOf 'discriminator' changed: 'realtype' -> 'othertype':

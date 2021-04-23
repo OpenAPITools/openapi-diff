@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,7 +64,8 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
 
         MapKeyDiff<String, Schema> mappingDiff =
             MapKeyDiff.diff(
-                getSchema(leftComponents, leftMapping), getSchema(rightComponents, rightMapping));
+                getSchema(leftComponents, leftMapping, leftComposedSchema),
+                getSchema(rightComponents, rightMapping, rightComposedSchema));
         Map<String, ChangedSchema> changedMapping = new LinkedHashMap<>();
         for (String key : mappingDiff.getSharedKey()) {
           Schema leftSchema = new Schema();
@@ -88,10 +90,14 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     }
   }
 
-  private Map<String, Schema> getSchema(Components components, Map<String, String> mapping) {
+  private Map<String, Schema> getSchema(Components components, Map<String, String> mapping, ComposedSchema composedSchema) {
     Map<String, Schema> result = new LinkedHashMap<>();
     mapping.forEach(
         (key, value) -> result.put(key, refPointer.resolveRef(components, new Schema(), value)));
+
+    result.putAll(getUnnamedSchemas(composedSchema.getAllOf(), "all-of"));
+    result.putAll(getUnnamedSchemas(composedSchema.getOneOf(), "one-of"));
+    result.putAll(getUnnamedSchemas(composedSchema.getAnyOf(), "any-of"));
     return result;
   }
 
@@ -100,7 +106,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     for (Schema schema : composedSchema.getOneOf()) {
       String ref = schema.get$ref();
       if (ref == null) {
-        throw new IllegalArgumentException("invalid oneOf schema");
+          continue;
       }
       String schemaName = refPointer.getRefName(ref);
       if (schemaName == null) {
@@ -118,5 +124,26 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
 
     return reverseMapping.entrySet().stream()
         .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+  }
+
+  private Map<String, Schema> getUnnamedSchemas(List<Schema> schemas, String name) {
+    Map<String, Schema> result = new LinkedHashMap<>();
+
+    if (schemas == null) {
+      return result;
+    }
+
+    for (int i = 0; i < schemas.size(); i++) {
+      Schema schema = schemas.get(i);
+
+      // If the ref is named, then we ignore it since getMapping will handle it.
+      if (schema.get$ref() != null) {
+        continue;
+      }
+
+      result.put(String.format("%s-%s", name, i), schema);
+    }
+
+    return result;
   }
 }
