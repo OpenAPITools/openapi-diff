@@ -1,7 +1,7 @@
 package org.openapitools.openapidiff.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.junit.jupiter.api.Test;
@@ -87,11 +87,10 @@ public class SecurityDiffTest {
 
   @Test
   public void testWithUnknownSecurityScheme() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> OpenApiCompare.fromLocations(OPENAPI_DOC3, OPENAPI_DOC3));
-    assertThrows(
-            IllegalArgumentException.class,
-            () -> OpenApiCompare.fromLocations(OPENAPI_DOC4, OPENAPI_DOC4));
+    final ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC3, OPENAPI_DOC3);
+    assertTrue(changedOpenApi.getChangedOperations().isEmpty());
+
+    final ChangedOpenApi changedOpenApi1 = OpenApiCompare.fromLocations(OPENAPI_DOC4, OPENAPI_DOC4);
+    assertNotNull(changedOpenApi1);
   }
 }

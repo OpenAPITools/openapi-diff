@@ -4,10 +4,7 @@ import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import org.openapitools.openapidiff.core.model.ChangedSecurityScheme;
 import org.openapitools.openapidiff.core.model.ChangedSecuritySchemeScopes;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -36,8 +33,10 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
       String rightSchemeRef,
       List<String> rightScopes,
       DiffContext context) {
-    SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(leftSchemeRef);
-    SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(rightSchemeRef);
+    SecurityScheme leftSecurityScheme =
+        getSecurityScheme(leftComponents.getSecuritySchemes(), leftSchemeRef);
+    SecurityScheme rightSecurityScheme =
+        getSecurityScheme(rightComponents.getSecuritySchemes(), rightSchemeRef);
     Optional<ChangedSecurityScheme> changedSecuritySchemeOpt =
         cachedDiff(
             new HashSet<>(),
@@ -52,12 +51,18 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
     changedSecurityScheme = getCopyWithoutScopes(changedSecurityScheme);
 
     if (changedSecurityScheme != null
+        && leftSecurityScheme != null
         && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
       isChanged(ListDiff.diff(new ChangedSecuritySchemeScopes(leftScopes, rightScopes)))
           .ifPresent(changedSecurityScheme::setChangedScopes);
     }
 
     return isChanged(changedSecurityScheme);
+  }
+
+  private SecurityScheme getSecurityScheme(
+      Map<String, SecurityScheme> securitySchemes, String leftSchemeRef) {
+    return securitySchemes == null ? null : securitySchemes.get(leftSchemeRef);
   }
 
   @Override
@@ -68,6 +73,10 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
       DiffContext context) {
     ChangedSecurityScheme changedSecurityScheme =
         new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme);
+
+    if (leftSecurityScheme == null || rightSecurityScheme == null) {
+      return Optional.of(changedSecurityScheme);
+    }
 
     openApiDiff
         .getMetadataDiff()

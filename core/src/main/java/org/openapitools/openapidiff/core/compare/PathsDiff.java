@@ -45,25 +45,26 @@ public class PathsDiff {
               Optional<Map.Entry<String, PathItem>> result =
                   changedPaths.getIncreased().entrySet().stream()
                       .filter(item -> normalizePath(item.getKey()).equals(template))
-                      .min((a, b) -> {
-                        if (methodsIntersect(a.getValue(), b.getValue())) {
-                          throw new IllegalArgumentException(
+                      .min(
+                          (a, b) -> {
+                            if (methodsIntersect(a.getValue(), b.getValue())) {
+                              throw new IllegalArgumentException(
                                   "Two path items have the same signature: " + template);
-                        }
-                        if (a.getKey().equals(url)) {
-                          return -1;
-                        } else if (b.getKey().equals((url))) {
-                          return 1;
-                        } else {
-                          HashSet<PathItem.HttpMethod> methodsA = new HashSet<>(
-                              a.getValue().readOperationsMap().keySet());
-                          methodsA.retainAll(leftPath.readOperationsMap().keySet());
-                          HashSet<PathItem.HttpMethod> methodsB = new HashSet<>(
-                              b.getValue().readOperationsMap().keySet());
-                          methodsB.retainAll(leftPath.readOperationsMap().keySet());
-                       return Integer.compare(methodsB.size(), methodsA.size());
-                    }
-                  });
+                            }
+                            if (a.getKey().equals(url)) {
+                              return -1;
+                            } else if (b.getKey().equals((url))) {
+                              return 1;
+                            } else {
+                              HashSet<PathItem.HttpMethod> methodsA =
+                                  new HashSet<>(a.getValue().readOperationsMap().keySet());
+                              methodsA.retainAll(leftPath.readOperationsMap().keySet());
+                              HashSet<PathItem.HttpMethod> methodsB =
+                                  new HashSet<>(b.getValue().readOperationsMap().keySet());
+                              methodsB.retainAll(leftPath.readOperationsMap().keySet());
+                              return Integer.compare(methodsB.size(), methodsA.size());
+                            }
+                          });
               if (result.isPresent()) {
                 String rightUrl = result.get().getKey();
                 PathItem rightPath = changedPaths.getIncreased().remove(rightUrl);

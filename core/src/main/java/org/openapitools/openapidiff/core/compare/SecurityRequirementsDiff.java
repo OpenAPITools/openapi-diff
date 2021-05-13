@@ -5,10 +5,7 @@ import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -54,26 +51,26 @@ public class SecurityRequirementsDiff {
   private List<Pair<SecurityScheme.Type, SecurityScheme.In>> getListOfSecuritySchemes(
       Components components, SecurityRequirement securityRequirement) {
     return securityRequirement.keySet().stream()
-        .map(
-            x -> {
-              Map<String, SecurityScheme> securitySchemes = components.getSecuritySchemes();
-              if (securitySchemes == null) {
-                throw new IllegalArgumentException("Missing securitySchemes component definition.");
-              }
-
-              SecurityScheme result = securitySchemes.get(x);
-              if (result == null) {
-                throw new IllegalArgumentException("Impossible to find security scheme: " + x);
-              }
-
-              return result;
-            })
+        .map(key -> getSecurityScheme(components, key))
         .map(this::getPair)
+        .filter(Objects::nonNull)
         .distinct()
         .collect(Collectors.toList());
   }
 
+  private SecurityScheme getSecurityScheme(Components components, String key) {
+    Map<String, SecurityScheme> securitySchemes = components.getSecuritySchemes();
+    if (securitySchemes == null) {
+      return null;
+    }
+
+    return securitySchemes.get(key);
+  }
+
   private Pair<SecurityScheme.Type, SecurityScheme.In> getPair(SecurityScheme securityScheme) {
+    if (securityScheme == null) {
+      return null;
+    }
     return new ImmutablePair<>(securityScheme.getType(), securityScheme.getIn());
   }
 
