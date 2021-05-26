@@ -3,6 +3,12 @@ package org.openapitools.openapidiff.cli;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import io.swagger.v3.parser.core.models.AuthorizationValue;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -153,7 +159,14 @@ public class Main {
       }
       String oldPath = line.getArgList().get(0);
       String newPath = line.getArgList().get(1);
-      ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath);
+
+      List<AuthorizationValue> auths = null;
+      if (line.hasOption("header")) {
+        String[] headers = line.getOptionValues("header");
+        auths = Collections.singletonList(new AuthorizationValue(headers[0], headers[1], "header"));
+      }
+
+      ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath, auths);
       ConsoleRender consoleRender = new ConsoleRender();
       if (!logLevel.equals("OFF")) {
         System.out.println(consoleRender.render(result));
