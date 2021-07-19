@@ -6,10 +6,11 @@ import io.swagger.v3.oas.models.headers.Header;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.openapitools.openapidiff.core.model.ChangedHeader;
 import org.openapitools.openapidiff.core.model.ChangedHeaders;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 /** Created by adarsh.sharma on 28/12/17. */
 public class HeadersDiff {
@@ -19,24 +20,28 @@ public class HeadersDiff {
     this.openApiDiff = openApiDiff;
   }
 
-  public Optional<ChangedHeaders> diff(
+  public DeferredChanged<ChangedHeaders> diff(
       Map<String, Header> left, Map<String, Header> right, DiffContext context) {
     MapKeyDiff<String, Header> headerMapDiff = MapKeyDiff.diff(left, right);
     List<String> sharedHeaderKeys = headerMapDiff.getSharedKey();
 
     Map<String, ChangedHeader> changed = new LinkedHashMap<>();
+    DeferredBuilder<ChangedHeader> builder = new DeferredBuilder<>();
     for (String headerKey : sharedHeaderKeys) {
       Header oldHeader = left.get(headerKey);
       Header newHeader = right.get(headerKey);
-      openApiDiff
-          .getHeaderDiff()
-          .diff(oldHeader, newHeader, context)
+      builder
+          .with(openApiDiff.getHeaderDiff().diff(oldHeader, newHeader, context))
           .ifPresent(changedHeader -> changed.put(headerKey, changedHeader));
     }
-    return isChanged(
-        new ChangedHeaders(left, right, context)
-            .setIncreased(headerMapDiff.getIncreased())
-            .setMissing(headerMapDiff.getMissing())
-            .setChanged(changed));
+    return builder
+        .build()
+        .mapOptional(
+            (value) ->
+                isChanged(
+                    new ChangedHeaders(left, right, context)
+                        .setIncreased(headerMapDiff.getIncreased())
+                        .setMissing(headerMapDiff.getMissing())
+                        .setChanged(changed)));
   }
 }

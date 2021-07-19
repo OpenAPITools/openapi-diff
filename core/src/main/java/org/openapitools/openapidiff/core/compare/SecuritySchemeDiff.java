@@ -7,10 +7,11 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import org.openapitools.openapidiff.core.model.ChangedSecurityScheme;
 import org.openapitools.openapidiff.core.model.ChangedSecuritySchemeScopes;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
+import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
 
 /** Created by adarsh.sharma on 11/01/18. */
 public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, ChangedSecurityScheme> {
@@ -30,7 +31,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
             : null;
   }
 
-  public Optional<ChangedSecurityScheme> diff(
+  public DeferredChanged<ChangedSecurityScheme> diff(
       String leftSchemeRef,
       List<String> leftScopes,
       String rightSchemeRef,
@@ -38,7 +39,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
       DiffContext context) {
     SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(leftSchemeRef);
     SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(rightSchemeRef);
-    Optional<ChangedSecurityScheme> changedSecuritySchemeOpt =
+    DeferredChanged<ChangedSecurityScheme> changedSecuritySchemeOpt =
         cachedDiff(
             new HashSet<>(),
             leftSecurityScheme,
@@ -46,22 +47,26 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
             leftSchemeRef,
             rightSchemeRef,
             context);
-    ChangedSecurityScheme changedSecurityScheme =
-        changedSecuritySchemeOpt.orElse(
-            new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme));
-    changedSecurityScheme = getCopyWithoutScopes(changedSecurityScheme);
 
-    if (changedSecurityScheme != null
-        && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
-      isChanged(ListDiff.diff(new ChangedSecuritySchemeScopes(leftScopes, rightScopes)))
-          .ifPresent(changedSecurityScheme::setChangedScopes);
-    }
+    return changedSecuritySchemeOpt.map(
+        (changedSecuritySchemeOptional) -> {
+          ChangedSecurityScheme changedSecurityScheme =
+              changedSecuritySchemeOptional.orElse(
+                  new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme));
+          changedSecurityScheme = getCopyWithoutScopes(changedSecurityScheme);
 
-    return isChanged(changedSecurityScheme);
+          if (changedSecurityScheme != null
+              && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
+            isChanged(ListDiff.diff(new ChangedSecuritySchemeScopes(leftScopes, rightScopes)))
+                .ifPresent(changedSecurityScheme::setChangedScopes);
+          }
+
+          return changedSecurityScheme;
+        });
   }
 
   @Override
-  protected Optional<ChangedSecurityScheme> computeDiff(
+  protected DeferredChanged<ChangedSecurityScheme> computeDiff(
       HashSet<String> refSet,
       SecurityScheme leftSecurityScheme,
       SecurityScheme rightSecurityScheme,
@@ -107,7 +112,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
         .diff(leftSecurityScheme.getExtensions(), rightSecurityScheme.getExtensions(), context)
         .ifPresent(changedSecurityScheme::setExtensions);
 
-    return Optional.of(changedSecurityScheme);
+    return new RealizedChanged<ChangedSecurityScheme>(changedSecurityScheme);
   }
 
   private ChangedSecurityScheme getCopyWithoutScopes(ChangedSecurityScheme original) {

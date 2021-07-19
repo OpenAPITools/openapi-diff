@@ -1,14 +1,11 @@
 package org.openapitools.openapidiff.cli;
 
+import io.swagger.v3.parser.core.models.AuthorizationValue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import io.swagger.v3.parser.core.models.AuthorizationValue;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;

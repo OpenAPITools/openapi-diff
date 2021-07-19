@@ -22,7 +22,7 @@ public final class Change<T> {
   public enum Type {
     ADDED,
     CHANGED,
-    REMOVED;
+    REMOVED
   }
 
   public Change(final T oldValue, final T newValue, final Type type) {

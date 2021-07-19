@@ -1,7 +1,5 @@
 package org.openapitools.openapidiff.core.compare;
 
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -13,9 +11,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 /** Created by adarsh.sharma on 07/01/18. */
 public class SecurityRequirementsDiff {
@@ -77,8 +77,11 @@ public class SecurityRequirementsDiff {
     return new ImmutablePair<>(securityScheme.getType(), securityScheme.getIn());
   }
 
-  protected Optional<ChangedSecurityRequirements> diff(
+  protected DeferredChanged<ChangedSecurityRequirements> diff(
       List<SecurityRequirement> left, List<SecurityRequirement> right, DiffContext context) {
+
+    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+
     left = left == null ? new ArrayList<>() : left;
     right = right == null ? new ArrayList<>() : getCopy(right);
 
@@ -92,14 +95,14 @@ public class SecurityRequirementsDiff {
       } else {
         SecurityRequirement rightSec = rightSecOpt.get();
         right.remove(rightSec);
-        Optional<ChangedSecurityRequirement> diff =
-            openApiDiff.getSecurityRequirementDiff().diff(leftSecurity, rightSec, context);
-        diff.ifPresent(changedSecurityRequirements::addChanged);
+        builder
+            .with(openApiDiff.getSecurityRequirementDiff().diff(leftSecurity, rightSec, context))
+            .ifPresent(changedSecurityRequirements::addChanged);
       }
     }
     right.forEach(changedSecurityRequirements::addIncreased);
 
-    return isChanged(changedSecurityRequirements);
+    return builder.buildIsChanged(changedSecurityRequirements);
   }
 
   private List<SecurityRequirement> getCopy(List<SecurityRequirement> right) {

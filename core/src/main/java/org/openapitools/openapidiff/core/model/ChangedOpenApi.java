@@ -13,6 +13,7 @@ public class ChangedOpenApi implements ComposedChanged {
   private List<Endpoint> newEndpoints;
   private List<Endpoint> missingEndpoints;
   private List<ChangedOperation> changedOperations;
+  private List<ChangedSchema> changedSchemas;
   private ChangedExtensions changedExtensions;
 
   public List<Endpoint> getDeprecatedEndpoints() {
@@ -27,7 +28,9 @@ public class ChangedOpenApi implements ComposedChanged {
 
   @Override
   public List<Changed> getChangedElements() {
-    return Stream.concat(changedOperations.stream(), Stream.of(changedExtensions))
+    return Stream.concat(
+            Stream.concat(changedOperations.stream(), Stream.of(changedExtensions)),
+            changedSchemas.stream())
         .collect(Collectors.toList());
   }
 
@@ -68,6 +71,10 @@ public class ChangedOpenApi implements ComposedChanged {
     return this.changedExtensions;
   }
 
+  public List<ChangedSchema> getChangedSchemas() {
+    return changedSchemas;
+  }
+
   public ChangedOpenApi setOldSpecOpenApi(final OpenAPI oldSpecOpenApi) {
     this.oldSpecOpenApi = oldSpecOpenApi;
     return this;
@@ -95,6 +102,11 @@ public class ChangedOpenApi implements ComposedChanged {
 
   public ChangedOpenApi setChangedExtensions(final ChangedExtensions changedExtensions) {
     this.changedExtensions = changedExtensions;
+    return this;
+  }
+
+  public ChangedOpenApi setChangedSchemas(final List<ChangedSchema> changedSchemas) {
+    this.changedSchemas = changedSchemas;
     return this;
   }
 

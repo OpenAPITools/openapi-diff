@@ -4,7 +4,6 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,10 @@ import org.openapitools.openapidiff.core.compare.OpenApiDiff;
 import org.openapitools.openapidiff.core.model.ChangedOneOfSchema;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
+import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
+import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
@@ -28,16 +31,19 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
   }
 
   @Override
-  public <T extends Schema<X>, X> Optional<ChangedSchema> diff(
-      HashSet<String> refSet,
+  public <T extends Schema<X>, X> DeferredChanged<ChangedSchema> diff(
+      RecursiveSchemaSet refSet,
       Components leftComponents,
       Components rightComponents,
       T left,
       T right,
       DiffContext context) {
+
     if (left instanceof ComposedSchema) {
       ComposedSchema leftComposedSchema = (ComposedSchema) left;
       ComposedSchema rightComposedSchema = (ComposedSchema) right;
+      DeferredBuilder<ChangedSchema> discriminatorChangedBuilder = new DeferredBuilder<>();
+
       if (CollectionUtils.isNotEmpty(leftComposedSchema.getOneOf())
           || CollectionUtils.isNotEmpty(rightComposedSchema.getOneOf())) {
 
@@ -56,7 +62,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
           changedSchema.setNewSchema(right);
           changedSchema.setDiscriminatorPropertyChanged(true);
           changedSchema.setContext(context);
-          return Optional.of(changedSchema);
+          return new RealizedChanged<>(Optional.of(changedSchema));
         }
 
         Map<String, String> leftMapping = getMapping(leftComposedSchema);
@@ -72,25 +78,36 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
           leftSchema.set$ref(leftMapping.get(key));
           Schema rightSchema = new Schema();
           rightSchema.set$ref(rightMapping.get(key));
-          Optional<ChangedSchema> changedSchema =
-              openApiDiff
-                  .getSchemaDiff()
-                  .diff(refSet, leftSchema, rightSchema, context.copyWithRequired(true));
-          changedSchema.ifPresent(schema -> changedMapping.put(key, schema));
+          discriminatorChangedBuilder
+              .with(
+                  openApiDiff
+                      .getSchemaDiff()
+                      .diff(refSet, leftSchema, rightSchema, context.copyWithRequired(true)))
+              .ifPresent(schema -> changedMapping.put(key, schema));
         }
-        changedSchema.setOneOfSchema(
-            new ChangedOneOfSchema(leftMapping, rightMapping, context)
-                .setIncreased(mappingDiff.getIncreased())
-                .setMissing(mappingDiff.getMissing())
-                .setChanged(changedMapping));
+
+        discriminatorChangedBuilder.whenSet(
+            (composedSchemas) -> {
+              changedSchema.setOneOfSchema(
+                  new ChangedOneOfSchema(leftMapping, rightMapping, context)
+                      .setIncreased(mappingDiff.getIncreased())
+                      .setMissing(mappingDiff.getMissing())
+                      .setChanged(changedMapping));
+            });
       }
-      return super.diff(refSet, leftComponents, rightComponents, left, right, context);
+
+      return discriminatorChangedBuilder
+          .build()
+          .flatMap(
+              (values) ->
+                  super.diff(refSet, leftComponents, rightComponents, left, right, context));
     } else {
       return openApiDiff.getSchemaDiff().getTypeChangedSchema(left, right, context);
     }
   }
 
-  private Map<String, Schema> getSchema(Components components, Map<String, String> mapping, ComposedSchema composedSchema) {
+  private Map<String, Schema> getSchema(
+      Components components, Map<String, String> mapping, ComposedSchema composedSchema) {
     Map<String, Schema> result = new LinkedHashMap<>();
     mapping.forEach(
         (key, value) -> result.put(key, refPointer.resolveRef(components, new Schema(), value)));
@@ -106,7 +123,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     for (Schema schema : composedSchema.getOneOf()) {
       String ref = schema.get$ref();
       if (ref == null) {
-          continue;
+        continue;
       }
       String schemaName = refPointer.getRefName(ref);
       if (schemaName == null) {

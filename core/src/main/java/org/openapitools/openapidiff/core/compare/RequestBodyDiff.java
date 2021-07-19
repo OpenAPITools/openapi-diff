@@ -1,15 +1,16 @@
 package org.openapitools.openapidiff.core.compare;
 
 import static java.util.Optional.ofNullable;
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
 
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedRequestBody;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
@@ -27,7 +28,7 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
     return ofNullable(body).map(RequestBody::getExtensions).orElse(null);
   }
 
-  public Optional<ChangedRequestBody> diff(
+  public DeferredChanged<ChangedRequestBody> diff(
       RequestBody left, RequestBody right, DiffContext context) {
     String leftRef = left != null ? left.get$ref() : null,
         rightRef = right != null ? right.get$ref() : null;
@@ -35,8 +36,10 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
   }
 
   @Override
-  protected Optional<ChangedRequestBody> computeDiff(
+  protected DeferredChanged<ChangedRequestBody> computeDiff(
       HashSet<String> refSet, RequestBody left, RequestBody right, DiffContext context) {
+    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+
     Content oldRequestContent = new Content();
     Content newRequestContent = new Content();
     RequestBody oldRequestBody = null;
@@ -65,22 +68,25 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
     ChangedRequestBody changedRequestBody =
         new ChangedRequestBody(oldRequestBody, newRequestBody, context)
             .setChangeRequired(leftRequired != rightRequired);
-    openApiDiff
-        .getMetadataDiff()
-        .diff(
-            oldRequestBody != null ? oldRequestBody.getDescription() : null,
-            newRequestBody != null ? newRequestBody.getDescription() : null,
-            context)
+    builder
+        .with(
+            openApiDiff
+                .getMetadataDiff()
+                .diff(
+                    oldRequestBody != null ? oldRequestBody.getDescription() : null,
+                    newRequestBody != null ? newRequestBody.getDescription() : null,
+                    context))
         .ifPresent(changedRequestBody::setDescription);
-    openApiDiff
-        .getContentDiff()
-        .diff(oldRequestContent, newRequestContent, context)
+    builder
+        .with(openApiDiff.getContentDiff().diff(oldRequestContent, newRequestContent, context))
         .ifPresent(changedRequestBody::setContent);
-    openApiDiff
-        .getExtensionsDiff()
-        .diff(getExtensions(left), getExtensions(right), context)
+    builder
+        .with(
+            openApiDiff
+                .getExtensionsDiff()
+                .diff(getExtensions(left), getExtensions(right), context))
         .ifPresent(changedRequestBody::setExtensions);
 
-    return isChanged(changedRequestBody);
+    return builder.buildIsChanged(changedRequestBody);
   }
 }

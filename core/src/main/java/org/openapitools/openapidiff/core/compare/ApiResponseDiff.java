@@ -1,18 +1,17 @@
 package org.openapitools.openapidiff.core.compare;
 
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
-
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedApiResponse;
 import org.openapitools.openapidiff.core.model.ChangedResponse;
 import org.openapitools.openapidiff.core.model.DiffContext;
-
-import javax.annotation.Nullable;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 /** Created by adarsh.sharma on 04/01/18. */
 public class ApiResponseDiff {
@@ -22,14 +21,22 @@ public class ApiResponseDiff {
     this.openApiDiff = openApiDiff;
   }
 
-  public Optional<ChangedApiResponse> diff(@Nullable  ApiResponses left, @Nullable ApiResponses right, DiffContext context) {
+  public DeferredChanged<ChangedApiResponse> diff(
+      @Nullable ApiResponses left, @Nullable ApiResponses right, DiffContext context) {
     MapKeyDiff<String, ApiResponse> responseMapKeyDiff = MapKeyDiff.diff(left, right);
     List<String> sharedResponseCodes = responseMapKeyDiff.getSharedKey();
     Map<String, ChangedResponse> resps = new LinkedHashMap<>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
+
     for (String responseCode : sharedResponseCodes) {
-      openApiDiff
-          .getResponseDiff()
-          .diff(left != null ? left.get(responseCode) : null, right != null ? right.get(responseCode) : null, context)
+      builder
+          .with(
+              openApiDiff
+                  .getResponseDiff()
+                  .diff(
+                      left != null ? left.get(responseCode) : null,
+                      right != null ? right.get(responseCode) : null,
+                      context))
           .ifPresent(changedResponse -> resps.put(responseCode, changedResponse));
     }
     ChangedApiResponse changedApiResponse =
@@ -37,10 +44,15 @@ public class ApiResponseDiff {
             .setIncreased(responseMapKeyDiff.getIncreased())
             .setMissing(responseMapKeyDiff.getMissing())
             .setChanged(resps);
-    openApiDiff
-        .getExtensionsDiff()
-        .diff(left != null ? left.getExtensions() : null, right != null ? right.getExtensions() : null, context)
+    builder
+        .with(
+            openApiDiff
+                .getExtensionsDiff()
+                .diff(
+                    left != null ? left.getExtensions() : null,
+                    right != null ? right.getExtensions() : null,
+                    context))
         .ifPresent(changedApiResponse::setExtensions);
-    return isChanged(changedApiResponse);
+    return builder.buildIsChanged(changedApiResponse);
   }
 }

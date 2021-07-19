@@ -7,50 +7,75 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedOperation;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Created by adarsh.sharma on 04/01/18. */
 public class OperationDiff {
+  private static final Logger log = LoggerFactory.getLogger(OperationDiff.class);
+
   private final OpenApiDiff openApiDiff;
 
   public OperationDiff(OpenApiDiff openApiDiff) {
     this.openApiDiff = openApiDiff;
   }
 
-  public Optional<ChangedOperation> diff(
+  public DeferredChanged<ChangedOperation> diff(
       Operation oldOperation, Operation newOperation, DiffContext context) {
+
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
     ChangedOperation changedOperation =
         new ChangedOperation(context.getUrl(), context.getMethod(), oldOperation, newOperation);
 
-    openApiDiff
-        .getMetadataDiff()
-        .diff(oldOperation.getSummary(), newOperation.getSummary(), context)
+    log.debug(
+        "Diff operation {} {}", changedOperation.getPathUrl(), changedOperation.getHttpMethod());
+
+    builder
+        .with(
+            openApiDiff
+                .getMetadataDiff()
+                .diff(oldOperation.getSummary(), newOperation.getSummary(), context))
         .ifPresent(changedOperation::setSummary);
-    openApiDiff
-        .getMetadataDiff()
-        .diff(oldOperation.getDescription(), newOperation.getDescription(), context)
+    builder
+        .with(
+            openApiDiff
+                .getMetadataDiff()
+                .diff(oldOperation.getDescription(), newOperation.getDescription(), context))
         .ifPresent(changedOperation::setDescription);
-    openApiDiff
-        .getMetadataDiff()
-        .diff(oldOperation.getOperationId(), newOperation.getOperationId(), context)
+    builder
+        .with(
+            openApiDiff
+                .getMetadataDiff()
+                .diff(oldOperation.getOperationId(), newOperation.getOperationId(), context))
         .ifPresent(changedOperation::setOperationId);
     changedOperation.setDeprecated(
         !Boolean.TRUE.equals(oldOperation.getDeprecated())
             && Boolean.TRUE.equals(newOperation.getDeprecated()));
 
     if (oldOperation.getRequestBody() != null || newOperation.getRequestBody() != null) {
-      openApiDiff
-          .getRequestBodyDiff()
-          .diff(
-              oldOperation.getRequestBody(), newOperation.getRequestBody(), context.copyAsRequest())
+      builder
+          .with(
+              openApiDiff
+                  .getRequestBodyDiff()
+                  .diff(
+                      oldOperation.getRequestBody(),
+                      newOperation.getRequestBody(),
+                      context.copyAsRequest()))
           .ifPresent(changedOperation::setRequestBody);
     }
 
-    openApiDiff
-        .getParametersDiff()
-        .diff(oldOperation.getParameters(), newOperation.getParameters(), context)
+    builder
+        .with(
+            openApiDiff
+                .getParametersDiff()
+                .diff(oldOperation.getParameters(), newOperation.getParameters(), context))
         .ifPresent(
             params -> {
               removePathParameters(context.getParameters(), params);
@@ -58,25 +83,62 @@ public class OperationDiff {
             });
 
     if (oldOperation.getResponses() != null || newOperation.getResponses() != null) {
-      openApiDiff
-          .getApiResponseDiff()
-          .diff(oldOperation.getResponses(), newOperation.getResponses(), context.copyAsResponse())
-          .ifPresent(changedOperation::setApiResponses);
+      builder
+          .with(
+              openApiDiff
+                  .getApiResponseDiff()
+                  .diff(
+                      oldOperation.getResponses(),
+                      newOperation.getResponses(),
+                      context.copyAsResponse()))
+          .ifPresent(
+              (responses) -> {
+                log.debug(
+                    "operation "
+                        + changedOperation.getPathUrl()
+                        + " "
+                        + changedOperation.getHttpMethod()
+                        + " setting api responses "
+                        + responses.getChangedElements().stream()
+                            .filter(c -> c != null)
+                            .map(c -> c.isChanged())
+                            .filter(c -> c != null)
+                            .map(c -> c.toString())
+                            .collect(Collectors.joining(",")));
+                changedOperation.setApiResponses(responses);
+              });
     }
 
     if (oldOperation.getSecurity() != null || newOperation.getSecurity() != null) {
-      openApiDiff
-          .getSecurityRequirementsDiff()
-          .diff(oldOperation.getSecurity(), newOperation.getSecurity(), context)
+      builder
+          .with(
+              openApiDiff
+                  .getSecurityRequirementsDiff()
+                  .diff(oldOperation.getSecurity(), newOperation.getSecurity(), context))
           .ifPresent(changedOperation::setSecurityRequirements);
     }
 
-    openApiDiff
-        .getExtensionsDiff()
-        .diff(oldOperation.getExtensions(), newOperation.getExtensions(), context)
+    builder
+        .with(
+            openApiDiff
+                .getExtensionsDiff()
+                .diff(oldOperation.getExtensions(), newOperation.getExtensions(), context))
         .ifPresent(changedOperation::setExtensions);
 
-    return isChanged(changedOperation);
+    return builder
+        .build()
+        .mapOptional(
+            (value) -> {
+              Optional<ChangedOperation> changed = isChanged(changedOperation);
+              log.debug(
+                  "Is changed operation "
+                      + changedOperation.getPathUrl()
+                      + " "
+                      + changedOperation.getHttpMethod()
+                      + " changed: "
+                      + changed.map(c -> c.isChanged()).orElse(null));
+              return changed;
+            });
   }
 
   public void removePathParameters(Map<String, String> pathParameters, ChangedParameters params) {

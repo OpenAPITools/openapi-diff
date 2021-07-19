@@ -91,7 +91,7 @@ public class SecurityDiffTest {
         IllegalArgumentException.class,
         () -> OpenApiCompare.fromLocations(OPENAPI_DOC3, OPENAPI_DOC3));
     assertThrows(
-            IllegalArgumentException.class,
-            () -> OpenApiCompare.fromLocations(OPENAPI_DOC4, OPENAPI_DOC4));
+        IllegalArgumentException.class,
+        () -> OpenApiCompare.fromLocations(OPENAPI_DOC4, OPENAPI_DOC4));
   }
 }

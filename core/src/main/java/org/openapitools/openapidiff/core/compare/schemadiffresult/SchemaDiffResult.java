@@ -10,8 +10,12 @@ import org.openapitools.openapidiff.core.compare.ListDiff;
 import org.openapitools.openapidiff.core.compare.MapKeyDiff;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
 import org.openapitools.openapidiff.core.model.Change;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
+import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 import org.openapitools.openapidiff.core.model.schema.*;
 
 public class SchemaDiffResult {
@@ -28,13 +32,16 @@ public class SchemaDiffResult {
     this.changedSchema.setType(type);
   }
 
-  public <V extends Schema<X>, X> Optional<ChangedSchema> diff(
-      HashSet<String> refSet,
+  public <V extends Schema<X>, X> DeferredChanged<ChangedSchema> diff(
+      RecursiveSchemaSet refSet,
       Components leftComponents,
       Components rightComponents,
       V left,
       V right,
       DiffContext context) {
+
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
+
     ChangedEnum<X> changedEnum =
         ListDiff.diff(new ChangedEnum<>(left.getEnum(), right.getEnum(), context));
     changedSchema
@@ -53,36 +60,42 @@ public class SchemaDiffResult {
         .setReadOnly(new ChangedReadOnly(left.getReadOnly(), right.getReadOnly(), context))
         .setWriteOnly(new ChangedWriteOnly(left.getWriteOnly(), right.getWriteOnly(), context))
         .setMaxLength(new ChangedMaxLength(left.getMaxLength(), right.getMaxLength(), context));
-    openApiDiff
-        .getExtensionsDiff()
-        .diff(left.getExtensions(), right.getExtensions(), context)
+    builder
+        .with(
+            openApiDiff
+                .getExtensionsDiff()
+                .diff(left.getExtensions(), right.getExtensions(), context))
         .ifPresent(changedSchema::setExtensions);
-    openApiDiff
-        .getMetadataDiff()
-        .diff(left.getDescription(), right.getDescription(), context)
+    builder
+        .with(
+            openApiDiff
+                .getMetadataDiff()
+                .diff(left.getDescription(), right.getDescription(), context))
         .ifPresent(changedSchema::setDescription);
     Map<String, Schema> leftProperties = left.getProperties();
     Map<String, Schema> rightProperties = right.getProperties();
     MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
     for (String key : propertyDiff.getSharedKey()) {
-      openApiDiff
-          .getSchemaDiff()
-          .diff(
-              refSet,
-              leftProperties.get(key),
-              rightProperties.get(key),
-              required(context, key, right.getRequired()))
+      builder
+          .with(
+              openApiDiff
+                  .getSchemaDiff()
+                  .diff(
+                      refSet,
+                      leftProperties.get(key),
+                      rightProperties.get(key),
+                      required(context, key, right.getRequired())))
           .ifPresent(
               changedSchema1 -> changedSchema.getChangedProperties().put(key, changedSchema1));
     }
-    compareAdditionalProperties(refSet, left, right, context);
+    compareAdditionalProperties(refSet, left, right, context, builder);
     changedSchema
         .getIncreasedProperties()
         .putAll(filterProperties(Change.Type.ADDED, propertyDiff.getIncreased(), context));
     changedSchema
         .getMissingProperties()
         .putAll(filterProperties(Change.Type.REMOVED, propertyDiff.getMissing(), context));
-    return isApplicable(context);
+    return builder.build().mapOptional((values) -> isApplicable(context));
   }
 
   protected Optional<ChangedSchema> isApplicable(DiffContext context) {
@@ -125,7 +138,11 @@ public class SchemaDiffResult {
   }
 
   private void compareAdditionalProperties(
-      HashSet<String> refSet, Schema leftSchema, Schema rightSchema, DiffContext context) {
+      RecursiveSchemaSet refSet,
+      Schema leftSchema,
+      Schema rightSchema,
+      DiffContext context,
+      DeferredBuilder<Changed> builder) {
     Object left = leftSchema.getAdditionalProperties();
     Object right = rightSchema.getAdditionalProperties();
     if (left instanceof Schema || right instanceof Schema) {
@@ -137,7 +154,7 @@ public class SchemaDiffResult {
               .setOldSchema(leftAdditionalSchema)
               .setNewSchema(rightAdditionalSchema);
       if (left != null && right != null) {
-        Optional<ChangedSchema> addPropChangedSchemaOP =
+        DeferredChanged<ChangedSchema> addPropChangedSchemaOP =
             openApiDiff
                 .getSchemaDiff()
                 .diff(
@@ -145,9 +162,16 @@ public class SchemaDiffResult {
                     leftAdditionalSchema,
                     rightAdditionalSchema,
                     context.copyWithRequired(false));
-        apChangedSchema = addPropChangedSchemaOP.orElse(apChangedSchema);
+        builder
+            .with(addPropChangedSchemaOP)
+            .whenSet(
+                (optional) -> {
+                  ChangedSchema apc = optional.orElse(apChangedSchema);
+                  isChanged(apc).ifPresent(changedSchema::setAddProp);
+                });
+      } else {
+        isChanged(apChangedSchema).ifPresent(changedSchema::setAddProp);
       }
-      isChanged(apChangedSchema).ifPresent(changedSchema::setAddProp);
     }
   }
 

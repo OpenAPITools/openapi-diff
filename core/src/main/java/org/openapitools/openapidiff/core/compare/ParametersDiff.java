@@ -1,15 +1,16 @@
 package org.openapitools.openapidiff.core.compare;
 
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
@@ -49,8 +50,10 @@ public class ParametersDiff {
         && Objects.equals(left.getIn(), right.getIn());
   }
 
-  public Optional<ChangedParameters> diff(
+  public DeferredChanged<ChangedParameters> diff(
       List<Parameter> left, List<Parameter> right, DiffContext context) {
+
+    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
     ChangedParameters changedParameters =
         new ChangedParameters(left, right != null ? new ArrayList<>(right) : null, context);
     if (null == left) left = new ArrayList<>();
@@ -65,14 +68,13 @@ public class ParametersDiff {
       } else {
         Parameter rightPara = rightParam.get();
         right.remove(rightPara);
-        openApiDiff
-            .getParameterDiff()
-            .diff(leftPara, rightPara, context)
+        builder
+            .with(openApiDiff.getParameterDiff().diff(leftPara, rightPara, context))
             .ifPresent(changedParameters.getChanged()::add);
       }
     }
     changedParameters.getIncreased().addAll(right);
 
-    return isChanged(changedParameters);
+    return builder.buildIsChanged(changedParameters);
   }
 }
