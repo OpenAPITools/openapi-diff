@@ -1,6 +1,5 @@
 package org.openapitools.openapidiff.core.model;
 
-import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -75,24 +74,16 @@ public class ChangedSchema implements ComposedChanged {
         && !discriminatorPropertyChanged) {
       return DiffResult.NO_CHANGES;
     }
+    boolean compatibleForRequest = (oldSchema != null || newSchema == null);
     boolean compatibleForResponse =
         missingProperties.isEmpty() && (oldSchema == null || newSchema != null);
-    if ((context.isRequest() && compatibleForRequest()
+    if ((context.isRequest() && compatibleForRequest
             || context.isResponse() && compatibleForResponse)
         && !changedType
         && !discriminatorPropertyChanged) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;
-  }
-
-  private boolean compatibleForRequest() {
-    if (PathItem.HttpMethod.PUT.equals(context.getMethod())) {
-      if (increasedProperties.size() > 0) {
-        return false;
-      }
-    }
-    return (oldSchema != null || newSchema == null);
   }
 
   public DiffContext getContext() {
