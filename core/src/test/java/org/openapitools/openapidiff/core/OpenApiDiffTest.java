@@ -11,6 +11,7 @@ import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.ChangedOperation;
 import org.openapitools.openapidiff.core.model.Endpoint;
 import org.openapitools.openapidiff.core.output.HtmlRender;
+import org.openapitools.openapidiff.core.output.JsonRender;
 import org.openapitools.openapidiff.core.output.MarkdownRender;
 
 public class OpenApiDiffTest {
@@ -95,6 +96,20 @@ public class OpenApiDiffTest {
     String render = new MarkdownRender().render(diff);
     try {
       FileWriter fw = new FileWriter("target/testDiff.md");
+      fw.write(render);
+      fw.close();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void testDiffAndJson() {
+    ChangedOpenApi diff = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
+    String render = new JsonRender().render(diff);
+    try {
+      FileWriter fw = new FileWriter("target/testDiff.json");
       fw.write(render);
       fw.close();
 

@@ -21,7 +21,7 @@ Compare two OpenAPI specifications (3.x) and render the difference to HTML plain
 * Depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
 * Supports swagger api Authorization
 * Render difference of property with Expression Language
-* HTML & Markdown render
+* HTML, Markdown & JSON render
 
 # Maven
 
@@ -52,6 +52,7 @@ usage: openapi-diff <old> <new>
     --header <property=value>   use given header for authorisation
     --html <file>               export diff as html in given file
     --info                      Print additional information
+    --json <file>               export diff as json in given file
  -l,--log <level>               use given level for log (TRACE, DEBUG,
                                 INFO, WARN, ERROR, OFF). Default: ERROR
     --markdown <file>           export diff as markdown in given file
@@ -104,6 +105,7 @@ usage: openapi-diff <old> <new>
     --header <property=value>   use given header for authorisation
     --html <file>               export diff as html in given file
     --info                      Print additional information
+    --json <file>               export diff as json in given file
  -l,--log <level>               use given level for log (TRACE, DEBUG,
                                 INFO, WARN, ERROR, OFF). Default: ERROR
     --markdown <file>           export diff as markdown in given file
@@ -160,6 +162,22 @@ String render = new MarkdownRender().render(diff);
 try {
     FileWriter fw = new FileWriter(
             "testDiff.md");
+    fw.write(render);
+    fw.close();
+    
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
+
+
+#### JSON
+
+```java
+String render = new JsonRender().render(diff);
+try {
+    FileWriter fw = new FileWriter(
+            "testDiff.json");
     fw.write(render);
     fw.close();
     
@@ -348,6 +366,71 @@ Then, including your library with the `openapi-diff` module will cause it to be 
     Return Type
 
         Changed response : [200] //successful operation
+```
+
+### JSON
+
+```json
+{
+    "changedElements": [...],
+    "changedExtensions": null,
+    "changedOperations": [...],
+    "compatible": false,
+    "deprecatedEndpoints": [...],
+    "different": true,
+    "incompatible": true,
+    "missingEndpoints": [...],
+    "newEndpoints": [
+        {
+            "method": "GET",
+            "operation": {
+                "callbacks": null,
+                "deprecated": null,
+                "description": "Returns a single pet",
+                "extensions": null,
+                "externalDocs": null,
+                "operationId": "getPetById",
+                "parameters": [
+                    {
+                        "$ref": null,
+                        "allowEmptyValue": null,
+                        "allowReserved": null,
+                        "content": null,
+                        "deprecated": null,
+                        "description": "ID of pet to return",
+                        "example": null,
+                        "examples": null,
+                        "explode": false,
+                        "extensions": null,
+                        "in": "path",
+                        "name": "petId",
+                        "required": true,
+                        "schema": {...},
+                        "style": "SIMPLE"
+                    }
+                ],
+                "requestBody": null,
+                "responses": {...},
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ],
+                "servers": null,
+                "summary": "Find pet by ID",
+                "tags": [
+                    "pet"
+                ]
+            },
+            "path": null,
+            "pathUrl": "/pet/{petId}",
+            "summary": "Find pet by ID"
+        }
+    ],
+    "newSpecOpenApi": {...},
+    "oldSpecOpenApi": {...},
+    "unchanged": false
+}
 ```
 
 # License
