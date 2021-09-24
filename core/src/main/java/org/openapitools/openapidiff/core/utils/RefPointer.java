@@ -17,7 +17,7 @@ public class RefPointer<T> {
       String refName = getRefName(ref);
       T result = getMap(components).get(refName);
       if (result == null) {
-        throw new IllegalArgumentException(String.format("ref '%s' doesn't exist.", ref));
+        return null;
       }
       return result;
     }
@@ -57,7 +57,7 @@ public class RefPointer<T> {
 
     final String baseRef = getBaseRefForType(refType.getName());
     if (!ref.startsWith(baseRef)) {
-      throw new IllegalArgumentException("Invalid ref: " + ref);
+      return ref;
     }
     return ref.substring(baseRef.length());
   }

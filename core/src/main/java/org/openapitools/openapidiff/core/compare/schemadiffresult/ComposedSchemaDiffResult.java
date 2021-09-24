@@ -90,7 +90,8 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     }
   }
 
-  private Map<String, Schema> getSchema(Components components, Map<String, String> mapping, ComposedSchema composedSchema) {
+  private Map<String, Schema> getSchema(
+      Components components, Map<String, String> mapping, ComposedSchema composedSchema) {
     Map<String, Schema> result = new LinkedHashMap<>();
     mapping.forEach(
         (key, value) -> result.put(key, refPointer.resolveRef(components, new Schema(), value)));
@@ -106,7 +107,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     for (Schema schema : composedSchema.getOneOf()) {
       String ref = schema.get$ref();
       if (ref == null) {
-          continue;
+        continue;
       }
       String schemaName = refPointer.getRefName(ref);
       if (schemaName == null) {

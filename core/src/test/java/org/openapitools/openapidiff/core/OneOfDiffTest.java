@@ -44,6 +44,7 @@ public class OneOfDiffTest {
   public void testComposedSchemaDiff() {
     assertOpenApiAreEquals(OPENAPI_DOC10, OPENAPI_DOC10);
   }
+
   @Test
   public void testOneOfDiscrimitatorChanged() {
     // The oneOf 'discriminator' changed: 'realtype' -> 'othertype':
