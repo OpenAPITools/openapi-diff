@@ -24,6 +24,7 @@ import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.HtmlRender;
+import org.openapitools.openapidiff.core.output.JsonRender;
 import org.openapitools.openapidiff.core.output.MarkdownRender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +107,13 @@ public class Main {
             .argName("file")
             .desc("export diff as text in given file")
             .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("json")
+            .hasArg()
+            .argName("file")
+            .desc("export diff as json in given file")
+            .build());
 
     // create the parser
     CommandLineParser parser = new DefaultParser();
@@ -186,6 +194,12 @@ public class Main {
       if (line.hasOption("text")) {
         String output = consoleRender.render(result);
         String outputFile = line.getOptionValue("text");
+        writeOutput(output, outputFile);
+      }
+      if (line.hasOption("json")) {
+        JsonRender jsonRender = new JsonRender();
+        String output = jsonRender.render(result);
+        String outputFile = line.getOptionValue("json");
         writeOutput(output, outputFile);
       }
       if (line.hasOption("state")) {
