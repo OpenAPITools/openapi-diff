@@ -1,10 +1,10 @@
 package org.openapitools.openapidiff.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.JsonRender;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonRenderTest {
   @Test
