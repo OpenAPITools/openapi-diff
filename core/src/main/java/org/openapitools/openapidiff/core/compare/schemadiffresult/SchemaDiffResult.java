@@ -146,8 +146,8 @@ public class SchemaDiffResult {
     Object left = leftSchema.getAdditionalProperties();
     Object right = rightSchema.getAdditionalProperties();
     if (left instanceof Schema || right instanceof Schema) {
-      Schema leftAdditionalSchema = (Schema) left;
-      Schema rightAdditionalSchema = (Schema) right;
+      Schema leftAdditionalSchema = left instanceof Schema ? (Schema) left : null;
+      Schema rightAdditionalSchema = right instanceof Schema ? (Schema) right : null;
       ChangedSchema apChangedSchema =
           new ChangedSchema()
               .setContext(context)
