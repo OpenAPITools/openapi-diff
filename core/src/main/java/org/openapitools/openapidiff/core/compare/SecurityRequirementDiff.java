@@ -1,13 +1,14 @@
 package org.openapitools.openapidiff.core.compare;
 
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.*;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 /** Created by adarsh.sharma on 07/01/18. */
 public class SecurityRequirementDiff {
@@ -61,8 +62,10 @@ public class SecurityRequirementDiff {
     return found;
   }
 
-  public Optional<ChangedSecurityRequirement> diff(
+  public DeferredChanged<ChangedSecurityRequirement> diff(
       SecurityRequirement left, SecurityRequirement right, DiffContext context) {
+    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+
     ChangedSecurityRequirement changedSecurityRequirement =
         new ChangedSecurityRequirement(left, right != null ? getCopy(right) : null);
 
@@ -76,22 +79,23 @@ public class SecurityRequirementDiff {
       } else {
         Optional<String> rightSchemeRef = rightSec.keySet().stream().findFirst();
         rightSchemeRef.ifPresent(rightRequirement::remove);
-        rightSchemeRef
-            .flatMap(
-                rightScheme ->
-                    openApiDiff
-                        .getSecuritySchemeDiff()
-                        .diff(
-                            leftEntry.getKey(),
-                            leftEntry.getValue(),
-                            rightScheme,
-                            rightSec.get(rightScheme),
-                            context))
-            .ifPresent(changedSecurityRequirement::addChanged);
+        rightSchemeRef.ifPresent(
+            rightScheme ->
+                builder
+                    .with(
+                        openApiDiff
+                            .getSecuritySchemeDiff()
+                            .diff(
+                                leftEntry.getKey(),
+                                leftEntry.getValue(),
+                                rightScheme,
+                                rightSec.get(rightScheme),
+                                context))
+                    .ifPresent(changedSecurityRequirement::addChanged));
       }
     }
     rightRequirement.forEach(changedSecurityRequirement::addIncreased);
 
-    return isChanged(changedSecurityRequirement);
+    return builder.buildIsChanged(changedSecurityRequirement);
   }
 }

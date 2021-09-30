@@ -30,7 +30,9 @@ public class PathDiffTest {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_PATH1, OPENAPI_PATH4);
     assertThat(changedOpenApi.getNewEndpoints())
         .hasSize(1)
-        .satisfiesExactly(endpoint -> assertThat(endpoint.getOperation().getOperationId()).isEqualTo("deletePet"));
+        .satisfiesExactly(
+            endpoint ->
+                assertThat(endpoint.getOperation().getOperationId()).isEqualTo("deletePet"));
     assertThat(changedOpenApi.isCompatible()).isTrue();
   }
 }

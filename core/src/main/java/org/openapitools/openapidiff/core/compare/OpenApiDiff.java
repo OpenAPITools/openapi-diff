@@ -8,14 +8,10 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import org.openapitools.openapidiff.core.model.ChangedExtensions;
-import org.openapitools.openapidiff.core.model.ChangedOpenApi;
-import org.openapitools.openapidiff.core.model.ChangedOperation;
-import org.openapitools.openapidiff.core.model.ChangedPath;
-import org.openapitools.openapidiff.core.model.ChangedPaths;
-import org.openapitools.openapidiff.core.model.Endpoint;
+import org.openapitools.openapidiff.core.model.*;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
+import org.openapitools.openapidiff.core.model.deferred.DeferredSchemaCache;
 import org.openapitools.openapidiff.core.utils.EndpointUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +44,7 @@ public class OpenApiDiff {
   private List<Endpoint> missingEndpoints;
   private List<ChangedOperation> changedOperations;
   private ChangedExtensions changedExtensions;
+  private DeferredSchemaCache deferredSchemaCache;
 
   /*
    * @param oldSpecOpenApi
@@ -86,17 +83,25 @@ public class OpenApiDiff {
     this.oAuthFlowDiff = new OAuthFlowDiff(this);
     this.extensionsDiff = new ExtensionsDiff(this);
     this.metadataDiff = new MetadataDiff(this);
+    this.deferredSchemaCache = new DeferredSchemaCache(this);
   }
 
   private ChangedOpenApi compare() {
     preProcess(oldSpecOpenApi);
     preProcess(newSpecOpenApi);
-    Optional<ChangedPaths> paths =
+
+    // 1st pass scans paths to collect all schemas
+    DeferredChanged<ChangedPaths> paths =
         this.pathsDiff.diff(
             valOrEmpty(oldSpecOpenApi.getPaths()), valOrEmpty(newSpecOpenApi.getPaths()));
+
+    // 2nd pass processes deferred schemas
+    deferredSchemaCache.process();
+
     this.newEndpoints = new ArrayList<>();
     this.missingEndpoints = new ArrayList<>();
     this.changedOperations = new ArrayList<>();
+
     paths.ifPresent(
         changedPaths -> {
           this.newEndpoints = EndpointUtils.convert2EndpointList(changedPaths.getIncreased());
@@ -117,6 +122,7 @@ public class OpenApiDiff {
     getExtensionsDiff()
         .diff(oldSpecOpenApi.getExtensions(), newSpecOpenApi.getExtensions())
         .ifPresent(this::setChangedExtension);
+
     return getChangedOpenApi();
   }
 
@@ -162,7 +168,12 @@ public class OpenApiDiff {
         .setNewSpecOpenApi(newSpecOpenApi)
         .setOldSpecOpenApi(oldSpecOpenApi)
         .setChangedOperations(changedOperations)
-        .setChangedExtensions(changedExtensions);
+        .setChangedExtensions(changedExtensions)
+        .setChangedSchemas(deferredSchemaCache.getChangedSchemas());
+  }
+
+  public DeferredSchemaCache getDeferredSchemaCache() {
+    return deferredSchemaCache;
   }
 
   public PathsDiff getPathsDiff() {

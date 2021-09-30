@@ -1,14 +1,15 @@
 package org.openapitools.openapidiff.core.compare;
 
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.headers.Header;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedHeader;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
@@ -31,16 +32,17 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
             : null;
   }
 
-  public Optional<ChangedHeader> diff(Header left, Header right, DiffContext context) {
+  public DeferredChanged<ChangedHeader> diff(Header left, Header right, DiffContext context) {
     return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref(), context);
   }
 
   @Override
-  protected Optional<ChangedHeader> computeDiff(
+  protected DeferredChanged<ChangedHeader> computeDiff(
       HashSet<String> refSet, Header left, Header right, DiffContext context) {
     left = refPointer.resolveRef(leftComponents, left, left.get$ref());
     right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
+    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
     ChangedHeader changedHeader =
         new ChangedHeader(left, right, context)
             .setRequired(getBooleanDiff(left.getRequired(), right.getRequired()))
@@ -49,23 +51,28 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
                     && Boolean.TRUE.equals(right.getDeprecated()))
             .setStyle(!Objects.equals(left.getStyle(), right.getStyle()))
             .setExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
-    openApiDiff
-        .getMetadataDiff()
-        .diff(left.getDescription(), right.getDescription(), context)
+    builder
+        .with(
+            openApiDiff
+                .getMetadataDiff()
+                .diff(left.getDescription(), right.getDescription(), context))
         .ifPresent(changedHeader::setDescription);
-    openApiDiff
-        .getSchemaDiff()
-        .diff(new HashSet<>(), left.getSchema(), right.getSchema(), context.copyWithRequired(true))
+    builder
+        .with(
+            openApiDiff
+                .getSchemaDiff()
+                .diff(left.getSchema(), right.getSchema(), context.copyWithRequired(true)))
         .ifPresent(changedHeader::setSchema);
-    openApiDiff
-        .getContentDiff()
-        .diff(left.getContent(), right.getContent(), context)
+    builder
+        .with(openApiDiff.getContentDiff().diff(left.getContent(), right.getContent(), context))
         .ifPresent(changedHeader::setContent);
-    openApiDiff
-        .getExtensionsDiff()
-        .diff(left.getExtensions(), right.getExtensions(), context)
+    builder
+        .with(
+            openApiDiff
+                .getExtensionsDiff()
+                .diff(left.getExtensions(), right.getExtensions(), context))
         .ifPresent(changedHeader::setExtensions);
-    return isChanged(changedHeader);
+    return builder.buildIsChanged(changedHeader);
   }
 
   private boolean getBooleanDiff(Boolean left, Boolean right) {

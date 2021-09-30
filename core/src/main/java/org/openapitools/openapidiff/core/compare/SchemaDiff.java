@@ -21,10 +21,13 @@ import org.openapitools.openapidiff.core.compare.schemadiffresult.ComposedSchema
 import org.openapitools.openapidiff.core.compare.schemadiffresult.SchemaDiffResult;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
+import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
+import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
-public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
+public class SchemaDiff {
 
   private static final RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
   private static final Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>>
@@ -274,17 +277,27 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
     return ofNullable(schema).map(Schema::get$ref).orElse(null);
   }
 
-  public Optional<ChangedSchema> diff(
+  @Deprecated
+  public DeferredChanged<ChangedSchema> diff(
       HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
-    if (left == null && right == null) {
-      return Optional.empty();
-    }
-    return cachedDiff(refSet, left, right, getSchemaRef(left), getSchemaRef(right), context);
+    return this.diff(new RecursiveSchemaSet(), left, right, context);
   }
 
-  public Optional<ChangedSchema> getTypeChangedSchema(
+  public DeferredChanged<ChangedSchema> diff(Schema left, Schema right, DiffContext context) {
+    return this.diff(new RecursiveSchemaSet(), left, right, context);
+  }
+
+  public DeferredChanged<ChangedSchema> diff(
+      RecursiveSchemaSet refSet, Schema left, Schema right, DiffContext context) {
+    if (left == null && right == null) {
+      return new RealizedChanged<>(Optional.empty());
+    }
+    return computeDeferredDiff(refSet, left, right, context);
+  }
+
+  public DeferredChanged<ChangedSchema> getTypeChangedSchema(
       Schema left, Schema right, DiffContext context) {
-    return Optional.of(
+    return new RealizedChanged(
         SchemaDiff.getSchemaDiffResult(openApiDiff)
             .getChangedSchema()
             .setOldSchema(left)
@@ -293,9 +306,20 @@ public class SchemaDiff extends ReferenceDiffCache<Schema, ChangedSchema> {
             .setContext(context));
   }
 
-  @Override
-  protected Optional<ChangedSchema> computeDiff(
-      HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
+  protected DeferredChanged<ChangedSchema> computeDeferredDiff(
+      RecursiveSchemaSet refSet, Schema left, Schema right, DiffContext context) {
+
+    CacheKey key = new CacheKey(getSchemaRef(left), getSchemaRef(right), context);
+    if (key.getLeft() != null && key.getRight() != null) {
+      return openApiDiff.getDeferredSchemaCache().getOrAddSchema(refSet, key, left, right);
+    } else {
+      return computeDiffForReal(refSet, left, right, context);
+    }
+  }
+
+  public DeferredChanged<ChangedSchema> computeDiffForReal(
+      RecursiveSchemaSet refSet, Schema left, Schema right, DiffContext context) {
+
     left = refPointer.resolveRef(this.leftComponents, left, getSchemaRef(left));
     right = refPointer.resolveRef(this.rightComponents, right, getSchemaRef(right));
 

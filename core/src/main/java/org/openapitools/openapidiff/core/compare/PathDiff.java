@@ -1,14 +1,14 @@
 package org.openapitools.openapidiff.core.compare;
 
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
-
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedPath;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 public class PathDiff {
   private final OpenApiDiff openApiDiff;
@@ -17,12 +17,14 @@ public class PathDiff {
     this.openApiDiff = openApiDiff;
   }
 
-  public Optional<ChangedPath> diff(PathItem left, PathItem right, DiffContext context) {
+  public DeferredChanged<ChangedPath> diff(PathItem left, PathItem right, DiffContext context) {
     Map<PathItem.HttpMethod, Operation> oldOperationMap = left.readOperationsMap();
     Map<PathItem.HttpMethod, Operation> newOperationMap = right.readOperationsMap();
     MapKeyDiff<PathItem.HttpMethod, Operation> operationsDiff =
         MapKeyDiff.diff(oldOperationMap, newOperationMap);
     List<PathItem.HttpMethod> sharedMethods = operationsDiff.getSharedKey();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+
     ChangedPath changedPath =
         new ChangedPath(context.getUrl(), left, right, context)
             .setIncreased(operationsDiff.getIncreased())
@@ -30,15 +32,20 @@ public class PathDiff {
     for (PathItem.HttpMethod method : sharedMethods) {
       Operation oldOperation = oldOperationMap.get(method);
       Operation newOperation = newOperationMap.get(method);
-      openApiDiff
-          .getOperationDiff()
-          .diff(oldOperation, newOperation, context.copyWithMethod(method))
+      builder
+          .with(
+              openApiDiff
+                  .getOperationDiff()
+                  .diff(oldOperation, newOperation, context.copyWithMethod(method)))
           .ifPresent(changedPath.getChanged()::add);
     }
-    openApiDiff
-        .getExtensionsDiff()
-        .diff(left.getExtensions(), right.getExtensions(), context)
+    builder
+        .with(
+            openApiDiff
+                .getExtensionsDiff()
+                .diff(left.getExtensions(), right.getExtensions(), context))
         .ifPresent(changedPath::setExtensions);
-    return isChanged(changedPath);
+
+    return builder.buildIsChanged(changedPath);
   }
 }

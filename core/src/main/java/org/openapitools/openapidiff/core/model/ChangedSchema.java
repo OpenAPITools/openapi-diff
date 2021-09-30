@@ -2,10 +2,7 @@ package org.openapitools.openapidiff.core.model;
 
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
@@ -39,32 +36,98 @@ public class ChangedSchema implements ComposedChanged {
   protected ChangedSchema addProp;
   private ChangedExtensions extensions;
 
+  // Flags to avoid recursive calls to isChanged() and getChangedElements()
+  private boolean gettingChangedElements = false;
+  private boolean gettingIsChanged = false;
+
+  // cached results for isChanged()
+  private DiffResult changed;
+  private DiffResult coreChanged;
+
+  // cached results for getChangedElements()
+  private List<Changed> changedElements;
+
   public ChangedSchema() {
     increasedProperties = new LinkedHashMap<>();
     missingProperties = new LinkedHashMap<>();
     changedProperties = new LinkedHashMap<>();
   }
 
+  private void clearChangedCache() {
+    this.changed = null;
+    this.coreChanged = null;
+    this.changedElements = null;
+  }
+
+  @Override
+  public DiffResult isChanged() {
+    if (gettingIsChanged) {
+      return DiffResult.NO_CHANGES;
+    }
+
+    gettingIsChanged = true;
+    if (this.changed == null) {
+      DiffResult elementsResult =
+          DiffResult.fromWeight(
+              getChangedElements().stream()
+                  .filter(Objects::nonNull)
+                  .map(Changed::isChanged)
+                  .mapToInt(DiffResult::getWeight)
+                  .max()
+                  .orElse(0));
+      DiffResult result;
+      if (isCoreChanged().getWeight() > elementsResult.getWeight()) {
+        result = isCoreChanged();
+      } else {
+        result = elementsResult;
+      }
+      this.changed = result;
+    }
+    gettingIsChanged = false;
+
+    return this.changed;
+  }
+
   @Override
   public List<Changed> getChangedElements() {
-    return Stream.concat(
-            changedProperties.values().stream(),
-            Stream.of(
-                description,
-                readOnly,
-                writeOnly,
-                items,
-                oneOfSchema,
-                addProp,
-                enumeration,
-                required,
-                maxLength,
-                extensions))
-        .collect(Collectors.toList());
+    if (gettingChangedElements) {
+      return Collections.emptyList();
+    }
+
+    gettingChangedElements = true;
+    if (changedElements == null) {
+      List<Changed> changed =
+          Stream.concat(
+                  changedProperties.values().stream(),
+                  Stream.of(
+                      description,
+                      readOnly,
+                      writeOnly,
+                      items,
+                      oneOfSchema,
+                      addProp,
+                      enumeration,
+                      required,
+                      maxLength,
+                      extensions))
+              .collect(Collectors.toList());
+      this.changedElements = changed;
+    }
+    gettingChangedElements = false;
+
+    return this.changedElements;
   }
 
   @Override
   public DiffResult isCoreChanged() {
+    if (this.coreChanged == null) {
+      this.coreChanged = calculateCoreChanged();
+    }
+
+    return this.coreChanged;
+  }
+
+  private DiffResult calculateCoreChanged() {
     if (!changedType
         && (oldSchema == null && newSchema == null || oldSchema != null && newSchema != null)
         && !changeFormat
@@ -208,96 +271,115 @@ public class ChangedSchema implements ComposedChanged {
   }
 
   public ChangedSchema setChangedProperties(final Map<String, ChangedSchema> changedProperties) {
+    clearChangedCache();
     this.changedProperties = changedProperties;
     return this;
   }
 
   public ChangedSchema setIncreasedProperties(final Map<String, Schema> increasedProperties) {
+    clearChangedCache();
     this.increasedProperties = increasedProperties;
     return this;
   }
 
   public ChangedSchema setMissingProperties(final Map<String, Schema> missingProperties) {
+    clearChangedCache();
     this.missingProperties = missingProperties;
     return this;
   }
 
   public ChangedSchema setChangeDeprecated(final boolean changeDeprecated) {
+    clearChangedCache();
     this.changeDeprecated = changeDeprecated;
     return this;
   }
 
   public ChangedSchema setDescription(final ChangedMetadata description) {
+    clearChangedCache();
     this.description = description;
     return this;
   }
 
   public ChangedSchema setChangeTitle(final boolean changeTitle) {
+    clearChangedCache();
     this.changeTitle = changeTitle;
     return this;
   }
 
   public ChangedSchema setRequired(final ChangedRequired required) {
+    clearChangedCache();
     this.required = required;
     return this;
   }
 
   public ChangedSchema setChangeDefault(final boolean changeDefault) {
+    clearChangedCache();
     this.changeDefault = changeDefault;
     return this;
   }
 
   public ChangedSchema setEnumeration(final ChangedEnum<?> enumeration) {
+    clearChangedCache();
     this.enumeration = enumeration;
     return this;
   }
 
   public ChangedSchema setChangeFormat(final boolean changeFormat) {
+    clearChangedCache();
     this.changeFormat = changeFormat;
     return this;
   }
 
   public ChangedSchema setReadOnly(final ChangedReadOnly readOnly) {
+    clearChangedCache();
     this.readOnly = readOnly;
     return this;
   }
 
   public ChangedSchema setWriteOnly(final ChangedWriteOnly writeOnly) {
+    clearChangedCache();
     this.writeOnly = writeOnly;
     return this;
   }
 
   public ChangedSchema setChangedType(final boolean changedType) {
+    clearChangedCache();
     this.changedType = changedType;
     return this;
   }
 
   public ChangedSchema setMaxLength(final ChangedMaxLength maxLength) {
+    clearChangedCache();
     this.maxLength = maxLength;
     return this;
   }
 
   public ChangedSchema setDiscriminatorPropertyChanged(final boolean discriminatorPropertyChanged) {
+    clearChangedCache();
     this.discriminatorPropertyChanged = discriminatorPropertyChanged;
     return this;
   }
 
   public ChangedSchema setItems(final ChangedSchema items) {
+    clearChangedCache();
     this.items = items;
     return this;
   }
 
   public ChangedSchema setOneOfSchema(final ChangedOneOfSchema oneOfSchema) {
+    clearChangedCache();
     this.oneOfSchema = oneOfSchema;
     return this;
   }
 
   public ChangedSchema setAddProp(final ChangedSchema addProp) {
+    clearChangedCache();
     this.addProp = addProp;
     return this;
   }
 
   public ChangedSchema setExtensions(final ChangedExtensions extensions) {
+    clearChangedCache();
     this.extensions = extensions;
     return this;
   }

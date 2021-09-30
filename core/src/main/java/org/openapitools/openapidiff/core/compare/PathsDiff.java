@@ -1,14 +1,15 @@
 package org.openapitools.openapidiff.core.compare;
 
-import static org.openapitools.openapidiff.core.utils.ChangedUtils.isChanged;
-
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedPaths;
 import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
+import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 public class PathsDiff {
   private static final String REGEX_PATH = "\\{([^/]+)\\}";
@@ -32,8 +33,10 @@ public class PathsDiff {
     return params;
   }
 
-  public Optional<ChangedPaths> diff(
+  public DeferredChanged<ChangedPaths> diff(
       final Map<String, PathItem> left, final Map<String, PathItem> right) {
+    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+
     ChangedPaths changedPaths = new ChangedPaths(left, right);
     changedPaths.getIncreased().putAll(right);
 
@@ -45,25 +48,26 @@ public class PathsDiff {
               Optional<Map.Entry<String, PathItem>> result =
                   changedPaths.getIncreased().entrySet().stream()
                       .filter(item -> normalizePath(item.getKey()).equals(template))
-                      .min((a, b) -> {
-                        if (methodsIntersect(a.getValue(), b.getValue())) {
-                          throw new IllegalArgumentException(
+                      .min(
+                          (a, b) -> {
+                            if (methodsIntersect(a.getValue(), b.getValue())) {
+                              throw new IllegalArgumentException(
                                   "Two path items have the same signature: " + template);
-                        }
-                        if (a.getKey().equals(url)) {
-                          return -1;
-                        } else if (b.getKey().equals((url))) {
-                          return 1;
-                        } else {
-                          HashSet<PathItem.HttpMethod> methodsA = new HashSet<>(
-                              a.getValue().readOperationsMap().keySet());
-                          methodsA.retainAll(leftPath.readOperationsMap().keySet());
-                          HashSet<PathItem.HttpMethod> methodsB = new HashSet<>(
-                              b.getValue().readOperationsMap().keySet());
-                          methodsB.retainAll(leftPath.readOperationsMap().keySet());
-                       return Integer.compare(methodsB.size(), methodsA.size());
-                    }
-                  });
+                            }
+                            if (a.getKey().equals(url)) {
+                              return -1;
+                            } else if (b.getKey().equals((url))) {
+                              return 1;
+                            } else {
+                              HashSet<PathItem.HttpMethod> methodsA =
+                                  new HashSet<>(a.getValue().readOperationsMap().keySet());
+                              methodsA.retainAll(leftPath.readOperationsMap().keySet());
+                              HashSet<PathItem.HttpMethod> methodsB =
+                                  new HashSet<>(b.getValue().readOperationsMap().keySet());
+                              methodsB.retainAll(leftPath.readOperationsMap().keySet());
+                              return Integer.compare(methodsB.size(), methodsA.size());
+                            }
+                          });
               if (result.isPresent()) {
                 String rightUrl = result.get().getKey();
                 PathItem rightPath = changedPaths.getIncreased().remove(rightUrl);
@@ -78,15 +82,14 @@ public class PathsDiff {
                 DiffContext context = new DiffContext();
                 context.setUrl(url);
                 context.setParameters(params);
-                openApiDiff
-                    .getPathDiff()
-                    .diff(leftPath, rightPath, context)
+                builder
+                    .with(openApiDiff.getPathDiff().diff(leftPath, rightPath, context))
                     .ifPresent(path -> changedPaths.getChanged().put(rightUrl, path));
               } else {
                 changedPaths.getMissing().put(url, leftPath);
               }
             });
-    return isChanged(changedPaths);
+    return builder.buildIsChanged(changedPaths);
   }
 
   public static Paths valOrEmpty(Paths path) {
