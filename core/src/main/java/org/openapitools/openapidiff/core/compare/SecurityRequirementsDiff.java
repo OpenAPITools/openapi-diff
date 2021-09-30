@@ -56,6 +56,9 @@ public class SecurityRequirementsDiff {
     return securityRequirement.keySet().stream()
         .map(
             x -> {
+              if (components == null) {
+                throw new IllegalArgumentException("Missing securitySchemes component definition.");
+              }
               Map<String, SecurityScheme> securitySchemes = components.getSecuritySchemes();
               if (securitySchemes == null) {
                 throw new IllegalArgumentException("Missing securitySchemes component definition.");
