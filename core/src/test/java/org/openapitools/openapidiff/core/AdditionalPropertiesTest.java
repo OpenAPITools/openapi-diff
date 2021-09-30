@@ -11,8 +11,6 @@ class AdditionalPropertiesTest {
   void booleanAdditionalPropertiesAreSupported() {
     ChangedOpenApi diff = OpenApiCompare.fromLocations("issue-256_1.json", "issue-256_2.json");
     ConsoleRender render = new ConsoleRender();
-    final String render1 = render.render(diff);
-    System.out.println(render1);
-    assertThat(render1).isNotBlank();
+    assertThat(render.render(diff)).isNotBlank();
   }
 }
