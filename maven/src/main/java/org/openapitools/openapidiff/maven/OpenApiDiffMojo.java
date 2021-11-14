@@ -31,7 +31,7 @@ public class OpenApiDiffMojo extends AbstractMojo {
       final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec);
       getLog().info(new ConsoleRender().render(diff));
 
-      if (failOnIncompatible && !diff.isCompatible()) {
+      if (failOnIncompatible && diff.isIncompatible()) {
         throw new BackwardIncompatibilityException("The API changes broke backward compatibility");
       }
 
