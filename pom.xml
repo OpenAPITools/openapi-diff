@@ -3,6 +3,7 @@
     <modules>
         <module>core</module>
         <module>cli</module>
+        <module>maven</module>
     </modules>
 
     <groupId>org.openapitools.openapidiff</groupId>
@@ -30,6 +31,11 @@
             <name>Jochen Schalanda</name>
             <email>jochen@schalanda.name</email>
             <url>https://github.com/joschi</url>
+        </developer>
+        <developer>
+            <name>Josh Kellendonk</name>
+            <email>joshkellendonk@gmail.com</email>
+            <url>https://github.com/misterjoshua</url>
         </developer>
     </developers>
 
