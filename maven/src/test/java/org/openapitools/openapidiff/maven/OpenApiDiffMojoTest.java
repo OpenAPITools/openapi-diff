@@ -14,7 +14,7 @@ class OpenApiDiffMojoTest {
     final OpenApiDiffMojo mojo = new OpenApiDiffMojo();
     mojo.oldSpec = oldSpec;
     mojo.newSpec = oldSpec;
-    mojo.failWhenIncompatible = true;
+    mojo.failOnIncompatible = true;
 
     assertDoesNotThrow(mojo::execute);
   }
@@ -24,9 +24,19 @@ class OpenApiDiffMojoTest {
     final OpenApiDiffMojo mojo = new OpenApiDiffMojo();
     mojo.oldSpec = new File("src/test/resources/oldspec.yaml").getAbsolutePath();
     mojo.newSpec = new File("src/test/resources/newspec.yaml").getAbsolutePath();
-    mojo.failWhenIncompatible = true;
+    mojo.failOnIncompatible = true;
 
     assertDoesNotThrow(mojo::execute);
+  }
+
+  @Test
+  void Should_Throw_When_SpecIsDifferent() {
+    final OpenApiDiffMojo mojo = new OpenApiDiffMojo();
+    mojo.oldSpec = new File("src/test/resources/oldspec.yaml").getAbsolutePath();
+    mojo.newSpec = new File("src/test/resources/newspec.yaml").getAbsolutePath();
+    mojo.failOnChanged = true;
+
+    assertThrows(ApiChangedException.class, mojo::execute);
   }
 
   @Test
@@ -61,7 +71,7 @@ class OpenApiDiffMojoTest {
     final OpenApiDiffMojo mojo = new OpenApiDiffMojo();
     mojo.oldSpec = new File("src/test/resources/newspec.yaml").getAbsolutePath();
     mojo.newSpec = new File("src/test/resources/oldspec.yaml").getAbsolutePath();
-    mojo.failWhenIncompatible = true;
+    mojo.failOnIncompatible = true;
 
     assertThrows(BackwardIncompatibilityException.class, mojo::execute);
   }

@@ -19,8 +19,11 @@ public class OpenApiDiffMojo extends AbstractMojo {
   @Parameter(property = "newSpec")
   String newSpec;
 
-  @Parameter(property = "failWhenIncompatible", defaultValue = "false")
-  Boolean failWhenIncompatible = false;
+  @Parameter(property = "failOnIncompatible", defaultValue = "false")
+  Boolean failOnIncompatible = false;
+
+  @Parameter(property = "failOnChanged", defaultValue = "false")
+  Boolean failOnChanged = false;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -28,8 +31,12 @@ public class OpenApiDiffMojo extends AbstractMojo {
       final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec);
       getLog().info(new ConsoleRender().render(diff));
 
-      if (failWhenIncompatible && !diff.isCompatible()) {
+      if (failOnIncompatible && !diff.isCompatible()) {
         throw new BackwardIncompatibilityException("The API changes broke backward compatibility");
+      }
+
+      if (failOnChanged && diff.isDifferent()) {
+        throw new ApiChangedException("The API changed");
       }
     } catch (RuntimeException e) {
       throw new MojoExecutionException("Unexpected error", e);
