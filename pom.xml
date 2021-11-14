@@ -32,6 +32,11 @@
             <email>jochen@schalanda.name</email>
             <url>https://github.com/joschi</url>
         </developer>
+        <developer>
+            <name>Josh Kellendonk</name>
+            <email>joshkellendonk@gmail.com</email>
+            <url>https://github.com/misterjoshua</url>
+        </developer>
     </developers>
 
     <issueManagement>
