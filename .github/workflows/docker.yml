@@ -7,6 +7,8 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout SCM
+        uses: actions/checkout@v2.4.0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to DockerHub
@@ -14,24 +16,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      - name: Set output
+      - name: Set Git tag in output
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
-      - name: Build Docker image
+      - name: Build & Push Docker image
         uses: docker/build-push-action@v2
         with:
-          load: true
-          push: false
-          tags: openapitools/openapi-diff:${{ steps.vars.outputs.tag }}
-      - name: Scan image
-        uses: anchore/scan-action@v3
-        with:
-          image: openapitools/openapi-diff:${{ steps.vars.outputs.tag }}
-          fail-build: false
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
+          context: .
           push: true
           tags: |
             openapitools/openapi-diff:${{ steps.vars.outputs.tag }}
