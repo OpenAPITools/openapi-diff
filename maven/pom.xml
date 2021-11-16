@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>openapi-diff-maven</artifactId>
-  <packaging>jar</packaging>
+  <packaging>maven-plugin</packaging>
 
   <name>openapi-diff-maven</name>
   <description>Maven plugin for openapi-diff</description>
