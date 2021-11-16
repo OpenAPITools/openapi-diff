@@ -4,6 +4,7 @@
         <module>core</module>
         <module>cli</module>
         <module>maven</module>
+        <module>maven-example</module>
     </modules>
 
     <groupId>org.openapitools.openapidiff</groupId>
