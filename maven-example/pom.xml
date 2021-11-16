@@ -28,7 +28,7 @@
                         </goals>
                         <configuration>
                             <oldSpec>${project.basedir}/../maven/src/test/resources/oldspec.yaml</oldSpec>
-                            <newSpec>${project.basedir}/../maven/src/test/resources/oldspec.yaml</newSpec>
+                            <newSpec>${project.basedir}/../maven/src/test/resources/newspec.yaml</newSpec>
                             <failOnIncompatible>true</failOnIncompatible>
                         </configuration>
                     </execution>
