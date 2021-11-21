@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "org.apache.maven:maven-core"
+      - dependency-name: "org.apache.maven:maven-plugin-api"
+      - dependency-name: "org.apache.maven.plugin-tools:maven-plugin-annotations"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
