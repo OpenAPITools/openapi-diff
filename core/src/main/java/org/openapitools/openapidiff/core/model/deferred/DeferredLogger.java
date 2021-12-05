@@ -19,11 +19,7 @@ public class DeferredLogger {
   }
 
   public static String optionalToString(Optional<?> value) {
-    if (value == null) {
-      return "null";
-    } else {
-      return value.map((v) -> "Optional[" + valueToString(v) + "]").orElse("Optional[empty]");
-    }
+    return value.map((v) -> "Optional[" + valueToString(v) + "]").orElse("Optional[empty]");
   }
 
   public static String changedToString(Changed value) {
