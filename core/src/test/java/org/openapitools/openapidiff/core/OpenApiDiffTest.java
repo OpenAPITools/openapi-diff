@@ -15,8 +15,6 @@ import org.openapitools.openapidiff.core.output.JsonRender;
 import org.openapitools.openapidiff.core.output.MarkdownRender;
 
 public class OpenApiDiffTest {
-
-  final String SWAGGER_V2_HTTP = "http://petstore.swagger.io/v2/swagger.json";
   private final String OPENAPI_DOC1 = "petstore_v2_1.yaml";
   private final String OPENAPI_DOC2 = "petstore_v2_2.yaml";
   private final String OPENAPI_EMPTY_DOC = "petstore_v2_empty.yaml";

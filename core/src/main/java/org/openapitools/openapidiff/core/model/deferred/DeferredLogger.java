@@ -31,7 +31,7 @@ public class DeferredLogger {
   }
 
   public static String streamToString(Stream<?> values) {
-    return "[" + values.map(v -> valueToString(v)).collect(Collectors.joining(", ")) + "]";
+    return "[" + values.map(DeferredLogger::valueToString).collect(Collectors.joining(", ")) + "]";
   }
 
   public static String deferredChangeToString(DeferredChanged<?> deferredChanged) {
@@ -53,13 +53,13 @@ public class DeferredLogger {
     } else if (value instanceof Changed) {
       return changedToString((Changed) value);
     } else if (value instanceof Optional) {
-      return optionalToString((Optional) value);
+      return optionalToString((Optional<?>) value);
     } else if (value instanceof DeferredChanged) {
-      return deferredChangeToString((DeferredChanged) value);
+      return deferredChangeToString((DeferredChanged<?>) value);
     } else if (value.getClass().isArray()) {
       return streamToString(Arrays.stream((Object[]) value));
     } else if (value instanceof Collection) {
-      return streamToString(((Collection) value).stream());
+      return streamToString(((Collection<?>) value).stream());
     } else {
       return value.toString();
     }

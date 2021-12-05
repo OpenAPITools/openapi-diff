@@ -26,7 +26,7 @@ public class RealizedChanged<T> implements DeferredChanged<T> {
   }
 
   public static <T> RealizedChanged<T> empty() {
-    return new RealizedChanged(Optional.empty());
+    return new RealizedChanged<>(Optional.empty());
   }
 
   @Override

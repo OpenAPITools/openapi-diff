@@ -38,7 +38,7 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
   @Override
   protected DeferredChanged<ChangedRequestBody> computeDiff(
       HashSet<String> refSet, RequestBody left, RequestBody right, DiffContext context) {
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
     Content oldRequestContent = new Content();
     Content newRequestContent = new Content();

@@ -1,6 +1,24 @@
 package org.openapitools.openapidiff.core.output;
 
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.del;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.document;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
+import static j2html.TagCreator.head;
+import static j2html.TagCreator.header;
+import static j2html.TagCreator.hr;
+import static j2html.TagCreator.html;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.link;
+import static j2html.TagCreator.meta;
+import static j2html.TagCreator.ol;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.title;
+import static j2html.TagCreator.ul;
 import static org.openapitools.openapidiff.core.model.Changed.result;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -9,15 +27,32 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.HtmlTag;
+import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.OlTag;
+import j2html.tags.specialized.UlTag;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.openapitools.openapidiff.core.model.*;
+import org.openapitools.openapidiff.core.model.ChangedApiResponse;
+import org.openapitools.openapidiff.core.model.ChangedContent;
+import org.openapitools.openapidiff.core.model.ChangedMediaType;
+import org.openapitools.openapidiff.core.model.ChangedMetadata;
+import org.openapitools.openapidiff.core.model.ChangedOpenApi;
+import org.openapitools.openapidiff.core.model.ChangedOperation;
+import org.openapitools.openapidiff.core.model.ChangedParameter;
+import org.openapitools.openapidiff.core.model.ChangedParameters;
+import org.openapitools.openapidiff.core.model.ChangedResponse;
+import org.openapitools.openapidiff.core.model.ChangedSchema;
+import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.DiffResult;
+import org.openapitools.openapidiff.core.model.Endpoint;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
 public class HtmlRender implements Render {
-  private static final RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  private static final RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
 
   private final String title;
   private final String linkCss;
@@ -36,23 +71,22 @@ public class HtmlRender implements Render {
     this.diff = diff;
 
     List<Endpoint> newEndpoints = diff.getNewEndpoints();
-    ContainerTag ol_newEndpoint = ol_newEndpoint(newEndpoints);
+    OlTag ol_newEndpoint = ol_newEndpoint(newEndpoints);
 
     List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-    ContainerTag ol_missingEndpoint = ol_missingEndpoint(missingEndpoints);
+    OlTag ol_missingEndpoint = ol_missingEndpoint(missingEndpoints);
 
     List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
-    ContainerTag ol_deprecatedEndpoint = ol_deprecatedEndpoint(deprecatedEndpoints);
+    OlTag ol_deprecatedEndpoint = ol_deprecatedEndpoint(deprecatedEndpoints);
 
     List<ChangedOperation> changedOperations = diff.getChangedOperations();
-    ContainerTag ol_changed = ol_changed(changedOperations);
+    OlTag ol_changed = ol_changed(changedOperations);
 
     return renderHtml(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed);
   }
 
-  public String renderHtml(
-      ContainerTag ol_new, ContainerTag ol_miss, ContainerTag ol_deprec, ContainerTag ol_changed) {
-    ContainerTag html =
+  public String renderHtml(OlTag ol_new, OlTag ol_miss, OlTag ol_deprec, OlTag ol_changed) {
+    HtmlTag html =
         html()
             .attr("lang", "en")
             .with(
@@ -75,9 +109,9 @@ public class HtmlRender implements Render {
     return document().render() + html.render();
   }
 
-  private ContainerTag ol_newEndpoint(List<Endpoint> endpoints) {
+  private OlTag ol_newEndpoint(List<Endpoint> endpoints) {
     if (null == endpoints) return ol();
-    ContainerTag ol = ol();
+    OlTag ol = ol();
     for (Endpoint endpoint : endpoints) {
       ol.with(
           li_newEndpoint(
@@ -86,13 +120,13 @@ public class HtmlRender implements Render {
     return ol;
   }
 
-  private ContainerTag li_newEndpoint(String method, String path, String desc) {
+  private LiTag li_newEndpoint(String method, String path, String desc) {
     return li().with(span(method).withClass(method)).withText(path + " ").with(span(desc));
   }
 
-  private ContainerTag ol_missingEndpoint(List<Endpoint> endpoints) {
+  private OlTag ol_missingEndpoint(List<Endpoint> endpoints) {
     if (null == endpoints) return ol();
-    ContainerTag ol = ol();
+    OlTag ol = ol();
     for (Endpoint endpoint : endpoints) {
       ol.with(
           li_missingEndpoint(
@@ -101,13 +135,13 @@ public class HtmlRender implements Render {
     return ol;
   }
 
-  private ContainerTag li_missingEndpoint(String method, String path, String desc) {
+  private LiTag li_missingEndpoint(String method, String path, String desc) {
     return li().with(span(method).withClass(method), del().withText(path)).with(span(" " + desc));
   }
 
-  private ContainerTag ol_deprecatedEndpoint(List<Endpoint> endpoints) {
+  private OlTag ol_deprecatedEndpoint(List<Endpoint> endpoints) {
     if (null == endpoints) return ol();
-    ContainerTag ol = ol();
+    OlTag ol = ol();
     for (Endpoint endpoint : endpoints) {
       ol.with(
           li_deprecatedEndpoint(
@@ -116,13 +150,13 @@ public class HtmlRender implements Render {
     return ol;
   }
 
-  private ContainerTag li_deprecatedEndpoint(String method, String path, String desc) {
+  private LiTag li_deprecatedEndpoint(String method, String path, String desc) {
     return li().with(span(method).withClass(method), del().withText(path)).with(span(" " + desc));
   }
 
-  private ContainerTag ol_changed(List<ChangedOperation> changedOperations) {
+  private OlTag ol_changed(List<ChangedOperation> changedOperations) {
     if (null == changedOperations) return ol();
-    ContainerTag ol = ol();
+    OlTag ol = ol();
     for (ChangedOperation changedOperation : changedOperations) {
       String pathUrl = changedOperation.getPathUrl();
       String method = changedOperation.getHttpMethod().toString();
@@ -131,7 +165,7 @@ public class HtmlRender implements Render {
               .map(ChangedMetadata::getRight)
               .orElse("");
 
-      ContainerTag ul_detail = ul().withClass("detail");
+      UlTag ul_detail = ul().withClass("detail");
       if (result(changedOperation.getParameters()).isDifferent()) {
         ul_detail.with(
             li().with(h3("Parameters")).with(ul_param(changedOperation.getParameters())));
@@ -154,11 +188,11 @@ public class HtmlRender implements Render {
     return ol;
   }
 
-  private ContainerTag ul_response(ChangedApiResponse changedApiResponse) {
+  private UlTag ul_response(ChangedApiResponse changedApiResponse) {
     Map<String, ApiResponse> addResponses = changedApiResponse.getIncreased();
     Map<String, ApiResponse> delResponses = changedApiResponse.getMissing();
     Map<String, ChangedResponse> changedResponses = changedApiResponse.getChanged();
-    ContainerTag ul = ul().withClass("change response");
+    UlTag ul = ul().withClass("change response");
     for (String propName : addResponses.keySet()) {
       ul.with(li_addResponse(propName, addResponses.get(propName)));
     }
@@ -171,21 +205,21 @@ public class HtmlRender implements Render {
     return ul;
   }
 
-  private ContainerTag li_addResponse(String name, ApiResponse response) {
+  private LiTag li_addResponse(String name, ApiResponse response) {
     return li().withText(String.format("New response : [%s]", name))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
                 .withClass("comment"));
   }
 
-  private ContainerTag li_missingResponse(String name, ApiResponse response) {
+  private LiTag li_missingResponse(String name, ApiResponse response) {
     return li().withText(String.format("Deleted response : [%s]", name))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
                 .withClass("comment"));
   }
 
-  private ContainerTag li_changedResponse(String name, ChangedResponse response) {
+  private LiTag li_changedResponse(String name, ChangedResponse response) {
     return li().withText(String.format("Changed response : [%s]", name))
         .with(
             span((null == response.getNewApiResponse()
@@ -196,8 +230,8 @@ public class HtmlRender implements Render {
         .with(ul_request(response.getContent()));
   }
 
-  private ContainerTag ul_request(ChangedContent changedContent) {
-    ContainerTag ul = ul().withClass("change request-body");
+  private UlTag ul_request(ChangedContent changedContent) {
+    UlTag ul = ul().withClass("change request-body");
     if (changedContent != null) {
       for (String propName : changedContent.getIncreased().keySet()) {
         ul.with(li_addRequest(propName, changedContent.getIncreased().get(propName)));
@@ -212,16 +246,16 @@ public class HtmlRender implements Render {
     return ul;
   }
 
-  private ContainerTag li_addRequest(String name, MediaType request) {
+  private LiTag li_addRequest(String name, MediaType request) {
     return li().withText(String.format("New body: '%s'", name));
   }
 
-  private ContainerTag li_missingRequest(String name, MediaType request) {
+  private LiTag li_missingRequest(String name, MediaType request) {
     return li().withText(String.format("Deleted body: '%s'", name));
   }
 
-  private ContainerTag li_changedRequest(String name, ChangedMediaType request) {
-    ContainerTag li =
+  private LiTag li_changedRequest(String name, ChangedMediaType request) {
+    LiTag li =
         li().with(div_changedSchema(request.getSchema()))
             .withText(String.format("Changed body: '%s'", name));
     if (request.isIncompatible()) {
@@ -230,18 +264,18 @@ public class HtmlRender implements Render {
     return li;
   }
 
-  private ContainerTag div_changedSchema(ChangedSchema schema) {
-    ContainerTag div = div();
+  private DivTag div_changedSchema(ChangedSchema schema) {
+    DivTag div = div();
     div.with(h3("Schema" + (schema.isIncompatible() ? " incompatible" : "")));
     return div;
   }
 
-  private void incompatibilities(final ContainerTag output, final ChangedSchema schema) {
+  private void incompatibilities(final LiTag output, final ChangedSchema schema) {
     incompatibilities(output, "", schema);
   }
 
   private void incompatibilities(
-      final ContainerTag output, String propName, final ChangedSchema schema) {
+      final ContainerTag<?> output, String propName, final ChangedSchema schema) {
     if (schema.getItems() != null) {
       items(output, propName, schema.getItems());
     }
@@ -257,15 +291,15 @@ public class HtmlRender implements Render {
         .forEach((name, property) -> incompatibilities(output, prefix + name, property));
   }
 
-  private void items(ContainerTag output, String propName, ChangedSchema schema) {
+  private void items(ContainerTag<?> output, String propName, ChangedSchema schema) {
     incompatibilities(output, propName + "[n]", schema);
   }
 
   private void properties(
-      ContainerTag output,
+      ContainerTag<?> output,
       String propPrefix,
       String title,
-      Map<String, Schema> properties,
+      Map<String, Schema<?>> properties,
       DiffContext context) {
     if (properties != null) {
       properties.forEach((key, value) -> resolveProperty(output, propPrefix, key, value, title));
@@ -273,7 +307,7 @@ public class HtmlRender implements Render {
   }
 
   private void resolveProperty(
-      ContainerTag output, String propPrefix, String key, Schema value, String title) {
+      ContainerTag<?> output, String propPrefix, String key, Schema<?> value, String title) {
     try {
       property(output, propPrefix + key, title, resolve(value));
     } catch (Exception e) {
@@ -281,20 +315,20 @@ public class HtmlRender implements Render {
     }
   }
 
-  protected void property(ContainerTag output, String name, String title, Schema schema) {
+  protected void property(ContainerTag<?> output, String name, String title, Schema<?> schema) {
     property(output, name, title, type(schema));
   }
 
-  protected void property(ContainerTag output, String name, String title, String type) {
+  protected void property(ContainerTag<?> output, String name, String title, String type) {
     output.with(p(String.format("%s: %s (%s)", title, name, type)).withClass("missing"));
   }
 
-  protected Schema resolve(Schema schema) {
+  protected Schema<?> resolve(Schema<?> schema) {
     return refPointer.resolveRef(
         diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
   }
 
-  protected String type(Schema schema) {
+  protected String type(Schema<?> schema) {
     String result = "object";
     if (schema == null) {
       result = "no schema";
@@ -306,11 +340,11 @@ public class HtmlRender implements Render {
     return result;
   }
 
-  private ContainerTag ul_param(ChangedParameters changedParameters) {
+  private UlTag ul_param(ChangedParameters changedParameters) {
     List<Parameter> addParameters = changedParameters.getIncreased();
     List<Parameter> delParameters = changedParameters.getMissing();
     List<ChangedParameter> changed = changedParameters.getChanged();
-    ContainerTag ul = ul().withClass("change param");
+    UlTag ul = ul().withClass("change param");
     for (Parameter param : addParameters) {
       ul.with(li_addParam(param));
     }
@@ -323,14 +357,14 @@ public class HtmlRender implements Render {
     return ul;
   }
 
-  private ContainerTag li_addParam(Parameter param) {
+  private LiTag li_addParam(Parameter param) {
     return li().withText("Add " + param.getName() + " in " + param.getIn())
         .with(
             span(null == param.getDescription() ? "" : ("//" + param.getDescription()))
                 .withClass("comment"));
   }
 
-  private ContainerTag li_missingParam(Parameter param) {
+  private LiTag li_missingParam(Parameter param) {
     return li().withClass("missing")
         .with(span("Delete"))
         .with(del(param.getName()))
@@ -340,7 +374,7 @@ public class HtmlRender implements Render {
                 .withClass("comment"));
   }
 
-  private ContainerTag li_deprecatedParam(ChangedParameter param) {
+  private LiTag li_deprecatedParam(ChangedParameter param) {
     return li().withClass("missing")
         .with(span("Deprecated"))
         .with(del(param.getName()))
@@ -352,7 +386,7 @@ public class HtmlRender implements Render {
                 .withClass("comment"));
   }
 
-  private ContainerTag li_changedParam(ChangedParameter changeParam) {
+  private LiTag li_changedParam(ChangedParameter changeParam) {
     if (changeParam.isDeprecated()) {
       return li_deprecatedParam(changeParam);
     }
@@ -363,7 +397,7 @@ public class HtmlRender implements Render {
             .orElse(false);
     Parameter rightParam = changeParam.getNewParameter();
     Parameter leftParam = changeParam.getNewParameter();
-    ContainerTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
+    LiTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
     if (changeRequired) {
       li.withText(" change into " + (rightParam.getRequired() ? "required" : "not required"));
     }

@@ -53,7 +53,7 @@ public class ParametersDiff {
   public DeferredChanged<ChangedParameters> diff(
       List<Parameter> left, List<Parameter> right, DiffContext context) {
 
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
     ChangedParameters changedParameters =
         new ChangedParameters(left, right != null ? new ArrayList<>(right) : null, context);
     if (null == left) left = new ArrayList<>();

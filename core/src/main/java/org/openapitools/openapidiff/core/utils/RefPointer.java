@@ -24,6 +24,7 @@ public class RefPointer<T> {
     return t;
   }
 
+  @SuppressWarnings("unchecked")
   private Map<String, T> getMap(Components components) {
     switch (refType) {
       case REQUEST_BODIES:

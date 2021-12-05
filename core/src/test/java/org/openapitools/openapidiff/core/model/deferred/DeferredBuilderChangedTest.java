@@ -13,7 +13,7 @@ public class DeferredBuilderChangedTest {
   private PendingChanged<ChangedReadOnly> changed;
   private Optional<ChangedReadOnly> whenSet;
   private ChangedWriteOnly mappedValue;
-  private Optional chainedValue;
+  private Optional<?> chainedValue;
 
   @BeforeEach
   public void beforeEach() {
@@ -25,7 +25,7 @@ public class DeferredBuilderChangedTest {
 
   @Test
   public void testPendingChangedValueSetBeforeListeners() {
-    PendingChanged<String> changed = new PendingChanged();
+    PendingChanged<String> changed = new PendingChanged<>();
     changed.setValue(Optional.of("Hello"));
     ChangedAssertion assertion = new ChangedAssertion(changed);
     assertion.assertSet(true);
@@ -33,7 +33,7 @@ public class DeferredBuilderChangedTest {
 
   @Test
   public void testPendingChangedValueSetAfterListeners() {
-    PendingChanged<String> changed = new PendingChanged();
+    PendingChanged<String> changed = new PendingChanged<>();
     ChangedAssertion assertion = new ChangedAssertion(changed);
     changed.setValue(Optional.of("Hello"));
     assertion.assertSet(true);
@@ -41,7 +41,7 @@ public class DeferredBuilderChangedTest {
 
   @Test
   public void testPendingChangedValueEMpty() {
-    PendingChanged<String> changed = new PendingChanged();
+    PendingChanged<String> changed = new PendingChanged<>();
     ChangedAssertion assertion = new ChangedAssertion(changed);
     changed.setValue(Optional.empty());
     assertion.assertSet(false);
@@ -68,7 +68,7 @@ public class DeferredBuilderChangedTest {
     AtomicBoolean whenSet = new AtomicBoolean(false);
     AtomicBoolean ifPresent = new AtomicBoolean(false);
 
-    public ChangedAssertion(DeferredChanged changed) {
+    public ChangedAssertion(DeferredChanged<?> changed) {
       changed.mapOptional(
           (value) -> {
             mapOptional.set(true);
@@ -84,14 +84,8 @@ public class DeferredBuilderChangedTest {
             flatMap.set(true);
             return DeferredChanged.empty();
           });
-      changed.whenSet(
-          (value) -> {
-            whenSet.set(true);
-          });
-      changed.ifPresent(
-          (value) -> {
-            ifPresent.set(true);
-          });
+      changed.whenSet((value) -> whenSet.set(true));
+      changed.ifPresent((value) -> ifPresent.set(true));
     }
 
     public void assertSet(boolean expectedIfPresent) {
@@ -145,26 +139,26 @@ public class DeferredBuilderChangedTest {
 
   @Test
   public void testDeferredBuilderEmpty() {
-    DeferredBuilder builder = new DeferredBuilder();
+    DeferredBuilder<String> builder = new DeferredBuilder<>();
     ChangedAssertion builderAssertion = new ChangedAssertion(builder.build());
     builderAssertion.assertSet(false);
   }
 
   @Test
   public void testDeferredBuilderAllRealized() {
-    DeferredBuilder builder = new DeferredBuilder();
-    builder.add(new RealizedChanged("hello"));
-    builder.add(new RealizedChanged("bye"));
+    DeferredBuilder<String> builder = new DeferredBuilder<>();
+    builder.add(new RealizedChanged<>("hello"));
+    builder.add(new RealizedChanged<>("bye"));
     ChangedAssertion builderAssertion = new ChangedAssertion(builder.build());
     builderAssertion.assertSet(true);
   }
 
   @Test
   public void testDeferredBuilderPending() {
-    PendingChanged<String> changed = new PendingChanged();
+    PendingChanged<String> changed = new PendingChanged<>();
 
-    DeferredBuilder builder = new DeferredBuilder();
-    builder.add(new RealizedChanged("hello"));
+    DeferredBuilder<String> builder = new DeferredBuilder<>();
+    builder.add(new RealizedChanged<>("hello"));
     builder.add(changed);
     ChangedAssertion builderAssertion = new ChangedAssertion(builder.build());
     builderAssertion.assertNotSet();

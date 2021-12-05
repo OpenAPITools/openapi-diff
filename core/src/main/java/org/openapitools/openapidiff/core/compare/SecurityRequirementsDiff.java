@@ -83,7 +83,7 @@ public class SecurityRequirementsDiff {
   protected DeferredChanged<ChangedSecurityRequirements> diff(
       List<SecurityRequirement> left, List<SecurityRequirement> right, DiffContext context) {
 
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
     left = left == null ? new ArrayList<>() : left;
     right = right == null ? new ArrayList<>() : getCopy(right);

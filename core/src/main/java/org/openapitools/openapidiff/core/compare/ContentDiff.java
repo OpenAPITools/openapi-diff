@@ -22,7 +22,7 @@ public class ContentDiff {
   }
 
   public DeferredChanged<ChangedContent> diff(Content left, Content right, DiffContext context) {
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
     MapKeyDiff<String, MediaType> mediaTypeDiff = MapKeyDiff.diff(left, right);
     List<String> sharedMediaTypes = mediaTypeDiff.getSharedKey();

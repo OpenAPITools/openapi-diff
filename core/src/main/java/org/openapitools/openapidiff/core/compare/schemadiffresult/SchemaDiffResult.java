@@ -107,9 +107,9 @@ public class SchemaDiffResult {
     return isChanged(changedSchema);
   }
 
-  private Map<String, Schema> filterProperties(
+  private Map<String, Schema<?>> filterProperties(
       Change.Type type, Map<String, Schema> properties, DiffContext context) {
-    Map<String, Schema> result = new LinkedHashMap<>();
+    Map<String, Schema<?>> result = new LinkedHashMap<>();
     for (Map.Entry<String, Schema> entry : properties.entrySet()) {
       if (isPropertyApplicable(entry.getValue(), context)
           && openApiDiff
@@ -128,7 +128,7 @@ public class SchemaDiffResult {
     return result;
   }
 
-  private boolean isPropertyApplicable(Schema schema, DiffContext context) {
+  private boolean isPropertyApplicable(Schema<?> schema, DiffContext context) {
     return !(context.isResponse() && Boolean.TRUE.equals(schema.getWriteOnly()))
         && !(context.isRequest() && Boolean.TRUE.equals(schema.getReadOnly()));
   }
@@ -139,15 +139,15 @@ public class SchemaDiffResult {
 
   private void compareAdditionalProperties(
       RecursiveSchemaSet refSet,
-      Schema leftSchema,
-      Schema rightSchema,
+      Schema<?> leftSchema,
+      Schema<?> rightSchema,
       DiffContext context,
       DeferredBuilder<Changed> builder) {
     Object left = leftSchema.getAdditionalProperties();
     Object right = rightSchema.getAdditionalProperties();
     if (left instanceof Schema || right instanceof Schema) {
-      Schema leftAdditionalSchema = left instanceof Schema ? (Schema) left : null;
-      Schema rightAdditionalSchema = right instanceof Schema ? (Schema) right : null;
+      Schema<?> leftAdditionalSchema = left instanceof Schema ? (Schema<?>) left : null;
+      Schema<?> rightAdditionalSchema = right instanceof Schema ? (Schema<?>) right : null;
       ChangedSchema apChangedSchema =
           new ChangedSchema()
               .setContext(context)

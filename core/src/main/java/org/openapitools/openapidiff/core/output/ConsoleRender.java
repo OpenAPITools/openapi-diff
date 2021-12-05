@@ -17,7 +17,7 @@ import org.openapitools.openapidiff.core.utils.RefType;
 
 public class ConsoleRender implements Render {
   private static final int LINE_LENGTH = 74;
-  protected static RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  protected static RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected ChangedOpenApi diff;
 
   @Override
@@ -202,7 +202,7 @@ public class ConsoleRender implements Render {
   }
 
   private String properties(
-      String propPrefix, String title, Map<String, Schema> properties, DiffContext context) {
+      String propPrefix, String title, Map<String, Schema<?>> properties, DiffContext context) {
     StringBuilder sb = new StringBuilder();
     if (properties != null) {
       properties.forEach((key, value) -> sb.append(resolveProperty(propPrefix, value, key, title)));
@@ -210,7 +210,7 @@ public class ConsoleRender implements Render {
     return sb.toString();
   }
 
-  private String resolveProperty(String propPrefix, Schema value, String key, String title) {
+  private String resolveProperty(String propPrefix, Schema<?> value, String key, String title) {
     try {
       return property(propPrefix + key, title, resolve(value));
     } catch (Exception e) {
@@ -218,7 +218,7 @@ public class ConsoleRender implements Render {
     }
   }
 
-  protected String property(String name, String title, Schema schema) {
+  protected String property(String name, String title, Schema<?> schema) {
     return property(name, title, type(schema));
   }
 
@@ -226,12 +226,12 @@ public class ConsoleRender implements Render {
     return String.format("%s%s: %s (%s)\n", StringUtils.repeat(' ', 10), title, name, type);
   }
 
-  protected Schema resolve(Schema schema) {
+  protected Schema<?> resolve(Schema<?> schema) {
     return refPointer.resolveRef(
         diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
   }
 
-  protected String type(Schema schema) {
+  protected String type(Schema<?> schema) {
     String result = "object";
     if (schema == null) {
       result = "no schema";

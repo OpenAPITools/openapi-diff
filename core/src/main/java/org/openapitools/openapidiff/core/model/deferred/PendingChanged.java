@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 public class PendingChanged<T> implements DeferredChanged<T> {
   private static final Logger log = LoggerFactory.getLogger(PendingChanged.class);
 
-  private List<Consumer<T>> ifPresentConsumers = new ArrayList<>();
-  private List<Consumer<Optional<T>>> whenSetConsumers = new ArrayList<>();
+  private final List<Consumer<T>> ifPresentConsumers = new ArrayList<>();
+  private final List<Consumer<Optional<T>>> whenSetConsumers = new ArrayList<>();
 
   @Nullable private T value;
   private Optional<T> valueOptional = Optional.empty();
@@ -88,9 +88,9 @@ public class PendingChanged<T> implements DeferredChanged<T> {
           function,
           DeferredLogger.logValue(this.value),
           DeferredLogger.logValue(result));
-      return new RealizedChanged<Q>(result);
+      return new RealizedChanged<>(result);
     } else {
-      final PendingChanged<Q> mappedChanged = new PendingChanged();
+      final PendingChanged<Q> mappedChanged = new PendingChanged<>();
       log.debug("map deferred {} ? -> ?", function);
       deferredCounter.incrementAndGet();
       whenSet(

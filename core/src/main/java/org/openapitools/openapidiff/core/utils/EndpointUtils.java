@@ -12,7 +12,7 @@ import org.openapitools.openapidiff.core.model.Endpoint;
 public class EndpointUtils {
   public static Collection<? extends Endpoint> convert2Endpoints(
       String pathUrl, Map<PathItem.HttpMethod, Operation> map) {
-    List<Endpoint> endpoints = new ArrayList<Endpoint>();
+    List<Endpoint> endpoints = new ArrayList<>();
     if (null == map) return endpoints;
     for (Map.Entry<PathItem.HttpMethod, Operation> entry : map.entrySet()) {
       PathItem.HttpMethod httpMethod = entry.getKey();

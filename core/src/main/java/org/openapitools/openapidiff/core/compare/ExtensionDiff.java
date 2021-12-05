@@ -10,7 +10,7 @@ public interface ExtensionDiff {
 
   String getName();
 
-  Changed diff(Change extension, DiffContext context);
+  Changed diff(Change<?> extension, DiffContext context);
 
   default boolean isParentApplicable(
       Change.Type type, Object object, Object extension, DiffContext context) {

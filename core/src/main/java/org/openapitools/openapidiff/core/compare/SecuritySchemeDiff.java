@@ -112,7 +112,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
         .diff(leftSecurityScheme.getExtensions(), rightSecurityScheme.getExtensions(), context)
         .ifPresent(changedSecurityScheme::setExtensions);
 
-    return new RealizedChanged<ChangedSecurityScheme>(changedSecurityScheme);
+    return new RealizedChanged<>(changedSecurityScheme);
   }
 
   private ChangedSecurityScheme getCopyWithoutScopes(ChangedSecurityScheme original) {

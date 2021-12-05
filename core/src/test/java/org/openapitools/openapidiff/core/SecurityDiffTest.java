@@ -19,7 +19,7 @@ public class SecurityDiffTest {
   public void testDiffDifferent() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
 
-    assertThat(changedOpenApi.getChangedOperations().size() == 3);
+    assertThat(changedOpenApi.getChangedOperations()).hasSize(3);
 
     ChangedOperation changedOperation1 =
         changedOpenApi.getChangedOperations().stream()

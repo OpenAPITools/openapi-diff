@@ -23,7 +23,7 @@ public class PathDiff {
     MapKeyDiff<PathItem.HttpMethod, Operation> operationsDiff =
         MapKeyDiff.diff(oldOperationMap, newOperationMap);
     List<PathItem.HttpMethod> sharedMethods = operationsDiff.getSharedKey();
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
     ChangedPath changedPath =
         new ChangedPath(context.getUrl(), left, right, context)

@@ -42,7 +42,7 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     left = refPointer.resolveRef(leftComponents, left, left.get$ref());
     right = refPointer.resolveRef(rightComponents, right, right.get$ref());
 
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
     ChangedHeader changedHeader =
         new ChangedHeader(left, right, context)
             .setRequired(getBooleanDiff(left.getRequired(), right.getRequired()))

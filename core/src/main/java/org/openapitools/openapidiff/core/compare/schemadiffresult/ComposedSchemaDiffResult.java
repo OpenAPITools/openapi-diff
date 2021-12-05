@@ -24,7 +24,7 @@ import org.openapitools.openapidiff.core.utils.RefType;
 
 /** Created by adarsh.sharma on 20/12/17. */
 public class ComposedSchemaDiffResult extends SchemaDiffResult {
-  private static final RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  private static final RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
 
   public ComposedSchemaDiffResult(OpenApiDiff openApiDiff) {
     super(openApiDiff);
@@ -74,9 +74,9 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 getSchema(rightComponents, rightMapping, rightComposedSchema));
         Map<String, ChangedSchema> changedMapping = new LinkedHashMap<>();
         for (String key : mappingDiff.getSharedKey()) {
-          Schema leftSchema = new Schema();
+          Schema<?> leftSchema = new Schema<>();
           leftSchema.set$ref(leftMapping.get(key));
-          Schema rightSchema = new Schema();
+          Schema<?> rightSchema = new Schema<>();
           rightSchema.set$ref(rightMapping.get(key));
           discriminatorChangedBuilder
               .with(
@@ -87,13 +87,12 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
         }
 
         discriminatorChangedBuilder.whenSet(
-            (composedSchemas) -> {
-              changedSchema.setOneOfSchema(
-                  new ChangedOneOfSchema(leftMapping, rightMapping, context)
-                      .setIncreased(mappingDiff.getIncreased())
-                      .setMissing(mappingDiff.getMissing())
-                      .setChanged(changedMapping));
-            });
+            (composedSchemas) ->
+                changedSchema.setOneOfSchema(
+                    new ChangedOneOfSchema(leftMapping, rightMapping, context)
+                        .setIncreased(mappingDiff.getIncreased())
+                        .setMissing(mappingDiff.getMissing())
+                        .setChanged(changedMapping)));
       }
 
       return discriminatorChangedBuilder
@@ -110,7 +109,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
       Components components, Map<String, String> mapping, ComposedSchema composedSchema) {
     Map<String, Schema> result = new LinkedHashMap<>();
     mapping.forEach(
-        (key, value) -> result.put(key, refPointer.resolveRef(components, new Schema(), value)));
+        (key, value) -> result.put(key, refPointer.resolveRef(components, new Schema<>(), value)));
 
     result.putAll(getUnnamedSchemas(composedSchema.getAllOf(), "all-of"));
     result.putAll(getUnnamedSchemas(composedSchema.getOneOf(), "one-of"));
@@ -120,7 +119,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
 
   private Map<String, String> getMapping(ComposedSchema composedSchema) {
     Map<String, String> reverseMapping = new LinkedHashMap<>();
-    for (Schema schema : composedSchema.getOneOf()) {
+    for (Schema<?> schema : composedSchema.getOneOf()) {
       String ref = schema.get$ref();
       if (ref == null) {
         continue;
@@ -151,7 +150,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
     }
 
     for (int i = 0; i < schemas.size(); i++) {
-      Schema schema = schemas.get(i);
+      Schema<?> schema = schemas.get(i);
 
       // If the ref is named, then we ignore it since getMapping will handle it.
       if (schema.get$ref() != null) {

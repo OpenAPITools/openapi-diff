@@ -6,11 +6,13 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedOperation;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
+import org.openapitools.openapidiff.core.model.ComposedChanged;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
@@ -100,10 +102,10 @@ public class OperationDiff {
                         + changedOperation.getHttpMethod()
                         + " setting api responses "
                         + responses.getChangedElements().stream()
-                            .filter(c -> c != null)
-                            .map(c -> c.isChanged())
-                            .filter(c -> c != null)
-                            .map(c -> c.toString())
+                            .filter(Objects::nonNull)
+                            .map(Changed::isChanged)
+                            .filter(Objects::nonNull)
+                            .map(Enum::toString)
                             .collect(Collectors.joining(",")));
                 changedOperation.setApiResponses(responses);
               });
@@ -136,7 +138,7 @@ public class OperationDiff {
                       + " "
                       + changedOperation.getHttpMethod()
                       + " changed: "
-                      + changed.map(c -> c.isChanged()).orElse(null));
+                      + changed.map(ComposedChanged::isChanged).orElse(null));
               return changed;
             });
   }

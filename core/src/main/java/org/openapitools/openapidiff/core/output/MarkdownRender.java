@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class MarkdownRender implements Render {
   public static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
 
-  protected RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  protected RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected final String H3 = "### ";
   protected final String H4 = "#### ";
   protected final String H5 = "##### ";
@@ -360,7 +360,7 @@ public class MarkdownRender implements Render {
     return sb.toString();
   }
 
-  protected String items(int deepness, Schema schema, DiffContext context) {
+  protected String items(int deepness, Schema<?> schema, DiffContext context) {
     return items(deepness, "Items", type(schema), schema.getDescription())
         + schema(deepness, schema, context);
   }
@@ -374,7 +374,7 @@ public class MarkdownRender implements Render {
   protected String properties(
       final int deepness,
       String title,
-      Map<String, Schema> properties,
+      Map<String, Schema<?>> properties,
       boolean showContent,
       DiffContext context) {
     StringBuilder sb = new StringBuilder();
@@ -390,7 +390,7 @@ public class MarkdownRender implements Render {
     return sb.toString();
   }
 
-  private String resolveProperty(int deepness, Schema value, String key, String title) {
+  private String resolveProperty(int deepness, Schema<?> value, String key, String title) {
     try {
       return property(deepness, title, key, resolve(value));
     } catch (Exception e) {
@@ -410,7 +410,7 @@ public class MarkdownRender implements Render {
     return sb.toString();
   }
 
-  protected String property(int deepness, String title, String name, Schema schema) {
+  protected String property(int deepness, String title, String name, Schema<?> schema) {
     return property(deepness, title, name, type(schema), schema.getDescription());
   }
 
@@ -528,7 +528,7 @@ public class MarkdownRender implements Render {
     return blockquote + text.trim().replaceAll("\n", "\n" + blockquote) + '\n';
   }
 
-  protected String type(Schema schema) {
+  protected String type(Schema<?> schema) {
     String result = "object";
     if (schema instanceof ArraySchema) {
       result = "array";
@@ -546,7 +546,7 @@ public class MarkdownRender implements Render {
     return sb.toString();
   }
 
-  protected Schema resolve(Schema schema) {
+  protected Schema<?> resolve(Schema<?> schema) {
     return refPointer.resolveRef(
         diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
   }

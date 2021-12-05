@@ -12,7 +12,7 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 public class PathsDiff {
-  private static final String REGEX_PATH = "\\{([^/]+)\\}";
+  private static final String REGEX_PATH = "\\{([^/]+)}";
   private final OpenApiDiff openApiDiff;
 
   public PathsDiff(OpenApiDiff openApiDiff) {
@@ -35,7 +35,7 @@ public class PathsDiff {
 
   public DeferredChanged<ChangedPaths> diff(
       final Map<String, PathItem> left, final Map<String, PathItem> right) {
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
     ChangedPaths changedPaths = new ChangedPaths(left, right);
     changedPaths.getIncreased().putAll(right);

@@ -9,16 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.openapitools.openapidiff.core.model.*;
+import org.openapitools.openapidiff.core.model.ChangedExtensions;
+import org.openapitools.openapidiff.core.model.ChangedOpenApi;
+import org.openapitools.openapidiff.core.model.ChangedOperation;
+import org.openapitools.openapidiff.core.model.ChangedPath;
+import org.openapitools.openapidiff.core.model.ChangedPaths;
+import org.openapitools.openapidiff.core.model.Endpoint;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.model.deferred.DeferredSchemaCache;
 import org.openapitools.openapidiff.core.utils.EndpointUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OpenApiDiff {
-  public static final String SWAGGER_VERSION_V2 = "2.0";
-  private static final Logger logger = LoggerFactory.getLogger(OpenApiDiff.class);
   private PathsDiff pathsDiff;
   private PathDiff pathDiff;
   private SchemaDiff schemaDiff;

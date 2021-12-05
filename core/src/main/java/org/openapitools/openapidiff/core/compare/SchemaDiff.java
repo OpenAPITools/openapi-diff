@@ -29,7 +29,7 @@ import org.openapitools.openapidiff.core.utils.RefType;
 
 public class SchemaDiff {
 
-  private static final RefPointer<Schema> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  private static final RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
   private static final Map<Class<? extends Schema>, Class<? extends SchemaDiffResult>>
       schemaDiffResultClassMap = new LinkedHashMap<>();
 
@@ -80,12 +80,12 @@ public class SchemaDiff {
     }
   }
 
-  protected static Schema resolveComposedSchema(Components components, Schema schema) {
+  protected static Schema<?> resolveComposedSchema(Components components, Schema<?> schema) {
     if (schema instanceof ComposedSchema) {
       ComposedSchema composedSchema = (ComposedSchema) schema;
       List<Schema> allOfSchemaList = composedSchema.getAllOf();
       if (allOfSchemaList != null) {
-        for (Schema allOfSchema : allOfSchemaList) {
+        for (Schema<?> allOfSchema : allOfSchemaList) {
           allOfSchema = refPointer.resolveRef(components, allOfSchema, allOfSchema.get$ref());
           allOfSchema = resolveComposedSchema(components, allOfSchema);
           schema = addSchema(schema, allOfSchema);
@@ -96,7 +96,7 @@ public class SchemaDiff {
     return schema;
   }
 
-  protected static Schema addSchema(Schema<?> schema, Schema<?> fromSchema) {
+  protected static Schema<?> addSchema(Schema<?> schema, Schema<?> fromSchema) {
     if (fromSchema.getProperties() != null) {
       if (schema.getProperties() == null) {
         schema.setProperties(new LinkedHashMap<>());
@@ -234,7 +234,7 @@ public class SchemaDiff {
     }
     if (fromSchema.getNot() != null) {
       if (schema.getNot() == null) {
-        schema.setNot(addSchema(new Schema(), fromSchema.getNot()));
+        schema.setNot(addSchema(new Schema<>(), fromSchema.getNot()));
       } else {
         addSchema(schema.getNot(), fromSchema.getNot());
       }
@@ -273,7 +273,7 @@ public class SchemaDiff {
     return schema;
   }
 
-  private static String getSchemaRef(Schema schema) {
+  private static String getSchemaRef(Schema<?> schema) {
     return ofNullable(schema).map(Schema::get$ref).orElse(null);
   }
 
@@ -307,7 +307,7 @@ public class SchemaDiff {
   }
 
   protected DeferredChanged<ChangedSchema> computeDeferredDiff(
-      RecursiveSchemaSet refSet, Schema left, Schema right, DiffContext context) {
+      RecursiveSchemaSet refSet, Schema<?> left, Schema<?> right, DiffContext context) {
 
     CacheKey key = new CacheKey(getSchemaRef(left), getSchemaRef(right), context);
     if (key.getLeft() != null && key.getRight() != null) {

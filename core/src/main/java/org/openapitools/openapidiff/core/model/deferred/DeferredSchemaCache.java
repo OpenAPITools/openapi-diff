@@ -15,9 +15,8 @@ import org.slf4j.LoggerFactory;
 public class DeferredSchemaCache {
   private static final Logger log = LoggerFactory.getLogger(DeferredSchemaCache.class);
 
-  private Map<CacheKey, SchemaDiffOperation> cache = new LinkedHashMap<>();
-  private Queue<CacheKey> processingQueue = new ArrayDeque<>();
-  //    private Queue<DeferredOperation> deferredOperations = new ArrayDeque<>();
+  private final Map<CacheKey, SchemaDiffOperation> cache = new LinkedHashMap<>();
+  private final Queue<CacheKey> processingQueue = new ArrayDeque<>();
 
   private final OpenApiDiff openApiDiff;
 
@@ -108,7 +107,7 @@ public class DeferredSchemaCache {
   }
 
   private static class DeferredOperation<T extends Changed> {
-    private PendingChanged<T> pending = new PendingChanged<>();
+    private final PendingChanged<T> pending = new PendingChanged<>();
     private final Supplier<Optional<T>> supplier;
 
     public DeferredOperation(Supplier<Optional<T>> supplier) {

@@ -79,7 +79,8 @@ public class ExtensionsDiff {
     return isChanged(changedExtensions);
   }
 
-  private Optional<Changed> executeExtensionDiff(String name, Change change, DiffContext context) {
+  private Optional<Changed> executeExtensionDiff(
+      String name, Change<?> change, DiffContext context) {
     return executeExtension(name, diff -> diff.setOpenApiDiff(openApiDiff).diff(change, context));
   }
 }

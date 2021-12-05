@@ -61,7 +61,7 @@ public class DeferredBuilder<T> implements Consumer<DeferredChanged<T>> {
 
     log.debug("Building collected deferred {}", DeferredLogger.logValue(deferredValues));
 
-    final PendingChanged<List<Optional<? super T>>> changed = new PendingChanged();
+    final PendingChanged<List<Optional<? super T>>> changed = new PendingChanged<>();
     whenSet.forEach(changed::whenSet);
 
     Optional[] values = new Optional[deferredValues.size()];
@@ -96,8 +96,8 @@ public class DeferredBuilder<T> implements Consumer<DeferredChanged<T>> {
   }
 
   private static boolean isFull(Object[] values) {
-    for (int i = 0; i < values.length; i++) {
-      if (values[i] == null) {
+    for (Object value : values) {
+      if (value == null) {
         return false;
       }
     }

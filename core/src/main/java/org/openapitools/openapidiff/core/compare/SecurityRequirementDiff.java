@@ -64,7 +64,7 @@ public class SecurityRequirementDiff {
 
   public DeferredChanged<ChangedSecurityRequirement> diff(
       SecurityRequirement left, SecurityRequirement right, DiffContext context) {
-    DeferredBuilder<Changed> builder = new DeferredBuilder<Changed>();
+    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
     ChangedSecurityRequirement changedSecurityRequirement =
         new ChangedSecurityRequirement(left, right != null ? getCopy(right) : null);

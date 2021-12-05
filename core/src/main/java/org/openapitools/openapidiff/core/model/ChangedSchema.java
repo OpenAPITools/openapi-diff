@@ -13,12 +13,12 @@ import org.openapitools.openapidiff.core.model.schema.ChangedWriteOnly;
 
 public class ChangedSchema implements ComposedChanged {
   protected DiffContext context;
-  protected Schema oldSchema;
-  protected Schema newSchema;
+  protected Schema<?> oldSchema;
+  protected Schema<?> newSchema;
   protected String type;
   protected Map<String, ChangedSchema> changedProperties;
-  protected Map<String, Schema> increasedProperties;
-  protected Map<String, Schema> missingProperties;
+  protected Map<String, Schema<?>> increasedProperties;
+  protected Map<String, Schema<?>> missingProperties;
   protected boolean changeDeprecated;
   protected ChangedMetadata description;
   protected boolean changeTitle;
@@ -96,7 +96,7 @@ public class ChangedSchema implements ComposedChanged {
 
     gettingChangedElements = true;
     if (changedElements == null) {
-      List<Changed> changed =
+      this.changedElements =
           Stream.concat(
                   changedProperties.values().stream(),
                   Stream.of(
@@ -111,7 +111,6 @@ public class ChangedSchema implements ComposedChanged {
                       maxLength,
                       extensions))
               .collect(Collectors.toList());
-      this.changedElements = changed;
     }
     gettingChangedElements = false;
 
@@ -162,11 +161,11 @@ public class ChangedSchema implements ComposedChanged {
     return this.context;
   }
 
-  public Schema getOldSchema() {
+  public Schema<?> getOldSchema() {
     return this.oldSchema;
   }
 
-  public Schema getNewSchema() {
+  public Schema<?> getNewSchema() {
     return this.newSchema;
   }
 
@@ -178,11 +177,11 @@ public class ChangedSchema implements ComposedChanged {
     return this.changedProperties;
   }
 
-  public Map<String, Schema> getIncreasedProperties() {
+  public Map<String, Schema<?>> getIncreasedProperties() {
     return this.increasedProperties;
   }
 
-  public Map<String, Schema> getMissingProperties() {
+  public Map<String, Schema<?>> getMissingProperties() {
     return this.missingProperties;
   }
 
@@ -255,12 +254,12 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
-  public ChangedSchema setOldSchema(final Schema oldSchema) {
+  public ChangedSchema setOldSchema(final Schema<?> oldSchema) {
     this.oldSchema = oldSchema;
     return this;
   }
 
-  public ChangedSchema setNewSchema(final Schema newSchema) {
+  public ChangedSchema setNewSchema(final Schema<?> newSchema) {
     this.newSchema = newSchema;
     return this;
   }
@@ -276,13 +275,13 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
-  public ChangedSchema setIncreasedProperties(final Map<String, Schema> increasedProperties) {
+  public ChangedSchema setIncreasedProperties(final Map<String, Schema<?>> increasedProperties) {
     clearChangedCache();
     this.increasedProperties = increasedProperties;
     return this;
   }
 
-  public ChangedSchema setMissingProperties(final Map<String, Schema> missingProperties) {
+  public ChangedSchema setMissingProperties(final Map<String, Schema<?>> missingProperties) {
     clearChangedCache();
     this.missingProperties = missingProperties;
     return this;
