@@ -8,7 +8,6 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
 
-/** Created by adarsh.sharma on 07/01/18. */
 public abstract class ReferenceDiffCache<C, D extends Changed> {
   private final Map<CacheKey, DeferredChanged<D>> refDiffMap;
 

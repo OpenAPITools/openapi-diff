@@ -7,7 +7,6 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.*;
 
-/** Created by adarsh.sharma on 06/01/18. */
 public class SecurityDiffTest {
   private final String OPENAPI_DOC1 = "security_diff_1.yaml";
   private final String OPENAPI_DOC2 = "security_diff_2.yaml";

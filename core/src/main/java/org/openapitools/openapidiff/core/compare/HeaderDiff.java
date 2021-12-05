@@ -13,7 +13,6 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
-/** Created by adarsh.sharma on 28/12/17. */
 public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
   private static final RefPointer<Header> refPointer = new RefPointer<>(RefType.HEADERS);
   private final OpenApiDiff openApiDiff;

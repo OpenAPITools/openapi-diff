@@ -22,7 +22,6 @@ import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
-/** Created by adarsh.sharma on 20/12/17. */
 public class ComposedSchemaDiffResult extends SchemaDiffResult {
   private static final RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
 

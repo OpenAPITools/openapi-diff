@@ -12,7 +12,6 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
-/** Created by adarsh.sharma on 28/12/17. */
 public class HeadersDiff {
   private final OpenApiDiff openApiDiff;
 

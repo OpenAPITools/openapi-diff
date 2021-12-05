@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-/** Created by adarsh.sharma on 11/01/18. */
 public class ChangedSecurityScheme implements ComposedChanged {
   private SecurityScheme oldSecurityScheme;
   private SecurityScheme newSecurityScheme;

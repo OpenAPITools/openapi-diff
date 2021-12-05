@@ -3,7 +3,6 @@ package org.openapitools.openapidiff.core.utils;
 import io.swagger.v3.oas.models.Components;
 import java.util.Map;
 
-/** Created by adarsh.sharma on 07/01/18. */
 public class RefPointer<T> {
   public static final String BASE_REF = "#/components/";
   private final RefType refType;

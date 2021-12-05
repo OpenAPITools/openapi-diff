@@ -14,7 +14,6 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
-/** Created by adarsh.sharma on 28/12/17. */
 public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequestBody> {
   private static final RefPointer<RequestBody> refPointer =
       new RefPointer<>(RefType.REQUEST_BODIES);

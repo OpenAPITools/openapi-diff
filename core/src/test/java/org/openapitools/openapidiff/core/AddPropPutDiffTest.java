@@ -5,7 +5,6 @@ import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardI
 
 import org.junit.jupiter.api.Test;
 
-/** Created by trohrberg on 23/03/19. */
 public class AddPropPutDiffTest {
   private final String OPENAPI_DOC1 = "add-prop-put-1.yaml";
   private final String OPENAPI_DOC2 = "add-prop-put-2.yaml";

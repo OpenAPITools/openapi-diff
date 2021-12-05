@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.slf4j.Logger;
 
-/** Created by jonathan.hess on 2020-07-16. */
 public class LargeSchemaTest {
   public static final Logger LOG = getLogger(LargeSchemaTest.class);
 

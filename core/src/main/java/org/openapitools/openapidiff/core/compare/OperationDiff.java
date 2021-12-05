@@ -19,7 +19,6 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Created by adarsh.sharma on 04/01/18. */
 public class OperationDiff {
   private static final Logger log = LoggerFactory.getLogger(OperationDiff.class);
 

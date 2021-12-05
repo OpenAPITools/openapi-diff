@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-/** Created by Quentin Desramé on 04/04/17. */
 public class DiffContext {
 
   private String url;

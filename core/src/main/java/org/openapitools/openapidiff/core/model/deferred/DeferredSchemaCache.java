@@ -11,7 +11,6 @@ import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Holds schema created by jonathan.hess@gmail.com */
 public class DeferredSchemaCache {
   private static final Logger log = LoggerFactory.getLogger(DeferredSchemaCache.class);
 

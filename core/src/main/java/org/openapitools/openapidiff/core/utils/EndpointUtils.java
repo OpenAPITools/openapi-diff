@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import org.openapitools.openapidiff.core.model.Endpoint;
 
-/** Created by adarsh.sharma on 26/12/17. */
 public class EndpointUtils {
   public static Collection<? extends Endpoint> convert2Endpoints(
       String pathUrl, Map<PathItem.HttpMethod, Operation> map) {

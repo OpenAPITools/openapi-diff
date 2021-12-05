@@ -13,7 +13,6 @@ import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
-/** Created by adarsh.sharma on 28/12/17. */
 public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedResponse> {
   private static final RefPointer<ApiResponse> refPointer = new RefPointer<>(RefType.RESPONSES);
   private final OpenApiDiff openApiDiff;

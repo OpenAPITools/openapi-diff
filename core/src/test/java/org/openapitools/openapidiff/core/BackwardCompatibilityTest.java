@@ -5,7 +5,6 @@ import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardI
 
 import org.junit.jupiter.api.Test;
 
-/** Created by adarsh.sharma on 24/12/17. */
 public class BackwardCompatibilityTest {
   private final String OPENAPI_DOC1 = "backwardCompatibility/bc_1.yaml";
   private final String OPENAPI_DOC2 = "backwardCompatibility/bc_2.yaml";

@@ -5,7 +5,6 @@ import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiChangedEn
 
 import org.junit.jupiter.api.Test;
 
-/** Created by adarsh.sharma on 19/12/17. */
 public class AllOfDiffTest {
 
   private final String OPENAPI_DOC1 = "allOf_diff_1.yaml";

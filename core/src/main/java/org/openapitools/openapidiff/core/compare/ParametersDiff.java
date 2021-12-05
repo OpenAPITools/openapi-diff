@@ -14,11 +14,7 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
-/**
- * compare two parameter
- *
- * @author QDesrame
- */
+/** compare two parameter */
 public class ParametersDiff {
   private static final RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
 

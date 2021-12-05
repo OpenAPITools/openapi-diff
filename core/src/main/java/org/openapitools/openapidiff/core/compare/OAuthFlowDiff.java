@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.ChangedOAuthFlow;
 
-/** Created by adarsh.sharma on 12/01/18. */
 public class OAuthFlowDiff {
   private final OpenApiDiff openApiDiff;
 

@@ -13,7 +13,6 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
-/** Created by adarsh.sharma on 04/01/18. */
 public class ApiResponseDiff {
   private final OpenApiDiff openApiDiff;
 

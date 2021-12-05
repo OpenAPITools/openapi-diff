@@ -9,7 +9,6 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 
-/** Created by adarsh.sharma on 18/12/17. */
 public class ArraySchemaDiffResult extends SchemaDiffResult {
   public ArraySchemaDiffResult(OpenApiDiff openApiDiff) {
     super("array", openApiDiff);

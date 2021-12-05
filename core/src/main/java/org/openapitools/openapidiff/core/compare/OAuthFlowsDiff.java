@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.ChangedOAuthFlows;
 
-/** Created by adarsh.sharma on 12/01/18. */
 public class OAuthFlowsDiff {
   private final OpenApiDiff openApiDiff;
 

@@ -13,7 +13,6 @@ import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
 
-/** Created by adarsh.sharma on 11/01/18. */
 public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, ChangedSecurityScheme> {
   private final OpenApiDiff openApiDiff;
   private final Components leftComponents;

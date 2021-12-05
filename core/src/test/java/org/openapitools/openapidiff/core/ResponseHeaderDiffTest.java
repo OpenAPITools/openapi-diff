@@ -8,7 +8,6 @@ import org.openapitools.openapidiff.core.model.ChangedHeaders;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.ChangedResponse;
 
-/** Created by adarsh.sharma on 28/12/17. */
 public class ResponseHeaderDiffTest {
 
   private final String OPENAPI_DOC1 = "header_1.yaml";
