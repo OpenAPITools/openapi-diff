@@ -277,12 +277,6 @@ public class SchemaDiff {
     return ofNullable(schema).map(Schema::get$ref).orElse(null);
   }
 
-  @Deprecated
-  public DeferredChanged<ChangedSchema> diff(
-      HashSet<String> refSet, Schema left, Schema right, DiffContext context) {
-    return this.diff(new RecursiveSchemaSet(), left, right, context);
-  }
-
   public DeferredChanged<ChangedSchema> diff(Schema left, Schema right, DiffContext context) {
     return this.diff(new RecursiveSchemaSet(), left, right, context);
   }
