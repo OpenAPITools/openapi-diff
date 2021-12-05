@@ -13,6 +13,11 @@
     <name>openapi-diff-maven-example</name>
     <description>Example usage of maven plugin for openapi-diff</description>
 
+    <properties>
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
