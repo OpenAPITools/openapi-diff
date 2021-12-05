@@ -25,21 +25,18 @@ jobs:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
     - uses: actions/checkout@v2.4.0
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
         distribution: 'zulu'
         java-version: ${{ matrix.java_version }}
+        cache: 'maven'
         # Value of the distributionManagement/repository/id field of the pom.xml
         server-id: sonatype-nexus-snapshots
         server-username: OSS_USERNAME
         server-password: OSS_PASSWORD
-    - uses: actions/cache@v2.1.7
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
     - name: Cache SonarCloud packages
       uses: actions/cache@v2.1.7
       if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '11' }}
