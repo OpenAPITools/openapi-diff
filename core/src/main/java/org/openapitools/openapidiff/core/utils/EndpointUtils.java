@@ -9,10 +9,15 @@ import java.util.Map;
 import org.openapitools.openapidiff.core.model.Endpoint;
 
 public class EndpointUtils {
-  public static Collection<? extends Endpoint> convert2Endpoints(
+
+  private EndpointUtils() {}
+
+  public static Collection<Endpoint> convert2Endpoints(
       String pathUrl, Map<PathItem.HttpMethod, Operation> map) {
     List<Endpoint> endpoints = new ArrayList<>();
-    if (null == map) return endpoints;
+    if (null == map) {
+      return endpoints;
+    }
     for (Map.Entry<PathItem.HttpMethod, Operation> entry : map.entrySet()) {
       PathItem.HttpMethod httpMethod = entry.getKey();
       Operation operation = entry.getValue();
@@ -34,7 +39,9 @@ public class EndpointUtils {
 
   public static List<Endpoint> convert2EndpointList(Map<String, PathItem> map) {
     List<Endpoint> endpoints = new ArrayList<>();
-    if (null == map) return endpoints;
+    if (null == map) {
+      return endpoints;
+    }
     for (Map.Entry<String, PathItem> entry : map.entrySet()) {
       String url = entry.getKey();
       PathItem path = entry.getValue();

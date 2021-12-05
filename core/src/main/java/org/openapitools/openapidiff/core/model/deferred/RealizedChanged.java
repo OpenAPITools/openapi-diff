@@ -45,7 +45,7 @@ public class RealizedChanged<T> implements DeferredChanged<T> {
   }
 
   public <Q> DeferredChanged<Q> map(Function<Optional<T>, Q> function) {
-    return new RealizedChanged<Q>(function.apply(this.value));
+    return new RealizedChanged<>(function.apply(this.value));
   }
 
   @Override

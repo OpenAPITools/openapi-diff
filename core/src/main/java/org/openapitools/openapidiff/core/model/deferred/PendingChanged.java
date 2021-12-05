@@ -77,7 +77,7 @@ public class PendingChanged<T> implements DeferredChanged<T> {
   }
 
   public <Q> DeferredChanged<Q> map(Function<Optional<T>, Q> function) {
-    return mapOptional((v) -> Optional.ofNullable(function.apply(v)));
+    return mapOptional(v -> Optional.ofNullable(function.apply(v)));
   }
 
   public <Q> DeferredChanged<Q> mapOptional(Function<Optional<T>, Optional<Q>> function) {
@@ -94,7 +94,7 @@ public class PendingChanged<T> implements DeferredChanged<T> {
       log.debug("map deferred {} ? -> ?", function);
       deferredCounter.incrementAndGet();
       whenSet(
-          (value) -> {
+          value -> {
             Optional<Q> result = function.apply(this.valueOptional);
             log.debug(
                 "map resolved {} {} -> {}",
@@ -114,7 +114,7 @@ public class PendingChanged<T> implements DeferredChanged<T> {
       log.debug("flat map deferred {} {} -> ?", function, DeferredLogger.logValue(this.value));
       deferredCounter.incrementAndGet();
       nextDeferred.whenSet(
-          (nextValue) -> {
+          nextValue -> {
             log.debug(
                 "flat map resolved {} {} -> {}",
                 function,
@@ -128,10 +128,10 @@ public class PendingChanged<T> implements DeferredChanged<T> {
       log.debug("flat map deferred {} ? -> ?", function);
       deferredCounter.incrementAndGet();
       whenSet(
-          (value) -> {
+          value -> {
             DeferredChanged<Q> nextDeferred = function.apply(value);
             nextDeferred.whenSet(
-                (nextValue) -> {
+                nextValue -> {
                   log.debug(
                       "flat map deferred {} {} -> {}",
                       function,

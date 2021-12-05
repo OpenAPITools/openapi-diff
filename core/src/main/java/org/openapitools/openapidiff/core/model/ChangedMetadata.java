@@ -14,8 +14,6 @@ public class ChangedMetadata implements Changed {
     return DiffResult.METADATA;
   }
 
-  public ChangedMetadata() {}
-
   public String getLeft() {
     return this.left;
   }

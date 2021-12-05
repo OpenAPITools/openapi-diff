@@ -149,10 +149,8 @@ public class ChangedSchema implements ComposedChanged {
   }
 
   private boolean compatibleForRequest() {
-    if (PathItem.HttpMethod.PUT.equals(context.getMethod())) {
-      if (increasedProperties.size() > 0) {
-        return false;
-      }
+    if (PathItem.HttpMethod.PUT.equals(context.getMethod()) && !increasedProperties.isEmpty()) {
+      return false;
     }
     return (oldSchema != null || newSchema == null);
   }

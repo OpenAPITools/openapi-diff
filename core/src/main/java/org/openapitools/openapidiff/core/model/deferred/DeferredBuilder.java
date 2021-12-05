@@ -68,10 +68,10 @@ public class DeferredBuilder<T> implements Consumer<DeferredChanged<T>> {
 
     IntStream.range(0, deferredValues.size())
         .forEach(
-            (i) -> {
+            i -> {
               DeferredChanged<? extends T> deferredItem = deferredValues.get(i);
               deferredItem.whenSet(
-                  (value) -> {
+                  value -> {
                     values[i] = value;
                     log.debug(
                         "Collected deferred item set this={}, item={}, values = {}",
@@ -92,7 +92,7 @@ public class DeferredBuilder<T> implements Consumer<DeferredChanged<T>> {
   }
 
   public <V extends Changed> DeferredChanged<V> buildIsChanged(V changed) {
-    return build().flatMap((values) -> (DeferredChanged<V>) DeferredChanged.of(isChanged(changed)));
+    return build().flatMap(values -> (DeferredChanged<V>) DeferredChanged.of(isChanged(changed)));
   }
 
   private static boolean isFull(Object[] values) {

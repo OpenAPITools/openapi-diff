@@ -86,7 +86,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
         }
 
         discriminatorChangedBuilder.whenSet(
-            (composedSchemas) ->
+            composedSchemas ->
                 changedSchema.setOneOfSchema(
                     new ChangedOneOfSchema(leftMapping, rightMapping, context)
                         .setIncreased(mappingDiff.getIncreased())
@@ -97,8 +97,7 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
       return discriminatorChangedBuilder
           .build()
           .flatMap(
-              (values) ->
-                  super.diff(refSet, leftComponents, rightComponents, left, right, context));
+              values -> super.diff(refSet, leftComponents, rightComponents, left, right, context));
     } else {
       return openApiDiff.getSchemaDiff().getTypeChangedSchema(left, right, context);
     }

@@ -34,10 +34,10 @@ public class ResponseDiff extends ReferenceDiffCache<ApiResponse, ChangedRespons
   public DeferredChanged<ChangedResponse> diff(
       ApiResponse left, ApiResponse right, DiffContext context) {
     if (left == null && right == null) {
-      return new RealizedChanged(Optional.empty());
+      return new RealizedChanged<>(Optional.empty());
     }
     if ((left == null && right != null) || (left != null && right == null)) {
-      return new RealizedChanged(Optional.of(new ChangedResponse(left, right, context)));
+      return new RealizedChanged<>(Optional.of(new ChangedResponse(left, right, context)));
     }
     return cachedDiff(new HashSet<>(), left, right, left.get$ref(), right.get$ref(), context);
   }

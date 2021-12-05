@@ -9,8 +9,9 @@ import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ComposedChanged;
 
 public class DeferredLogger {
+  private DeferredLogger() {}
 
-  public static <T> Object logValue(Object value) {
+  public static Object logValue(Object value) {
     return new Object() {
       public String toString() {
         return valueToString(value);
@@ -19,7 +20,7 @@ public class DeferredLogger {
   }
 
   public static String optionalToString(Optional<?> value) {
-    return value.map((v) -> "Optional[" + valueToString(v) + "]").orElse("Optional[empty]");
+    return value.map(v -> "Optional[" + valueToString(v) + "]").orElse("Optional[empty]");
   }
 
   public static String changedToString(Changed value) {

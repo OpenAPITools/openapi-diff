@@ -16,8 +16,6 @@ public class Endpoint {
     return method + " " + pathUrl;
   }
 
-  public Endpoint() {}
-
   public String getPathUrl() {
     return this.pathUrl;
   }

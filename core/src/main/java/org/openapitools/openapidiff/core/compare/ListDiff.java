@@ -4,6 +4,8 @@ import org.openapitools.openapidiff.core.model.ChangedList;
 
 public class ListDiff {
 
+  private ListDiff() {}
+
   public static <K extends ChangedList<X>, X> K diff(K instance) {
     if (instance.getOldValue() == null && instance.getNewValue() == null) {
       return instance;

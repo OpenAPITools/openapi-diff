@@ -1,12 +1,15 @@
 package org.openapitools.openapidiff.core.model.deferred;
 
 import io.swagger.v3.oas.models.media.Schema;
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.stream.Collectors;
 import org.openapitools.openapidiff.core.compare.CacheKey;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
-import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +87,7 @@ public class DeferredSchemaCache {
                     operation.refSet, operation.left, operation.right, key.getContext());
         operation.processed = true;
         realValue.whenSet(
-            (value) -> {
+            value -> {
               log.debug("Schema processed {} {}", key, DeferredLogger.logValue(value));
               operation.diffResult.setValue(value);
             });
@@ -103,18 +106,5 @@ public class DeferredSchemaCache {
         .filter(op -> op.processed && op.diffResult.isPresent())
         .map(op -> op.diffResult.get())
         .collect(Collectors.toList());
-  }
-
-  private static class DeferredOperation<T extends Changed> {
-    private final PendingChanged<T> pending = new PendingChanged<>();
-    private final Supplier<Optional<T>> supplier;
-
-    public DeferredOperation(Supplier<Optional<T>> supplier) {
-      this.supplier = supplier;
-    }
-
-    public void process() {
-      pending.setValue(supplier.get());
-    }
   }
 }

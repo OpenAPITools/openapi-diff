@@ -45,8 +45,6 @@ public class ChangedOpenApi implements ComposedChanged {
     return DiffResult.INCOMPATIBLE;
   }
 
-  public ChangedOpenApi() {}
-
   public OpenAPI getOldSpecOpenApi() {
     return this.oldSpecOpenApi;
   }

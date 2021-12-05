@@ -34,6 +34,7 @@ import j2html.tags.specialized.OlTag;
 import j2html.tags.specialized.UlTag;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.ChangedApiResponse;
 import org.openapitools.openapidiff.core.model.ChangedContent;
@@ -52,7 +53,10 @@ import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
 public class HtmlRender implements Render {
+
   private static final RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
+  public static final String COMMENT = "comment";
+  public static final String MISSING = "missing";
 
   private final String title;
   private final String linkCss;
@@ -193,14 +197,14 @@ public class HtmlRender implements Render {
     Map<String, ApiResponse> delResponses = changedApiResponse.getMissing();
     Map<String, ChangedResponse> changedResponses = changedApiResponse.getChanged();
     UlTag ul = ul().withClass("change response");
-    for (String propName : addResponses.keySet()) {
-      ul.with(li_addResponse(propName, addResponses.get(propName)));
+    for (Entry<String, ApiResponse> prop : addResponses.entrySet()) {
+      ul.with(li_addResponse(prop.getKey(), prop.getValue()));
     }
-    for (String propName : delResponses.keySet()) {
-      ul.with(li_missingResponse(propName, delResponses.get(propName)));
+    for (Entry<String, ApiResponse> prop : delResponses.entrySet()) {
+      ul.with(li_missingResponse(prop.getKey(), prop.getValue()));
     }
-    for (String propName : changedResponses.keySet()) {
-      ul.with(li_changedResponse(propName, changedResponses.get(propName)));
+    for (Entry<String, ChangedResponse> prop : changedResponses.entrySet()) {
+      ul.with(li_changedResponse(prop.getKey(), prop.getValue()));
     }
     return ul;
   }
@@ -209,14 +213,14 @@ public class HtmlRender implements Render {
     return li().withText(String.format("New response : [%s]", name))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
-                .withClass("comment"));
+                .withClass(COMMENT));
   }
 
   private LiTag li_missingResponse(String name, ApiResponse response) {
     return li().withText(String.format("Deleted response : [%s]", name))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
-                .withClass("comment"));
+                .withClass(COMMENT));
   }
 
   private LiTag li_changedResponse(String name, ChangedResponse response) {
@@ -226,7 +230,7 @@ public class HtmlRender implements Render {
                         || null == response.getNewApiResponse().getDescription())
                     ? ""
                     : ("//" + response.getNewApiResponse().getDescription()))
-                .withClass("comment"))
+                .withClass(COMMENT))
         .with(ul_request(response.getContent()));
   }
 
@@ -320,7 +324,7 @@ public class HtmlRender implements Render {
   }
 
   protected void property(ContainerTag<?> output, String name, String title, String type) {
-    output.with(p(String.format("%s: %s (%s)", title, name, type)).withClass("missing"));
+    output.with(p(String.format("%s: %s (%s)", title, name, type)).withClass(MISSING));
   }
 
   protected Schema<?> resolve(Schema<?> schema) {
@@ -361,21 +365,21 @@ public class HtmlRender implements Render {
     return li().withText("Add " + param.getName() + " in " + param.getIn())
         .with(
             span(null == param.getDescription() ? "" : ("//" + param.getDescription()))
-                .withClass("comment"));
+                .withClass(COMMENT));
   }
 
   private LiTag li_missingParam(Parameter param) {
-    return li().withClass("missing")
+    return li().withClass(MISSING)
         .with(span("Delete"))
         .with(del(param.getName()))
         .with(span("in ").withText(param.getIn()))
         .with(
             span(null == param.getDescription() ? "" : ("//" + param.getDescription()))
-                .withClass("comment"));
+                .withClass(COMMENT));
   }
 
   private LiTag li_deprecatedParam(ChangedParameter param) {
-    return li().withClass("missing")
+    return li().withClass(MISSING)
         .with(span("Deprecated"))
         .with(del(param.getName()))
         .with(span("in ").withText(param.getIn()))
@@ -383,7 +387,7 @@ public class HtmlRender implements Render {
             span(null == param.getNewParameter().getDescription()
                     ? ""
                     : ("//" + param.getNewParameter().getDescription()))
-                .withClass("comment"));
+                .withClass(COMMENT));
   }
 
   private LiTag li_changedParam(ChangedParameter changeParam) {
@@ -403,9 +407,9 @@ public class HtmlRender implements Render {
     }
     if (changeDescription) {
       li.withText(" Notes ")
-          .with(del(leftParam.getDescription()).withClass("comment"))
+          .with(del(leftParam.getDescription()).withClass(COMMENT))
           .withText(" change into ")
-          .with(span(rightParam.getDescription()).withClass("comment"));
+          .with(span(rightParam.getDescription()).withClass(COMMENT));
     }
     return li;
   }

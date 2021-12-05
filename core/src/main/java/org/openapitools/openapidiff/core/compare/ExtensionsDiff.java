@@ -58,17 +58,16 @@ public class ExtensionsDiff {
     left = copyMap(left);
     right = copyMap(right);
     ChangedExtensions changedExtensions = new ChangedExtensions(left, copyMap(right), context);
-    for (String key : left.keySet()) {
-      Object leftValue = left.get(key);
-      if (right.containsKey(key)) {
-        Object rightValue = right.remove(key);
-        executeExtensionDiff(key, Change.changed(leftValue, rightValue), context)
+    for (Map.Entry<String, Object> entry : left.entrySet()) {
+      if (right.containsKey(entry.getKey())) {
+        Object rightValue = right.remove(entry.getKey());
+        executeExtensionDiff(entry.getKey(), Change.changed(entry.getValue(), rightValue), context)
             .filter(Changed::isDifferent)
-            .ifPresent(changed -> changedExtensions.getChanged().put(key, changed));
+            .ifPresent(changed -> changedExtensions.getChanged().put(entry.getKey(), changed));
       } else {
-        executeExtensionDiff(key, Change.removed(leftValue), context)
+        executeExtensionDiff(entry.getKey(), Change.removed(entry.getValue()), context)
             .filter(Changed::isDifferent)
-            .ifPresent(changed -> changedExtensions.getMissing().put(key, changed));
+            .ifPresent(changed -> changedExtensions.getMissing().put(entry.getKey(), changed));
       }
     }
     right.forEach(

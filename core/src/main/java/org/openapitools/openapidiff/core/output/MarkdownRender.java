@@ -22,27 +22,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MarkdownRender implements Render {
-  public static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownRender.class);
+  private static final String H3 = "### ";
+  private static final String H4 = "#### ";
+  private static final String H5 = "##### ";
+  private static final String H6 = "###### ";
+  private static final String BLOCKQUOTE = "> ";
+  private static final String CODE = "`";
+  private static final String PRE_CODE = "    ";
+  private static final String PRE_LI = "    ";
+  private static final String LI = "* ";
+  private static final String HR = "---\n";
 
   protected RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
-  protected final String H3 = "### ";
-  protected final String H4 = "#### ";
-  protected final String H5 = "##### ";
-  protected final String H6 = "###### ";
-  protected final String BLOCKQUOTE = "> ";
-  protected final String CODE = "`";
-  protected final String PRE_CODE = "    ";
-  protected final String PRE_LI = "    ";
-  protected final String LI = "* ";
-  protected final String HR = "---\n";
   protected ChangedOpenApi diff;
   /**
-   * A paramater which indicates whether or not metadata (summary and metadata) changes should be
+   * A parameter which indicates whether or not metadata (summary and metadata) changes should be
    * logged in the changelog file.
    */
   protected boolean showChangedMetadata;
-
-  public MarkdownRender() {}
 
   public String render(ChangedOpenApi diff) {
     this.diff = diff;
@@ -271,7 +269,7 @@ public class MarkdownRender implements Render {
 
   protected String required(int deepness, String title, List<String> required) {
     StringBuilder sb = new StringBuilder();
-    if (required.size() > 0) {
+    if (!required.isEmpty()) {
       sb.append(format("%s%s:\n", indent(deepness), title));
       required.forEach(s -> sb.append(format("%s- `%s`\n", indent(deepness), s)));
       sb.append("\n");
@@ -431,7 +429,7 @@ public class MarkdownRender implements Render {
 
   protected <T> String listItem(int deepness, String name, List<T> list) {
     StringBuilder sb = new StringBuilder();
-    if (list != null && list.size() > 0) {
+    if (list != null && !list.isEmpty()) {
       sb.append(format("%s%s value%s:\n\n", indent(deepness), name, list.size() > 1 ? "s" : ""));
       list.forEach(p -> sb.append(format("%s* `%s`\n", indent(deepness), p)));
     }
@@ -525,7 +523,7 @@ public class MarkdownRender implements Render {
 
   protected String blockquote(String beginning, String text) {
     String blockquote = blockquote(beginning);
-    return blockquote + text.trim().replaceAll("\n", "\n" + blockquote) + '\n';
+    return blockquote + text.trim().replace("\n", "\n" + blockquote) + '\n';
   }
 
   protected String type(Schema<?> schema) {
@@ -552,7 +550,7 @@ public class MarkdownRender implements Render {
   }
 
   /**
-   * A paramater which indicates whether or not metadata (summary and metadata) changes should be
+   * A parameter which indicates whether or not metadata (summary and metadata) changes should be
    * logged in the changelog file.
    */
   public boolean isShowChangedMetadata() {
@@ -560,7 +558,7 @@ public class MarkdownRender implements Render {
   }
 
   /**
-   * A paramater which indicates whether or not metadata (summary and metadata) changes should be
+   * A parameter which indicates whether or not metadata (summary and metadata) changes should be
    * logged in the changelog file.
    */
   public void setShowChangedMetadata(final boolean showChangedMetadata) {

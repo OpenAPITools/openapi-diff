@@ -10,7 +10,6 @@ import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

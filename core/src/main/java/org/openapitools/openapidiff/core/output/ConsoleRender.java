@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
@@ -109,8 +110,8 @@ public class ConsoleRender implements Render {
     for (String propName : delResponses.keySet()) {
       sb.append(itemResponse("Deleted ", propName));
     }
-    for (String propName : changedResponses.keySet()) {
-      sb.append(itemChangedResponse("Changed ", propName, changedResponses.get(propName)));
+    for (Entry<String, ChangedResponse> entry : changedResponses.entrySet()) {
+      sb.append(itemChangedResponse("Changed ", entry.getKey(), entry.getValue()));
     }
     return sb.toString();
   }
@@ -223,7 +224,7 @@ public class ConsoleRender implements Render {
   }
 
   protected String property(String name, String title, String type) {
-    return String.format("%s%s: %s (%s)\n", StringUtils.repeat(' ', 10), title, name, type);
+    return String.format("%s%s: %s (%s)%n", StringUtils.repeat(' ', 10), title, name, type);
   }
 
   protected Schema<?> resolve(Schema<?> schema) {

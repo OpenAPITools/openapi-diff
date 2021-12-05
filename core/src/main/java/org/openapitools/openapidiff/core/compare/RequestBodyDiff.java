@@ -29,8 +29,8 @@ public class RequestBodyDiff extends ReferenceDiffCache<RequestBody, ChangedRequ
 
   public DeferredChanged<ChangedRequestBody> diff(
       RequestBody left, RequestBody right, DiffContext context) {
-    String leftRef = left != null ? left.get$ref() : null,
-        rightRef = right != null ? right.get$ref() : null;
+    String leftRef = left != null ? left.get$ref() : null;
+    String rightRef = right != null ? right.get$ref() : null;
     return cachedDiff(new HashSet<>(), left, right, leftRef, rightRef, context);
   }
 

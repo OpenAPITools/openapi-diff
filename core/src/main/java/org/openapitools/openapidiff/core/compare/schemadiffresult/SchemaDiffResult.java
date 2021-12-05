@@ -95,7 +95,7 @@ public class SchemaDiffResult {
     changedSchema
         .getMissingProperties()
         .putAll(filterProperties(Change.Type.REMOVED, propertyDiff.getMissing(), context));
-    return builder.build().mapOptional((values) -> isApplicable(context));
+    return builder.build().mapOptional(values -> isApplicable(context));
   }
 
   protected Optional<ChangedSchema> isApplicable(DiffContext context) {
@@ -165,7 +165,7 @@ public class SchemaDiffResult {
         builder
             .with(addPropChangedSchemaOP)
             .whenSet(
-                (optional) -> {
+                optional -> {
                   ChangedSchema apc = optional.orElse(apChangedSchema);
                   isChanged(apc).ifPresent(changedSchema::setAddProp);
                 });

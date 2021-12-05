@@ -28,7 +28,7 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
     DeferredChanged<ChangedSchema> superSchemaDiff =
         super.diff(refSet, leftComponents, rightComponents, left, right, context)
             .flatMap(
-                (changeSchemaOptional) -> {
+                changeSchemaOptional -> {
                   DeferredChanged<ChangedSchema> itemsDiff =
                       openApiDiff
                           .getSchemaDiff()

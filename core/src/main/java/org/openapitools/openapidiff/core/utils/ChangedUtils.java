@@ -5,6 +5,8 @@ import org.openapitools.openapidiff.core.model.Changed;
 
 public class ChangedUtils {
 
+  private ChangedUtils() {}
+
   public static boolean isUnchanged(Changed changed) {
     return changed == null || changed.isUnchanged();
   }

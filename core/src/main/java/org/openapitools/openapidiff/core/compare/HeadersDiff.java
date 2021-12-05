@@ -36,7 +36,7 @@ public class HeadersDiff {
     return builder
         .build()
         .mapOptional(
-            (value) ->
+            value ->
                 isChanged(
                     new ChangedHeaders(left, right, context)
                         .setIncreased(headerMapDiff.getIncreased())

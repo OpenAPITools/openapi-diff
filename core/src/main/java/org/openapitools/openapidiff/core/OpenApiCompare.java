@@ -10,13 +10,14 @@ import org.openapitools.openapidiff.core.compare.OpenApiDiff;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class OpenApiCompare {
-
-  private static final OpenAPIParser openApiParser = new OpenAPIParser();
-  private static final ParseOptions options = new ParseOptions();
+  private static final OpenAPIParser PARSER = new OpenAPIParser();
+  private static final ParseOptions OPTIONS = new ParseOptions();
 
   static {
-    options.setResolve(true);
+    OPTIONS.setResolve(true);
   }
+
+  private OpenApiCompare() {}
 
   /**
    * compare two openapi doc
@@ -109,10 +110,10 @@ public class OpenApiCompare {
   }
 
   private static OpenAPI readContent(String content, List<AuthorizationValue> auths) {
-    return openApiParser.readContents(content, auths, options).getOpenAPI();
+    return PARSER.readContents(content, auths, OPTIONS).getOpenAPI();
   }
 
   private static OpenAPI readLocation(String location, List<AuthorizationValue> auths) {
-    return openApiParser.readLocation(location, auths, options).getOpenAPI();
+    return PARSER.readLocation(location, auths, OPTIONS).getOpenAPI();
   }
 }

@@ -48,7 +48,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
             context);
 
     return changedSecuritySchemeOpt.map(
-        (changedSecuritySchemeOptional) -> {
+        changedSecuritySchemeOptional -> {
           ChangedSecurityScheme changedSecurityScheme =
               changedSecuritySchemeOptional.orElse(
                   new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme));

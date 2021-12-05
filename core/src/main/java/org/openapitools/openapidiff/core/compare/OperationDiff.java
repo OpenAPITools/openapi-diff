@@ -93,7 +93,7 @@ public class OperationDiff {
                       newOperation.getResponses(),
                       context.copyAsResponse()))
           .ifPresent(
-              (responses) -> {
+              responses -> {
                 log.debug(
                     "operation "
                         + changedOperation.getPathUrl()
@@ -129,7 +129,7 @@ public class OperationDiff {
     return builder
         .build()
         .mapOptional(
-            (value) -> {
+            value -> {
               Optional<ChangedOperation> changed = isChanged(changedOperation);
               log.debug(
                   "Is changed operation "

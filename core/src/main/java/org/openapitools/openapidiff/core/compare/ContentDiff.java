@@ -30,7 +30,7 @@ public class ContentDiff {
 
     sharedMediaTypes.stream()
         .forEach(
-            (mediaTypeKey) -> {
+            mediaTypeKey -> {
               MediaType oldMediaType = left.get(mediaTypeKey);
               MediaType newMediaType = right.get(mediaTypeKey);
 
@@ -46,7 +46,7 @@ public class ContentDiff {
                               newMediaType.getSchema(),
                               context.copyWithRequired(true)))
                   .ifPresent(
-                      (value) -> {
+                      value -> {
                         changedMediaType.setSchema(value);
                         if (!isUnchanged(changedMediaType)) {
                           changedMediaTypes.put(mediaTypeKey, changedMediaType);
@@ -57,7 +57,7 @@ public class ContentDiff {
     return builder
         .build()
         .mapOptional(
-            (value) ->
+            value ->
                 isChanged(
                     new ChangedContent(left, right, context)
                         .setIncreased(mediaTypeDiff.getIncreased())
