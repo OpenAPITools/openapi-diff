@@ -1,6 +1,7 @@
 package org.openapitools.openapidiff.core;
 
 import org.junit.jupiter.api.Test;
+import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiAreEquals;
 import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardCompatible;
 
 class EnumDiffTest {
