@@ -1,10 +1,13 @@
 package org.openapitools.openapidiff.core.compare;
 
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedPaths;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -50,7 +53,7 @@ public class PathsDiff {
                       .filter(item -> normalizePath(item.getKey()).equals(template))
                       .min(
                           (a, b) -> {
-                            if (methodsIntersect(a.getValue(), b.getValue())) {
+                            if (methodsAndParametersIntersect(a.getValue(), b.getValue())) {
                               throw new IllegalArgumentException(
                                   "Two path items have the same signature: " + template);
                             }
@@ -99,13 +102,40 @@ public class PathsDiff {
     return path;
   }
 
-  private static boolean methodsIntersect(PathItem a, PathItem b) {
+  /**
+   *
+   * @param a a path form the open api spec
+   * @param b another path from the same open api spec
+   * @return <code>true</code> in case both paths are of the same method AND their templated parameters are of the same type;
+   * <code>false</code> otherwise
+   *
+   */
+  private static boolean methodsAndParametersIntersect(PathItem a, PathItem b) {
     Set<PathItem.HttpMethod> methodsA = a.readOperationsMap().keySet();
     for (PathItem.HttpMethod method : b.readOperationsMap().keySet()) {
       if (methodsA.contains(method)) {
-        return true;
+        Operation left = a.readOperationsMap().get(method);
+        Operation right = b.readOperationsMap().get(method);
+        if (left.getParameters().size() == right.getParameters().size()) {
+          return parametersIntersect(left.getParameters(), right.getParameters());
+        }
+        return false;
       }
     }
     return false;
+  }
+
+  /**
+   *
+   * @param left parameters from the first compared method
+   * @param right parameters from the second compared method
+   * @return <code>true</code> in case each parameter pair is of the same type; <code>false</code> otherwise
+   */
+  private static boolean parametersIntersect(List<Parameter> left, List<Parameter> right) {;
+    int parametersSize = left.size();
+    long intersectedParameters = IntStream.range(0, left.size())
+            .filter(i -> left.get(i).getSchema().getType().equals(right.get(i).getSchema().getType()))
+            .count();
+    return parametersSize == intersectedParameters;
   }
 }

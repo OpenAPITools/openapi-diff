@@ -1,0 +1,52 @@
+openapi: 3.0.2
+info:
+  title: Projects API
+  version: 1.0.0
+paths:
+  /projects/{id}:
+    get:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleResponse'
+  /projects/{uid}:
+    get:
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleResponse'
+components:
+  schemas:
+    SampleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        uid:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - uid
+        - name
