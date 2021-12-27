@@ -1,5 +1,6 @@
 package org.openapitools.openapidiff.cli;
 
+import ch.qos.logback.classic.Level;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +16,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
@@ -157,7 +156,9 @@ public class Main {
       if (line.hasOption("state")) {
         logLevel = "OFF";
       }
-      LogManager.getRootLogger().setLevel(Level.toLevel(logLevel));
+      ch.qos.logback.classic.Logger root =
+          (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+      root.setLevel(Level.toLevel(logLevel));
 
       if (line.getArgList().size() < 2) {
         throw new ParseException("Missing arguments");
