@@ -1,11 +1,13 @@
 package org.openapitools.openapidiff.core.output;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class JsonRender implements Render {
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper =
+      new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
   @Override
   public String render(ChangedOpenApi diff) {
