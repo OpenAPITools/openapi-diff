@@ -13,7 +13,6 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.model.*;
 import org.openapitools.openapidiff.core.utils.RefPointer;
@@ -156,7 +155,7 @@ public class MarkdownRender implements Render {
     StringBuilder sb = new StringBuilder();
     String status = "";
     if (!code.equals("default")) {
-      status = HttpStatus.getStatusText(Integer.parseInt(code));
+      status = HttpStatus.getReasonPhrase(Integer.parseInt(code));
     }
     sb.append(format("%s : **%s %s**\n", title, code, status));
     sb.append(metadata(description));
