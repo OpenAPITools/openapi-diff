@@ -154,6 +154,16 @@ public class SchemaDiff {
       }
       schema.getExtensions().putAll(fromSchema.getExtensions());
     }
+    if (fromSchema instanceof ComposedSchema && schema instanceof ComposedSchema) {
+      ComposedSchema composedFromSchema = (ComposedSchema) fromSchema;
+      ComposedSchema composedSchema = (ComposedSchema) schema;
+      if (composedFromSchema.getOneOf() != null) {
+        if (composedSchema.getOneOf() == null) {
+          composedSchema.setOneOf(new ArrayList<>());
+        }
+        composedSchema.getOneOf().addAll(composedFromSchema.getOneOf());
+      }
+    }
     if (fromSchema.getDiscriminator() != null) {
       if (schema.getDiscriminator() == null) {
         schema.setDiscriminator(new Discriminator());
