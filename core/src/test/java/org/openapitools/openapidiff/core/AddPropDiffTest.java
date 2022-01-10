@@ -1,7 +1,7 @@
 package org.openapitools.openapidiff.core;
 
 import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiAreEquals;
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardCompatible;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +16,6 @@ public class AddPropDiffTest {
 
   @Test
   public void testDiffDifferent() {
-    assertOpenApiBackwardIncompatible(OPENAPI_DOC1, OPENAPI_DOC2);
+    assertOpenApiBackwardCompatible(OPENAPI_DOC1, OPENAPI_DOC2, true);
   }
 }
