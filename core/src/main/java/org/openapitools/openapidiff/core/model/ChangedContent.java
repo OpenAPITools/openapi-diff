@@ -31,7 +31,7 @@ public class ChangedContent implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (context.isRequest() && missing.isEmpty() || context.isResponse() && increased.isEmpty()) {
+    if (context.isRequest() && missing.isEmpty() || context.isResponse() && missing.isEmpty()) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;
