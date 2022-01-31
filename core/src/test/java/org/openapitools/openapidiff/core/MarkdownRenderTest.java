@@ -14,4 +14,11 @@ public class MarkdownRenderTest {
         OpenApiCompare.fromLocations("missing_property_1.yaml", "missing_property_2.yaml");
     assertThat(render.render(diff)).isNotBlank();
   }
+
+  @Test
+  public void renderDoesNotCauseStackOverflowWithRecursiveDefinitions() {
+    MarkdownRender render = new MarkdownRender();
+    ChangedOpenApi diff = OpenApiCompare.fromLocations("recursive_old.yaml", "recursive_new.yaml");
+    assertThat(render.render(diff)).isNotBlank();
+  }
 }
