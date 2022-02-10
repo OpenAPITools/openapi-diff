@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.CollectionUtils;
 import org.openapitools.openapidiff.core.compare.MapKeyDiff;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
 import org.openapitools.openapidiff.core.model.ChangedOneOfSchema;
@@ -43,8 +42,8 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
       ComposedSchema rightComposedSchema = (ComposedSchema) right;
       DeferredBuilder<ChangedSchema> discriminatorChangedBuilder = new DeferredBuilder<>();
 
-      if (CollectionUtils.isNotEmpty(leftComposedSchema.getOneOf())
-          || CollectionUtils.isNotEmpty(rightComposedSchema.getOneOf())) {
+      if (leftComposedSchema.getDiscriminator() != null
+          || rightComposedSchema.getDiscriminator() != null) {
 
         Discriminator leftDis = leftComposedSchema.getDiscriminator();
         Discriminator rightDis = rightComposedSchema.getDiscriminator();
