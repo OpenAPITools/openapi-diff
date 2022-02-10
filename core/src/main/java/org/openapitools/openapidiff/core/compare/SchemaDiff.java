@@ -10,11 +10,13 @@ import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import org.openapitools.openapidiff.core.compare.schemadiffresult.ArraySchemaDiffResult;
 import org.openapitools.openapidiff.core.compare.schemadiffresult.ComposedSchemaDiffResult;
 import org.openapitools.openapidiff.core.compare.schemadiffresult.SchemaDiffResult;
@@ -79,7 +81,8 @@ public class SchemaDiff {
     }
   }
 
-  protected static Schema<?> resolveComposedSchema(Components components, Schema<?> schema) {
+  protected static Schema<?> resolveComposedSchema(
+      Components components, Schema<?> schema, Set<String> visitedRefs) {
     if (schema instanceof ComposedSchema) {
       ComposedSchema composedSchema = (ComposedSchema) schema;
       List<Schema> composedSchemas = new ArrayList<>();
@@ -89,9 +92,13 @@ public class SchemaDiff {
 
       if (!composedSchemas.isEmpty()) {
         for (Schema<?> composed : composedSchemas) {
-          composed = refPointer.resolveRef(components, composed, composed.get$ref());
-          composed = resolveComposedSchema(components, composed);
-          schema = addSchema(schema, composed);
+          if (composed.get$ref() == null || !visitedRefs.contains(composed.get$ref())) {
+            Set<String> updatedVisitedRefs = new HashSet<>(visitedRefs);
+            updatedVisitedRefs.add(composed.get$ref());
+            composed = refPointer.resolveRef(components, composed, composed.get$ref());
+            composed = resolveComposedSchema(components, composed, updatedVisitedRefs);
+            schema = addSchema(schema, composed);
+          }
         }
         composedSchema.setAllOf(null);
         composedSchema.setAnyOf(null);
@@ -322,8 +329,8 @@ public class SchemaDiff {
     left = refPointer.resolveRef(this.leftComponents, left, getSchemaRef(left));
     right = refPointer.resolveRef(this.rightComponents, right, getSchemaRef(right));
 
-    left = resolveComposedSchema(leftComponents, left);
-    right = resolveComposedSchema(rightComponents, right);
+    left = resolveComposedSchema(leftComponents, left, new HashSet<>());
+    right = resolveComposedSchema(rightComponents, right, new HashSet<>());
 
     // If type of schemas are different, just set old & new schema, set changedType to true in
     // SchemaDiffResult and
