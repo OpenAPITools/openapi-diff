@@ -87,7 +87,6 @@ public class SchemaDiff {
       ComposedSchema composedSchema = (ComposedSchema) schema;
       List<Schema> composedSchemas = new ArrayList<>();
       Optional.ofNullable(composedSchema.getAllOf()).ifPresent(composedSchemas::addAll);
-      Optional.ofNullable(composedSchema.getOneOf()).ifPresent(composedSchemas::addAll);
       Optional.ofNullable(composedSchema.getAnyOf()).ifPresent(composedSchemas::addAll);
 
       if (!composedSchemas.isEmpty()) {
@@ -102,7 +101,6 @@ public class SchemaDiff {
         }
         composedSchema.setAllOf(null);
         composedSchema.setAnyOf(null);
-        composedSchema.setOneOf(null);
       }
     }
     return schema;
@@ -166,6 +164,16 @@ public class SchemaDiff {
         schema.setExtensions(new LinkedHashMap<>());
       }
       schema.getExtensions().putAll(fromSchema.getExtensions());
+    }
+    if (fromSchema instanceof ComposedSchema && schema instanceof ComposedSchema) {
+      ComposedSchema composedFromSchema = (ComposedSchema) fromSchema;
+      ComposedSchema composedSchema = (ComposedSchema) schema;
+      if (composedFromSchema.getOneOf() != null) {
+        if (composedSchema.getOneOf() == null) {
+          composedSchema.setOneOf(new ArrayList<>());
+        }
+        composedSchema.getOneOf().addAll(composedFromSchema.getOneOf());
+      }
     }
     if (fromSchema.getDiscriminator() != null) {
       if (schema.getDiscriminator() == null) {
