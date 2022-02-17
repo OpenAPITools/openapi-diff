@@ -82,17 +82,24 @@ public class SchemaDiff {
   protected static Schema<?> resolveComposedSchema(Components components, Schema<?> schema) {
     if (schema instanceof ComposedSchema) {
       ComposedSchema composedSchema = (ComposedSchema) schema;
-      List<Schema> allOfSchemaList = composedSchema.getAllOf();
-      if (allOfSchemaList != null) {
-        for (Schema<?> allOfSchema : allOfSchemaList) {
-          allOfSchema = refPointer.resolveRef(components, allOfSchema, allOfSchema.get$ref());
-          allOfSchema = resolveComposedSchema(components, allOfSchema);
-          schema = addSchema(schema, allOfSchema);
-        }
-        composedSchema.setAllOf(null);
+      List<Schema> anyOrAllOfSchemaList = getAnyOrAllOf(composedSchema);
+      for (Schema<?> anyOrAllOfSchema : anyOrAllOfSchemaList) {
+        anyOrAllOfSchema =
+            refPointer.resolveRef(components, anyOrAllOfSchema, anyOrAllOfSchema.get$ref());
+        anyOrAllOfSchema = resolveComposedSchema(components, anyOrAllOfSchema);
+        schema = addSchema(schema, anyOrAllOfSchema);
       }
+      composedSchema.setAllOf(null);
+      composedSchema.setAnyOf(null);
     }
     return schema;
+  }
+
+  private static List<Schema> getAnyOrAllOf(ComposedSchema composedSchema) {
+    List<Schema> schemas = new ArrayList<>();
+    Optional.ofNullable(composedSchema.getAllOf()).ifPresent(schemas::addAll);
+    Optional.ofNullable(composedSchema.getAnyOf()).ifPresent(schemas::addAll);
+    return schemas;
   }
 
   protected static Schema<?> addSchema(Schema<?> schema, Schema<?> fromSchema) {
