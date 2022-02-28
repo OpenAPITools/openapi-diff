@@ -84,7 +84,7 @@
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
 
         <swagger-parser.version>2.0.28</swagger-parser.version>
-        <slf4j.version>1.7.32</slf4j.version>
+        <slf4j.version>1.7.33</slf4j.version>
     </properties>
 
     <dependencyManagement>
