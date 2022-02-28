@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.model.*;
 import org.openapitools.openapidiff.core.utils.RefPointer;
@@ -120,7 +119,7 @@ public class ConsoleRender implements Render {
     StringBuilder sb = new StringBuilder();
     String status = "";
     if (!code.equals("default")) {
-      status = HttpStatus.getStatusText(Integer.parseInt(code));
+      status = HttpStatus.getReasonPhrase(Integer.parseInt(code));
     }
     sb.append(StringUtils.repeat(' ', 4))
         .append("- ")

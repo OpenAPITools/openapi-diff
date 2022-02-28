@@ -15,7 +15,6 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2.4.0
       - name: Set up JDK 11
@@ -62,6 +61,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             openapitools/openapi-diff:${{ github.event.inputs.releaseVersion }}
             openapitools/openapi-diff:latest

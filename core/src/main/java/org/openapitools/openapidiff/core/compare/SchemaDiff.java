@@ -10,11 +10,13 @@ import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import org.openapitools.openapidiff.core.compare.schemadiffresult.ArraySchemaDiffResult;
 import org.openapitools.openapidiff.core.compare.schemadiffresult.ComposedSchemaDiffResult;
 import org.openapitools.openapidiff.core.compare.schemadiffresult.SchemaDiffResult;
@@ -79,17 +81,26 @@ public class SchemaDiff {
     }
   }
 
-  protected static Schema<?> resolveComposedSchema(Components components, Schema<?> schema) {
+  protected static Schema<?> resolveComposedSchema(
+      Components components, Schema<?> schema, Set<String> visitedRefs) {
     if (schema instanceof ComposedSchema) {
       ComposedSchema composedSchema = (ComposedSchema) schema;
-      List<Schema> allOfSchemaList = composedSchema.getAllOf();
-      if (allOfSchemaList != null) {
-        for (Schema<?> allOfSchema : allOfSchemaList) {
-          allOfSchema = refPointer.resolveRef(components, allOfSchema, allOfSchema.get$ref());
-          allOfSchema = resolveComposedSchema(components, allOfSchema);
-          schema = addSchema(schema, allOfSchema);
+      List<Schema> composedSchemas = new ArrayList<>();
+      Optional.ofNullable(composedSchema.getAllOf()).ifPresent(composedSchemas::addAll);
+      Optional.ofNullable(composedSchema.getAnyOf()).ifPresent(composedSchemas::addAll);
+
+      if (!composedSchemas.isEmpty()) {
+        for (Schema<?> composed : composedSchemas) {
+          if (composed.get$ref() == null || !visitedRefs.contains(composed.get$ref())) {
+            Set<String> updatedVisitedRefs = new HashSet<>(visitedRefs);
+            updatedVisitedRefs.add(composed.get$ref());
+            composed = refPointer.resolveRef(components, composed, composed.get$ref());
+            composed = resolveComposedSchema(components, composed, updatedVisitedRefs);
+            schema = addSchema(schema, composed);
+          }
         }
         composedSchema.setAllOf(null);
+        composedSchema.setAnyOf(null);
       }
     }
     return schema;
@@ -153,6 +164,16 @@ public class SchemaDiff {
         schema.setExtensions(new LinkedHashMap<>());
       }
       schema.getExtensions().putAll(fromSchema.getExtensions());
+    }
+    if (fromSchema instanceof ComposedSchema && schema instanceof ComposedSchema) {
+      ComposedSchema composedFromSchema = (ComposedSchema) fromSchema;
+      ComposedSchema composedSchema = (ComposedSchema) schema;
+      if (composedFromSchema.getOneOf() != null) {
+        if (composedSchema.getOneOf() == null) {
+          composedSchema.setOneOf(new ArrayList<>());
+        }
+        composedSchema.getOneOf().addAll(composedFromSchema.getOneOf());
+      }
     }
     if (fromSchema.getDiscriminator() != null) {
       if (schema.getDiscriminator() == null) {
@@ -316,8 +337,8 @@ public class SchemaDiff {
     left = refPointer.resolveRef(this.leftComponents, left, getSchemaRef(left));
     right = refPointer.resolveRef(this.rightComponents, right, getSchemaRef(right));
 
-    left = resolveComposedSchema(leftComponents, left);
-    right = resolveComposedSchema(rightComponents, right);
+    left = resolveComposedSchema(leftComponents, left, new HashSet<>());
+    right = resolveComposedSchema(rightComponents, right, new HashSet<>());
 
     // If type of schemas are different, just set old & new schema, set changedType to true in
     // SchemaDiffResult and

@@ -142,7 +142,7 @@ Add openapi-diff to your POM to show diffs when you test your Maven project. You
         <!-- Fail only if API changes broke backward compatibility (default: false) -->
         <failOnIncompatible>true</failOnIncompatible>
         <!-- Fail if API changed (default: false) -->
-        <failOnChanged>true</failOnIncompatible>
+        <failOnChanged>true</failOnChanged>
       </configuration>
     </execution>
   </executions>
