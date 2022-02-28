@@ -137,8 +137,13 @@ public class ChangedSchema implements ComposedChanged {
         && !discriminatorPropertyChanged) {
       return DiffResult.NO_CHANGES;
     }
+    boolean missingRequiredProperties =
+        oldSchema != null
+            && oldSchema.getRequired() != null
+            && missingProperties.keySet().stream()
+                .anyMatch(missingProperty -> oldSchema.getRequired().contains(missingProperty));
     boolean compatibleForResponse =
-        missingProperties.isEmpty() && (oldSchema == null || newSchema != null);
+        !missingRequiredProperties && (oldSchema == null || newSchema != null);
     if ((context.isRequest() && compatibleForRequest()
             || context.isResponse() && compatibleForResponse)
         && !changedType

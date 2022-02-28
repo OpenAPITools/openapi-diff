@@ -19,6 +19,7 @@ components:
   schemas:
     B:
       type: object
+      required: ["message2"]
       properties:
         message:
           type: string
