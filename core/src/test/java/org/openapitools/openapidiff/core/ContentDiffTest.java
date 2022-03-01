@@ -33,7 +33,7 @@ public class ContentDiffTest {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
             "content_type_response_add_1.yaml", "content_type_response_add_2.yaml");
-    assertThat(changedOpenApi.isCompatible()).isFalse();
+    assertThat(changedOpenApi.isCompatible()).isTrue();
   }
 
   @Test
@@ -41,7 +41,7 @@ public class ContentDiffTest {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
             "content_type_response_add_2.yaml", "content_type_response_add_1.yaml");
-    assertThat(changedOpenApi.isCompatible()).isTrue();
+    assertThat(changedOpenApi.isCompatible()).isFalse();
   }
 
   @Test
