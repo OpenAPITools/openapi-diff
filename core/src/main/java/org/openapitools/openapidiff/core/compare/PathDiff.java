@@ -36,8 +36,13 @@ public class PathDiff {
           .with(
               openApiDiff
                   .getOperationDiff()
-                  .diff(oldOperation, newOperation, context.copyWithMethod(method)))
-          .ifPresent(changedPath.getChanged()::add);
+                  .diff(oldOperation, newOperation,
+                          context.copyWithMethod(method).copyWithLeftRightUrls(
+                                  context.getLeftUrl(),
+                                  context.getRightUrl()
+                          )
+                  )
+          ).ifPresent(changedPath.getChanged()::add);
     }
     builder
         .with(

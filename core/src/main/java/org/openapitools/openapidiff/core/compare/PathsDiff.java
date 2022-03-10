@@ -85,6 +85,7 @@ public class PathsDiff {
                 DiffContext context = new DiffContext();
                 context.setUrl(url);
                 context.setParameters(params);
+                context.setLeftAndRightUrls(url, rightUrl);
                 builder
                     .with(openApiDiff.getPathDiff().diff(leftPath, rightPath, context))
                     .ifPresent(path -> changedPaths.getChanged().put(rightUrl, path));
@@ -131,7 +132,7 @@ public class PathsDiff {
    * @param right parameters from the second compared method
    * @return <code>true</code> in case each parameter pair is of the same type; <code>false</code> otherwise
    */
-  private static boolean parametersIntersect(List<Parameter> left, List<Parameter> right) {;
+  private static boolean parametersIntersect(List<Parameter> left, List<Parameter> right) {
     int parametersSize = left.size();
     long intersectedParameters = IntStream.range(0, left.size())
             .filter(i -> left.get(i).getSchema().getType().equals(right.get(i).getSchema().getType()))
