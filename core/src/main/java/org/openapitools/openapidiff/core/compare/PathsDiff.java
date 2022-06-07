@@ -130,7 +130,6 @@ public class PathsDiff {
    *     otherwise
    */
   private static boolean parametersIntersect(List<Parameter> left, List<Parameter> right) {
-    ;
     int parametersSize = left.size();
     long intersectedParameters =
         IntStream.range(0, left.size())
