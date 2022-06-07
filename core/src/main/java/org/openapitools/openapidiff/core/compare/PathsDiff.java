@@ -15,7 +15,7 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 
 public class PathsDiff {
-  private static final String REGEX_PATH = "\\{([^/]+)}";
+  private static final String REGEX_PATH = "\\{([^/{}]+)}";
   private final OpenApiDiff openApiDiff;
 
   public PathsDiff(OpenApiDiff openApiDiff) {
