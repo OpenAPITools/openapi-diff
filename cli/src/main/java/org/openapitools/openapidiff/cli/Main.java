@@ -196,9 +196,9 @@ public class Main {
       }
       if (line.hasOption("json")) {
         JsonRender jsonRender = new JsonRender();
-        String output = jsonRender.render(result);
         String outputFile = line.getOptionValue("json");
-        writeOutput(output, outputFile);
+        jsonRender.renderToFile(result, outputFile);
+        System.out.println("Succesfully wrote diff to output file");
       }
       if (line.hasOption("state")) {
         System.out.println(result.isChanged().getValue());
