@@ -49,6 +49,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.releaseVersion }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
