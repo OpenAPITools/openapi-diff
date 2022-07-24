@@ -3,14 +3,8 @@ info:
   title: Projects API
   version: 1.0.0
 paths:
-  /pet/{petId}:
+  /pet/:
     get:
-      parameters:
-        - name: petId
-          in: path
-          required: true
-          schema:
-            type: integer
       responses:
         "405":
           description: "Invalid input"
