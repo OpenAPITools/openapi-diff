@@ -1,0 +1,10 @@
+openapi: 3.0.0
+info:
+  title: Projects API
+  version: 1.0.0
+paths:
+  /pet/:
+    get:
+      responses:
+        "405":
+          description: "Invalid input"

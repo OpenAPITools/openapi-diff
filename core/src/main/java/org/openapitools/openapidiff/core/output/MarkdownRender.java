@@ -158,7 +158,7 @@ public class MarkdownRender implements Render {
   protected String itemResponse(String title, String code, String description) {
     StringBuilder sb = new StringBuilder();
     String status = "";
-    if (!code.equals("default")) {
+    if (!code.equals("default") && !code.matches("[1-5]XX")) {
       status = HttpStatus.getReasonPhrase(Integer.parseInt(code));
     }
     sb.append(format("%s : **%s %s**\n", title, code, status));
