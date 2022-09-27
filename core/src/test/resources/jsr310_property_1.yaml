@@ -1,0 +1,23 @@
+openapi: 3.0.1
+info:
+  title: Title
+  version: 1.0.0
+  description: Description
+paths:
+  /:
+    get:
+      summary: Simple GET
+      operationId: simpleGet
+      responses:
+        default:
+          description: Default response
+          content:
+            application/json:
+              schema:
+                properties:
+                  someDateTime:
+                    description: Date time
+                    example: 2021-11-03T13:50:47Z
+                    type: string
+                    format: date-time
+      description: Simple GET

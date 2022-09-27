@@ -8,8 +8,13 @@ import java.nio.file.Paths;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class JsonRender implements Render {
-  private final ObjectMapper objectMapper =
-      new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+  private final ObjectMapper objectMapper;
+
+  public JsonRender() {
+    objectMapper = new ObjectMapper();
+    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    objectMapper.findAndRegisterModules();
+  }
 
   @Override
   public String render(ChangedOpenApi diff) {
