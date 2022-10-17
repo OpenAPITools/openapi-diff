@@ -528,7 +528,7 @@ public class MarkdownRender implements Render {
 
   protected String blockquote(String beginning, String text) {
     String blockquote = blockquote(beginning);
-    return blockquote + text.trim().replace("\n", "\n" + blockquote) + '\n\n';
+    return blockquote + text.trim().replace("\n", "\n" + blockquote) + "\n\n";
   }
 
   protected String type(Schema<?> schema) {
