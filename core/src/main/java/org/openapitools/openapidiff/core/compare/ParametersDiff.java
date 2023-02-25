@@ -20,7 +20,8 @@ class ParametersDiffResult {
   protected DeferredChanged<ChangedParameters> deferredChanged;
   protected boolean sameOperationsDiffSchema;
 
-  public ParametersDiffResult(DeferredChanged<ChangedParameters> deferredChanged, boolean sameOperationsDiffSchema) {
+  public ParametersDiffResult(
+      DeferredChanged<ChangedParameters> deferredChanged, boolean sameOperationsDiffSchema) {
     this.deferredChanged = deferredChanged;
     this.sameOperationsDiffSchema = sameOperationsDiffSchema;
   }
@@ -57,7 +58,8 @@ public class ParametersDiff {
         && Objects.equals(left.getIn(), right.getIn());
   }
 
-  public ParametersDiffResult diff(List<Parameter> left, List<Parameter> right, DiffContext context) {
+  public ParametersDiffResult diff(
+      List<Parameter> left, List<Parameter> right, DiffContext context) {
     DeferredBuilder<Changed> builder = new DeferredBuilder<>();
     ChangedParameters changedParameters =
         new ChangedParameters(left, right != null ? new ArrayList<>(right) : null, context);
@@ -80,9 +82,8 @@ public class ParametersDiff {
     }
     changedParameters.getIncreased().addAll(right);
     return new ParametersDiffResult(
-            builder.buildIsChanged(changedParameters),
-            pathUnchangedParametersChanged(changedParameters, context)
-    );
+        builder.buildIsChanged(changedParameters),
+        pathUnchangedParametersChanged(changedParameters, context));
   }
 
   public boolean pathUnchangedParametersChanged(
@@ -93,7 +94,8 @@ public class ParametersDiff {
       return false;
     // Go through each missing Parameter and compare it to newly added Parameters
     for (Parameter parameter : changedParameters.getMissing()) {
-      // Speedy Check. Use the map already created in changedParameters to check if missing param is linked to newParam
+      // Speedy Check. Use the map already created in changedParameters to check if missing param is
+      // linked to newParam
       String newParameterName = context.getParameters().get(parameter.getName());
       if (newParameterName.isEmpty()) return false;
 
@@ -107,7 +109,8 @@ public class ParametersDiff {
       Parameter newParameterRealized = newParameter.get();
       newParameterRealized.setName(parameter.getName()); // Make names similar
       boolean samePathDifferentParameter = !newParameterRealized.equals(parameter);
-      newParameterRealized.setName(newParameterName); // Important:: MUST Reset the name as this is not a copy
+      newParameterRealized.setName(
+          newParameterName); // Important:: MUST Reset the name as this is not a copy
       return samePathDifferentParameter;
     }
     return false;
@@ -119,10 +122,11 @@ public class ParametersDiff {
     String newUrl = context.getRightUrl();
     ArrayList<String> oldUrlPathParams = matchedItems(oldUrl, REGEX_PATH);
     ArrayList<String> newUrlPathParams = matchedItems(newUrl, REGEX_PATH);
-    // Path Param count doesn't match or param-less path doesn't match or param is changed --> It's a new endpoint
+    // Path Param count doesn't match or param-less path doesn't match or param is changed --> It's
+    // a new endpoint
     return oldUrlPathParams.size() == newUrlPathParams.size()
-            && changedParameters.getChanged().isEmpty()
-            && oldUrl.replaceAll(REGEX_PATH, "").equals(newUrl.replaceAll(REGEX_PATH, ""));
+        && changedParameters.getChanged().isEmpty()
+        && oldUrl.replaceAll(REGEX_PATH, "").equals(newUrl.replaceAll(REGEX_PATH, ""));
   }
 
   public ArrayList<String> matchedItems(String string, String regex) {

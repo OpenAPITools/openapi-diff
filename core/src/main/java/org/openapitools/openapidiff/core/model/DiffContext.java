@@ -116,9 +116,13 @@ public class DiffContext {
     return this;
   }
 
-  public String getLeftUrl() { return this.leftUrl; }
+  public String getLeftUrl() {
+    return this.leftUrl;
+  }
 
-  public String getRightUrl() { return this.rightUrl; }
+  public String getRightUrl() {
+    return this.rightUrl;
+  }
 
   @Override
   public boolean equals(Object o) {
