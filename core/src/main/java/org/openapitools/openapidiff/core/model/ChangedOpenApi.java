@@ -1,5 +1,6 @@
 package org.openapitools.openapidiff.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.util.List;
 import java.util.Objects;
@@ -8,8 +9,8 @@ import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.utils.EndpointUtils;
 
 public class ChangedOpenApi implements ComposedChanged {
-  private OpenAPI oldSpecOpenApi;
-  private OpenAPI newSpecOpenApi;
+  @JsonIgnore private OpenAPI oldSpecOpenApi;
+  @JsonIgnore private OpenAPI newSpecOpenApi;
   private List<Endpoint> newEndpoints;
   private List<Endpoint> missingEndpoints;
   private List<ChangedOperation> changedOperations;

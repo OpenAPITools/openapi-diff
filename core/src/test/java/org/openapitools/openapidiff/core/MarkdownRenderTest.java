@@ -21,4 +21,12 @@ public class MarkdownRenderTest {
     ChangedOpenApi diff = OpenApiCompare.fromLocations("recursive_old.yaml", "recursive_new.yaml");
     assertThat(render.render(diff)).isNotBlank();
   }
+
+  @Test
+  public void renderDoesNotFailWhenHTTPStatusCodeIsRange() {
+    MarkdownRender render = new MarkdownRender();
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("range_statuscode_1.yaml", "range_statuscode_2.yaml");
+    assertThat(render.render(diff)).isNotBlank();
+  }
 }

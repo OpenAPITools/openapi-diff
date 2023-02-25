@@ -118,7 +118,7 @@ public class ConsoleRender implements Render {
   private String itemResponse(String title, String code) {
     StringBuilder sb = new StringBuilder();
     String status = "";
-    if (!code.equals("default")) {
+    if (!code.equals("default") && !code.matches("[1-5]XX")) {
       status = HttpStatus.getReasonPhrase(Integer.parseInt(code));
     }
     sb.append(StringUtils.repeat(' ', 4))

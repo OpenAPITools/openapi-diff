@@ -158,7 +158,7 @@ public class MarkdownRender implements Render {
   protected String itemResponse(String title, String code, String description) {
     StringBuilder sb = new StringBuilder();
     String status = "";
-    if (!code.equals("default")) {
+    if (!code.equals("default") && !code.matches("[1-5]XX")) {
       status = HttpStatus.getReasonPhrase(Integer.parseInt(code));
     }
     sb.append(format("%s : **%s %s**\n", title, code, status));
@@ -528,7 +528,7 @@ public class MarkdownRender implements Render {
 
   protected String blockquote(String beginning, String text) {
     String blockquote = blockquote(beginning);
-    return blockquote + text.trim().replace("\n", "\n" + blockquote) + '\n';
+    return blockquote + text.trim().replace("\n", "\n" + blockquote) + "\n\n";
   }
 
   protected String type(Schema<?> schema) {

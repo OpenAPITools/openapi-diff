@@ -1,0 +1,92 @@
+openapi: 3.0.0
+servers:
+  - url: 'http://petstore.swagger.io/v2'
+info:
+  description: >-
+    This is a sample server Petstore server.  You can find out more about
+    Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net,
+    #swagger](http://swagger.io/irc/).  For this sample, you can use the api key
+    `special-key` to test the authorization filters.
+  version: 1.0.0
+  title: Swagger Petstore
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+  /pet/{petId}:
+    get:
+      tags:
+        - pet
+      summary: gets a pet by id
+      description: ''
+      operationId: updatePetWithForm
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet that needs to be updated
+          required: true
+          schema:
+            type: integer
+      responses:
+        '405':
+          description: Invalid input
+  /pet/{petId2}:
+    post:
+      tags:
+        - pet
+      summary: deletes a pet
+      description: ''
+      operationId: deletePet
+      parameters:
+        - name: petId2
+          in: path
+          description: Pet ID to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '405':
+          description: Invalid input
+  /pet/by_owner-{ownerId}:
+    get:
+      tags:
+        - pet
+      summary: gets a pet by its owner id
+      description: ''
+      operationId: getPetFromOwner
+      parameters:
+        - ownerid: ownerId
+          in: path
+          description: Owner id of pet that needs to be get
+          required: true
+          schema:
+            type: integer
+      responses:
+        '405':
+          description: Invalid input
+  /pet/by_owner-{ownerId}_name-{petName}:
+    get:
+      tags:
+        - pet
+      summary: gets a pet by its owner id and its name
+      description: ''
+      operationId: getPetFromOwnerAndPetName
+      parameters:
+        - ownerid: ownerId
+          in: path
+          description: Owner id of pet that needs to be get
+          required: true
+          schema:
+            type: integer
+        - name: petName
+          in: path
+          description: Name of pet that needs to be get
+          required: true
+          schema:
+            type: string
+      responses:
+        '405':
+          description: Invalid input
