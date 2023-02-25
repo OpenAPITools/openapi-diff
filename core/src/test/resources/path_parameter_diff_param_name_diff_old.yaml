@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+  version: 0.1.9
+servers:
+  - url: http://api.example.com/v1
+    description: Example api server
+
+paths:
+
+  /student/{id}:
+    get:
+      parameters:
+        - in: path
+          name: id   # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+            minimum: 1
+
+
+      summary: Returns data about a student
+      responses:
+        '200': # status code
+          description: A JSON Object student data
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/Student'
+
+components:
+  schemas:
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: "1"
+        username:
+          type: string
+          example: "alloy_horizon"
+          pattern: A..Z a..z 0..9 . _ -
+        name:
+          type: string
+          example: "Alloy Horizon"

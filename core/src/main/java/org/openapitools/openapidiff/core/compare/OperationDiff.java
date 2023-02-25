@@ -72,14 +72,15 @@ public class OperationDiff {
           .ifPresent(changedOperation::setRequestBody);
     }
 
+    ParametersDiffResult parametersDiffResult =
+            openApiDiff.getParametersDiff().diff(oldOperation.getParameters(), newOperation.getParameters(), context);
     builder
-        .with(
-            openApiDiff
-                .getParametersDiff()
-                .diff(oldOperation.getParameters(), newOperation.getParameters(), context))
+        .with(parametersDiffResult.deferredChanged)
         .ifPresent(
             params -> {
-              removePathParameters(context.getParameters(), params);
+              if (!parametersDiffResult.sameOperationsDiffSchema) {
+                removePathParameters(context.getParameters(), params);
+              }
               changedOperation.setParameters(params);
             });
 
