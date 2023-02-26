@@ -25,8 +25,16 @@ public class OpenApiDiffMojo extends AbstractMojo {
   @Parameter(property = "failOnChanged", defaultValue = "false")
   Boolean failOnChanged = false;
 
+  @Parameter(property = "skip", defaultValue = "false")
+  Boolean skip = false;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    if(Boolean.TRUE.equals(skip)) {
+      getLog().info("Skipping openapi-diff execution");
+      return;
+    }
+
     try {
       final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec);
       getLog().info(new ConsoleRender().render(diff));
