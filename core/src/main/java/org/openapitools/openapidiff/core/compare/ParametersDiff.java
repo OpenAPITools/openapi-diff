@@ -3,6 +3,7 @@ package org.openapitools.openapidiff.core.compare;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,6 +29,7 @@ class ParametersDiffResult {
 }
 /** compare two parameter */
 public class ParametersDiff {
+
   private static final RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
 
   private final Components leftComponents;
@@ -59,28 +61,28 @@ public class ParametersDiff {
   }
 
   public ParametersDiffResult diff(
-      List<Parameter> left, List<Parameter> right, DiffContext context) {
-    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
-    ChangedParameters changedParameters =
-        new ChangedParameters(left, right != null ? new ArrayList<>(right) : null, context);
-    if (null == left) left = new ArrayList<>();
-    if (null == right) right = new ArrayList<>();
+      final List<Parameter> left, final List<Parameter> right, final DiffContext context) {
+    final DeferredBuilder<Changed> builder = new DeferredBuilder<>();
+    final List<Parameter> wLeft = Optional.ofNullable(left).orElseGet(Collections::emptyList);
+    final List<Parameter> wRight =
+        Optional.ofNullable(right).map(ArrayList::new).orElseGet(ArrayList::new);
 
-    for (Parameter leftPara : left) {
-      leftPara = refPointer.resolveRef(leftComponents, leftPara, leftPara.get$ref());
+    final ChangedParameters changedParameters = new ChangedParameters(wLeft, wRight, context);
 
-      Optional<Parameter> rightParam = contains(rightComponents, right, leftPara);
-      if (!rightParam.isPresent()) {
-        changedParameters.getMissing().add(leftPara);
+    for (Parameter leftParam : wLeft) {
+      leftParam = refPointer.resolveRef(leftComponents, leftParam, leftParam.get$ref());
+      Optional<Parameter> rightParamOpt = contains(rightComponents, wRight, leftParam);
+      if (!rightParamOpt.isPresent()) {
+        changedParameters.getMissing().add(leftParam);
       } else {
-        Parameter rightPara = rightParam.get();
-        right.remove(rightPara);
+        Parameter rightParam = rightParamOpt.get();
+        wRight.remove(rightParam);
         builder
-            .with(openApiDiff.getParameterDiff().diff(leftPara, rightPara, context))
+            .with(openApiDiff.getParameterDiff().diff(leftParam, rightParam, context))
             .ifPresent(changedParameters.getChanged()::add);
       }
     }
-    changedParameters.getIncreased().addAll(right);
+    changedParameters.getIncreased().addAll(wRight);
     return new ParametersDiffResult(
         builder.buildIsChanged(changedParameters),
         pathUnchangedParametersChanged(changedParameters, context));
