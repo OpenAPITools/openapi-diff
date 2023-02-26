@@ -30,7 +30,7 @@ public class OpenApiDiffMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    if(Boolean.TRUE.equals(skip)) {
+    if (Boolean.TRUE.equals(skip)) {
       getLog().info("Skipping openapi-diff execution");
       return;
     }
