@@ -85,6 +85,7 @@ public class PathsDiff {
                 DiffContext context = new DiffContext();
                 context.setUrl(url);
                 context.setParameters(params);
+                context.setLeftAndRightUrls(url, rightUrl);
                 builder
                     .with(openApiDiff.getPathDiff().diff(leftPath, rightPath, context))
                     .ifPresent(path -> changedPaths.getChanged().put(rightUrl, path));

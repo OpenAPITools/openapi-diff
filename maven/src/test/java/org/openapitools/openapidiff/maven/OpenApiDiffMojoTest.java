@@ -75,4 +75,15 @@ class OpenApiDiffMojoTest {
 
     assertThrows(BackwardIncompatibilityException.class, mojo::execute);
   }
+
+  @Test
+  void Should_Skip_Mojo_WhenSkipIsTrue() {
+    final OpenApiDiffMojo mojo = new OpenApiDiffMojo();
+    mojo.oldSpec = new File("src/test/resources/newspec.yaml").getAbsolutePath();
+    mojo.newSpec = new File("src/test/resources/oldspec.yaml").getAbsolutePath();
+    mojo.failOnIncompatible = true;
+    mojo.skip = true;
+
+    assertDoesNotThrow(mojo::execute);
+  }
 }

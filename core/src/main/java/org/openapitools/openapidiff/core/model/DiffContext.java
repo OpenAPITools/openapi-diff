@@ -14,6 +14,8 @@ public class DiffContext {
   private boolean response;
   private boolean request;
   private Boolean required;
+  private String leftUrl;
+  private String rightUrl;
 
   public DiffContext() {
     parameters = new HashMap<>();
@@ -35,6 +37,10 @@ public class DiffContext {
 
   public DiffContext copyAsResponse() {
     return copy().setResponse();
+  }
+
+  public DiffContext copyWithLeftRightUrls(String leftUrl, String rightUrl) {
+    return copy().setLeftAndRightUrls(leftUrl, rightUrl);
   }
 
   private DiffContext setRequest() {
@@ -104,6 +110,20 @@ public class DiffContext {
     return this;
   }
 
+  public DiffContext setLeftAndRightUrls(String leftUrl, String rightUrl) {
+    this.leftUrl = leftUrl;
+    this.rightUrl = rightUrl;
+    return this;
+  }
+
+  public String getLeftUrl() {
+    return this.leftUrl;
+  }
+
+  public String getRightUrl() {
+    return this.rightUrl;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -131,6 +151,8 @@ public class DiffContext {
         .append(response)
         .append(request)
         .append(required)
+        .append(leftUrl)
+        .append(rightUrl)
         .toHashCode();
   }
 }

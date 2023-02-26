@@ -41,7 +41,8 @@ public class PathDiffTest {
   @Test
   public void testDiffWithSimilarBeginningPaths() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_PATH5, OPENAPI_PATH6);
-    ChangedOpenApi diff = OpenApiCompare.fromSpecifications(
+    ChangedOpenApi diff =
+        OpenApiCompare.fromSpecifications(
             changedOpenApi.getOldSpecOpenApi(), changedOpenApi.getNewSpecOpenApi());
     assertThat(diff.getChangedOperations()).isEmpty();
   }

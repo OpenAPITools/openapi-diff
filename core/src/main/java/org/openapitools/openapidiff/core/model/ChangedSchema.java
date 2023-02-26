@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxLength;
+import org.openapitools.openapidiff.core.model.schema.ChangedNumericRange;
 import org.openapitools.openapidiff.core.model.schema.ChangedReadOnly;
 import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
 import org.openapitools.openapidiff.core.model.schema.ChangedWriteOnly;
@@ -30,6 +31,7 @@ public class ChangedSchema implements ComposedChanged {
   protected ChangedWriteOnly writeOnly;
   protected boolean changedType;
   protected ChangedMaxLength maxLength;
+  protected ChangedNumericRange numericRange;
   protected boolean discriminatorPropertyChanged;
   protected ChangedSchema items;
   protected ChangedOneOfSchema oneOfSchema;
@@ -109,6 +111,7 @@ public class ChangedSchema implements ComposedChanged {
                       enumeration,
                       required,
                       maxLength,
+                      numericRange,
                       extensions))
               .collect(Collectors.toList());
     }
@@ -356,6 +359,12 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
+  public ChangedSchema setNumericRange(final ChangedNumericRange numericRange) {
+    clearChangedCache();
+    this.numericRange = numericRange;
+    return this;
+  }
+
   public ChangedSchema setDiscriminatorPropertyChanged(final boolean discriminatorPropertyChanged) {
     clearChangedCache();
     this.discriminatorPropertyChanged = discriminatorPropertyChanged;
@@ -410,6 +419,7 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(readOnly, that.readOnly)
         && Objects.equals(writeOnly, that.writeOnly)
         && Objects.equals(maxLength, that.maxLength)
+        && Objects.equals(numericRange, that.numericRange)
         && Objects.equals(items, that.items)
         && Objects.equals(oneOfSchema, that.oneOfSchema)
         && Objects.equals(addProp, that.addProp)
@@ -437,6 +447,7 @@ public class ChangedSchema implements ComposedChanged {
         writeOnly,
         changedType,
         maxLength,
+        numericRange,
         discriminatorPropertyChanged,
         items,
         oneOfSchema,

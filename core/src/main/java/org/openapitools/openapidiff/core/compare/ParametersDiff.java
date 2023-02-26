@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -15,6 +17,16 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
+class ParametersDiffResult {
+  protected DeferredChanged<ChangedParameters> deferredChanged;
+  protected boolean sameOperationsDiffSchema;
+
+  public ParametersDiffResult(
+      DeferredChanged<ChangedParameters> deferredChanged, boolean sameOperationsDiffSchema) {
+    this.deferredChanged = deferredChanged;
+    this.sameOperationsDiffSchema = sameOperationsDiffSchema;
+  }
+}
 /** compare two parameter */
 public class ParametersDiff {
 
@@ -48,11 +60,12 @@ public class ParametersDiff {
         && Objects.equals(left.getIn(), right.getIn());
   }
 
-  public DeferredChanged<ChangedParameters> diff(
+  public ParametersDiffResult diff(
       final List<Parameter> left, final List<Parameter> right, final DiffContext context) {
     final DeferredBuilder<Changed> builder = new DeferredBuilder<>();
     final List<Parameter> wLeft = Optional.ofNullable(left).orElseGet(Collections::emptyList);
-    final List<Parameter> wRight = Optional.ofNullable(right).map(ArrayList::new).orElseGet(ArrayList::new);
+    final List<Parameter> wRight =
+        Optional.ofNullable(right).map(ArrayList::new).orElseGet(ArrayList::new);
 
     final ChangedParameters changedParameters = new ChangedParameters(wLeft, wRight, context);
 
@@ -70,7 +83,61 @@ public class ParametersDiff {
       }
     }
     changedParameters.getIncreased().addAll(wRight);
+    return new ParametersDiffResult(
+        builder.buildIsChanged(changedParameters),
+        pathUnchangedParametersChanged(changedParameters, context));
+  }
 
-    return builder.buildIsChanged(changedParameters);
+  public boolean pathUnchangedParametersChanged(
+      ChangedParameters changedParameters, DiffContext context) {
+    if (!pathUnchanged(changedParameters, context)) return false;
+    // If missing and increased parameter count is different, it's a new endpoint
+    if (changedParameters.getMissing().size() != changedParameters.getIncreased().size())
+      return false;
+    // Go through each missing Parameter and compare it to newly added Parameters
+    for (Parameter parameter : changedParameters.getMissing()) {
+      // Speedy Check. Use the map already created in changedParameters to check if missing param is
+      // linked to newParam
+      String newParameterName = context.getParameters().get(parameter.getName());
+      if (newParameterName.isEmpty()) return false;
+
+      Optional<Parameter> newParameter =
+          changedParameters.getIncreased().stream()
+              .filter(p -> p.getName().equals(newParameterName))
+              .findFirst();
+      if (!newParameter.isPresent()) return false;
+
+      // Check if  the old and new Parameters match . IF so, return TRUE
+      Parameter newParameterRealized = newParameter.get();
+      newParameterRealized.setName(parameter.getName()); // Make names similar
+      boolean samePathDifferentParameter = !newParameterRealized.equals(parameter);
+      newParameterRealized.setName(
+          newParameterName); // Important:: MUST Reset the name as this is not a copy
+      return samePathDifferentParameter;
+    }
+    return false;
+  }
+
+  public boolean pathUnchanged(ChangedParameters changedParameters, DiffContext context) {
+    final String REGEX_PATH = "\\{([^/]+)}";
+    String oldUrl = context.getLeftUrl();
+    String newUrl = context.getRightUrl();
+    ArrayList<String> oldUrlPathParams = matchedItems(oldUrl, REGEX_PATH);
+    ArrayList<String> newUrlPathParams = matchedItems(newUrl, REGEX_PATH);
+    // Path Param count doesn't match or param-less path doesn't match or param is changed --> It's
+    // a new endpoint
+    return oldUrlPathParams.size() == newUrlPathParams.size()
+        && changedParameters.getChanged().isEmpty()
+        && oldUrl.replaceAll(REGEX_PATH, "").equals(newUrl.replaceAll(REGEX_PATH, ""));
+  }
+
+  public ArrayList<String> matchedItems(String string, String regex) {
+    Matcher matcher = Pattern.compile(regex).matcher(string);
+    ArrayList<String> matchedItems = new ArrayList<>();
+    while (matcher.find()) {
+      String item = matcher.group();
+      matchedItems.add(item.substring(0, matcher.group().length() - 1).replaceFirst("\\{", ""));
+    }
+    return matchedItems;
   }
 }

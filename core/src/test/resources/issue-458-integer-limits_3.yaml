@@ -1,0 +1,34 @@
+openapi: 3.0.0
+servers:
+  - url: 'http://petstore.swagger.io/v2'
+info:
+  description: >-
+    Description
+  version: 1.0.0
+  title: Swagger Petstore
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+  /int-limits:
+    get:
+      summary: get int
+      description: 'description'
+      operationId: getInt
+      parameters:
+        - name: int
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 10
+            maximum: 101
+            exclusiveMinimum: false
+            exclusiveMaximum: false
+      responses:
+        '200':
+          description: OK
