@@ -145,6 +145,11 @@ public class OpenApiDiffTest {
     assertThat(newSpec).isEqualTo(expectedNewSpec);
   }
 
+  @Test
+  public void issue422() {
+    assertOpenApiAreEquals("issue-422.yaml", "issue-422.yaml");
+  }
+
   private static OpenAPI loadSpecFromFile(String specFile) {
     return PARSER.readLocation(specFile, null, new ParseOptions()).getOpenAPI();
   }
