@@ -5,7 +5,9 @@ import java.util.Map;
 
 public class Copy {
 
-  private Copy() {}
+  private Copy() {
+    throw new UnsupportedOperationException("Utility class. Do not instantiate");
+  }
 
   public static <K, V> Map<K, V> copyMap(Map<K, V> map) {
     if (map == null) {

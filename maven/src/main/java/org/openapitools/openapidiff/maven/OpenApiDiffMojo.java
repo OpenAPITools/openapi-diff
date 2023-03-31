@@ -1,7 +1,7 @@
 package org.openapitools.openapidiff.maven;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import static org.openapitools.openapidiff.core.utils.FileUtils.writeToFile;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -16,6 +16,7 @@ import org.openapitools.openapidiff.core.output.MarkdownRender;
 /** A Maven Mojo that diffs two OpenAPI specifications and reports on differences. */
 @Mojo(name = "diff", defaultPhase = LifecyclePhase.TEST)
 public class OpenApiDiffMojo extends AbstractMojo {
+
   @Parameter(property = "oldSpec")
   String oldSpec;
 
@@ -50,9 +51,9 @@ public class OpenApiDiffMojo extends AbstractMojo {
     try {
       final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec);
 
-      generateConsoleOutput(diff);
-      generateJson(diff);
-      generateMarkdown(diff);
+      writeDiffAsTextToFile(diff);
+      writeDiffAsJsonToFile(diff);
+      writeDiffAsMarkdownToFile(diff);
 
       if (failOnIncompatible && diff.isIncompatible()) {
         throw new BackwardIncompatibilityException("The API changes broke backward compatibility");
@@ -66,39 +67,19 @@ public class OpenApiDiffMojo extends AbstractMojo {
     }
   }
 
-  private void generateJson(final ChangedOpenApi diff) {
-    if (isValidFileName(jsonOutputFileName)) {
-      final String render = new MarkdownRender().render(diff);
-      writeToFile(render, jsonOutputFileName);
-    }
+  private void writeDiffAsJsonToFile(final ChangedOpenApi diff) {
+    final String render = new MarkdownRender().render(diff);
+    writeToFile(render, jsonOutputFileName);
   }
 
-  private void generateConsoleOutput(final ChangedOpenApi diff) {
+  private void writeDiffAsTextToFile(final ChangedOpenApi diff) {
     final String render = new ConsoleRender().render(diff);
-    if (isValidFileName(consoleOutputFileName)) {
-      writeToFile(render, consoleOutputFileName);
-    }
+    writeToFile(render, consoleOutputFileName);
     getLog().info(render);
   }
 
-  private void generateMarkdown(final ChangedOpenApi diff) {
-    if (isValidFileName(markdownOutputFileName)) {
-      final String render = new MarkdownRender().render(diff);
-      writeToFile(render, markdownOutputFileName);
-    }
-  }
-
-  private boolean isValidFileName(String fileName) {
-    return fileName != null && !fileName.isEmpty();
-  }
-
-  private static void writeToFile(final String render, final String filename) {
-    try {
-      final FileWriter fileWriter = new FileWriter(filename);
-      fileWriter.write(render);
-      fileWriter.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  private void writeDiffAsMarkdownToFile(final ChangedOpenApi diff) {
+    final String render = new MarkdownRender().render(diff);
+    writeToFile(render, markdownOutputFileName);
   }
 }
