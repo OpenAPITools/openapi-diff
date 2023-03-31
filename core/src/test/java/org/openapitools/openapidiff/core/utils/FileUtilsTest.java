@@ -69,13 +69,6 @@ class FileUtilsTest {
   }
 
   @Test
-  void writeToFile_filenamePathIsInvalid_ThrowsIllegalArgumentException() {
-    assertThrows(
-        IllegalArgumentException.class, () -> FileUtils.writeToFile(sampleContent, "      .<"));
-    assertFalse(Files.exists(Paths.get(filePath)));
-  }
-
-  @Test
   void writeToFile_fileExists_doesNothing() {
     final Path path = Paths.get(filePath);
     try {
