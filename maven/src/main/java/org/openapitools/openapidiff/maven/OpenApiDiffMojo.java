@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
+import org.openapitools.openapidiff.core.output.JsonRender;
 import org.openapitools.openapidiff.core.output.MarkdownRender;
 
 /** A Maven Mojo that diffs two OpenAPI specifications and reports on differences. */
@@ -67,15 +68,15 @@ public class OpenApiDiffMojo extends AbstractMojo {
     }
   }
 
-  private void writeDiffAsJsonToFile(final ChangedOpenApi diff) {
-    final String render = new MarkdownRender().render(diff);
-    writeToFile(render, jsonOutputFileName);
-  }
-
   private void writeDiffAsTextToFile(final ChangedOpenApi diff) {
     final String render = new ConsoleRender().render(diff);
     writeToFile(render, consoleOutputFileName);
     getLog().info(render);
+  }
+
+  private void writeDiffAsJsonToFile(final ChangedOpenApi diff) {
+    final String render = new JsonRender().render(diff);
+    writeToFile(render, jsonOutputFileName);
   }
 
   private void writeDiffAsMarkdownToFile(final ChangedOpenApi diff) {
