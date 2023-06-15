@@ -50,6 +50,7 @@ usage: openapi-diff <old> <new>
                                 compatible
     --fail-on-incompatible      Fail only if API changes broke backward
                                 compatibility
+    --allow-response-enum-additions   Do not fail backward compatibility check when enum values are added to responses
  -h,--help                      print this message
     --header <property=value>   use given header for authorisation
     --html <file>               export diff as html in given file
@@ -117,6 +118,7 @@ usage: openapi-diff <old> <new>
                                 incompatible, compatible
     --fail-on-incompatible      Fail only if API changes broke backward compatibility
     --fail-on-changed           Fail if API changed but is backward compatible
+    --allow-response-enum-additions   Do not fail backward compatibility check when enum values are added to responses
     --trace                     be extra verbose
     --version                   print the version information and exit
     --warn                      Print warning information
