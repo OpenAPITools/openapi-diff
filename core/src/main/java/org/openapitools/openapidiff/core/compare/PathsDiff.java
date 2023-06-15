@@ -82,7 +82,7 @@ public class PathsDiff {
                     params.put(oldParams.get(i), newParams.get(i));
                   }
                 }
-                DiffContext context = new DiffContext();
+                DiffContext context = new DiffContext(openApiDiff.getOptions());
                 context.setUrl(url);
                 context.setParameters(params);
                 context.setLeftAndRightUrls(url, rightUrl);

@@ -17,6 +17,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openapitools.openapidiff.core.OpenApiCompare;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.HtmlRender;
@@ -48,6 +49,12 @@ public class Main {
         Option.builder()
             .longOpt("fail-on-changed")
             .desc("Fail if API changed but is backward compatible")
+            .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("allow-response-enum-additions")
+            .desc(
+                "Do not fail backward compatibility check when enum values are added to responses")
             .build());
     options.addOption(Option.builder().longOpt("trace").desc("be extra verbose").build());
     options.addOption(
@@ -172,7 +179,11 @@ public class Main {
         auths = Collections.singletonList(new AuthorizationValue(headers[0], headers[1], "header"));
       }
 
-      ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath, auths);
+      OpenApiDiffOptions compareOpts =
+          OpenApiDiffOptions.builder()
+              .allowResponseEnumAdditions(line.hasOption("allow-response-enum-additions"))
+              .build();
+      ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath, auths, compareOpts);
       ConsoleRender consoleRender = new ConsoleRender();
       if (!logLevel.equals("OFF")) {
         System.out.println(consoleRender.render(result));

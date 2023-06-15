@@ -3,6 +3,7 @@ package org.openapitools.openapidiff.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.slf4j.Logger;
 
@@ -27,7 +28,12 @@ public class TestUtils {
 
   public static void assertOpenApiBackwardCompatible(
       String oldSpec, String newSpec, boolean isDiff) {
-    ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(oldSpec, newSpec);
+    assertOpenApiBackwardCompatible(oldSpec, newSpec, OpenApiDiffOptions.builder().build());
+  }
+
+  public static void assertOpenApiBackwardCompatible(
+      String oldSpec, String newSpec, OpenApiDiffOptions options) {
+    ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(oldSpec, newSpec, null, options);
     LOG.info("Result: {}", changedOpenApi.isChanged().getValue());
     assertThat(changedOpenApi.isCompatible()).isTrue();
   }

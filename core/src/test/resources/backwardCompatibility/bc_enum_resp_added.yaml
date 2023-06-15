@@ -1,0 +1,38 @@
+openapi: 3.0.0
+info:
+  description: test backward compatibility for enums
+  version: 1.0.0
+  title: test backward compatibility for enums
+paths:
+  /test-back-compat-enums:
+    get:
+      operationId: search
+      parameters:
+        - name: param-inline-enum
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - param-inline-enum-val-1
+              - param-inline-enum-val-2
+            default: param-inline-enum-val-1
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaWithEnum'
+components:
+  schemas:
+    SchemaWithEnum:
+      type: object
+      properties:
+        enum-prop:
+          type: string
+          enum:
+            - enum-prop-val-1
+            - enum-prop-val-2
+            - enum-prop-val-3
+          default: enum-prop-val-1

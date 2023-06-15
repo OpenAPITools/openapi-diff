@@ -13,8 +13,11 @@ public class ChangedEnum<T> extends ChangedList<T> {
 
   @Override
   public DiffResult isItemsChanged() {
-    if (context.isRequest() && getMissing().isEmpty()
-        || context.isResponse() && getIncreased().isEmpty()) {
+    if (context.isRequest() && getMissing().isEmpty()) {
+      return DiffResult.COMPATIBLE;
+    }
+    if (context.isResponse()
+        && (context.getOptions().isAllowResponseEnumAdditions() || getIncreased().isEmpty())) {
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;
