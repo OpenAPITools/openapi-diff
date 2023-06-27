@@ -7,6 +7,7 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import java.io.File;
 import java.util.List;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class OpenApiCompare {
@@ -40,7 +41,25 @@ public class OpenApiCompare {
    */
   public static ChangedOpenApi fromContents(
       String oldContent, String newContent, List<AuthorizationValue> auths) {
-    return fromSpecifications(readContent(oldContent, auths), readContent(newContent, auths));
+    return fromContents(oldContent, newContent, auths, OpenApiDiffOptions.builder().build());
+  }
+
+  /**
+   * compare two openapi doc
+   *
+   * @param oldContent old api-doc location:Json or Http
+   * @param newContent new api-doc location:Json or Http
+   * @param auths
+   * @param options
+   * @return Comparison result
+   */
+  public static ChangedOpenApi fromContents(
+      String oldContent,
+      String newContent,
+      List<AuthorizationValue> auths,
+      OpenApiDiffOptions options) {
+    return fromSpecifications(
+        readContent(oldContent, auths), readContent(newContent, auths), options);
   }
 
   /**
@@ -64,7 +83,21 @@ public class OpenApiCompare {
    */
   public static ChangedOpenApi fromFiles(
       File oldFile, File newFile, List<AuthorizationValue> auths) {
-    return fromLocations(oldFile.getAbsolutePath(), newFile.getAbsolutePath(), auths);
+    return fromFiles(oldFile, newFile, auths, OpenApiDiffOptions.builder().build());
+  }
+
+  /**
+   * compare two openapi doc
+   *
+   * @param oldFile old api-doc file
+   * @param newFile new api-doc file
+   * @param auths
+   * @param options
+   * @return Comparison result
+   */
+  public static ChangedOpenApi fromFiles(
+      File oldFile, File newFile, List<AuthorizationValue> auths, OpenApiDiffOptions options) {
+    return fromLocations(oldFile.getAbsolutePath(), newFile.getAbsolutePath(), auths, options);
   }
 
   /**
@@ -88,7 +121,25 @@ public class OpenApiCompare {
    */
   public static ChangedOpenApi fromLocations(
       String oldLocation, String newLocation, List<AuthorizationValue> auths) {
-    return fromSpecifications(readLocation(oldLocation, auths), readLocation(newLocation, auths));
+    return fromLocations(oldLocation, newLocation, auths, OpenApiDiffOptions.builder().build());
+  }
+
+  /**
+   * compare two openapi doc
+   *
+   * @param oldLocation old api-doc location (local or http)
+   * @param newLocation new api-doc location (local or http)
+   * @param auths
+   * @param options
+   * @return Comparison result
+   */
+  public static ChangedOpenApi fromLocations(
+      String oldLocation,
+      String newLocation,
+      List<AuthorizationValue> auths,
+      OpenApiDiffOptions options) {
+    return fromSpecifications(
+        readLocation(oldLocation, auths), readLocation(newLocation, auths), options);
   }
 
   /**
@@ -99,7 +150,20 @@ public class OpenApiCompare {
    * @return Comparison result
    */
   public static ChangedOpenApi fromSpecifications(OpenAPI oldSpec, OpenAPI newSpec) {
-    return OpenApiDiff.compare(notNull(oldSpec, "old"), notNull(newSpec, "new"));
+    return fromSpecifications(oldSpec, newSpec, OpenApiDiffOptions.builder().build());
+  }
+
+  /**
+   * compare two openapi doc
+   *
+   * @param oldSpec old api-doc specification
+   * @param newSpec new api-doc specification
+   * @param options
+   * @return Comparison result
+   */
+  public static ChangedOpenApi fromSpecifications(
+      OpenAPI oldSpec, OpenAPI newSpec, OpenApiDiffOptions options) {
+    return OpenApiDiff.compare(notNull(oldSpec, "old"), notNull(newSpec, "new"), options);
   }
 
   private static OpenAPI notNull(OpenAPI spec, String type) {
