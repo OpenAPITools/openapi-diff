@@ -1,6 +1,5 @@
 package org.openapitools.openapidiff.core.model;
 
-import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -157,9 +156,6 @@ public class ChangedSchema implements ComposedChanged {
   }
 
   private boolean compatibleForRequest() {
-    if (PathItem.HttpMethod.PUT.equals(context.getMethod()) && !increasedProperties.isEmpty()) {
-      return false;
-    }
     return (oldSchema != null || newSchema == null);
   }
 
