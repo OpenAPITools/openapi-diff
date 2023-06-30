@@ -381,7 +381,7 @@
                             <skipRepositoryCheck>true</skipRepositoryCheck>
                             <hooks>
                                 <pre-commit>
-                                    mvn com.coveo:fmt-maven-plugin:format
+                                    ./mvnw com.coveo:fmt-maven-plugin:format
                                 </pre-commit>
                             </hooks>
                         </configuration>
