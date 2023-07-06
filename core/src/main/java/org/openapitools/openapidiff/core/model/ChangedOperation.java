@@ -63,6 +63,9 @@ public class ChangedOperation implements ComposedChanged {
   public DiffResult resultRequestBody() {
     return requestBody == null ? DiffResult.NO_CHANGES : requestBody.isChanged();
   }
+  public DiffResult resultSecurityRequirements() {
+    return securityRequirements == null ? DiffResult.NO_CHANGES : securityRequirements.isChanged();
+  }
 
   public Operation getOldOperation() {
     return this.oldOperation;

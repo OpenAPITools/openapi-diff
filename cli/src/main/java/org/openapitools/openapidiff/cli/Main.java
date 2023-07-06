@@ -93,8 +93,15 @@ public class Main {
             .longOpt("html")
             .hasArg()
             .argName("file")
-            .desc("export diff as html in given file")
+            .desc("export diff as html in given file with incompatible changes")
             .build());
+    options.addOption(
+            Option.builder()
+                    .longOpt("html-detailed")
+                    .hasArg()
+                    .argName("file")
+                    .desc("export diff as html in given file with all changes")
+                    .build());
     options.addOption(
         Option.builder()
             .longOpt("text")
@@ -184,6 +191,12 @@ public class Main {
         FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("html"));
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
         htmlRender.render(result, outputStreamWriter);
+      }
+      if (line.hasOption("html-detailed")) {
+        HtmlRender htmlRender = new HtmlRender(true);
+        String output = htmlRender.render(result);
+        String outputFile = line.getOptionValue("html-detailed");
+        writeOutput(output, outputFile);
       }
       if (line.hasOption("markdown")) {
         MarkdownRender mdRender = new MarkdownRender();
