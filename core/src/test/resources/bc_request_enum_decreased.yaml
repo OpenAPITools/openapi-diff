@@ -1,0 +1,32 @@
+openapi: 3.0.0
+info:
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
+paths:
+  /widgets:
+    get:
+      operationId: listWidgets
+      parameters:
+        - name: param-inline-enum
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - param-inline-enum-val-1
+            default: param-inline-enum-val-1
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enum-prop:
+                    type: string
+                    enum:
+                      - enum-prop-val-1
+                      - enum-prop-val-2
+                    default: enum-prop-val-1
