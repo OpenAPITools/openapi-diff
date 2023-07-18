@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_CONTENT_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_CONTENT_DECREASED;
+
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import java.util.*;
@@ -31,10 +34,15 @@ public class ChangedContent implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (context.isRequest() && missing.isEmpty() || context.isResponse() && missing.isEmpty()) {
-      return DiffResult.COMPATIBLE;
+    if (!missing.isEmpty()) {
+      if (context.isRequest() && REQUEST_CONTENT_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+      if (context.isResponse() && RESPONSE_CONTENT_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    return DiffResult.COMPATIBLE;
   }
 
   public Content getOldContent() {
