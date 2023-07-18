@@ -8,7 +8,9 @@ import org.apache.commons.configuration2.Configuration;
 // Note: order is not programmatically significant but keep alphabetical for maintainability
 public enum BackwardIncompatibleProp {
   REQUEST_ENUM_DECREASED("incompatible.request.enum.decreased", true),
+  REQUEST_MAX_LENGTH_DECREASED("incompatible.request.max.length.decreased", true),
   RESPONSE_ENUM_INCREASED("incompatible.response.enum.increased", true),
+  RESPONSE_MAX_LENGTH_INCREASED("incompatible.response.max.length.increased", true),
   ;
 
   private final String propertyName;
