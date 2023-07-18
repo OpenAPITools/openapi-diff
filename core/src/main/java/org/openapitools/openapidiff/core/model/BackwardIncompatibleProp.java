@@ -13,6 +13,7 @@ public enum BackwardIncompatibleProp {
   RESPONSE_ENUM_INCREASED("incompatible.response.enum.increased", true),
   RESPONSE_MAX_LENGTH_INCREASED("incompatible.response.max.length.increased", true),
   RESPONSE_REQUIRED_DECREASED("incompatible.response.required.decreased", true),
+  RESPONSE_RESPONSES_DECREASED("incompatible.response.responses.decreased", true),
   ;
 
   private final String propertyName;
