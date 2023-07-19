@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.EXTENSION_CONTENT_TYPES_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.EXTENSION_CONTENT_TYPE_DELETED;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,7 +35,20 @@ public class ChangedExtensions implements ComposedChanged {
 
   @Override
   public DiffResult isCoreChanged() {
-    return DiffResult.NO_CHANGES;
+    if (increased.isEmpty() && missing.isEmpty()) {
+      return DiffResult.NO_CHANGES;
+    }
+    if (!missing.isEmpty()) {
+      if (EXTENSION_CONTENT_TYPES_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+      for (String key : missing.keySet()) {
+        if (EXTENSION_CONTENT_TYPE_DELETED.enabled(context, key)) {
+          return DiffResult.INCOMPATIBLE;
+        }
+      }
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public Map<String, Object> getOldExtensions() {

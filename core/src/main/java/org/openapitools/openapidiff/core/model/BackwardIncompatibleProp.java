@@ -7,6 +7,8 @@ import org.apache.commons.configuration2.Configuration;
 // Properties to enable/disable backward incompatibility checks
 // Note: order is not programmatically significant but keep alphabetical for maintainability
 public enum BackwardIncompatibleProp {
+  EXTENSION_CONTENT_TYPES_DECREASED("incompatible.extension.content.types.decreased", false),
+  EXTENSION_CONTENT_TYPE_DELETED("incompatible.extension.content.type.%s.deleted", false),
   REQUEST_CONTENT_DECREASED("incompatible.request.content.decreased", true),
   REQUEST_ENUM_DECREASED("incompatible.request.enum.decreased", true),
   REQUEST_MAX_LENGTH_DECREASED("incompatible.request.max.length.decreased", true),
