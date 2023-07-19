@@ -1,5 +1,9 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_REQUIRED_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_DISCRIMINATOR_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_TYPE_CHANGED;
+
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -139,24 +143,50 @@ public class ChangedSchema implements ComposedChanged {
         && !discriminatorPropertyChanged) {
       return DiffResult.NO_CHANGES;
     }
-    boolean missingRequiredProperties =
-        oldSchema != null
-            && oldSchema.getRequired() != null
-            && missingProperties.keySet().stream()
-                .anyMatch(missingProperty -> oldSchema.getRequired().contains(missingProperty));
-    boolean compatibleForResponse =
-        !missingRequiredProperties && (oldSchema == null || newSchema != null);
-    if ((context.isRequest() && compatibleForRequest()
-            || context.isResponse() && compatibleForResponse)
-        && !changedType
-        && !discriminatorPropertyChanged) {
-      return DiffResult.COMPATIBLE;
+    if (changedType) {
+      if (SCHEMA_TYPE_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    if (discriminatorPropertyChanged) {
+      if (SCHEMA_DISCRIMINATOR_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+
+    if (!compatibleForRequest() || !compatibleForResponse()) {
+      return DiffResult.INCOMPATIBLE;
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   private boolean compatibleForRequest() {
-    return (oldSchema != null || newSchema == null);
+    if (context.isRequest()) {
+      if (oldSchema == null && newSchema != null) {
+        // TODO: dead code? If not, create test.
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean compatibleForResponse() {
+    if (context.isResponse()) {
+      if (oldSchema != null) {
+        if (newSchema == null) {
+          // TODO: dead code? If not, create test.
+          return false;
+        }
+        if (oldSchema.getRequired() != null
+            && missingProperties.keySet().stream()
+                .anyMatch(prop -> oldSchema.getRequired().contains(prop))) {
+          if (RESPONSE_REQUIRED_DECREASED.enabled(context)) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
   }
 
   public DiffContext getContext() {
