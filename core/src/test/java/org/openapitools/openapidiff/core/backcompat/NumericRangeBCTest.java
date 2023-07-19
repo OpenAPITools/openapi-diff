@@ -16,7 +16,6 @@ public class NumericRangeBCTest {
 
   @Test
   public void changedButCompatible() {
-    // TODO: Fix bug where response range-narrowing is deemed incompatible, then test here
     assertSpecChangedButCompatible(BASE, "bc_numericrange_changed_but_compatible.yaml");
   }
 
@@ -62,9 +61,7 @@ public class NumericRangeBCTest {
 
   @Test
   public void responseExclusiveMaxDeleted() {
-    // TODO: Should be incompatible because clients may be unprepared for wider range
-    //  (test added to avoid unintentional regression)
-    assertSpecChangedButCompatible(BASE, "bc_response_numericrange_exclusive_max_deleted.yaml");
+    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_exclusive_max_deleted.yaml");
   }
 
   @Test
@@ -74,9 +71,7 @@ public class NumericRangeBCTest {
 
   @Test
   public void responseExclusiveMinDeleted() {
-    // TODO: Should be incompatible because clients may be unprepared for wider range
-    //  (test added to avoid unintentional regression)
-    assertSpecChangedButCompatible(BASE, "bc_response_numericrange_exclusive_min_deleted.yaml");
+    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_exclusive_min_deleted.yaml");
   }
 
   @Test
@@ -86,29 +81,21 @@ public class NumericRangeBCTest {
 
   @Test
   public void responseMaxDeleted() {
-    // TODO: Should be incompatible because clients may be unprepared for wider range
-    //  (test added to avoid unintentional regression)
-    assertSpecChangedButCompatible(BASE, "bc_response_numericrange_max_deleted.yaml");
+    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_max_deleted.yaml");
   }
 
   @Test
   public void responseMaxIncreased() {
-    // TODO: Should be incompatible because clients may be unprepared
-    //  (test added to avoid unintentional regression)
-    assertSpecChangedButCompatible(BASE, "bc_response_numericrange_max_increased.yaml");
+    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_max_increased.yaml");
   }
 
   @Test
   public void responseMinDecreased() {
-    // TODO: Should be incompatible because clients may be unprepared for wider range
-    //  (test added to avoid unintentional regression)
-    assertSpecChangedButCompatible(BASE, "bc_response_numericrange_min_decreased.yaml");
+    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_min_decreased.yaml");
   }
 
   @Test
   public void responseMinDeleted() {
-    // TODO: Should be incompatible because clients may be unprepared for wider range
-    //  (test added to avoid unintentional regression)
-    assertSpecChangedButCompatible(BASE, "bc_response_numericrange_min_deleted.yaml");
+    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_min_deleted.yaml");
   }
 }

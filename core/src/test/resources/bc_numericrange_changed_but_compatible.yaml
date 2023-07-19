@@ -14,7 +14,6 @@ paths:
               type: integer
               format: int32
               exclusiveMinimum: false
-              exclusiveMaximum: false
           application/text:
             schema:
               type: integer
@@ -25,10 +24,9 @@ paths:
             schema:
               type: integer
               format: int32
-              minimum: 9
-              maximum: 21
-              exclusiveMinimum: true
-              exclusiveMaximum: true
+              minimum: 10
+              maximum: 20
+              exclusiveMinimum: false
       responses:
         '200':
           description: successful operation
@@ -37,21 +35,20 @@ paths:
               schema:
                 type: integer
                 format: int32
-                exclusiveMinimum: false
-                exclusiveMaximum: false
+                exclusiveMinimum: true
             application/text:
               schema:
                 type: integer
                 format: int32
-                # TODO: Narrowing response range fails as incompatible, but shouldn't it be ok?
                 minimum: 10
                 maximum: 20
+                exclusiveMinimum: true
+                exclusiveMaximum: true
             application/xml:
               schema:
                 type: integer
                 format: int32
-                # TODO: Narrowing response range fails as incompatible, but shouldn't it be ok?
-                minimum: 10
-                maximum: 20
+                minimum: 11
+                maximum: 19
                 exclusiveMinimum: true
                 exclusiveMaximum: true
