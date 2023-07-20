@@ -1,8 +1,10 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_NUMERIC_RANGE_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_NUMERIC_RANGE_INCREASED;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,81 +23,89 @@ public class NumericRangeBCTest {
 
   @Test
   public void requestExclusiveMaxCreated() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_exclusive_max_created.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_exclusive_max_created.yaml");
   }
 
   @Test
   public void requestExclusiveMaxSet() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_exclusive_max_set.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_exclusive_max_set.yaml");
   }
 
   @Test
   public void requestExclusiveMinCreated() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_exclusive_min_created.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_exclusive_min_created.yaml");
   }
 
   @Test
   public void requestExclusiveMinSet() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_exclusive_min_set.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_exclusive_min_set.yaml");
   }
 
   @Test
   public void requestMaxAdded() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_max_added.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_max_added.yaml");
   }
 
   @Test
   public void requestMaxDecreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_max_decreased.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_max_decreased.yaml");
   }
 
   @Test
   public void requestMinAdded() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_min_added.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_min_added.yaml");
   }
 
   @Test
   public void requestMinIncreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_numericrange_min_increased.yaml");
+    assertIncompatibleRequest("bc_request_numericrange_min_increased.yaml");
   }
 
   @Test
   public void responseExclusiveMaxDeleted() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_exclusive_max_deleted.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_exclusive_max_deleted.yaml");
   }
 
   @Test
   public void responseExclusiveMaxUnset() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_exclusive_max_unset.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_exclusive_max_unset.yaml");
   }
 
   @Test
   public void responseExclusiveMinDeleted() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_exclusive_min_deleted.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_exclusive_min_deleted.yaml");
   }
 
   @Test
   public void responseExclusiveMinUnset() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_exclusive_min_unset.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_exclusive_min_unset.yaml");
   }
 
   @Test
   public void responseMaxDeleted() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_max_deleted.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_max_deleted.yaml");
   }
 
   @Test
   public void responseMaxIncreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_max_increased.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_max_increased.yaml");
   }
 
   @Test
   public void responseMinDecreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_min_decreased.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_min_decreased.yaml");
   }
 
   @Test
   public void responseMinDeleted() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_numericrange_min_deleted.yaml");
+    assertIncompatibleResponse("bc_response_numericrange_min_deleted.yaml");
+  }
+
+  private void assertIncompatibleRequest(String newSpec) {
+    assertSpecIncompatible(BASE, newSpec, REQUEST_NUMERIC_RANGE_DECREASED);
+  }
+
+  private void assertIncompatibleResponse(String newSpec) {
+    assertSpecIncompatible(BASE, newSpec, RESPONSE_NUMERIC_RANGE_INCREASED);
   }
 }

@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_NUMERIC_RANGE_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_NUMERIC_RANGE_INCREASED;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 import org.openapitools.openapidiff.core.model.Changed;
@@ -24,6 +27,11 @@ public final class ChangedNumericRange implements Changed {
         && Objects.equals(oldMinimumExclusiveValue, newMinimumExclusiveValue)
         && Objects.equals(oldMaximumExclusiveValue, newMaximumExclusiveValue)) {
       return DiffResult.NO_CHANGES;
+    }
+
+    if ((context.isRequest() && !REQUEST_NUMERIC_RANGE_DECREASED.enabled(context))
+        || (context.isResponse() && !RESPONSE_NUMERIC_RANGE_INCREASED.enabled(context))) {
+      return DiffResult.COMPATIBLE;
     }
 
     boolean exclusiveMaxOld = oldMaximumExclusiveValue != null && oldMaximumExclusiveValue;
