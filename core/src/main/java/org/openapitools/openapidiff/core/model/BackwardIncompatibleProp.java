@@ -18,6 +18,7 @@ public enum BackwardIncompatibleProp {
   REQUEST_REQUIRED_INCREASED("incompatible.request.required.increased", true),
   RESPONSE_CONTENT_DECREASED("incompatible.response.content.decreased", true),
   RESPONSE_ENUM_INCREASED("incompatible.response.enum.increased", true),
+  RESPONSE_HEADERS_DECREASED("incompatible.response.headers.decreased", true),
   RESPONSE_MAX_LENGTH_INCREASED("incompatible.response.max.length.increased", true),
   RESPONSE_NUMERIC_RANGE_INCREASED("incompatible.response.numeric.range.increased", false),
   RESPONSE_REQUIRED_DECREASED("incompatible.response.required.decreased", true),

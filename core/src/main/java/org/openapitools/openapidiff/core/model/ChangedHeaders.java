@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_HEADERS_DECREASED;
+
 import io.swagger.v3.oas.models.headers.Header;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +33,12 @@ public class ChangedHeaders implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (missing.isEmpty()) {
-      return DiffResult.COMPATIBLE;
+    if (!missing.isEmpty()) {
+      if (RESPONSE_HEADERS_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    return DiffResult.COMPATIBLE;
   }
 
   public Map<String, Header> getOldHeaders() {
