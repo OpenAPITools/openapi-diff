@@ -22,6 +22,8 @@ public enum BackwardIncompatibleProp {
   RESPONSE_NUMERIC_RANGE_INCREASED("incompatible.response.numeric.range.increased", false),
   RESPONSE_REQUIRED_DECREASED("incompatible.response.required.decreased", true),
   RESPONSE_RESPONSES_DECREASED("incompatible.response.responses.decreased", true),
+  RESPONSE_WRITEONLY_INCREASED("incompatible.response.writeonly.increased", true),
+  RESPONSE_WRITEONLY_REQUIRED_DECREASED("incompatible.response.writeonly.required.decreased", true),
   SCHEMA_DISCRIMINATOR_CHANGED("incompatible.schema.discriminator.changed", true),
   SCHEMA_TYPE_CHANGED("incompatible.schema.type.changed", true),
   ;

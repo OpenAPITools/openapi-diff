@@ -1,10 +1,13 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_WRITEONLY_INCREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_WRITEONLY_REQUIRED_DECREASED;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class WriteOnlyBCTest {
   private final String BASE = "bc_writeonly_base.yaml";
@@ -21,12 +24,14 @@ public class WriteOnlyBCTest {
 
   @Test
   public void responseWriteOnlyIncreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_writeonly_increased.yaml");
+    BackwardIncompatibleProp prop = RESPONSE_WRITEONLY_INCREASED;
+    assertSpecIncompatible(BASE, "bc_response_writeonly_increased.yaml", prop);
   }
 
   @Test
   public void responseWriteOnlyRequiredDecreased() {
+    BackwardIncompatibleProp prop = RESPONSE_WRITEONLY_REQUIRED_DECREASED;
     // TODO: Document why desired or remove support (test added to avoid unintentional regression)
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_writeonly_required_decreased.yaml");
+    assertSpecIncompatible(BASE, "bc_response_writeonly_required_decreased.yaml", prop);
   }
 }
