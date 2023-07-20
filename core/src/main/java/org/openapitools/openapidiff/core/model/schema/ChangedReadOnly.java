@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_READONLY_INCREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_READONLY_REQUIRED_DECREASED;
+
 import java.util.Objects;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.Changed;
@@ -29,10 +32,16 @@ public class ChangedReadOnly implements Changed {
     }
     if (context.isRequest()) {
       if (Boolean.TRUE.equals(newValue)) {
-        return DiffResult.INCOMPATIBLE;
-      } else {
-        return context.isRequired() ? DiffResult.INCOMPATIBLE : DiffResult.COMPATIBLE;
+        if (REQUEST_READONLY_INCREASED.enabled(context)) {
+          return DiffResult.INCOMPATIBLE;
+        }
+      } else if (context.isRequired()) {
+        // Incompatible because a prev RO prop (invalid) is now not RO and required
+        if (REQUEST_READONLY_REQUIRED_DECREASED.enabled(context)) {
+          return DiffResult.INCOMPATIBLE;
+        }
       }
+      return DiffResult.COMPATIBLE;
     }
     return DiffResult.UNKNOWN;
   }

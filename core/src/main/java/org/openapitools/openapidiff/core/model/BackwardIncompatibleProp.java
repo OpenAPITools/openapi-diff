@@ -13,6 +13,8 @@ public enum BackwardIncompatibleProp {
   REQUEST_ENUM_DECREASED("incompatible.request.enum.decreased", true),
   REQUEST_MAX_LENGTH_DECREASED("incompatible.request.max.length.decreased", true),
   REQUEST_NUMERIC_RANGE_DECREASED("incompatible.request.numeric.range.decreased", true),
+  REQUEST_READONLY_INCREASED("incompatible.request.readonly.increased", true),
+  REQUEST_READONLY_REQUIRED_DECREASED("incompatible.request.readonly.required.decreased", true),
   REQUEST_REQUIRED_INCREASED("incompatible.request.required.increased", true),
   RESPONSE_CONTENT_DECREASED("incompatible.response.content.decreased", true),
   RESPONSE_ENUM_INCREASED("incompatible.response.enum.increased", true),
