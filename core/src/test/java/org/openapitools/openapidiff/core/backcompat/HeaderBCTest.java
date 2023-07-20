@@ -1,37 +1,44 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_HEADER_EXPLODE_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_HEADER_REQUIRED_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_HEADER_REQUIRED_INCREASED;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class HeaderBCTest {
   private final String BASE = "bc_response_header_base.yaml";
 
   @Test
-  public void responseHeaderUnchanged() {
+  public void unchanged() {
     assertSpecUnchanged(BASE, BASE);
   }
 
   @Test
-  public void responseHeaderDeprecated() {
-    assertSpecChangedButCompatible(BASE, "bc_response_header_deprecated.yaml");
+  public void changedButCompatible() {
+    assertSpecChangedButCompatible(BASE, "bc_response_header_changed_but_compatible.yaml");
   }
 
   @Test
-  public void responseHeaderRequiredAdded() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_header_required_added.yaml");
+  public void responseExplodeChanged() {
+    BackwardIncompatibleProp prop = RESPONSE_HEADER_EXPLODE_CHANGED;
+    assertSpecIncompatible(BASE, "bc_response_header_explode_changed.yaml", prop);
   }
 
   @Test
-  public void responseHeaderRequiredDeleted() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_response_header_required_deleted.yaml");
+  public void responseRequiredDecreased() {
+    BackwardIncompatibleProp prop = RESPONSE_HEADER_REQUIRED_DECREASED;
+    assertSpecIncompatible(BASE, "bc_response_header_required_decreased.yaml", prop);
   }
 
   @Test
-  public void responseHeaderExplode() {
-    String RESPONSE_HEADER_EXPLODE = "bc_response_header_explode.yaml";
-    assertOpenApiBackwardIncompatible(BASE, RESPONSE_HEADER_EXPLODE);
+  public void responseRequiredIncreased() {
+    // TODO: Document why desired or remove support (test added to avoid unintentional regression)
+    BackwardIncompatibleProp prop = RESPONSE_HEADER_REQUIRED_INCREASED;
+    assertSpecIncompatible(BASE, "bc_response_header_required_increased.yaml", prop);
   }
 }

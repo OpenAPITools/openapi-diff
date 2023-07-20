@@ -1,5 +1,9 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_HEADER_EXPLODE_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_HEADER_REQUIRED_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_HEADER_REQUIRED_INCREASED;
+
 import io.swagger.v3.oas.models.headers.Header;
 import java.util.Arrays;
 import java.util.List;
@@ -34,10 +38,30 @@ public class ChangedHeader implements ComposedChanged {
     if (!required && !deprecated && !style && !explode) {
       return DiffResult.NO_CHANGES;
     }
-    if (!required && !style && !explode) {
-      return DiffResult.COMPATIBLE;
+    if (explode) {
+      if (RESPONSE_HEADER_EXPLODE_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    if (required) {
+      boolean requiredOld = oldHeader.getRequired() != null ? oldHeader.getRequired() : false;
+      boolean requiredNew = newHeader.getRequired() != null ? newHeader.getRequired() : false;
+      if (requiredOld && !requiredNew) {
+        if (RESPONSE_HEADER_REQUIRED_DECREASED.enabled(context)) {
+          return DiffResult.INCOMPATIBLE;
+        }
+      }
+      if (!requiredOld && requiredNew) {
+        // TODO: Document why desired or remove support. Client will just ignore new header?
+        if (RESPONSE_HEADER_REQUIRED_INCREASED.enabled(context)) {
+          return DiffResult.INCOMPATIBLE;
+        }
+      }
+    }
+    if (style) {
+      return DiffResult.INCOMPATIBLE;
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public Header getOldHeader() {
