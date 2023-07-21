@@ -1,16 +1,24 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.OPENAPI_ENDPOINTS_DECREASED;
+
 import io.swagger.v3.oas.models.PathItem;
 import java.util.*;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 
 public class ChangedPaths implements ComposedChanged {
+  private final OpenApiDiffOptions options;
   private final Map<String, PathItem> oldPathMap;
   private final Map<String, PathItem> newPathMap;
   private Map<String, PathItem> increased;
   private Map<String, PathItem> missing;
   private Map<String, ChangedPath> changed;
 
-  public ChangedPaths(Map<String, PathItem> oldPathMap, Map<String, PathItem> newPathMap) {
+  public ChangedPaths(
+      Map<String, PathItem> oldPathMap,
+      Map<String, PathItem> newPathMap,
+      OpenApiDiffOptions options) {
+    this.options = options;
     this.oldPathMap = oldPathMap;
     this.newPathMap = newPathMap;
     this.increased = new LinkedHashMap<>();
@@ -28,10 +36,12 @@ public class ChangedPaths implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (missing.isEmpty()) {
-      return DiffResult.COMPATIBLE;
+    if (!missing.isEmpty()) {
+      if (OPENAPI_ENDPOINTS_DECREASED.enabled(options.getConfig())) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    return DiffResult.COMPATIBLE;
   }
 
   public Map<String, PathItem> getOldPathMap() {
