@@ -17,6 +17,7 @@ public class AddPropPutDiffTest {
 
   @Test
   public void testFieldAdditionalInPutApiIsCompatible() {
+    // See https://github.com/OpenAPITools/openapi-diff/pull/537
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
     assertThat(changedOpenApi.isDifferent()).isTrue();
     assertThat(changedOpenApi.isCompatible()).isTrue();
