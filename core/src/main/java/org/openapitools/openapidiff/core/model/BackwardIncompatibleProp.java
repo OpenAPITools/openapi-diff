@@ -15,6 +15,8 @@ public enum BackwardIncompatibleProp {
   REQUEST_MAX_LENGTH_DECREASED("incompatible.request.max.length.decreased", true),
   REQUEST_NUMERIC_RANGE_DECREASED("incompatible.request.numeric.range.decreased", true),
   REQUEST_ONEOF_DECREASED("incompatible.request.oneof.decreased", true),
+  REQUEST_PARAMS_DECREASED("incompatible.request.params.decreased", true),
+  REQUEST_PARAMS_REQUIRED_INCREASED("incompatible.request.params.required.increased", true),
   REQUEST_READONLY_INCREASED("incompatible.request.readonly.increased", true),
   REQUEST_READONLY_REQUIRED_DECREASED("incompatible.request.readonly.required.decreased", true),
   REQUEST_REQUIRED_INCREASED("incompatible.request.required.increased", true),

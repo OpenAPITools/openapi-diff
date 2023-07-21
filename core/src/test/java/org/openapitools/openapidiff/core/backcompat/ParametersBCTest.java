@@ -1,10 +1,13 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_PARAMS_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_PARAMS_REQUIRED_INCREASED;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class ParametersBCTest {
   private final String BASE = "bc_request_params_base.yaml";
@@ -21,11 +24,13 @@ public class ParametersBCTest {
 
   @Test
   public void decreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_params_decreased.yaml");
+    BackwardIncompatibleProp prop = REQUEST_PARAMS_DECREASED;
+    assertSpecIncompatible(BASE, "bc_request_params_decreased.yaml", prop);
   }
 
   @Test
   public void requiredIncreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_params_required_increased.yaml");
+    BackwardIncompatibleProp prop = REQUEST_PARAMS_REQUIRED_INCREASED;
+    assertSpecIncompatible(BASE, "bc_request_params_required_increased.yaml", prop);
   }
 }
