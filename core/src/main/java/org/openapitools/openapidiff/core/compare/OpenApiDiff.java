@@ -174,7 +174,7 @@ public class OpenApiDiff {
   }
 
   private ChangedOpenApi getChangedOpenApi() {
-    return new ChangedOpenApi()
+    return new ChangedOpenApi(options)
         .setMissingEndpoints(missingEndpoints)
         .setNewEndpoints(newEndpoints)
         .setNewSpecOpenApi(newSpecOpenApi)
