@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.*;
+
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.Arrays;
 import java.util.List;
@@ -41,13 +43,27 @@ public class ChangedParameter implements ComposedChanged {
         && !changeExplode) {
       return DiffResult.NO_CHANGES;
     }
-    if ((!changeRequired || Boolean.TRUE.equals(oldParameter.getRequired()))
-        && (!changeAllowEmptyValue || Boolean.TRUE.equals(newParameter.getAllowEmptyValue()))
-        && !changeStyle
-        && !changeExplode) {
-      return DiffResult.COMPATIBLE;
+    if (changeAllowEmptyValue && !Boolean.TRUE.equals(newParameter.getAllowEmptyValue())) {
+      if (REQUEST_PARAM_ALLOWEMPTY_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    if (changeExplode) {
+      if (REQUEST_PARAM_EXPLODE_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (changeRequired && !Boolean.TRUE.equals(oldParameter.getRequired())) {
+      if (REQUEST_PARAMS_REQUIRED_INCREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (changeStyle) {
+      if (REQUEST_PARAM_STYLE_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public DiffContext getContext() {
