@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.io.OutputStreamWriter;
+import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class JsonRender implements Render {
@@ -17,21 +18,14 @@ public class JsonRender implements Render {
   }
 
   @Override
-  public String render(ChangedOpenApi diff) {
+  public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     try {
-      return objectMapper.writeValueAsString(diff);
+      objectMapper.writeValue(outputStreamWriter, diff);
+      outputStreamWriter.close();
     } catch (JsonProcessingException e) {
-      throw new RuntimeException("Could not serialize diff as JSON", e);
-    }
-  }
-
-  public void renderToFile(ChangedOpenApi diff, String file) {
-    try {
-      objectMapper.writeValue(Paths.get(file).toFile(), diff);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException("Could not serialize diff as JSON", e);
+      throw new RendererException("Could not serialize diff as JSON", e);
     } catch (IOException e) {
-      throw new RuntimeException("Could not write to JSON file", e);
+      throw new RendererException(e);
     }
   }
 }

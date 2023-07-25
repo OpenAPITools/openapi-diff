@@ -1,0 +1,34 @@
+openapi: 3.0.0
+info:
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
+paths:
+  /widgets:
+    post:
+      operationId: widgetCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prop1:
+                  type: string
+                  writeOnly: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prop1:
+                    type: string
+                    writeOnly: true
+                  prop2:
+                    type: string
+                    writeOnly: true
+                required:
+                  - prop1

@@ -26,16 +26,20 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import j2html.rendering.FlatHtml;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.OlTag;
 import j2html.tags.specialized.UlTag;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.ChangedApiResponse;
 import org.openapitools.openapidiff.core.model.ChangedContent;
 import org.openapitools.openapidiff.core.model.ChangedMediaType;
@@ -71,7 +75,7 @@ public class HtmlRender implements Render {
     this.linkCss = linkCss;
   }
 
-  public String render(ChangedOpenApi diff) {
+  public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     this.diff = diff;
 
     List<Endpoint> newEndpoints = diff.getNewEndpoints();
@@ -86,10 +90,16 @@ public class HtmlRender implements Render {
     List<ChangedOperation> changedOperations = diff.getChangedOperations();
     OlTag ol_changed = ol_changed(changedOperations);
 
-    return renderHtml(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed);
+    renderHtml(
+        ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed, outputStreamWriter);
   }
 
-  public String renderHtml(OlTag ol_new, OlTag ol_miss, OlTag ol_deprec, OlTag ol_changed) {
+  public void renderHtml(
+      OlTag ol_new,
+      OlTag ol_miss,
+      OlTag ol_deprec,
+      OlTag ol_changed,
+      OutputStreamWriter outputStreamWriter) {
     HtmlTag html =
         html()
             .attr("lang", "en")
@@ -110,7 +120,14 @@ public class HtmlRender implements Render {
                                 div().with(h2("What's Deprecated"), hr(), ol_deprec),
                                 div().with(h2("What's Changed"), hr(), ol_changed))));
 
-    return document().render() + html.render();
+    try {
+      FlatHtml<OutputStreamWriter> flatHtml = FlatHtml.into(outputStreamWriter);
+      document().render(flatHtml);
+      html.render(flatHtml);
+      outputStreamWriter.close();
+    } catch (IOException e) {
+      throw new RendererException("Problem rendering html document.", e);
+    }
   }
 
   private OlTag ol_newEndpoint(List<Endpoint> endpoints) {
@@ -400,10 +417,14 @@ public class HtmlRender implements Render {
             .map(ChangedMetadata::isDifferent)
             .orElse(false);
     Parameter rightParam = changeParam.getNewParameter();
-    Parameter leftParam = changeParam.getNewParameter();
+    Parameter leftParam = changeParam.getOldParameter();
     LiTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
     if (changeRequired) {
-      li.withText(" change into " + (rightParam.getRequired() ? "required" : "not required"));
+      li.withText(
+          " change into "
+              + (rightParam.getRequired() != null && rightParam.getRequired()
+                  ? "required"
+                  : "not required"));
     }
     if (changeDescription) {
       li.withText(" Notes ")

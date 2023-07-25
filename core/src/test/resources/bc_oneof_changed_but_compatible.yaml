@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
+paths:
+  /widgets:
+    post:
+      operationId: widgetCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetCreateRequest'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetCreateResponse'
+components:
+  schemas:
+    WidgetCreateRequest:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Doodad'
+        - $ref: '#/components/schemas/Gadget'
+        - $ref: '#/components/schemas/Gizmo'
+    WidgetCreateResponse:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/Doodad'
+    Doodad:
+      type: object
+      properties:
+        doodad_prop1:
+          type: string
+    Gadget:
+      type: object
+      properties:
+        gadget_prop1:
+          type: string
+    Gizmo:
+      type: object
+      properties:
+        gizmo_prop1:
+          type: string

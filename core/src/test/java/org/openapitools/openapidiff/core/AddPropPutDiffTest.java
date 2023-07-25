@@ -1,9 +1,10 @@
 package org.openapitools.openapidiff.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiAreEquals;
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class AddPropPutDiffTest {
   private final String OPENAPI_DOC1 = "add-prop-put-1.yaml";
@@ -15,7 +16,10 @@ public class AddPropPutDiffTest {
   }
 
   @Test
-  public void testDiffDifferent() {
-    assertOpenApiBackwardIncompatible(OPENAPI_DOC1, OPENAPI_DOC2);
+  public void testFieldAdditionalInPutApiIsCompatible() {
+    // See https://github.com/OpenAPITools/openapi-diff/pull/537
+    ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
+    assertThat(changedOpenApi.isDifferent()).isTrue();
+    assertThat(changedOpenApi.isCompatible()).isTrue();
   }
 }
