@@ -5,7 +5,9 @@ import org.openapitools.openapidiff.core.model.Changed;
 
 public class ChangedUtils {
 
-  private ChangedUtils() {}
+  private ChangedUtils() {
+    throw new UnsupportedOperationException("Utility class. Do not instantiate");
+  }
 
   public static boolean isUnchanged(Changed changed) {
     return changed == null || changed.isUnchanged();

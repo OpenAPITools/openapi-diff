@@ -145,6 +145,12 @@ Add openapi-diff to your POM to show diffs when you test your Maven project. You
         <failOnIncompatible>true</failOnIncompatible>
         <!-- Fail if API changed (default: false) -->
         <failOnChanged>true</failOnChanged>
+        <!-- Supply file path for console output to file if desired. -->
+        <consoleOutputFileName>${project.basedir}/../maven/target/diff.txt</consoleOutputFileName>
+        <!-- Supply file path for json output to file if desired. -->
+        <jsonOutputFileName>${project.basedir}/../maven/target/diff.json</jsonOutputFileName>
+        <!-- Supply file path for markdown output to file if desired. -->
+        <markdownOutputFileName>${project.basedir}/../maven/target/diff.md</markdownOutputFileName>
       </configuration>
     </execution>
   </executions>
@@ -167,6 +173,7 @@ public class Main {
 ```
 
 ### Render difference
+
 ---
 #### HTML
 
@@ -176,11 +183,9 @@ String html = new HtmlRender("Changelog",
                 .render(diff);
 
 try {
-    FileWriter fw = new FileWriter(
-            "testNewApi.html");
+    FileWriter fw = new FileWriter("testNewApi.html");
     fw.write(html);
     fw.close();
-
 } catch (IOException e) {
     e.printStackTrace();
 }
@@ -191,11 +196,9 @@ try {
 ```java
 String render = new MarkdownRender().render(diff);
 try {
-    FileWriter fw = new FileWriter(
-            "testDiff.md");
+    FileWriter fw = new FileWriter("testDiff.md");
     fw.write(render);
     fw.close();
-    
 } catch (IOException e) {
     e.printStackTrace();
 }
@@ -207,11 +210,9 @@ try {
 ```java
 String render = new JsonRender().render(diff);
 try {
-    FileWriter fw = new FileWriter(
-            "testDiff.json");
+    FileWriter fw = new FileWriter("testDiff.json");
     fw.write(render);
     fw.close();
-    
 } catch (IOException e) {
     e.printStackTrace();
 }
