@@ -2,6 +2,10 @@ package org.openapitools.openapidiff.maven;
 
 import static org.openapitools.openapidiff.core.utils.FileUtils.writeToFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -33,13 +37,13 @@ public class OpenApiDiffMojo extends AbstractMojo {
   @Parameter(property = "skip", defaultValue = "false")
   Boolean skip = false;
 
-  @Parameter(property = "consoleOutputFileName", defaultValue = "")
+  @Parameter(property = "consoleOutputFileName")
   String consoleOutputFileName;
 
-  @Parameter(property = "jsonOutputFileName", defaultValue = "")
+  @Parameter(property = "jsonOutputFileName")
   String jsonOutputFileName;
 
-  @Parameter(property = "markdownOutputFileName", defaultValue = "")
+  @Parameter(property = "markdownOutputFileName")
   String markdownOutputFileName;
 
   @Override
@@ -51,6 +55,14 @@ public class OpenApiDiffMojo extends AbstractMojo {
 
     try {
       final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec);
+
+      try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
+        new ConsoleRender().render(diff, outputStreamWriter);
+        getLog().info(outputStream.toString());
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
 
       writeDiffAsTextToFile(diff);
       writeDiffAsJsonToFile(diff);
@@ -69,18 +81,14 @@ public class OpenApiDiffMojo extends AbstractMojo {
   }
 
   private void writeDiffAsTextToFile(final ChangedOpenApi diff) {
-    final String render = new ConsoleRender().render(diff);
-    writeToFile(render, consoleOutputFileName);
-    getLog().info(render);
+    writeToFile(new ConsoleRender(), diff, consoleOutputFileName);
   }
 
   private void writeDiffAsJsonToFile(final ChangedOpenApi diff) {
-    final String render = new JsonRender().render(diff);
-    writeToFile(render, jsonOutputFileName);
+    writeToFile(new JsonRender(), diff, jsonOutputFileName);
   }
 
   private void writeDiffAsMarkdownToFile(final ChangedOpenApi diff) {
-    final String render = new MarkdownRender().render(diff);
-    writeToFile(render, markdownOutputFileName);
+    writeToFile(new MarkdownRender(), diff, markdownOutputFileName);
   }
 }

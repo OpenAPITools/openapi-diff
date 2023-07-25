@@ -1,0 +1,30 @@
+openapi: 3.0.0
+info:
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
+paths:
+  /widgets:
+    get:
+      operationId: listWidgets
+      parameters:
+        - name: query-param-1
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: query-param-2
+          in: query
+          schema:
+            type: string
+        - name: query-param-3
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string

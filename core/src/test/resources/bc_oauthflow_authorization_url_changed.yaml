@@ -1,0 +1,28 @@
+openapi: 3.0.0
+info:
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
+paths:
+  /widgets:
+    get:
+      operationId: listWidgets
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+      security:
+        - oauth2-scheme-1: []
+components:
+  securitySchemes:
+    oauth2-scheme-1:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://example.com/api/oauth/authorization2
+          refreshUrl: https://example.com/api/oauth/refresh
+          tokenUrl: https://example.com/api/oauth/token
+          scopes: {}

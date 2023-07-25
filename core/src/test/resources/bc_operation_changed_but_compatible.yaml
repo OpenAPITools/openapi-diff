@@ -1,0 +1,17 @@
+openapi: 3.0.0
+info:
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
+paths:
+  /widgets:
+    get:
+      deprecated: true
+      operationId: listWidgets
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
