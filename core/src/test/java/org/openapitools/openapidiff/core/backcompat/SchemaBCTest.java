@@ -37,9 +37,7 @@ public class SchemaBCTest {
 
   @Test
   public void requestPropsPutIncreased() {
-    // TODO: Document why desired or remove support (test added to avoid unintentional regression)
-    // See https://github.com/OpenAPITools/openapi-diff/issues/537
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_schema_props_put_increased.yaml");
+    assertSpecChangedButCompatible(BASE, "bc_request_schema_props_put_increased.yaml");
   }
 
   @Test
