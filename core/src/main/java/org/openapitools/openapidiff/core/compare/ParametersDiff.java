@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -99,7 +101,7 @@ public class ParametersDiff {
       // Speedy Check. Use the map already created in changedParameters to check if missing param is
       // linked to newParam
       String newParameterName = context.getParameters().get(parameter.getName());
-      if (newParameterName.isEmpty()) return false;
+      if (StringUtils.isBlank(newParameterName)) return false;
 
       Optional<Parameter> newParameter =
           changedParameters.getIncreased().stream()

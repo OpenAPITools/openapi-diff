@@ -420,7 +420,7 @@ public class HtmlRender implements Render {
     Parameter leftParam = changeParam.getOldParameter();
     LiTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
     if (changeRequired) {
-      li.withText(" change into " + (rightParam.getRequired() ? "required" : "not required"));
+      li.withText(" change into " + (rightParam.getRequired() != null &&  rightParam.getRequired() ? "required" : "not required"));
     }
     if (changeDescription) {
       li.withText(" Notes ")
