@@ -400,7 +400,7 @@ public class HtmlRender implements Render {
             .map(ChangedMetadata::isDifferent)
             .orElse(false);
     Parameter rightParam = changeParam.getNewParameter();
-    Parameter leftParam = changeParam.getNewParameter();
+    Parameter leftParam = changeParam.getOldParameter();
     LiTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
     if (changeRequired) {
       li.withText(" change into " + (rightParam.getRequired() ? "required" : "not required"));
