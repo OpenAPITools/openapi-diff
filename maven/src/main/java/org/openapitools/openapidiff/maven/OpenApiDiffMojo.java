@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.maven;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -25,11 +27,22 @@ public class OpenApiDiffMojo extends AbstractMojo {
   @Parameter(property = "failOnChanged", defaultValue = "false")
   Boolean failOnChanged = false;
 
+  @Parameter(property = "skip", defaultValue = "false")
+  Boolean skip = false;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    if (Boolean.TRUE.equals(skip)) {
+      getLog().info("Skipping openapi-diff execution");
+      return;
+    }
+
     try {
       final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec);
-      getLog().info(new ConsoleRender().render(diff));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+      new ConsoleRender().render(diff, outputStreamWriter);
+      getLog().info(outputStream.toString());
 
       if (failOnIncompatible && diff.isIncompatible()) {
         throw new BackwardIncompatibilityException("The API changes broke backward compatibility");

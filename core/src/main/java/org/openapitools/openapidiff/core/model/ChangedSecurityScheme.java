@@ -44,6 +44,13 @@ public class ChangedSecurityScheme implements ComposedChanged {
         && !changedBearerFormat
         && !changedOpenIdConnectUrl
         && (changedScopes == null || changedScopes.getIncreased().isEmpty())) {
+
+      // TODO: Dead code removal opportunity for changedType and changedIn. It appears that
+      // SecuritySchemaDiff will never be given the chance to detect differences TYPE and
+      // IN differences because that case has already been detected and filtered out by
+      // SecurityRequirementsDiff and recorded as a dropped requirement in
+      // ChangedSecurityRequirements.
+
       return DiffResult.COMPATIBLE;
     }
     return DiffResult.INCOMPATIBLE;

@@ -59,7 +59,18 @@ public class SchemaDiffResult {
         .setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()))
         .setReadOnly(new ChangedReadOnly(left.getReadOnly(), right.getReadOnly(), context))
         .setWriteOnly(new ChangedWriteOnly(left.getWriteOnly(), right.getWriteOnly(), context))
-        .setMaxLength(new ChangedMaxLength(left.getMaxLength(), right.getMaxLength(), context));
+        .setMaxLength(new ChangedMaxLength(left.getMaxLength(), right.getMaxLength(), context))
+        .setNumericRange(
+            new ChangedNumericRange(
+                left.getMinimum(),
+                right.getMinimum(),
+                left.getMaximum(),
+                right.getMaximum(),
+                left.getExclusiveMinimum(),
+                right.getExclusiveMinimum(),
+                left.getExclusiveMaximum(),
+                right.getExclusiveMaximum(),
+                context));
     builder
         .with(
             openApiDiff

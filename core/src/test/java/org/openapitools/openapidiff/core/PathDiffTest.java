@@ -2,7 +2,6 @@ package org.openapitools.openapidiff.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiAreEquals;
 
 import org.junit.jupiter.api.Test;
@@ -42,13 +41,9 @@ public class PathDiffTest {
   @Test
   public void testDiffWithSimilarBeginningPaths() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_PATH5, OPENAPI_PATH6);
-    try {
-      ChangedOpenApi diff =
-          OpenApiCompare.fromSpecifications(
-              changedOpenApi.getOldSpecOpenApi(), changedOpenApi.getNewSpecOpenApi());
-      assertThat(diff.getChangedOperations()).hasSize(4);
-    } catch (IllegalArgumentException e) {
-      fail(e.getMessage());
-    }
+    ChangedOpenApi diff =
+        OpenApiCompare.fromSpecifications(
+            changedOpenApi.getOldSpecOpenApi(), changedOpenApi.getNewSpecOpenApi());
+    assertThat(diff.getChangedOperations()).isEmpty();
   }
 }

@@ -73,7 +73,9 @@ public class OperationDiff {
     }
 
     ParametersDiffResult parametersDiffResult =
-            openApiDiff.getParametersDiff().diff(oldOperation.getParameters(), newOperation.getParameters(), context);
+        openApiDiff
+            .getParametersDiff()
+            .diff(oldOperation.getParameters(), newOperation.getParameters(), context);
     builder
         .with(parametersDiffResult.deferredChanged)
         .ifPresent(

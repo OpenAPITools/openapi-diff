@@ -3,11 +3,13 @@ package org.openapitools.openapidiff.core.compare;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -20,13 +22,15 @@ class ParametersDiffResult {
   protected DeferredChanged<ChangedParameters> deferredChanged;
   protected boolean sameOperationsDiffSchema;
 
-  public ParametersDiffResult(DeferredChanged<ChangedParameters> deferredChanged, boolean sameOperationsDiffSchema) {
+  public ParametersDiffResult(
+      DeferredChanged<ChangedParameters> deferredChanged, boolean sameOperationsDiffSchema) {
     this.deferredChanged = deferredChanged;
     this.sameOperationsDiffSchema = sameOperationsDiffSchema;
   }
 }
 /** compare two parameter */
 public class ParametersDiff {
+
   private static final RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
 
   private final Components leftComponents;
@@ -57,32 +61,32 @@ public class ParametersDiff {
         && Objects.equals(left.getIn(), right.getIn());
   }
 
-  public ParametersDiffResult diff(List<Parameter> left, List<Parameter> right, DiffContext context) {
-    DeferredBuilder<Changed> builder = new DeferredBuilder<>();
-    ChangedParameters changedParameters =
-        new ChangedParameters(left, right != null ? new ArrayList<>(right) : null, context);
-    if (null == left) left = new ArrayList<>();
-    if (null == right) right = new ArrayList<>();
+  public ParametersDiffResult diff(
+      final List<Parameter> left, final List<Parameter> right, final DiffContext context) {
+    final DeferredBuilder<Changed> builder = new DeferredBuilder<>();
+    final List<Parameter> wLeft = Optional.ofNullable(left).orElseGet(Collections::emptyList);
+    final List<Parameter> wRight =
+        Optional.ofNullable(right).map(ArrayList::new).orElseGet(ArrayList::new);
 
-    for (Parameter leftPara : left) {
-      leftPara = refPointer.resolveRef(leftComponents, leftPara, leftPara.get$ref());
+    final ChangedParameters changedParameters = new ChangedParameters(wLeft, wRight, context);
 
-      Optional<Parameter> rightParam = contains(rightComponents, right, leftPara);
-      if (!rightParam.isPresent()) {
-        changedParameters.getMissing().add(leftPara);
+    for (Parameter leftParam : wLeft) {
+      leftParam = refPointer.resolveRef(leftComponents, leftParam, leftParam.get$ref());
+      Optional<Parameter> rightParamOpt = contains(rightComponents, wRight, leftParam);
+      if (!rightParamOpt.isPresent()) {
+        changedParameters.getMissing().add(leftParam);
       } else {
-        Parameter rightPara = rightParam.get();
-        right.remove(rightPara);
+        Parameter rightParam = rightParamOpt.get();
+        wRight.remove(rightParam);
         builder
-            .with(openApiDiff.getParameterDiff().diff(leftPara, rightPara, context))
+            .with(openApiDiff.getParameterDiff().diff(leftParam, rightParam, context))
             .ifPresent(changedParameters.getChanged()::add);
       }
     }
-    changedParameters.getIncreased().addAll(right);
+    changedParameters.getIncreased().addAll(wRight);
     return new ParametersDiffResult(
-            builder.buildIsChanged(changedParameters),
-            pathUnchangedParametersChanged(changedParameters, context)
-    );
+        builder.buildIsChanged(changedParameters),
+        pathUnchangedParametersChanged(changedParameters, context));
   }
 
   public boolean pathUnchangedParametersChanged(
@@ -93,9 +97,10 @@ public class ParametersDiff {
       return false;
     // Go through each missing Parameter and compare it to newly added Parameters
     for (Parameter parameter : changedParameters.getMissing()) {
-      // Speedy Check. Use the map already created in changedParameters to check if missing param is linked to newParam
+      // Speedy Check. Use the map already created in changedParameters to check if missing param is
+      // linked to newParam
       String newParameterName = context.getParameters().get(parameter.getName());
-      if (newParameterName.isEmpty()) return false;
+      if (StringUtils.isBlank(newParameterName)) return false;
 
       Optional<Parameter> newParameter =
           changedParameters.getIncreased().stream()
@@ -107,7 +112,8 @@ public class ParametersDiff {
       Parameter newParameterRealized = newParameter.get();
       newParameterRealized.setName(parameter.getName()); // Make names similar
       boolean samePathDifferentParameter = !newParameterRealized.equals(parameter);
-      newParameterRealized.setName(newParameterName); // Important:: MUST Reset the name as this is not a copy
+      newParameterRealized.setName(
+          newParameterName); // Important:: MUST Reset the name as this is not a copy
       return samePathDifferentParameter;
     }
     return false;
@@ -119,10 +125,11 @@ public class ParametersDiff {
     String newUrl = context.getRightUrl();
     ArrayList<String> oldUrlPathParams = matchedItems(oldUrl, REGEX_PATH);
     ArrayList<String> newUrlPathParams = matchedItems(newUrl, REGEX_PATH);
-    // Path Param count doesn't match or param-less path doesn't match or param is changed --> It's a new endpoint
+    // Path Param count doesn't match or param-less path doesn't match or param is changed --> It's
+    // a new endpoint
     return oldUrlPathParams.size() == newUrlPathParams.size()
-            && changedParameters.getChanged().isEmpty()
-            && oldUrl.replaceAll(REGEX_PATH, "").equals(newUrl.replaceAll(REGEX_PATH, ""));
+        && changedParameters.getChanged().isEmpty()
+        && oldUrl.replaceAll(REGEX_PATH, "").equals(newUrl.replaceAll(REGEX_PATH, ""));
   }
 
   public ArrayList<String> matchedItems(String string, String regex) {

@@ -2,9 +2,9 @@ package org.openapitools.openapidiff.cli;
 
 import ch.qos.logback.classic.Level;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.cli.CommandLine;
@@ -14,7 +14,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
@@ -175,29 +174,33 @@ public class Main {
       ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath, auths);
       ConsoleRender consoleRender = new ConsoleRender();
       if (!logLevel.equals("OFF")) {
-        System.out.println(consoleRender.render(result));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        consoleRender.render(result, outputStreamWriter);
+        System.out.println(outputStream);
       }
       if (line.hasOption("html")) {
         HtmlRender htmlRender = new HtmlRender();
-        String output = htmlRender.render(result);
-        String outputFile = line.getOptionValue("html");
-        writeOutput(output, outputFile);
+        FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("html"));
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        htmlRender.render(result, outputStreamWriter);
       }
       if (line.hasOption("markdown")) {
         MarkdownRender mdRender = new MarkdownRender();
-        String output = mdRender.render(result);
-        String outputFile = line.getOptionValue("markdown");
-        writeOutput(output, outputFile);
+        FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("markdown"));
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        mdRender.render(result, outputStreamWriter);
       }
       if (line.hasOption("text")) {
-        String output = consoleRender.render(result);
-        String outputFile = line.getOptionValue("text");
-        writeOutput(output, outputFile);
+        FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("text"));
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        consoleRender.render(result, outputStreamWriter);
       }
       if (line.hasOption("json")) {
         JsonRender jsonRender = new JsonRender();
-        String outputFile = line.getOptionValue("json");
-        jsonRender.renderToFile(result, outputFile);
+        FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("json"));
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        jsonRender.render(result, outputStreamWriter);
       }
       if (line.hasOption("state")) {
         System.out.println(result.isChanged().getValue());
@@ -218,17 +221,6 @@ public class Main {
               + e.getMessage()
               + "\n"
               + ExceptionUtils.getStackTrace(e));
-      System.exit(2);
-    }
-  }
-
-  private static void writeOutput(String output, String outputFile) {
-    File file = new File(outputFile);
-    logger.debug("Output file: {}", file.getAbsolutePath());
-    try {
-      FileUtils.writeStringToFile(file, output, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      logger.error("Impossible to write output to file {}", outputFile, e);
       System.exit(2);
     }
   }

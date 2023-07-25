@@ -3,6 +3,8 @@ package org.openapitools.openapidiff.core;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.swagger.v3.oas.models.media.Content;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
@@ -10,6 +12,7 @@ import org.openapitools.openapidiff.core.model.ChangedResponse;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.HtmlRender;
 import org.openapitools.openapidiff.core.output.MarkdownRender;
+import org.openapitools.openapidiff.core.output.Render;
 
 public class ResponseAddedContentSchemaTest {
 
@@ -39,8 +42,22 @@ public class ResponseAddedContentSchemaTest {
   public void testDiffCanBeRendered() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
 
-    assertThat(new ConsoleRender().render(changedOpenApi)).isNotBlank();
-    assertThat(new HtmlRender().render(changedOpenApi)).isNotBlank();
-    assertThat(new MarkdownRender().render(changedOpenApi)).isNotBlank();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    Render render = new ConsoleRender();
+    render.render(changedOpenApi, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
+
+    outputStream = new ByteArrayOutputStream();
+    outputStreamWriter = new OutputStreamWriter(outputStream);
+    render = new HtmlRender();
+    render.render(changedOpenApi, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
+
+    outputStream = new ByteArrayOutputStream();
+    outputStreamWriter = new OutputStreamWriter(outputStream);
+    render = new MarkdownRender();
+    render.render(changedOpenApi, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
   }
 }
