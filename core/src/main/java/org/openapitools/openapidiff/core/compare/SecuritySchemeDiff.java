@@ -51,8 +51,8 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
         changedSecuritySchemeOptional -> {
           ChangedSecurityScheme changedSecurityScheme =
               changedSecuritySchemeOptional.orElse(
-                  new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme));
-          changedSecurityScheme = getCopyWithoutScopes(changedSecurityScheme);
+                  new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme, context));
+          changedSecurityScheme = getCopyWithoutScopes(changedSecurityScheme, context);
 
           if (changedSecurityScheme != null
               && leftSecurityScheme.getType() == SecurityScheme.Type.OAUTH2) {
@@ -71,7 +71,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
       SecurityScheme rightSecurityScheme,
       DiffContext context) {
     ChangedSecurityScheme changedSecurityScheme =
-        new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme);
+        new ChangedSecurityScheme(leftSecurityScheme, rightSecurityScheme, context);
 
     openApiDiff
         .getMetadataDiff()
@@ -114,9 +114,10 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
     return new RealizedChanged<>(changedSecurityScheme);
   }
 
-  private ChangedSecurityScheme getCopyWithoutScopes(ChangedSecurityScheme original) {
+  private ChangedSecurityScheme getCopyWithoutScopes(
+      ChangedSecurityScheme original, DiffContext context) {
     return new ChangedSecurityScheme(
-            original.getOldSecurityScheme(), original.getNewSecurityScheme())
+            original.getOldSecurityScheme(), original.getNewSecurityScheme(), context)
         .setChangedType(original.isChangedType())
         .setChangedIn(original.isChangedIn())
         .setChangedScheme(original.isChangedScheme())

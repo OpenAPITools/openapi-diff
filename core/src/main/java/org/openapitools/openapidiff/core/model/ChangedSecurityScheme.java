@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.*;
+
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Objects;
 public class ChangedSecurityScheme implements ComposedChanged {
   private SecurityScheme oldSecurityScheme;
   private SecurityScheme newSecurityScheme;
+  private final DiffContext context;
   private boolean changedType;
   private boolean changedIn;
   private boolean changedScheme;
@@ -18,9 +21,11 @@ public class ChangedSecurityScheme implements ComposedChanged {
   private ChangedOAuthFlows oAuthFlows;
   private ChangedExtensions extensions;
 
-  public ChangedSecurityScheme(SecurityScheme oldSecurityScheme, SecurityScheme newSecurityScheme) {
+  public ChangedSecurityScheme(
+      SecurityScheme oldSecurityScheme, SecurityScheme newSecurityScheme, DiffContext context) {
     this.oldSecurityScheme = oldSecurityScheme;
     this.newSecurityScheme = newSecurityScheme;
+    this.context = context;
   }
 
   @Override
@@ -38,22 +43,36 @@ public class ChangedSecurityScheme implements ComposedChanged {
         && (changedScopes == null || changedScopes.isUnchanged())) {
       return DiffResult.NO_CHANGES;
     }
-    if (!changedType
-        && !changedIn
-        && !changedScheme
-        && !changedBearerFormat
-        && !changedOpenIdConnectUrl
-        && (changedScopes == null || changedScopes.getIncreased().isEmpty())) {
 
+    if (changedBearerFormat) {
+      if (SECURITY_SCHEME_BEARER_FORMAT_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (changedOpenIdConnectUrl) {
+      if (SECURITY_SCHEME_OPENIDCONNECT_URL_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (changedScheme) {
+      if (SECURITY_SCHEME_SCHEME_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (changedScopes != null && !changedScopes.getIncreased().isEmpty()) {
+      if (SECURITY_SCHEME_SCOPES_INCREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (changedIn || changedType) {
       // TODO: Dead code removal opportunity for changedType and changedIn. It appears that
       // SecuritySchemaDiff will never be given the chance to detect differences TYPE and
       // IN differences because that case has already been detected and filtered out by
       // SecurityRequirementsDiff and recorded as a dropped requirement in
       // ChangedSecurityRequirements.
-
-      return DiffResult.COMPATIBLE;
+      return DiffResult.INCOMPATIBLE;
     }
-    return DiffResult.INCOMPATIBLE;
+    return DiffResult.COMPATIBLE;
   }
 
   public SecurityScheme getOldSecurityScheme() {
