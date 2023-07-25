@@ -6,11 +6,14 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
@@ -21,81 +24,78 @@ public class ConsoleRender implements Render {
   protected ChangedOpenApi diff;
 
   @Override
-  public String render(ChangedOpenApi diff) {
+  public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     this.diff = diff;
-    StringBuilder output = new StringBuilder();
     if (diff.isUnchanged()) {
-      output.append("No differences. Specifications are equivalents");
+      safelyAppend(outputStreamWriter, "No differences. Specifications are equivalents");
     } else {
-      output
-          .append(bigTitle("Api Change Log"))
-          .append(StringUtils.center(diff.getNewSpecOpenApi().getInfo().getTitle(), LINE_LENGTH))
-          .append(System.lineSeparator());
+      safelyAppend(outputStreamWriter, bigTitle("Api Change Log"));
+      safelyAppend(
+          outputStreamWriter,
+          StringUtils.center(diff.getNewSpecOpenApi().getInfo().getTitle(), LINE_LENGTH));
+      safelyAppend(outputStreamWriter, System.lineSeparator());
 
       List<Endpoint> newEndpoints = diff.getNewEndpoints();
-      String ol_newEndpoint = listEndpoints(newEndpoints, "What's New");
+      listEndpoints(newEndpoints, "What's New", outputStreamWriter);
 
       List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-      String ol_missingEndpoint = listEndpoints(missingEndpoints, "What's Deleted");
+      listEndpoints(missingEndpoints, "What's Deleted", outputStreamWriter);
 
       List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
-      String ol_deprecatedEndpoint = listEndpoints(deprecatedEndpoints, "What's Deprecated");
+      listEndpoints(deprecatedEndpoints, "What's Deprecated", outputStreamWriter);
 
       List<ChangedOperation> changedOperations = diff.getChangedOperations();
-      String ol_changed = ol_changed(changedOperations);
+      ol_changed(changedOperations, outputStreamWriter);
 
-      output
-          .append(renderBody(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed))
-          .append(title("Result"))
-          .append(
-              StringUtils.center(
-                  diff.isCompatible()
-                      ? "API changes are backward compatible"
-                      : "API changes broke backward compatibility",
-                  LINE_LENGTH))
-          .append(System.lineSeparator())
-          .append(separator('-'));
+      safelyAppend(
+          outputStreamWriter,
+          StringUtils.center(
+              diff.isCompatible()
+                  ? "API changes are backward compatible"
+                  : "API changes broke backward compatibility",
+              LINE_LENGTH));
+      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, separator('-'));
     }
-    return output.toString();
+    try {
+      outputStreamWriter.close();
+    } catch (IOException e) {
+      throw new RendererException(e);
+    }
   }
 
-  private String ol_changed(List<ChangedOperation> operations) {
+  private void ol_changed(
+      List<ChangedOperation> operations, OutputStreamWriter outputStreamWriter) {
     if (null == operations || operations.isEmpty()) {
-      return "";
+      return;
     }
-    StringBuilder sb = new StringBuilder();
-    sb.append(title("What's Changed"));
+    safelyAppend(outputStreamWriter, title("What's Changed"));
     for (ChangedOperation operation : operations) {
       String pathUrl = operation.getPathUrl();
       String method = operation.getHttpMethod().toString();
       String desc =
           Optional.ofNullable(operation.getSummary()).map(ChangedMetadata::getRight).orElse("");
 
-      StringBuilder ul_detail = new StringBuilder();
       if (result(operation.getParameters()).isDifferent()) {
-        ul_detail
-            .append(StringUtils.repeat(' ', 2))
-            .append("Parameter:")
-            .append(System.lineSeparator())
-            .append(ul_param(operation.getParameters()));
+        safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
+        safelyAppend(outputStreamWriter, "Parameter:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, ul_param(operation.getParameters()));
       }
       if (operation.resultRequestBody().isDifferent()) {
-        ul_detail
-            .append(StringUtils.repeat(' ', 2))
-            .append("Request:")
-            .append(System.lineSeparator())
-            .append(ul_content(operation.getRequestBody().getContent(), true));
+        safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
+        safelyAppend(outputStreamWriter, "Request:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, ul_content(operation.getRequestBody().getContent(), true));
       }
       if (operation.resultApiResponses().isDifferent()) {
-        ul_detail
-            .append(StringUtils.repeat(' ', 2))
-            .append("Return Type:")
-            .append(System.lineSeparator())
-            .append(ul_response(operation.getApiResponses()));
+        safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
+        safelyAppend(outputStreamWriter, "Return Type:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
       }
-      sb.append(itemEndpoint(method, pathUrl, desc)).append(ul_detail);
+      safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
     }
-    return sb.toString();
   }
 
   private String ul_response(ChangedApiResponse changedApiResponse) {
@@ -279,7 +279,8 @@ public class ConsoleRender implements Render {
     }
   }
 
-  private String listEndpoints(List<Endpoint> endpoints, String title) {
+  private String listEndpoints(
+      List<Endpoint> endpoints, String title, OutputStreamWriter outputStreamWriter) {
     if (null == endpoints || endpoints.isEmpty()) {
       return "";
     }
@@ -317,8 +318,7 @@ public class ConsoleRender implements Render {
         separator(ch), little, StringUtils.center(title, LINE_LENGTH - 4), little, separator(ch));
   }
 
-  public StringBuilder separator(char ch) {
-    StringBuilder sb = new StringBuilder();
-    return sb.append(StringUtils.repeat(ch, LINE_LENGTH)).append(System.lineSeparator());
+  public String separator(char ch) {
+    return StringUtils.repeat(ch, LINE_LENGTH) + System.lineSeparator();
   }
 }
