@@ -14,13 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class FileUtilsTest {
-
-  private static final Logger logger = LoggerFactory.getLogger(FileUtilsTest.class);
-
   private ChangedOpenApi changedOpenApi;
 
   @BeforeEach
@@ -30,15 +25,6 @@ class FileUtilsTest {
     changedOpenApi.setChangedOperations(Collections.emptyList());
     changedOpenApi.setNewEndpoints(Collections.emptyList());
     changedOpenApi.setMissingEndpoints(Collections.emptyList());
-  }
-
-  @Test
-  void writeToFile_contentIsNull_doesNothing(@TempDir Path tempDir) throws IOException {
-    Path path = tempDir.resolve("output.txt");
-    Files.write(path, "Test".getBytes(StandardCharsets.UTF_8));
-
-    assertDoesNotThrow(() -> FileUtils.writeToFile(null, changedOpenApi, path.toString()));
-    assertThat(path).exists().content().isEqualTo("Test");
   }
 
   @Test
@@ -53,13 +39,13 @@ class FileUtilsTest {
   }
 
   @Test
-  void writeToFile_fileExists_doesNothing(@TempDir Path tempDir) throws IOException {
+  void writeToFile_fileExists_overwrites_file(@TempDir Path tempDir) throws IOException {
     final Path path = tempDir.resolve("output.txt");
     Files.write(path, "Test".getBytes(StandardCharsets.UTF_8));
 
     assertDoesNotThrow(
         () -> FileUtils.writeToFile(new ConsoleRender(), changedOpenApi, path.toString()));
-    assertThat(path).exists().content().isEqualTo("Test");
+    assertThat(path).exists().content().isNotEqualTo("Test");
   }
 
   @Test
@@ -67,6 +53,6 @@ class FileUtilsTest {
     final Path path = tempDir.resolve("output.txt");
     assertDoesNotThrow(
         () -> FileUtils.writeToFile(new ConsoleRender(), changedOpenApi, path.toString()));
-    assertThat(path).exists();
+    assertThat(path).exists().content().isNotBlank();
   }
 }
