@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
+paths:
+  /widgets:
+    post:
+      operationId: widgetCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              format: int32
+              exclusiveMinimum: false
+              exclusiveMaximum: true
+          application/text:
+            schema:
+              type: integer
+              format: int32
+              minimum: 10
+              maximum: 20
+          application/xml:
+            schema:
+              type: integer
+              format: int32
+              minimum: 10
+              maximum: 20
+              exclusiveMinimum: true
+              exclusiveMaximum: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+                exclusiveMinimum: false
+                exclusiveMaximum: false
+            application/text:
+              schema:
+                type: integer
+                format: int32
+                minimum: 10
+                maximum: 20
+            application/xml:
+              schema:
+                type: integer
+                format: int32
+                minimum: 10
+                maximum: 20
+                exclusiveMinimum: true
+                exclusiveMaximum: true
