@@ -37,6 +37,8 @@ public enum BackwardIncompatibleProp {
   RESPONSE_RESPONSES_DECREASED("incompatible.response.responses.decreased", true),
   RESPONSE_WRITEONLY_INCREASED("incompatible.response.writeonly.increased", true),
   RESPONSE_WRITEONLY_REQUIRED_DECREASED("incompatible.response.writeonly.required.decreased", true),
+  SECURITY_REQUIREMENT_SCHEMES_INCREASED(
+      "incompatible.security.requirement.schemes.increased", true),
   SECURITY_SCHEME_BEARER_FORMAT_CHANGED("incompatible.security.scheme.bearer.format.changed", true),
   SECURITY_SCHEME_OPENIDCONNECT_URL_CHANGED(
       "incompatible.security.scheme.openidconnect.url.changed", true),
