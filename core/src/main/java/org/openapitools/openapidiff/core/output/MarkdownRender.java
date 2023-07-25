@@ -11,11 +11,14 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
@@ -44,28 +47,33 @@ public class MarkdownRender implements Render {
    */
   protected boolean showChangedMetadata;
 
-  public String render(ChangedOpenApi diff) {
+  public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     this.diff = diff;
     this.handledSchemas.clear();
-    return listEndpoints("What's New", diff.getNewEndpoints())
-        + listEndpoints("What's Deleted", diff.getMissingEndpoints())
-        + listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints())
-        + listEndpoints(diff.getChangedOperations());
+    listEndpoints("What's New", diff.getNewEndpoints(), outputStreamWriter);
+    listEndpoints("What's Deleted", diff.getMissingEndpoints(), outputStreamWriter);
+    listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints(), outputStreamWriter);
+    listEndpoints(diff.getChangedOperations(), outputStreamWriter);
+    try {
+      outputStreamWriter.close();
+    } catch (IOException e) {
+      throw new RendererException(e);
+    }
   }
 
   protected String sectionTitle(String title) {
     return H4 + title + '\n' + HR + '\n';
   }
 
-  protected String listEndpoints(String title, List<Endpoint> endpoints) {
+  protected void listEndpoints(
+      String title, List<Endpoint> endpoints, OutputStreamWriter outputStreamWriter) {
     if (null == endpoints || endpoints.isEmpty()) {
-      return "";
+      return;
     }
-    StringBuilder sb = new StringBuilder(sectionTitle(title));
+    safelyAppend(outputStreamWriter, sectionTitle(title));
     endpoints.stream()
         .map(e -> itemEndpoint(e.getMethod().toString(), e.getPathUrl(), e.getSummary()))
-        .forEach(sb::append);
-    return sb.toString();
+        .forEach(csq -> safelyAppend(outputStreamWriter, csq));
   }
 
   protected String itemEndpoint(String method, String path, String summary) {
@@ -80,41 +88,36 @@ public class MarkdownRender implements Render {
     return H6 + title + '\n';
   }
 
-  protected String listEndpoints(List<ChangedOperation> changedOperations) {
+  protected void listEndpoints(
+      List<ChangedOperation> changedOperations, OutputStreamWriter outputStreamWriter) {
     if (null == changedOperations || changedOperations.isEmpty()) {
-      return "";
+      return;
     }
-    StringBuilder sb = new StringBuilder(sectionTitle("What's Changed"));
-    changedOperations.stream()
-        .map(
-            operation -> {
-              StringBuilder details =
-                  new StringBuilder()
-                      .append(
-                          itemEndpoint(
-                              operation.getHttpMethod().toString(),
-                              operation.getPathUrl(),
-                              operation.getSummary()));
-              if (result(operation.getParameters()).isDifferent()) {
-                details
-                    .append(titleH5("Parameters:"))
-                    .append(parameters(operation.getParameters()));
-              }
-              if (operation.resultRequestBody().isDifferent()) {
-                details
-                    .append(titleH5("Request:"))
-                    .append(metadata("Description", operation.getRequestBody().getDescription()))
-                    .append(bodyContent(operation.getRequestBody().getContent()));
-              }
-              if (operation.resultApiResponses().isDifferent()) {
-                details
-                    .append(titleH5("Return Type:"))
-                    .append(responses(operation.getApiResponses()));
-              }
-              return details.toString();
-            })
-        .forEach(sb::append);
-    return sb.toString();
+    safelyAppend(outputStreamWriter, sectionTitle("What's Changed"));
+    changedOperations.forEach(
+        operation -> {
+          safelyAppend(
+              outputStreamWriter,
+              itemEndpoint(
+                  operation.getHttpMethod().toString(),
+                  operation.getPathUrl(),
+                  operation.getSummary()));
+          if (result(operation.getParameters()).isDifferent()) {
+            safelyAppend(outputStreamWriter, titleH5("Parameters:"));
+            safelyAppend(outputStreamWriter, parameters(operation.getParameters()));
+          }
+          if (operation.resultRequestBody().isDifferent()) {
+            safelyAppend(outputStreamWriter, titleH5("Request:"));
+            safelyAppend(
+                outputStreamWriter,
+                metadata("Description", operation.getRequestBody().getDescription()));
+            safelyAppend(outputStreamWriter, bodyContent(operation.getRequestBody().getContent()));
+          }
+          if (operation.resultApiResponses().isDifferent()) {
+            safelyAppend(outputStreamWriter, titleH5("Return Type:"));
+            safelyAppend(outputStreamWriter, responses(operation.getApiResponses()));
+          }
+        });
   }
 
   protected String responses(ChangedApiResponse changedApiResponse) {
