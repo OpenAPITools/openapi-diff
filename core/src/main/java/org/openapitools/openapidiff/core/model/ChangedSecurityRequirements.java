@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_REQUIREMENTS_DECREASED;
+
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,15 +11,18 @@ import org.apache.commons.collections4.CollectionUtils;
 public class ChangedSecurityRequirements implements ComposedChanged {
   private List<SecurityRequirement> oldSecurityRequirements;
   private List<SecurityRequirement> newSecurityRequirements;
+  private final DiffContext context;
   private List<SecurityRequirement> missing;
   private List<SecurityRequirement> increased;
   private List<ChangedSecurityRequirement> changed;
 
   public ChangedSecurityRequirements(
       List<SecurityRequirement> oldSecurityRequirements,
-      List<SecurityRequirement> newSecurityRequirements) {
+      List<SecurityRequirement> newSecurityRequirements,
+      DiffContext context) {
     this.oldSecurityRequirements = oldSecurityRequirements;
     this.newSecurityRequirements = newSecurityRequirements;
+    this.context = context;
     this.changed = new ArrayList<>();
   }
 
@@ -31,10 +36,12 @@ public class ChangedSecurityRequirements implements ComposedChanged {
     if (CollectionUtils.isEmpty(missing) && CollectionUtils.isEmpty(increased)) {
       return DiffResult.NO_CHANGES;
     }
-    if (CollectionUtils.isEmpty(missing)) {
-      return DiffResult.COMPATIBLE;
+    if (CollectionUtils.isNotEmpty(missing)) {
+      if (SECURITY_REQUIREMENTS_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    return DiffResult.COMPATIBLE;
   }
 
   public void addMissing(SecurityRequirement securityRequirement) {

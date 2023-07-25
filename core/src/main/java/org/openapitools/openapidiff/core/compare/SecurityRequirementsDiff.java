@@ -88,7 +88,7 @@ public class SecurityRequirementsDiff {
     right = right == null ? new ArrayList<>() : getCopy(right);
 
     ChangedSecurityRequirements changedSecurityRequirements =
-        new ChangedSecurityRequirements(left, right);
+        new ChangedSecurityRequirements(left, right, context);
 
     for (SecurityRequirement leftSecurity : left) {
       Optional<SecurityRequirement> rightSecOpt = contains(right, leftSecurity);
