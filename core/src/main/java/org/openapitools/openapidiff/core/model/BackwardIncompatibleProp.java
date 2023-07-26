@@ -41,6 +41,12 @@ public enum BackwardIncompatibleProp {
       "incompatible.security.requirement.schemes.increased", true),
   SECURITY_REQUIREMENTS_DECREASED("incompatible.security.requirements.decreased", true),
   SECURITY_SCHEME_BEARER_FORMAT_CHANGED("incompatible.security.scheme.bearer.format.changed", true),
+  SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED(
+      "incompatible.security.scheme.oauth2.auth.url.changed", true),
+  SECURITY_SCHEME_OAUTH2_REFRESH_URL_CHANGED(
+      "incompatible.security.scheme.oauth2.refresh.url.changed", true),
+  SECURITY_SCHEME_OAUTH2_TOKEN_URL_CHANGED(
+      "incompatible.security.scheme.oauth2.token.url.changed", true),
   SECURITY_SCHEME_OPENIDCONNECT_URL_CHANGED(
       "incompatible.security.scheme.openidconnect.url.changed", true),
   SECURITY_SCHEME_SCHEME_CHANGED("incompatible.security.scheme.scheme.changed", true),

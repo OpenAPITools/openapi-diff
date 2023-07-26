@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.ChangedOAuthFlow;
+import org.openapitools.openapidiff.core.model.DiffContext;
 
 public class OAuthFlowDiff {
   private final OpenApiDiff openApiDiff;
@@ -20,8 +21,8 @@ public class OAuthFlowDiff {
     return ofNullable(oAuthFlow).map(OAuthFlow::getExtensions).orElse(null);
   }
 
-  public Optional<ChangedOAuthFlow> diff(OAuthFlow left, OAuthFlow right) {
-    ChangedOAuthFlow changedOAuthFlow = new ChangedOAuthFlow(left, right);
+  public Optional<ChangedOAuthFlow> diff(OAuthFlow left, OAuthFlow right, DiffContext context) {
+    ChangedOAuthFlow changedOAuthFlow = new ChangedOAuthFlow(left, right, context);
     if (left != null && right != null) {
       changedOAuthFlow
           .setAuthorizationUrl(

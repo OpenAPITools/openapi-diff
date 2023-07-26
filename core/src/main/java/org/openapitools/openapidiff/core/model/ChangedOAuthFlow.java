@@ -1,5 +1,9 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_REFRESH_URL_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_TOKEN_URL_CHANGED;
+
 import io.swagger.v3.oas.models.security.OAuthFlow;
 import java.util.Collections;
 import java.util.List;
@@ -8,14 +12,16 @@ import java.util.Objects;
 public class ChangedOAuthFlow implements ComposedChanged {
   private OAuthFlow oldOAuthFlow;
   private OAuthFlow newOAuthFlow;
+  private final DiffContext context;
   private boolean authorizationUrl;
   private boolean tokenUrl;
   private boolean refreshUrl;
   private ChangedExtensions extensions;
 
-  public ChangedOAuthFlow(OAuthFlow oldOAuthFlow, OAuthFlow newOAuthFlow) {
+  public ChangedOAuthFlow(OAuthFlow oldOAuthFlow, OAuthFlow newOAuthFlow, DiffContext context) {
     this.oldOAuthFlow = oldOAuthFlow;
     this.newOAuthFlow = newOAuthFlow;
+    this.context = context;
   }
 
   @Override
@@ -25,10 +31,25 @@ public class ChangedOAuthFlow implements ComposedChanged {
 
   @Override
   public DiffResult isCoreChanged() {
-    if (authorizationUrl || tokenUrl || refreshUrl) {
-      return DiffResult.INCOMPATIBLE;
+    if (!authorizationUrl && !tokenUrl && !refreshUrl) {
+      return DiffResult.NO_CHANGES;
     }
-    return DiffResult.NO_CHANGES;
+    if (authorizationUrl) {
+      if (SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (refreshUrl) {
+      if (SECURITY_SCHEME_OAUTH2_REFRESH_URL_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    if (tokenUrl) {
+      if (SECURITY_SCHEME_OAUTH2_TOKEN_URL_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public OAuthFlow getOldOAuthFlow() {
