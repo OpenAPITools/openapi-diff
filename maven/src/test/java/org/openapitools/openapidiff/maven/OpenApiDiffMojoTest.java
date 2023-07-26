@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,7 @@ class OpenApiDiffMojoTest {
 
   private final File oldSpecFile = new File("src/test/resources/oldspec.yaml");
   private final File newSpecFile = new File("src/test/resources/newspec.yaml");
+  private final File configFile = new File("src/test/resources/test-config-file.yaml");
 
   private final File consoleOutputfile = new File("target/diff.txt");
   private final File markdownOutputfile = new File("target/diff.md");
@@ -103,6 +105,19 @@ class OpenApiDiffMojoTest {
     mojo.failOnIncompatible = true;
 
     assertThrows(BackwardIncompatibilityException.class, mojo::execute);
+  }
+
+  @Test
+  void Should_NotThrow_When_ConfigWithIncompatibleChecksDisabled() {
+    final OpenApiDiffMojo mojo = new OpenApiDiffMojo();
+    mojo.oldSpec = newSpecFile.getAbsolutePath();
+    mojo.newSpec = oldSpecFile.getAbsolutePath();
+    mojo.failOnIncompatible = true;
+    mojo.configFiles = Collections.singletonList(configFile);
+    mojo.configProps =
+        Collections.singletonMap("incompatible.request.params.required.increased", "false");
+
+    assertDoesNotThrow(mojo::execute);
   }
 
   @Test

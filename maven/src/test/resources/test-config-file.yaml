@@ -1,0 +1,8 @@
+####
+## Config file for openapi-diff
+####
+
+incompatible:
+  response:
+    required:
+      decreased: false

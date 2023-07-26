@@ -1,15 +1,33 @@
----
-openapi: 3.0.3
+openapi: 3.0.0
 info:
-  title: Generated API
-  version: "1.0"
+  description: myDesc
+  title: myTitle
+  version: 1.0.0
 paths:
-  /hello:
+  /widgets:
     get:
+      operationId: listWidgets
+      parameters:
+        - name: query-param-1
+          in: query
+          schema:
+            type: string
+        - name: query-param-2
+          in: query
+          schema:
+            type: string
       responses:
-        "200":
-          description: OK
+        '200':
+          description: successful operation
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  prop1:
+                    type: string
+                  prop2:
+                    type: string
+                required:
+                  - prop1
+                  - prop2

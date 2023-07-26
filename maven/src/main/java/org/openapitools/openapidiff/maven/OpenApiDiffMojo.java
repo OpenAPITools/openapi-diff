@@ -3,9 +3,12 @@ package org.openapitools.openapidiff.maven;
 import static org.openapitools.openapidiff.core.utils.FileUtils.writeToFile;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
+import java.util.List;
+import java.util.Map;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -13,6 +16,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.openapitools.openapidiff.core.OpenApiCompare;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.JsonRender;
@@ -46,6 +50,12 @@ public class OpenApiDiffMojo extends AbstractMojo {
   @Parameter(property = "markdownOutputFileName")
   String markdownOutputFileName;
 
+  @Parameter(property = "configFiles")
+  List<File> configFiles;
+
+  @Parameter(property = "configProps")
+  Map<String, String> configProps;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     if (Boolean.TRUE.equals(skip)) {
@@ -54,7 +64,16 @@ public class OpenApiDiffMojo extends AbstractMojo {
     }
 
     try {
-      final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec);
+      OpenApiDiffOptions.Builder optionBuilder = OpenApiDiffOptions.builder();
+      if (configFiles != null) {
+        configFiles.forEach(optionBuilder::configYaml);
+      }
+      if (configProps != null) {
+        configProps.forEach(optionBuilder::configProperty);
+      }
+      OpenApiDiffOptions options = optionBuilder.build();
+
+      final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec, null, options);
 
       try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
