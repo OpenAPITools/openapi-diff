@@ -194,9 +194,9 @@ public class Main {
       }
       if (line.hasOption("html-detailed")) {
         HtmlRender htmlRender = new HtmlRender(true);
-        String output = htmlRender.render(result);
-        String outputFile = line.getOptionValue("html-detailed");
-        writeOutput(output, outputFile);
+        FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("html-detailed"));
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        htmlRender.render(result, outputStreamWriter);
       }
       if (line.hasOption("markdown")) {
         MarkdownRender mdRender = new MarkdownRender();
