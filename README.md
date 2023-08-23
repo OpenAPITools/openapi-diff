@@ -44,6 +44,7 @@ Available on [Docker Hub](https://hub.docker.com/r/openapitools/openapi-diff/) a
 ```bash
 # docker run openapitools/openapi-diff:latest
 usage: openapi-diff <old> <new>
+    --asciidoc <file>           export diff as asciidoc in given file
     --debug                     Print debugging information
     --error                     Print error information
     --fail-on-changed           Fail if API changed but is backward
@@ -101,6 +102,7 @@ openapi-diff can read OpenAPI specs from JSON files or HTTP URLs.
 ```bash
 $ openapi-diff --help
 usage: openapi-diff <old> <new>
+    --asciidoc <file>           export diff as asciidoc in given file
     --debug                     Print debugging information
     --error                     Print error information
  -h,--help                      print this message
@@ -151,6 +153,8 @@ Add openapi-diff to your POM to show diffs when you test your Maven project. You
         <jsonOutputFileName>${project.basedir}/../maven/target/diff.json</jsonOutputFileName>
         <!-- Supply file path for markdown output to file if desired. -->
         <markdownOutputFileName>${project.basedir}/../maven/target/diff.md</markdownOutputFileName>
+        <!-- Supply file path for Asciidoc output to file if desired. -->
+        <asciidocOutputFileName>${project.basedir}/../maven/target/diff.adoc</asciidocOutputFileName>
       </configuration>
     </execution>
   </executions>

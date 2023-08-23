@@ -17,10 +17,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
-import org.openapitools.openapidiff.core.output.ConsoleRender;
-import org.openapitools.openapidiff.core.output.HtmlRender;
-import org.openapitools.openapidiff.core.output.JsonRender;
-import org.openapitools.openapidiff.core.output.MarkdownRender;
+import org.openapitools.openapidiff.core.output.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,6 +106,13 @@ public class Main {
             .argName("file")
             .desc("export diff as json in given file")
             .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("asciidoc")
+            .hasArg()
+            .argName("file")
+            .desc("export diff as asciidoc in given file")
+            .build());
 
     // create the parser
     CommandLineParser parser = new DefaultParser();
@@ -190,6 +194,12 @@ public class Main {
         FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("markdown"));
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
         mdRender.render(result, outputStreamWriter);
+      }
+      if (line.hasOption("asciidoc")) {
+        AsciidocRender asciidocRender = new AsciidocRender();
+        FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("asciidoc"));
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        asciidocRender.render(result, outputStreamWriter);
       }
       if (line.hasOption("text")) {
         FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("text"));
