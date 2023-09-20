@@ -68,4 +68,29 @@ public class AsciidocRenderTest {
                 + "\n"
                 + "NOTE: API changes are backward compatible\n");
   }
+
+  @Test
+  public void validateAsciiDocRangeStatus() {
+    AsciidocRender render = new AsciidocRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("range_statuscode_1.yaml", "range_statuscode_2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString())
+        .isEqualTo(
+            "= PROJECTS API (v 1.0.0)\n"
+                + ":reproducible:\n"
+                + ":sectlinks:\n"
+                + ":toc:\n"
+                + "\n"
+                + "== What's Changed\n"
+                + "=== GET   /pet/\n"
+                + "* Return Type:\n"
+                + "** Add 4XX \n"
+                + "** Deleted 405 Method Not Allowed\n"
+                + "\n"
+                + "\n"
+                + "WARNING: API changes broke backward compatibility\n");
+  }
 }

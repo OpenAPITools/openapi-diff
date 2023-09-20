@@ -128,13 +128,13 @@ public class AsciidocRender implements Render {
     if (!code.equals("default") && !code.matches("[1-5]XX")) {
       status = HttpStatus.getReasonPhrase(Integer.parseInt(code));
     }
-    sb.append(title).append(code).append(' ').append(status);
+    sb.append(title).append(code).append(' ').append(status).append("\n");
     return sb.toString();
   }
 
   private String itemChangedResponse(String title, String contentType, ChangedResponse response) {
     return itemResponse(title, contentType)
-        + "\n** Media types:\n"
+        + "** Media types:\n"
         + ul_content(response.getContent(), false, 3);
   }
 
