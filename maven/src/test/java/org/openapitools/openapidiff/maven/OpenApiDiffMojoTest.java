@@ -25,6 +25,7 @@ class OpenApiDiffMojoTest {
   private final File consoleOutputfile = new File("target/diff.txt");
   private final File markdownOutputfile = new File("target/diff.md");
   private final File jsonOutputfile = new File("target/diff.json");
+  private final File asciidocOutputfile = new File("target/diff.adoc");
 
   @BeforeEach
   void setup() {
@@ -156,6 +157,20 @@ class OpenApiDiffMojoTest {
     assertThrows(ApiChangedException.class, mojo::execute);
 
     assertTrue(Files.exists(jsonOutputfile.toPath()));
+  }
+
+  @Test
+  void Should_outputToAsccidocFile_When_SpecIsDifferent() {
+    final OpenApiDiffMojo mojo = new OpenApiDiffMojo();
+    mojo.oldSpec = oldSpecFile.getAbsolutePath();
+    mojo.newSpec = newSpecFile.getAbsolutePath();
+
+    mojo.asciidocOutputFileName = asciidocOutputfile.getAbsolutePath();
+    mojo.failOnChanged = true;
+
+    assertThrows(ApiChangedException.class, mojo::execute);
+
+    assertTrue(Files.exists(asciidocOutputfile.toPath()));
   }
 
   private void cleanupGeneratedFiles() {
