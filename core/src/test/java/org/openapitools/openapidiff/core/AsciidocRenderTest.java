@@ -40,4 +40,32 @@ public class AsciidocRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void validateAsciiDocChangeFile() {
+    AsciidocRender render = new AsciidocRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("missing_property_1.yaml", "missing_property_2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString())
+        .isEqualTo(
+            "= TITLE (v 1.0.0)\n"
+                + ":reproducible:\n"
+                + ":sectlinks:\n"
+                + ":toc:\n"
+                + "\n"
+                + "== What's Changed\n"
+                + "=== GET   /\n"
+                + "* Return Type:\n"
+                + "** Changed default \n"
+                + "** Media types:\n"
+                + "*** Changed application/json\n"
+                + "*** Schema:\n"
+                + "Backward compatible\n"
+                + "\n"
+                + "\n"
+                + "NOTE: API changes are backward compatible\n");
+  }
 }
