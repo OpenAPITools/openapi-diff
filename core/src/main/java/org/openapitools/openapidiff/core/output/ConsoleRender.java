@@ -76,6 +76,7 @@ public class ConsoleRender implements Render {
       String desc =
           Optional.ofNullable(operation.getSummary()).map(ChangedMetadata::getRight).orElse("");
 
+      safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
       if (result(operation.getParameters()).isDifferent()) {
         safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
         safelyAppend(outputStreamWriter, "Parameter:");
@@ -94,7 +95,6 @@ public class ConsoleRender implements Render {
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
       }
-      safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
     }
   }
 
