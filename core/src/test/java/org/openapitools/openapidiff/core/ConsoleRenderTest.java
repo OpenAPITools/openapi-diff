@@ -72,7 +72,7 @@ public class ConsoleRenderTest {
             OpenApiCompare.fromLocations("change_endpoint_1.yaml", "change_endpoint_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString())
-            .contains("What's Changed2")
+            .contains("What's Changed")
             .containsSubsequence("- GET    /widgets", "Parameter:", "- Changed query-param-1 in query");
   }
 }
