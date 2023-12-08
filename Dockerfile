@@ -1,7 +1,7 @@
 FROM openjdk:8-jdk-slim AS build
 WORKDIR /build
-COPY ./ /build
-RUN ./mvnw -V -B -ff -P docker package -q
+COPY ./ .
+RUN sh ./mvnw -V -B -ff -P docker package -q
 
 FROM openjdk:8-jre-slim
 WORKDIR /app
