@@ -26,6 +26,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import j2html.rendering.FlatHtml;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
@@ -50,6 +51,8 @@ import org.openapitools.openapidiff.core.model.ChangedParameter;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.ChangedResponse;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
+import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
+import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.DiffResult;
 import org.openapitools.openapidiff.core.model.Endpoint;
@@ -64,15 +67,27 @@ public class HtmlRender implements Render {
 
   private final String title;
   private final String linkCss;
+  private final boolean showAllChanges;
   protected ChangedOpenApi diff;
 
   public HtmlRender() {
     this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
   }
 
+  public HtmlRender(boolean showAllChanges) {
+    this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css", showAllChanges);
+  }
+
   public HtmlRender(String title, String linkCss) {
     this.title = title;
     this.linkCss = linkCss;
+    this.showAllChanges = false;
+  }
+
+  public HtmlRender(String title, String linkCss, boolean showAllChanges) {
+    this.title = title;
+    this.linkCss = linkCss;
+    this.showAllChanges = showAllChanges;
   }
 
   public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
@@ -200,6 +215,11 @@ public class HtmlRender implements Render {
         ul_detail.with(
             li().with(h3("Response")).with(ul_response(changedOperation.getApiResponses())));
       }
+      if (showAllChanges && changedOperation.resultSecurityRequirements().isDifferent()) {
+        ul_detail.with(
+                li().with(h3("Security Requirements"))
+                        .with(ul_securityRequirements(changedOperation.getSecurityRequirements())));
+      }
       ol.with(
           li().with(span(method).withClass(method))
               .withText(pathUrl + " ")
@@ -207,6 +227,52 @@ public class HtmlRender implements Render {
               .with(ul_detail));
     }
     return ol;
+  }
+
+  private UlTag ul_securityRequirements(ChangedSecurityRequirements changedSecurityRequirements) {
+    List<SecurityRequirement> addRequirements = changedSecurityRequirements.getIncreased();
+    List<SecurityRequirement> delRequirements = changedSecurityRequirements.getMissing();
+    List<ChangedSecurityRequirement> changedRequirements = changedSecurityRequirements.getChanged();
+    UlTag ul = ul().withClass("change security requirements");
+    if (addRequirements != null) {
+      for (SecurityRequirement addRequirement : addRequirements) {
+        ul.with(li_addSecurityRequirement(addRequirement));
+      }
+    }
+    if (delRequirements != null) {
+      for (SecurityRequirement delRequirement : delRequirements) {
+        ul.with(li_missingSecurityRequirement(delRequirement));
+      }
+    }
+    if (changedRequirements != null) {
+      for (ChangedSecurityRequirement changedRequirement : changedRequirements) {
+        ul.with(li_changedSecurityRequirement(changedRequirement));
+      }
+    }
+
+    return ul;
+  }
+
+  private LiTag li_addSecurityRequirement(SecurityRequirement securityRequirement) {
+    return li().withText("New security requirement : ")
+            .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
+  }
+
+  private LiTag li_missingSecurityRequirement(SecurityRequirement securityRequirement) {
+    return li().withText("Deleted security requirement : ")
+            .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
+  }
+
+  private LiTag li_changedSecurityRequirement(
+          ChangedSecurityRequirement changedSecurityRequirement) {
+    return li().withText(String.format("Changed security requirement : "))
+            .with(
+                    span(
+                            (null == changedSecurityRequirement.getNewSecurityRequirement()
+                                    || null
+                                    == changedSecurityRequirement.getNewSecurityRequirement().toString())
+                                    ? ""
+                                    : (changedSecurityRequirement.getNewSecurityRequirement().toString())));
   }
 
   private UlTag ul_response(ChangedApiResponse changedApiResponse) {
@@ -279,8 +345,11 @@ public class HtmlRender implements Render {
     LiTag li =
         li().with(div_changedSchema(request.getSchema()))
             .withText(String.format("Changed body: '%s'", name));
-    if (request.isIncompatible()) {
+    if (request.isIncompatible() && !showAllChanges) {
       incompatibilities(li, request.getSchema());
+    }
+    else if (showAllChanges) {
+      allChanges(li, request.getSchema());
     }
     return li;
   }
@@ -289,6 +358,28 @@ public class HtmlRender implements Render {
     DivTag div = div();
     div.with(h3("Schema" + (schema.isIncompatible() ? " incompatible" : "")));
     return div;
+  }
+
+  private void allChanges(final LiTag output, final ChangedSchema schema) {
+    allChanges(output, "", schema);
+  }
+
+  private void allChanges(
+          final ContainerTag<?> output, String propName, final ChangedSchema schema) {
+    String prefix = propName.isEmpty() ? "" : propName + ".";
+    properties(
+            output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
+    properties(
+            output, prefix, "Added property", schema.getIncreasedProperties(), schema.getContext());
+
+    propertiesChanged(
+            output, prefix, "Changed property", schema.getChangedProperties(), schema.getContext());
+    if (schema.getItems() != null) {
+      itemsAllChanges(output, propName, schema.getItems());
+    }
+    schema
+            .getChangedProperties()
+            .forEach((name, property) -> allChanges(output, prefix + name, property));
   }
 
   private void incompatibilities(final LiTag output, final ChangedSchema schema) {
@@ -316,6 +407,10 @@ public class HtmlRender implements Render {
     incompatibilities(output, propName + "[n]", schema);
   }
 
+  private void itemsAllChanges(ContainerTag<?> output, String propName, ChangedSchema schema) {
+    allChanges(output, propName + "[n]", schema);
+  }
+
   private void properties(
       ContainerTag<?> output,
       String propPrefix,
@@ -327,8 +422,28 @@ public class HtmlRender implements Render {
     }
   }
 
+  private void propertiesChanged(
+          ContainerTag<?> output,
+          String propPrefix,
+          String title,
+          Map<String, ChangedSchema> properties,
+          DiffContext context) {
+    if (properties != null) {
+      properties.forEach((key, value) -> resolveProperty(output, propPrefix, key, value, title));
+    }
+  }
+
   private void resolveProperty(
       ContainerTag<?> output, String propPrefix, String key, Schema<?> value, String title) {
+    try {
+      property(output, propPrefix + key, title, resolve(value));
+    } catch (Exception e) {
+      property(output, propPrefix + key, title, type(value));
+    }
+  }
+
+  private void resolveProperty(
+          ContainerTag<?> output, String propPrefix, String key, ChangedSchema value, String title) {
     try {
       property(output, propPrefix + key, title, resolve(value));
     } catch (Exception e) {
@@ -349,6 +464,13 @@ public class HtmlRender implements Render {
         diff.getNewSpecOpenApi().getComponents(), schema, schema.get$ref());
   }
 
+  protected Schema<?> resolve(ChangedSchema schema) {
+    return refPointer.resolveRef(
+            diff.getNewSpecOpenApi().getComponents(),
+            schema.getNewSchema(),
+            schema.getNewSchema().get$ref());
+  }
+
   protected String type(Schema<?> schema) {
     String result = "object";
     if (schema == null) {
@@ -359,6 +481,10 @@ public class HtmlRender implements Render {
       result = schema.getType();
     }
     return result;
+  }
+
+  protected String type(ChangedSchema schema) {
+    return type(schema.getNewSchema());
   }
 
   private UlTag ul_param(ChangedParameters changedParameters) {
