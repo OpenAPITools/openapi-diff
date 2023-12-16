@@ -47,6 +47,7 @@ public class ConsoleRender implements Render {
       List<ChangedOperation> changedOperations = diff.getChangedOperations();
       ol_changed(changedOperations, outputStreamWriter);
 
+      safelyAppend(outputStreamWriter, title("Result"));
       safelyAppend(
           outputStreamWriter,
           StringUtils.center(
@@ -76,6 +77,8 @@ public class ConsoleRender implements Render {
       String desc =
           Optional.ofNullable(operation.getSummary()).map(ChangedMetadata::getRight).orElse("");
 
+      safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
+
       if (result(operation.getParameters()).isDifferent()) {
         safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
         safelyAppend(outputStreamWriter, "Parameter:");
@@ -94,7 +97,6 @@ public class ConsoleRender implements Render {
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
       }
-      safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
     }
   }
 
@@ -279,10 +281,10 @@ public class ConsoleRender implements Render {
     }
   }
 
-  private String listEndpoints(
+  private void listEndpoints(
       List<Endpoint> endpoints, String title, OutputStreamWriter outputStreamWriter) {
     if (null == endpoints || endpoints.isEmpty()) {
-      return "";
+      return;
     }
     StringBuilder sb = new StringBuilder();
     sb.append(title(title));
@@ -291,7 +293,8 @@ public class ConsoleRender implements Render {
           itemEndpoint(
               endpoint.getMethod().toString(), endpoint.getPathUrl(), endpoint.getSummary()));
     }
-    return sb.append(System.lineSeparator()).toString();
+
+    safelyAppend(outputStreamWriter, sb.append(System.lineSeparator()).toString());
   }
 
   private String itemEndpoint(String method, String path, String desc) {
