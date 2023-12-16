@@ -1,6 +1,6 @@
 # OpenAPI-diff 
 
-Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, or Markdown files.
+Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, Markdown files, or JSON files.
 
 [![Build](https://github.com/OpenAPITools/openapi-diff/workflows/Main%20Build/badge.svg)](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3A"Main+Build")
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenAPITools_openapi-diff&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenAPITools_openapi-diff)
@@ -23,7 +23,7 @@ Compare two OpenAPI specifications (3.x) and render the difference to HTML plain
 * Depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
 * Supports swagger api Authorization
 * Render difference of property with Expression Language
-* HTML, Markdown & JSON render
+* HTML, Markdown, Asciidoc & JSON render
 
 # Maven
 
@@ -44,6 +44,7 @@ Available on [Docker Hub](https://hub.docker.com/r/openapitools/openapi-diff/) a
 ```bash
 # docker run openapitools/openapi-diff:latest
 usage: openapi-diff <old> <new>
+    --asciidoc <file>           export diff as asciidoc in given file
     --debug                     Print debugging information
     --error                     Print error information
     --fail-on-changed           Fail if API changed but is backward
@@ -101,6 +102,7 @@ openapi-diff can read OpenAPI specs from JSON files or HTTP URLs.
 ```bash
 $ openapi-diff --help
 usage: openapi-diff <old> <new>
+    --asciidoc <file>           export diff as asciidoc in given file
     --debug                     Print debugging information
     --error                     Print error information
  -h,--help                      print this message
@@ -145,6 +147,12 @@ Add openapi-diff to your POM to show diffs when you test your Maven project. You
         <failOnIncompatible>true</failOnIncompatible>
         <!-- Fail if API changed (default: false) -->
         <failOnChanged>true</failOnChanged>
+        <!-- Supply file path for console output to file if desired. -->
+        <consoleOutputFileName>${project.basedir}/../maven/target/diff.txt</consoleOutputFileName>
+        <!-- Supply file path for json output to file if desired. -->
+        <jsonOutputFileName>${project.basedir}/../maven/target/diff.json</jsonOutputFileName>
+        <!-- Supply file path for markdown output to file if desired. -->
+        <markdownOutputFileName>${project.basedir}/../maven/target/diff.md</markdownOutputFileName>
       </configuration>
     </execution>
   </executions>
@@ -167,6 +175,7 @@ public class Main {
 ```
 
 ### Render difference
+
 ---
 #### HTML
 
@@ -176,11 +185,9 @@ String html = new HtmlRender("Changelog",
                 .render(diff);
 
 try {
-    FileWriter fw = new FileWriter(
-            "testNewApi.html");
+    FileWriter fw = new FileWriter("testNewApi.html");
     fw.write(html);
     fw.close();
-
 } catch (IOException e) {
     e.printStackTrace();
 }
@@ -191,27 +198,35 @@ try {
 ```java
 String render = new MarkdownRender().render(diff);
 try {
-    FileWriter fw = new FileWriter(
-            "testDiff.md");
+    FileWriter fw = new FileWriter("testDiff.md");
     fw.write(render);
     fw.close();
-    
 } catch (IOException e) {
     e.printStackTrace();
 }
 ```
 
+#### Asciidoc
+
+```java
+String render = new AsciidocRender().render(diff);
+try {
+    FileWriter fw = new FileWriter("testDiff.adoc");
+    fw.write(render);
+    fw.close();
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
 
 #### JSON
 
 ```java
 String render = new JsonRender().render(diff);
 try {
-    FileWriter fw = new FileWriter(
-            "testDiff.json");
+    FileWriter fw = new FileWriter("testDiff.json");
     fw.write(render);
     fw.close();
-    
 } catch (IOException e) {
     e.printStackTrace();
 }
