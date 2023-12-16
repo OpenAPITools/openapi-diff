@@ -19,6 +19,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
+import org.openapitools.openapidiff.core.output.AsciidocRender;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.HtmlRender;
 import org.openapitools.openapidiff.core.output.JsonRender;
@@ -102,6 +103,13 @@ public class Main {
             .hasArg()
             .argName("file")
             .desc("export diff as markdown in given file")
+            .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("asciidoc")
+            .hasArg()
+            .argName("file")
+            .desc("export diff as asciidoc in given file")
             .build());
     options.addOption(
         Option.builder()
@@ -225,6 +233,12 @@ public class Main {
         FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("markdown"));
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
         mdRender.render(result, outputStreamWriter);
+      }
+      if (line.hasOption("asciidoc")) {
+        AsciidocRender adocRender = new AsciidocRender();
+        FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("asciidoc"));
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        adocRender.render(result, outputStreamWriter);
       }
       if (line.hasOption("text")) {
         FileOutputStream outputStream = new FileOutputStream(line.getOptionValue("text"));
