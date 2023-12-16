@@ -33,6 +33,9 @@
                             <oldSpec>${project.basedir}/../maven/src/test/resources/oldspec.yaml</oldSpec>
                             <newSpec>${project.basedir}/../maven/src/test/resources/newspec.yaml</newSpec>
                             <failOnIncompatible>true</failOnIncompatible>
+                            <consoleOutputFileName>${project.basedir}/../maven/target/diff.txt</consoleOutputFileName>
+                            <jsonOutputFileName>${project.basedir}/../maven/target/diff.json</jsonOutputFileName>
+                            <markdownOutputFileName>${project.basedir}/../maven/target/diff.md</markdownOutputFileName>
                         </configuration>
                     </execution>
                 </executions>
