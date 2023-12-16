@@ -14,6 +14,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
+import org.openapitools.openapidiff.core.output.AsciidocRender;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.JsonRender;
 import org.openapitools.openapidiff.core.output.MarkdownRender;
@@ -46,6 +47,9 @@ public class OpenApiDiffMojo extends AbstractMojo {
   @Parameter(property = "markdownOutputFileName")
   String markdownOutputFileName;
 
+  @Parameter(property = "asciidocOutputFileName")
+  String asciidocOutputFileName;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     if (Boolean.TRUE.equals(skip)) {
@@ -67,6 +71,7 @@ public class OpenApiDiffMojo extends AbstractMojo {
       writeDiffAsTextToFile(diff);
       writeDiffAsJsonToFile(diff);
       writeDiffAsMarkdownToFile(diff);
+      writeDiffAsAsciidocToFile(diff);
 
       if (failOnIncompatible && diff.isIncompatible()) {
         throw new BackwardIncompatibilityException("The API changes broke backward compatibility");
@@ -90,5 +95,9 @@ public class OpenApiDiffMojo extends AbstractMojo {
 
   private void writeDiffAsMarkdownToFile(final ChangedOpenApi diff) {
     writeToFile(new MarkdownRender(), diff, markdownOutputFileName);
+  }
+
+  private void writeDiffAsAsciidocToFile(final ChangedOpenApi diff) {
+    writeToFile(new AsciidocRender(), diff, asciidocOutputFileName);
   }
 }

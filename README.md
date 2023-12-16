@@ -23,7 +23,7 @@ Compare two OpenAPI specifications (3.x) and render the difference to HTML plain
 * Depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
 * Supports swagger api Authorization
 * Render difference of property with Expression Language
-* HTML, Markdown & JSON render
+* HTML, Markdown, Asciidoc & JSON render
 
 # Maven
 
@@ -44,6 +44,7 @@ Available on [Docker Hub](https://hub.docker.com/r/openapitools/openapi-diff/) a
 ```bash
 # docker run openapitools/openapi-diff:latest
 usage: openapi-diff <old> <new>
+    --asciidoc <file>           export diff as asciidoc in given file
     --debug                     Print debugging information
     --error                     Print error information
     --fail-on-changed           Fail if API changed but is backward
@@ -101,6 +102,7 @@ openapi-diff can read OpenAPI specs from JSON files or HTTP URLs.
 ```bash
 $ openapi-diff --help
 usage: openapi-diff <old> <new>
+    --asciidoc <file>           export diff as asciidoc in given file
     --debug                     Print debugging information
     --error                     Print error information
  -h,--help                      print this message
@@ -204,6 +206,18 @@ try {
 }
 ```
 
+#### Asciidoc
+
+```java
+String render = new AsciidocRender().render(diff);
+try {
+    FileWriter fw = new FileWriter("testDiff.adoc");
+    fw.write(render);
+    fw.close();
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
 
 #### JSON
 
