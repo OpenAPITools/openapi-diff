@@ -1,10 +1,13 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_READONLY_INCREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_READONLY_REQUIRED_DECREASED;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class ReadOnlyBCTest {
   private final String BASE = "bc_readonly_base.yaml";
@@ -21,12 +24,14 @@ public class ReadOnlyBCTest {
 
   @Test
   public void requestReadOnlyIncreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_readonly_increased.yaml");
+    BackwardIncompatibleProp prop = REQUEST_READONLY_INCREASED;
+    assertSpecIncompatible(BASE, "bc_request_readonly_increased.yaml", prop);
   }
 
   @Test
   public void requestReadOnlyRequiredDecreased() {
-    // TODO: Document why desired or remove support (test added to avoid unintentional regression)
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_readonly_required_decreased.yaml");
+    // Incompatible because a prev RO prop (invalid) is now not RO and required
+    BackwardIncompatibleProp prop = REQUEST_READONLY_REQUIRED_DECREASED;
+    assertSpecIncompatible(BASE, "bc_request_readonly_required_decreased.yaml", prop);
   }
 }

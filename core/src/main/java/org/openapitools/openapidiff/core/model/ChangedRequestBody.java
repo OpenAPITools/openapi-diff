@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.OPENAPI_ENDPOINTS_DECREASED;
+
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +33,10 @@ public class ChangedRequestBody implements ComposedChanged {
     if (!changeRequired) {
       return DiffResult.NO_CHANGES;
     }
-    return DiffResult.INCOMPATIBLE;
+    if (OPENAPI_ENDPOINTS_DECREASED.enabled(context)) {
+      return DiffResult.INCOMPATIBLE;
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public RequestBody getOldRequestBody() {

@@ -3,6 +3,8 @@ package org.openapitools.openapidiff.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.DiffResult;
 import org.slf4j.Logger;
@@ -38,6 +40,24 @@ public class TestUtils {
     LOG.info("Result: {}", diffResult.getValue());
     assertThat(diffResult.isDifferent()).isTrue();
     assertThat(diffResult.isCompatible()).isTrue();
+  }
+
+  public static void assertSpecIncompatible(
+      String oldSpec, String newSpec, BackwardIncompatibleProp prop) {
+    OpenApiDiffOptions.Builder builder = OpenApiDiffOptions.builder();
+    // Expect incompatible when BackwardIncompatibleProp enabled
+    builder.configProperty(prop.getPropertyName(), "true");
+    OpenApiDiffOptions optsIncompat = builder.build();
+    ChangedOpenApi apiIncompat = OpenApiCompare.fromLocations(oldSpec, newSpec, null, optsIncompat);
+    LOG.info("Result: {}", apiIncompat.isChanged().getValue());
+    assertThat(apiIncompat.isIncompatible()).isTrue();
+    // Expect changed but compatible when BackwardIncompatibleProp disabled
+    builder.configProperty(prop.getPropertyName(), "false");
+    OpenApiDiffOptions optsCompat = builder.build();
+    ChangedOpenApi apiCompat = OpenApiCompare.fromLocations(oldSpec, newSpec, null, optsCompat);
+    LOG.info("Result: {}", apiCompat.isChanged().getValue());
+    assertThat(apiCompat.isDifferent()).isTrue();
+    assertThat(apiCompat.isCompatible()).isTrue();
   }
 
   public static void assertOpenApiBackwardCompatible(

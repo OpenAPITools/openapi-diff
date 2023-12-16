@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_WRITEONLY_INCREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_WRITEONLY_REQUIRED_DECREASED;
+
 import java.util.Objects;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.Changed;
@@ -29,10 +32,15 @@ public class ChangedWriteOnly implements Changed {
     }
     if (context.isResponse()) {
       if (Boolean.TRUE.equals(newValue)) {
-        return DiffResult.INCOMPATIBLE;
-      } else {
-        return context.isRequired() ? DiffResult.INCOMPATIBLE : DiffResult.COMPATIBLE;
+        if (RESPONSE_WRITEONLY_INCREASED.enabled(context)) {
+          return DiffResult.INCOMPATIBLE;
+        }
+      } else if (context.isRequired()) {
+        if (RESPONSE_WRITEONLY_REQUIRED_DECREASED.enabled(context)) {
+          return DiffResult.INCOMPATIBLE;
+        }
       }
+      return DiffResult.COMPATIBLE;
     }
     return DiffResult.UNKNOWN;
   }

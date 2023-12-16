@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 
@@ -20,7 +21,7 @@ class FileUtilsTest {
 
   @BeforeEach
   void setup() {
-    changedOpenApi = new ChangedOpenApi();
+    changedOpenApi = new ChangedOpenApi(OpenApiDiffOptions.builder().build());
     changedOpenApi.setChangedSchemas(Collections.emptyList());
     changedOpenApi.setChangedOperations(Collections.emptyList());
     changedOpenApi.setNewEndpoints(Collections.emptyList());

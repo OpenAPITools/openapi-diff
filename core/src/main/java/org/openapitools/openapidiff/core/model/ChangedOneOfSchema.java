@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_ONEOF_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_ONEOF_INCREASED;
+
 import io.swagger.v3.oas.models.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +34,17 @@ public class ChangedOneOfSchema implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (context.isRequest() && missing.isEmpty() || context.isResponse() && increased.isEmpty()) {
-      return DiffResult.COMPATIBLE;
+    if (context.isRequest() && !missing.isEmpty()) {
+      if (REQUEST_ONEOF_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    if (context.isResponse() && !increased.isEmpty()) {
+      if (RESPONSE_ONEOF_INCREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public Map<String, String> getOldMapping() {

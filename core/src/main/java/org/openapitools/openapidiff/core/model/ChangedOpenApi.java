@@ -1,14 +1,18 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.OPENAPI_ENDPOINTS_DECREASED;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.utils.EndpointUtils;
 
 public class ChangedOpenApi implements ComposedChanged {
+  private final OpenApiDiffOptions options;
   @JsonIgnore private OpenAPI oldSpecOpenApi;
   @JsonIgnore private OpenAPI newSpecOpenApi;
   private List<Endpoint> newEndpoints;
@@ -16,6 +20,10 @@ public class ChangedOpenApi implements ComposedChanged {
   private List<ChangedOperation> changedOperations;
   private List<ChangedSchema> changedSchemas;
   private ChangedExtensions changedExtensions;
+
+  public ChangedOpenApi(OpenApiDiffOptions options) {
+    this.options = options;
+  }
 
   public List<Endpoint> getDeprecatedEndpoints() {
     return changedOperations.stream()
@@ -40,10 +48,12 @@ public class ChangedOpenApi implements ComposedChanged {
     if (newEndpoints.isEmpty() && missingEndpoints.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (missingEndpoints.isEmpty()) {
-      return DiffResult.COMPATIBLE;
+    if (!missingEndpoints.isEmpty()) {
+      if (OPENAPI_ENDPOINTS_DECREASED.enabled(options.getConfig())) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    return DiffResult.COMPATIBLE;
   }
 
   public OpenAPI getOldSpecOpenApi() {

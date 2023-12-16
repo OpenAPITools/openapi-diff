@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_NUMERIC_RANGE_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_NUMERIC_RANGE_INCREASED;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 import org.openapitools.openapidiff.core.model.Changed;
@@ -25,35 +28,48 @@ public final class ChangedNumericRange implements Changed {
         && Objects.equals(oldMaximumExclusiveValue, newMaximumExclusiveValue)) {
       return DiffResult.NO_CHANGES;
     }
-    if (context.isRequest()
-            && (newMinimumValue == null
-                || oldMinimumValue != null
-                    && oldMinimumValue.unscaledValue().compareTo(newMinimumValue.unscaledValue())
-                        >= 0)
-            && (newMaximumValue == null
-                || oldMaximumValue != null
-                    && oldMaximumValue.unscaledValue().compareTo(newMaximumValue.unscaledValue())
-                        <= 0)
-            && (newMinimumExclusiveValue == null
-                || oldMinimumExclusiveValue != null && newMinimumExclusiveValue == true)
-            && (newMaximumExclusiveValue == null
-                || oldMaximumExclusiveValue != null && newMaximumExclusiveValue == true)
-        || context.isResponse()
-            && (newMinimumValue == null
-                || oldMinimumValue != null
-                    && oldMinimumValue.unscaledValue().compareTo(newMinimumValue.unscaledValue())
-                        >= 0)
-            && (newMaximumValue == null
-                || oldMaximumValue != null
-                    && oldMaximumValue.unscaledValue().compareTo(newMaximumValue.unscaledValue())
-                        <= 0)
-            && (newMinimumExclusiveValue == null
-                || oldMinimumExclusiveValue != null && newMinimumExclusiveValue == true)
-            && (newMaximumExclusiveValue == null
-                || oldMaximumExclusiveValue != null && newMaximumExclusiveValue == true)) {
+
+    if ((context.isRequest() && !REQUEST_NUMERIC_RANGE_DECREASED.enabled(context))
+        || (context.isResponse() && !RESPONSE_NUMERIC_RANGE_INCREASED.enabled(context))) {
       return DiffResult.COMPATIBLE;
     }
-    return DiffResult.INCOMPATIBLE;
+
+    boolean exclusiveMaxOld = oldMaximumExclusiveValue != null && oldMaximumExclusiveValue;
+    boolean exclusiveMinOld = oldMinimumExclusiveValue != null && oldMinimumExclusiveValue;
+    boolean exclusiveMaxNew = newMaximumExclusiveValue != null && newMaximumExclusiveValue;
+    boolean exclusiveMinNew = newMinimumExclusiveValue != null && newMinimumExclusiveValue;
+    int diffMax = compare(oldMaximumValue, newMaximumValue, false);
+    int diffMin = compare(oldMinimumValue, newMinimumValue, true);
+
+    if (context.isRequest()) {
+      if (diffMax > 0 || (diffMax == 0 && !exclusiveMaxOld && exclusiveMaxNew)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+      if (diffMin < 0 || (diffMin == 0 && !exclusiveMinOld && exclusiveMinNew)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    } else if (context.isResponse()) {
+      if (diffMax < 0 || (diffMax == 0 && exclusiveMaxOld && !exclusiveMaxNew)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+      if (diffMin > 0 || (diffMin == 0 && exclusiveMinOld && !exclusiveMinNew)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    return DiffResult.COMPATIBLE;
+  }
+
+  private int compare(BigDecimal left, BigDecimal right, boolean nullMeansLessThan) {
+    if (left == null && right == null) {
+      return 0;
+    }
+    if (left == null) {
+      return nullMeansLessThan ? -1 : 1;
+    }
+    if (right == null) {
+      return nullMeansLessThan ? 1 : -1;
+    }
+    return left.unscaledValue().compareTo(right.unscaledValue());
   }
 
   public ChangedNumericRange(

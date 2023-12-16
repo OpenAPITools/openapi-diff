@@ -1,10 +1,10 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
-import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
-import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.TestUtils.*;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_REQUIREMENTS_DECREASED;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class SecurityRequirementsBCTest {
   private final String BASE = "bc_security_requirements_base.yaml";
@@ -26,7 +26,8 @@ public class SecurityRequirementsBCTest {
   // requirements should be compatible.
   @Test
   public void decreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_security_requirements_decreased.yaml");
+    BackwardIncompatibleProp prop = SECURITY_REQUIREMENTS_DECREASED;
+    assertSpecIncompatible(BASE, "bc_security_requirements_decreased.yaml", prop);
   }
 
   // TODO: A missing incompatible check seems to be if requirements increase from zero to 1 or more

@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_MAX_LENGTH_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_MAX_LENGTH_INCREASED;
+
 import java.util.Objects;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -15,11 +18,17 @@ public final class ChangedMaxLength implements Changed {
     if (Objects.equals(oldValue, newValue)) {
       return DiffResult.NO_CHANGES;
     }
-    if (context.isRequest() && (newValue == null || oldValue != null && oldValue <= newValue)
-        || context.isResponse() && (oldValue == null || newValue != null && newValue <= oldValue)) {
-      return DiffResult.COMPATIBLE;
+    if (context.isRequest() && (oldValue == null || newValue != null && newValue < oldValue)) {
+      if (REQUEST_MAX_LENGTH_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    if (context.isResponse() && (newValue == null || oldValue != null && newValue > oldValue)) {
+      if (RESPONSE_MAX_LENGTH_INCREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public ChangedMaxLength(

@@ -1,13 +1,17 @@
 package org.openapitools.openapidiff.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.models.PathItem;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 
 public class DiffContext {
 
+  @JsonIgnore private final OpenApiDiffOptions options;
   private String url;
   private Map<String, String> parameters;
   private PathItem.HttpMethod method;
@@ -17,7 +21,8 @@ public class DiffContext {
   private String leftUrl;
   private String rightUrl;
 
-  public DiffContext() {
+  public DiffContext(OpenApiDiffOptions options) {
+    this.options = options;
     parameters = new HashMap<>();
     response = false;
     request = true;
@@ -41,6 +46,16 @@ public class DiffContext {
 
   public DiffContext copyWithLeftRightUrls(String leftUrl, String rightUrl) {
     return copy().setLeftAndRightUrls(leftUrl, rightUrl);
+  }
+
+  @JsonIgnore
+  public OpenApiDiffOptions getOptions() {
+    return options;
+  }
+
+  @JsonIgnore
+  public Configuration getConfig() {
+    return options.getConfig();
   }
 
   private DiffContext setRequest() {
@@ -82,7 +97,7 @@ public class DiffContext {
   }
 
   private DiffContext copy() {
-    DiffContext context = new DiffContext();
+    DiffContext context = new DiffContext(options);
     context.url = this.url;
     context.parameters = this.parameters;
     context.method = this.method;

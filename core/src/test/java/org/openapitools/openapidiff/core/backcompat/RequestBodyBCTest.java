@@ -1,9 +1,11 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.OPENAPI_ENDPOINTS_DECREASED;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class RequestBodyBCTest {
   private final String BASE = "bc_request_body_base.yaml";
@@ -15,6 +17,7 @@ public class RequestBodyBCTest {
 
   @Test
   public void requiredChanged() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_request_body_required_changed.yaml");
+    BackwardIncompatibleProp prop = OPENAPI_ENDPOINTS_DECREASED;
+    assertSpecIncompatible(BASE, "bc_request_body_required_changed.yaml", prop);
   }
 }

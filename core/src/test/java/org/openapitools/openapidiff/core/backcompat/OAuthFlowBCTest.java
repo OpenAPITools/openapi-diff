@@ -1,9 +1,13 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_REFRESH_URL_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_TOKEN_URL_CHANGED;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class OAuthFlowBCTest {
   private final String BASE = "bc_oauthflow_base.yaml";
@@ -15,16 +19,19 @@ public class OAuthFlowBCTest {
 
   @Test
   public void authorizationUrlChanged() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_oauthflow_authorization_url_changed.yaml");
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED;
+    assertSpecIncompatible(BASE, "bc_oauthflow_authorization_url_changed.yaml", prop);
   }
 
   @Test
   public void refreshUrlChanged() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_oauthflow_refresh_url_changed.yaml");
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_OAUTH2_REFRESH_URL_CHANGED;
+    assertSpecIncompatible(BASE, "bc_oauthflow_refresh_url_changed.yaml", prop);
   }
 
   @Test
   public void tokenUrlChanged() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_oauthflow_token_url_changed.yaml");
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_OAUTH2_TOKEN_URL_CHANGED;
+    assertSpecIncompatible(BASE, "bc_oauthflow_token_url_changed.yaml", prop);
   }
 }

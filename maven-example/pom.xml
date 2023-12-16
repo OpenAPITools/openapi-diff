@@ -36,6 +36,12 @@
                             <consoleOutputFileName>${project.basedir}/../maven/target/diff.txt</consoleOutputFileName>
                             <jsonOutputFileName>${project.basedir}/../maven/target/diff.json</jsonOutputFileName>
                             <markdownOutputFileName>${project.basedir}/../maven/target/diff.md</markdownOutputFileName>
+                            <configFiles>
+                                <configFile>${project.basedir}/../maven/src/test/resources/test-config-file.yaml</configFile>
+                            </configFiles>
+                            <configProps>
+                                <incompatible.request.params.required.increased>false</incompatible.request.params.required.increased>
+                            </configProps>
                         </configuration>
                     </execution>
                 </executions>

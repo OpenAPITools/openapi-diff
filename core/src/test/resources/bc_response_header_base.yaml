@@ -19,3 +19,11 @@ paths:
             X-Header-2:
               schema:
                 type: integer
+            X-Header-3:
+              schema:
+                type: integer
+              explode: false
+            X-Header-4:
+              schema:
+                type: integer
+              explode: true

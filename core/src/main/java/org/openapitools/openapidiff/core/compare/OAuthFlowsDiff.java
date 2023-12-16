@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.OAuthFlows;
 import java.util.Map;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.ChangedOAuthFlows;
+import org.openapitools.openapidiff.core.model.DiffContext;
 
 public class OAuthFlowsDiff {
   private final OpenApiDiff openApiDiff;
@@ -19,24 +20,24 @@ public class OAuthFlowsDiff {
     return ofNullable(oAuthFlow).map(OAuthFlows::getExtensions).orElse(null);
   }
 
-  public Optional<ChangedOAuthFlows> diff(OAuthFlows left, OAuthFlows right) {
+  public Optional<ChangedOAuthFlows> diff(OAuthFlows left, OAuthFlows right, DiffContext context) {
     ChangedOAuthFlows changedOAuthFlows = new ChangedOAuthFlows(left, right);
     if (left != null && right != null) {
       openApiDiff
           .getOAuthFlowDiff()
-          .diff(left.getImplicit(), right.getImplicit())
+          .diff(left.getImplicit(), right.getImplicit(), context)
           .ifPresent(changedOAuthFlows::setImplicitOAuthFlow);
       openApiDiff
           .getOAuthFlowDiff()
-          .diff(left.getPassword(), right.getPassword())
+          .diff(left.getPassword(), right.getPassword(), context)
           .ifPresent(changedOAuthFlows::setPasswordOAuthFlow);
       openApiDiff
           .getOAuthFlowDiff()
-          .diff(left.getClientCredentials(), right.getClientCredentials())
+          .diff(left.getClientCredentials(), right.getClientCredentials(), context)
           .ifPresent(changedOAuthFlows::setClientCredentialOAuthFlow);
       openApiDiff
           .getOAuthFlowDiff()
-          .diff(left.getAuthorizationCode(), right.getAuthorizationCode())
+          .diff(left.getAuthorizationCode(), right.getAuthorizationCode(), context)
           .ifPresent(changedOAuthFlows::setAuthorizationCodeOAuthFlow);
     }
     openApiDiff

@@ -41,6 +41,7 @@ public class OpenApiDiff {
   private MetadataDiff metadataDiff;
   private final OpenAPI oldSpecOpenApi;
   private final OpenAPI newSpecOpenApi;
+  private final OpenApiDiffOptions options;
   private List<Endpoint> newEndpoints;
   private List<Endpoint> missingEndpoints;
   private List<ChangedOperation> changedOperations;
@@ -50,18 +51,24 @@ public class OpenApiDiff {
   /*
    * @param oldSpecOpenApi
    * @param newSpecOpenApi
+   * @param diffOptions
    */
-  private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi) {
+  private OpenApiDiff(OpenAPI oldSpecOpenApi, OpenAPI newSpecOpenApi, OpenApiDiffOptions options) {
     this.oldSpecOpenApi = oldSpecOpenApi;
     this.newSpecOpenApi = newSpecOpenApi;
+    this.options = options;
     if (null == oldSpecOpenApi || null == newSpecOpenApi) {
       throw new RuntimeException("one of the old or new object is null");
+    }
+    if (null == options) {
+      throw new IllegalArgumentException("options parameter is null but is required");
     }
     initializeFields();
   }
 
-  public static ChangedOpenApi compare(OpenAPI oldSpec, OpenAPI newSpec) {
-    return new OpenApiDiff(oldSpec, newSpec).compare();
+  public static ChangedOpenApi compare(
+      OpenAPI oldSpec, OpenAPI newSpec, OpenApiDiffOptions diffOptions) {
+    return new OpenApiDiff(oldSpec, newSpec, diffOptions).compare();
   }
 
   private void initializeFields() {
@@ -85,6 +92,10 @@ public class OpenApiDiff {
     this.extensionsDiff = new ExtensionsDiff(this);
     this.metadataDiff = new MetadataDiff(this);
     this.deferredSchemaCache = new DeferredSchemaCache(this);
+  }
+
+  public OpenApiDiffOptions getOptions() {
+    return options;
   }
 
   private ChangedOpenApi compare() {
@@ -163,7 +174,7 @@ public class OpenApiDiff {
   }
 
   private ChangedOpenApi getChangedOpenApi() {
-    return new ChangedOpenApi()
+    return new ChangedOpenApi(options)
         .setMissingEndpoints(missingEndpoints)
         .setNewEndpoints(newEndpoints)
         .setNewSpecOpenApi(newSpecOpenApi)

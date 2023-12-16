@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_PARAMS_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_PARAMS_REQUIRED_INCREASED;
+
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +36,17 @@ public class ChangedParameters implements ComposedChanged {
     if (increased.isEmpty() && missing.isEmpty()) {
       return DiffResult.NO_CHANGES;
     }
-    if (increased.stream().noneMatch(p -> p.getRequired() != null && p.getRequired())
-        && missing.isEmpty()) {
-      return DiffResult.COMPATIBLE;
+    if (!missing.isEmpty()) {
+      if (REQUEST_PARAMS_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    if (increased.stream().anyMatch(p -> p.getRequired() != null && p.getRequired())) {
+      if (REQUEST_PARAMS_REQUIRED_INCREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    return DiffResult.COMPATIBLE;
   }
 
   public List<Parameter> getOldParameterList() {

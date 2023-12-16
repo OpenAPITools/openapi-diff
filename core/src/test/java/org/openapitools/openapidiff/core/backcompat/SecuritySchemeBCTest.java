@@ -1,10 +1,10 @@
 package org.openapitools.openapidiff.core.backcompat;
 
-import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardIncompatible;
-import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
-import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
+import static org.openapitools.openapidiff.core.TestUtils.*;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.*;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 
 public class SecuritySchemeBCTest {
   private final String BASE = "bc_security_scheme_base.yaml";
@@ -21,7 +21,8 @@ public class SecuritySchemeBCTest {
 
   @Test
   public void bearerFormatChanged() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_security_scheme_bearer_format_changed.yaml");
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_BEARER_FORMAT_CHANGED;
+    assertSpecIncompatible(BASE, "bc_security_scheme_bearer_format_changed.yaml", prop);
   }
 
   @Test
@@ -31,12 +32,14 @@ public class SecuritySchemeBCTest {
 
   @Test
   public void openIdConnectUrlChanged() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_security_scheme_open_id_connect_url_changed.yaml");
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_OPENIDCONNECT_URL_CHANGED;
+    assertSpecIncompatible(BASE, "bc_security_scheme_open_id_connect_url_changed.yaml", prop);
   }
 
   @Test
   public void schemeChanged() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_security_scheme_scheme_changed.yaml");
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_SCHEME_CHANGED;
+    assertSpecIncompatible(BASE, "bc_security_scheme_scheme_changed.yaml", prop);
   }
 
   @Test
@@ -46,6 +49,7 @@ public class SecuritySchemeBCTest {
 
   @Test
   public void scopesIncreased() {
-    assertOpenApiBackwardIncompatible(BASE, "bc_security_scheme_scopes_increased.yaml");
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_SCOPES_INCREASED;
+    assertSpecIncompatible(BASE, "bc_security_scheme_scopes_increased.yaml", prop);
   }
 }

@@ -17,6 +17,14 @@ paths:
                 type: integer
                 format: int32
             X-Header-2:
-              required: true
               schema:
                 type: integer
+              required: true
+            X-Header-3:
+              schema:
+                type: integer
+              explode: false
+            X-Header-4:
+              schema:
+                type: integer
+              explode: true

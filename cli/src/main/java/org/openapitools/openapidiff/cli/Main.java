@@ -3,6 +3,7 @@ package org.openapitools.openapidiff.cli;
 import ch.qos.logback.classic.Level;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openapitools.openapidiff.core.OpenApiCompare;
+import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.AsciidocRender;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
@@ -48,6 +50,19 @@ public class Main {
         Option.builder()
             .longOpt("fail-on-changed")
             .desc("Fail if API changed but is backward compatible")
+            .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("config-file")
+            .hasArg()
+            .desc("Config file to override default behavior. Supported file formats: .yaml")
+            .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("config-prop")
+            .hasArg()
+            .desc(
+                "Config property to override default behavior. Arg in format of [propKey]:[propVal]")
             .build());
     options.addOption(Option.builder().longOpt("trace").desc("be extra verbose").build());
     options.addOption(
@@ -179,7 +194,27 @@ public class Main {
         auths = Collections.singletonList(new AuthorizationValue(headers[0], headers[1], "header"));
       }
 
-      ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath, auths);
+      OpenApiDiffOptions.Builder optionBuilder = OpenApiDiffOptions.builder();
+      String[] configFilePaths = line.getOptionValues("config-file");
+      if (configFilePaths != null) {
+        for (String configFilePath : configFilePaths) {
+          optionBuilder.configYaml(new File(configFilePath));
+        }
+      }
+
+      String[] configProps = line.getOptionValues("config-prop");
+      if (configProps != null) {
+        for (String propKeyAndVal : configProps) {
+          String[] split = propKeyAndVal.split(":");
+          if (split.length != 2 || split[0].isEmpty() || split[1].isEmpty()) {
+            throw new IllegalArgumentException("--config-prop unexpected format: " + propKeyAndVal);
+          }
+          optionBuilder.configProperty(split[0], split[1]);
+        }
+      }
+      OpenApiDiffOptions compareOpts = optionBuilder.build();
+
+      ChangedOpenApi result = OpenApiCompare.fromLocations(oldPath, newPath, auths, compareOpts);
       ConsoleRender consoleRender = new ConsoleRender();
       if (!logLevel.equals("OFF")) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -51,6 +51,8 @@ usage: openapi-diff <old> <new>
                                 compatible
     --fail-on-incompatible      Fail only if API changes broke backward
                                 compatibility
+    --config-file               Config file to override default behavior. Supported file formats: .yaml
+    --config-prop               Config property to override default behavior with key:value format (e.g. my.prop:true)
  -h,--help                      print this message
     --header <property=value>   use given header for authorisation
     --html <file>               export diff as html in given file
@@ -119,6 +121,8 @@ usage: openapi-diff <old> <new>
                                 incompatible, compatible
     --fail-on-incompatible      Fail only if API changes broke backward compatibility
     --fail-on-changed           Fail if API changed but is backward compatible
+    --config-file               Config file to override default behavior. Supported file formats: .yaml
+    --config-prop               Config property to override default behavior with key:value format (e.g. my.prop:true)
     --trace                     be extra verbose
     --version                   print the version information and exit
     --warn                      Print warning information
@@ -153,6 +157,14 @@ Add openapi-diff to your POM to show diffs when you test your Maven project. You
         <jsonOutputFileName>${project.basedir}/../maven/target/diff.json</jsonOutputFileName>
         <!-- Supply file path for markdown output to file if desired. -->
         <markdownOutputFileName>${project.basedir}/../maven/target/diff.md</markdownOutputFileName>
+        <!-- Supply config file(s), e.g. to disable incompatibility checks. Later files override earlier files -->
+        <configFiles>
+          <configFile>my/config-file.yaml</configFile>
+        </configFiles>
+        <!-- Supply config properties, e.g. to disable incompatibility checks. Overrides configFiles. -->
+        <configProps>
+          <incompatible.response.enum.increased>false</incompatible.response.enum.increased>
+        </configProps>
       </configuration>
     </execution>
   </executions>

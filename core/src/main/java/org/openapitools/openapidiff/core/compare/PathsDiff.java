@@ -40,7 +40,7 @@ public class PathsDiff {
       final Map<String, PathItem> left, final Map<String, PathItem> right) {
     DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
-    ChangedPaths changedPaths = new ChangedPaths(left, right);
+    ChangedPaths changedPaths = new ChangedPaths(left, right, openApiDiff.getOptions());
     changedPaths.getIncreased().putAll(right);
 
     left.keySet()
@@ -82,7 +82,7 @@ public class PathsDiff {
                     params.put(oldParams.get(i), newParams.get(i));
                   }
                 }
-                DiffContext context = new DiffContext();
+                DiffContext context = new DiffContext(openApiDiff.getOptions());
                 context.setUrl(url);
                 context.setParameters(params);
                 context.setLeftAndRightUrls(url, rightUrl);

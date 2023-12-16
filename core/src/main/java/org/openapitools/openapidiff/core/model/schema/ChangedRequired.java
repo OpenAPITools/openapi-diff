@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_REQUIRED_INCREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_REQUIRED_DECREASED;
+
 import java.util.List;
 import org.openapitools.openapidiff.core.model.ChangedList;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -13,10 +16,16 @@ public class ChangedRequired extends ChangedList<String> {
 
   @Override
   public DiffResult isItemsChanged() {
-    if (context.isRequest() && getIncreased().isEmpty()
-        || context.isResponse() && getMissing().isEmpty()) {
-      return DiffResult.COMPATIBLE;
+    if (context.isRequest() && !getIncreased().isEmpty()) {
+      if (REQUEST_REQUIRED_INCREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
     }
-    return DiffResult.INCOMPATIBLE;
+    if (context.isResponse() && !getMissing().isEmpty()) {
+      if (RESPONSE_REQUIRED_DECREASED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
+    return DiffResult.COMPATIBLE;
   }
 }

@@ -66,7 +66,7 @@ public class SecurityRequirementDiff {
     DeferredBuilder<Changed> builder = new DeferredBuilder<>();
 
     ChangedSecurityRequirement changedSecurityRequirement =
-        new ChangedSecurityRequirement(left, right != null ? getCopy(right) : null);
+        new ChangedSecurityRequirement(left, right != null ? getCopy(right) : null, context);
 
     SecurityRequirement leftRequirement = left == null ? new SecurityRequirement() : left;
     SecurityRequirement rightRequirement = right == null ? new SecurityRequirement() : right;
