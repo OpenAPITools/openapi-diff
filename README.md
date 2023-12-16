@@ -1,6 +1,6 @@
 # OpenAPI-diff 
 
-Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, or Markdown files.
+Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, Markdown files, or JSON files.
 
 [![Build](https://github.com/OpenAPITools/openapi-diff/workflows/Main%20Build/badge.svg)](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3A"Main+Build")
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenAPITools_openapi-diff&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenAPITools_openapi-diff)
