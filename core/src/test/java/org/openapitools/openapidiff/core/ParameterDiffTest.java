@@ -88,4 +88,10 @@ public class ParameterDiffTest {
     assertOpenApiChangedEndpoints(
         "issue-458-integer-limits_11.yaml", "issue-458-integer-limits_13.yaml");
   }
+
+  @Test
+  public void issue488RenameParameterAddAndRemoveParameterReturnFalse() {
+    assertOpenApiChangedEndpoints(
+        "issue-488-1.json", "issue-488-2.json");
+  }
 }

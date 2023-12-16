@@ -10,7 +10,9 @@ import org.openapitools.openapidiff.core.model.Endpoint;
 
 public class EndpointUtils {
 
-  private EndpointUtils() {}
+  private EndpointUtils() {
+    throw new UnsupportedOperationException("Utility class. Do not instantiate");
+  }
 
   public static Collection<Endpoint> convert2Endpoints(
       String pathUrl, Map<PathItem.HttpMethod, Operation> map) {
