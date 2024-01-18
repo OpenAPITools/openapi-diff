@@ -38,7 +38,7 @@ jobs:
         server-username: OSS_USERNAME
         server-password: OSS_PASSWORD
     - name: Cache SonarCloud packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' }}
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
