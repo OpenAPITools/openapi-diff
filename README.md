@@ -7,7 +7,7 @@ Compare two OpenAPI specifications (3.x) and render the difference to HTML plain
 [![Maven Central](https://img.shields.io/maven-central/v/org.openapitools.openapidiff/openapi-diff-core)](https://search.maven.org/artifact/org.openapitools.openapidiff/openapi-diff-core)
 
 [![Contribute with Gitpod](https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/OpenAPITools/openapi-diff)
-[![Join the Slack chat room](https://img.shields.io/badge/Slack-Join%20the%20chat%20room-orange)](https://join.slack.com/t/openapi-generator/shared_invite/enQtNzAyNDMyOTU0OTE1LTY5ZDBiNDI5NzI5ZjQ1Y2E5OWVjMjZkYzY1ZGM2MWQ4YWFjMzcyNDY5MGI4NjQxNDBiMTlmZTc5NjY2ZTQ5MGM)
+[![Join the Slack chat room](https://img.shields.io/badge/Slack-Join%20the%20chat%20room-orange)](https://join.slack.com/t/openapi-generator/shared_invite/zt-12jxxd7p2-XUeQM~4pzsU9x~eGLQqX2g)
 
 [![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/openapitools/openapi-diff)](https://hub.docker.com/r/openapitools/openapi-diff)
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/openapitools/openapi-diff)](https://hub.docker.com/r/openapitools/openapi-diff)
