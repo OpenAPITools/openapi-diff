@@ -91,7 +91,6 @@ public class ParameterDiffTest {
 
   @Test
   public void issue488RenameParameterAddAndRemoveParameterReturnFalse() {
-    assertOpenApiChangedEndpoints(
-        "issue-488-1.json", "issue-488-2.json");
+    assertOpenApiChangedEndpoints("issue-488-1.json", "issue-488-2.json");
   }
 }

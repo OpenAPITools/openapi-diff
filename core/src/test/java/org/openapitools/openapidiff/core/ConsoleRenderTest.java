@@ -14,7 +14,8 @@ public class ConsoleRenderTest {
     ConsoleRender render = new ConsoleRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-    ChangedOpenApi diff = OpenApiCompare.fromLocations("missing_property_1.yaml", "missing_property_2.yaml");
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("missing_property_1.yaml", "missing_property_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
@@ -36,7 +37,7 @@ public class ConsoleRenderTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-            OpenApiCompare.fromLocations("delete_endpoint_1.yaml", "delete_endpoint_2.yaml");
+        OpenApiCompare.fromLocations("delete_endpoint_1.yaml", "delete_endpoint_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).contains("What's Deleted");
   }
@@ -47,7 +48,7 @@ public class ConsoleRenderTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-            OpenApiCompare.fromLocations("add_endpoint_1.yaml", "add_endpoint_2.yaml");
+        OpenApiCompare.fromLocations("add_endpoint_1.yaml", "add_endpoint_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).contains("What's New");
   }
@@ -58,7 +59,7 @@ public class ConsoleRenderTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-            OpenApiCompare.fromLocations("deprecate_endpoint_1.yaml", "deprecate_endpoint_2.yaml");
+        OpenApiCompare.fromLocations("deprecate_endpoint_1.yaml", "deprecate_endpoint_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).contains("What's Deprecated");
   }
@@ -69,10 +70,10 @@ public class ConsoleRenderTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-            OpenApiCompare.fromLocations("change_endpoint_1.yaml", "change_endpoint_2.yaml");
+        OpenApiCompare.fromLocations("change_endpoint_1.yaml", "change_endpoint_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString())
-            .contains("What's Changed")
-            .containsSubsequence("- GET    /widgets", "Parameter:", "- Changed query-param-1 in query");
+        .contains("What's Changed")
+        .containsSubsequence("- GET    /widgets", "Parameter:", "- Changed query-param-1 in query");
   }
 }

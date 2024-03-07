@@ -119,12 +119,12 @@ public class Main {
             .desc("export diff as html in given file with incompatible changes")
             .build());
     options.addOption(
-            Option.builder()
-                    .longOpt("html-detailed")
-                    .hasArg()
-                    .argName("file")
-                    .desc("export diff as html in given file with all changes")
-                    .build());
+        Option.builder()
+            .longOpt("html-detailed")
+            .hasArg()
+            .argName("file")
+            .desc("export diff as html in given file with all changes")
+            .build());
     options.addOption(
         Option.builder()
             .longOpt("text")

@@ -217,8 +217,8 @@ public class HtmlRender implements Render {
       }
       if (showAllChanges && changedOperation.resultSecurityRequirements().isDifferent()) {
         ul_detail.with(
-                li().with(h3("Security Requirements"))
-                        .with(ul_securityRequirements(changedOperation.getSecurityRequirements())));
+            li().with(h3("Security Requirements"))
+                .with(ul_securityRequirements(changedOperation.getSecurityRequirements())));
       }
       ol.with(
           li().with(span(method).withClass(method))
@@ -255,24 +255,24 @@ public class HtmlRender implements Render {
 
   private LiTag li_addSecurityRequirement(SecurityRequirement securityRequirement) {
     return li().withText("New security requirement : ")
-            .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
+        .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
   }
 
   private LiTag li_missingSecurityRequirement(SecurityRequirement securityRequirement) {
     return li().withText("Deleted security requirement : ")
-            .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
+        .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
   }
 
   private LiTag li_changedSecurityRequirement(
-          ChangedSecurityRequirement changedSecurityRequirement) {
+      ChangedSecurityRequirement changedSecurityRequirement) {
     return li().withText(String.format("Changed security requirement : "))
-            .with(
-                    span(
-                            (null == changedSecurityRequirement.getNewSecurityRequirement()
-                                    || null
-                                    == changedSecurityRequirement.getNewSecurityRequirement().toString())
-                                    ? ""
-                                    : (changedSecurityRequirement.getNewSecurityRequirement().toString())));
+        .with(
+            span(
+                (null == changedSecurityRequirement.getNewSecurityRequirement()
+                        || null
+                            == changedSecurityRequirement.getNewSecurityRequirement().toString())
+                    ? ""
+                    : (changedSecurityRequirement.getNewSecurityRequirement().toString())));
   }
 
   private UlTag ul_response(ChangedApiResponse changedApiResponse) {
@@ -347,8 +347,7 @@ public class HtmlRender implements Render {
             .withText(String.format("Changed body: '%s'", name));
     if (request.isIncompatible() && !showAllChanges) {
       incompatibilities(li, request.getSchema());
-    }
-    else if (showAllChanges) {
+    } else if (showAllChanges) {
       allChanges(li, request.getSchema());
     }
     return li;
@@ -365,21 +364,21 @@ public class HtmlRender implements Render {
   }
 
   private void allChanges(
-          final ContainerTag<?> output, String propName, final ChangedSchema schema) {
+      final ContainerTag<?> output, String propName, final ChangedSchema schema) {
     String prefix = propName.isEmpty() ? "" : propName + ".";
     properties(
-            output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
+        output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
     properties(
-            output, prefix, "Added property", schema.getIncreasedProperties(), schema.getContext());
+        output, prefix, "Added property", schema.getIncreasedProperties(), schema.getContext());
 
     propertiesChanged(
-            output, prefix, "Changed property", schema.getChangedProperties(), schema.getContext());
+        output, prefix, "Changed property", schema.getChangedProperties(), schema.getContext());
     if (schema.getItems() != null) {
       itemsAllChanges(output, propName, schema.getItems());
     }
     schema
-            .getChangedProperties()
-            .forEach((name, property) -> allChanges(output, prefix + name, property));
+        .getChangedProperties()
+        .forEach((name, property) -> allChanges(output, prefix + name, property));
   }
 
   private void incompatibilities(final LiTag output, final ChangedSchema schema) {
@@ -423,11 +422,11 @@ public class HtmlRender implements Render {
   }
 
   private void propertiesChanged(
-          ContainerTag<?> output,
-          String propPrefix,
-          String title,
-          Map<String, ChangedSchema> properties,
-          DiffContext context) {
+      ContainerTag<?> output,
+      String propPrefix,
+      String title,
+      Map<String, ChangedSchema> properties,
+      DiffContext context) {
     if (properties != null) {
       properties.forEach((key, value) -> resolveProperty(output, propPrefix, key, value, title));
     }
@@ -443,7 +442,7 @@ public class HtmlRender implements Render {
   }
 
   private void resolveProperty(
-          ContainerTag<?> output, String propPrefix, String key, ChangedSchema value, String title) {
+      ContainerTag<?> output, String propPrefix, String key, ChangedSchema value, String title) {
     try {
       property(output, propPrefix + key, title, resolve(value));
     } catch (Exception e) {
@@ -466,9 +465,9 @@ public class HtmlRender implements Render {
 
   protected Schema<?> resolve(ChangedSchema schema) {
     return refPointer.resolveRef(
-            diff.getNewSpecOpenApi().getComponents(),
-            schema.getNewSchema(),
-            schema.getNewSchema().get$ref());
+        diff.getNewSpecOpenApi().getComponents(),
+        schema.getNewSchema(),
+        schema.getNewSchema().get$ref());
   }
 
   protected String type(Schema<?> schema) {

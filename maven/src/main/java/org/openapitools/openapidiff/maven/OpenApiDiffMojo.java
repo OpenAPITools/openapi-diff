@@ -56,7 +56,7 @@ public class OpenApiDiffMojo extends AbstractMojo {
 
   @Parameter(property = "configProps")
   Map<String, String> configProps;
-  
+
   @Parameter(property = "asciidocOutputFileName")
   String asciidocOutputFileName;
 
