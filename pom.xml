@@ -9,7 +9,7 @@
 
     <groupId>org.openapitools.openapidiff</groupId>
     <artifactId>openapi-diff-parent</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.0-beta.11</version>
     <packaging>pom</packaging>
 
     <name>openapi-diff-parent</name>
@@ -54,7 +54,7 @@
         <connection>scm:git:https://github.com/OpenAPITools/openapi-diff.git</connection>
         <developerConnection>scm:git:https://github.com/OpenAPITools/openapi-diff.git</developerConnection>
         <url>https://github.com/OpenAPITools/openapi-diff</url>
-        <tag>HEAD</tag>
+        <tag>2.1.0-beta.11</tag>
     </scm>
 
     <distributionManagement>
@@ -75,7 +75,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2024-03-21T21:28:00Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2024-04-24T18:52:43Z</project.build.outputTimestamp>
         <project.scm.id>github</project.scm.id>
 
         <sonar.organization>openapitools</sonar.organization>
@@ -92,7 +92,7 @@
             <dependency>
                 <groupId>org.openapitools.openapidiff</groupId>
                 <artifactId>openapi-diff-core</artifactId>
-                <version>2.1.0-SNAPSHOT</version>
+                <version>2.1.0-beta.11</version>
             </dependency>
             <dependency>
                 <groupId>org.junit</groupId>
