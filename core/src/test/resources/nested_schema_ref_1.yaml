@@ -1,0 +1,44 @@
+openapi: 3.0.1
+info:
+  title: Service
+  description: test
+  version: test
+  contact:
+    name: test
+    url: 'test'
+servers:
+  - url: 'localhost'
+paths:
+  /feature:
+    get:
+      summary: Get feature state
+      operationId: feature
+      description: Gets feature
+      parameters:
+        - name: feature
+          in: query
+          schema:
+            $ref: '#/components/schemas/Feature/properties/feature'
+          required: true
+      responses:
+        '200':
+          description: Found feature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feature'
+components:
+  schemas:
+    Feature:
+      type: object
+      properties:
+        feature:
+          type: string
+          enum:
+            - alpha
+            - beta
+        value:
+          type: boolean
+      required:
+        - feature
+        - value
