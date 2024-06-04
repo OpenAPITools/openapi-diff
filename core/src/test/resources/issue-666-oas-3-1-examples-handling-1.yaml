@@ -1,0 +1,152 @@
+openapi: 3.1.0
+info:
+  description: Examples handling
+  title: Examples
+  version: 1.0.0
+paths:
+  /example/request/media-type:
+    post:
+      requestBody:
+        content:
+          application/json:
+            example: simple example
+            schema:
+              type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+  /examples/request/media-type:
+    post:
+      requestBody:
+        content:
+          application/json:
+            examples:
+              first: example
+              second: example
+            schema:
+              type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+  /example/response/media-type:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              example: simple example
+              schema:
+                type: string
+  /examples/response/media-type:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                first: example
+                second: example
+              schema:
+                type: string
+  /example/parameter/{id}:
+    post:
+      parameters:
+        - name: id
+          in: path
+          example: example
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+  /examples/parameter/{id}:
+    post:
+      parameters:
+        - name: id
+          in: path
+          examples:
+            first: example
+            second: example
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+  /examples/response/header:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: description
+          headers:
+            X-Header:
+              examples:
+                first: example
+                second: example
+              schema:
+                type: integer
+                format: int32
+          content:
+            application/json:
+              schema:
+                type: string
+  /examples/model/property:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestDTO"
+      responses:
+        '200':
+          description: description
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    TestDTO:
+      type: object
+      properties:
+        field1:
+          examples:
+            - first example
+            - second example
+          type: string

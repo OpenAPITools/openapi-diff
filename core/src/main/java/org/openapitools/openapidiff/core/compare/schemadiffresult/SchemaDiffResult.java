@@ -11,6 +11,8 @@ import org.openapitools.openapidiff.core.compare.MapKeyDiff;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
 import org.openapitools.openapidiff.core.model.Change;
 import org.openapitools.openapidiff.core.model.Changed;
+import org.openapitools.openapidiff.core.model.ChangedExample;
+import org.openapitools.openapidiff.core.model.ChangedExamples;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
@@ -70,7 +72,9 @@ public class SchemaDiffResult {
                 right.getExclusiveMinimum(),
                 left.getExclusiveMaximum(),
                 right.getExclusiveMaximum(),
-                context));
+                context))
+        .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
+        .setExample(new ChangedExample(left.getExample(), right.getExample()));
     builder
         .with(
             openApiDiff

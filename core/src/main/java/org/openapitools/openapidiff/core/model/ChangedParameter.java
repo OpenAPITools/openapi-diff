@@ -19,6 +19,8 @@ public class ChangedParameter implements ComposedChanged {
   private boolean changeExplode;
   private boolean changeAllowEmptyValue;
   private ChangedMetadata description;
+  private ChangedExamples examples;
+  private ChangedExample example;
   private ChangedSchema schema;
   private ChangedContent content;
   private ChangedExtensions extensions;
@@ -31,7 +33,7 @@ public class ChangedParameter implements ComposedChanged {
 
   @Override
   public List<Changed> getChangedElements() {
-    return Arrays.asList(description, schema, content, extensions);
+    return Arrays.asList(description, examples, example, schema, content, extensions);
   }
 
   @Override
@@ -110,6 +112,14 @@ public class ChangedParameter implements ComposedChanged {
     return this.description;
   }
 
+  public ChangedExamples getExamples() {
+    return this.examples;
+  }
+
+  public ChangedExample getExample() {
+    return this.example;
+  }
+
   public ChangedSchema getSchema() {
     return this.schema;
   }
@@ -172,6 +182,16 @@ public class ChangedParameter implements ComposedChanged {
     return this;
   }
 
+  public ChangedParameter setExamples(final ChangedExamples examples) {
+    this.examples = examples;
+    return this;
+  }
+
+  public ChangedParameter setExample(final ChangedExample example) {
+    this.example = example;
+    return this;
+  }
+
   public ChangedParameter setSchema(final ChangedSchema schema) {
     this.schema = schema;
     return this;
@@ -203,6 +223,8 @@ public class ChangedParameter implements ComposedChanged {
         && Objects.equals(name, that.name)
         && Objects.equals(in, that.in)
         && Objects.equals(description, that.description)
+        && Objects.equals(examples, that.examples)
+        && Objects.equals(example, that.example)
         && Objects.equals(schema, that.schema)
         && Objects.equals(content, that.content)
         && Objects.equals(extensions, that.extensions);
@@ -222,6 +244,8 @@ public class ChangedParameter implements ComposedChanged {
         changeExplode,
         changeAllowEmptyValue,
         description,
+        examples,
+        example,
         schema,
         content,
         extensions);
@@ -251,6 +275,10 @@ public class ChangedParameter implements ComposedChanged {
         + this.isChangeAllowEmptyValue()
         + ", description="
         + this.getDescription()
+        + ", examples="
+        + this.getExamples()
+        + ", example="
+        + this.getExample()
         + ", schema="
         + this.getSchema()
         + ", content="

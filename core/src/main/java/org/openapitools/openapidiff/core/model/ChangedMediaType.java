@@ -1,7 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
 import io.swagger.v3.oas.models.media.Schema;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +10,8 @@ public class ChangedMediaType implements ComposedChanged {
   private final Schema newSchema;
   private final DiffContext context;
   private ChangedSchema schema;
+  private ChangedExamples examples;
+  private ChangedExample example;
 
   public ChangedMediaType(Schema oldSchema, Schema newSchema, DiffContext context) {
     this.oldSchema = oldSchema;
@@ -19,7 +21,7 @@ public class ChangedMediaType implements ComposedChanged {
 
   @Override
   public List<Changed> getChangedElements() {
-    return Collections.singletonList(schema);
+    return Arrays.asList(schema, examples, example);
   }
 
   @Override
@@ -43,8 +45,26 @@ public class ChangedMediaType implements ComposedChanged {
     return this.schema;
   }
 
+  public ChangedExamples getExamples() {
+    return this.examples;
+  }
+
+  public ChangedExample getExample() {
+    return this.example;
+  }
+
   public ChangedMediaType setSchema(final ChangedSchema schema) {
     this.schema = schema;
+    return this;
+  }
+
+  public ChangedMediaType setExamples(final ChangedExamples examples) {
+    this.examples = examples;
+    return this;
+  }
+
+  public ChangedMediaType setExample(final ChangedExample example) {
+    this.example = example;
     return this;
   }
 
@@ -56,12 +76,14 @@ public class ChangedMediaType implements ComposedChanged {
     return Objects.equals(oldSchema, that.oldSchema)
         && Objects.equals(newSchema, that.newSchema)
         && Objects.equals(context, that.context)
-        && Objects.equals(schema, that.schema);
+        && Objects.equals(schema, that.schema)
+        && Objects.equals(examples, that.examples)
+        && Objects.equals(example, that.example);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(oldSchema, newSchema, context, schema);
+    return Objects.hash(oldSchema, newSchema, context, schema, examples, example);
   }
 
   @java.lang.Override
@@ -74,6 +96,10 @@ public class ChangedMediaType implements ComposedChanged {
         + this.getContext()
         + ", schema="
         + this.getSchema()
+        + ", examples="
+        + this.getExamples()
+        + ", example="
+        + this.getExample()
         + ")";
   }
 }

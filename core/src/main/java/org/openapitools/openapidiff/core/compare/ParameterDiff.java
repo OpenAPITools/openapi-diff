@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.Changed;
+import org.openapitools.openapidiff.core.model.ChangedExample;
+import org.openapitools.openapidiff.core.model.ChangedExamples;
 import org.openapitools.openapidiff.core.model.ChangedParameter;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
@@ -56,7 +58,9 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
             .setChangeAllowEmptyValue(
                 getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()))
             .setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()))
-            .setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
+            .setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()))
+            .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
+            .setExample(new ChangedExample(left.getExample(), right.getExample()));
     builder
         .with(
             openApiDiff
