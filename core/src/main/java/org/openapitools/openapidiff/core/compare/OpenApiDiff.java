@@ -24,6 +24,7 @@ public class OpenApiDiff {
   private PathDiff pathDiff;
   private SchemaDiff schemaDiff;
   private ContentDiff contentDiff;
+  private MediaTypeDiff mediaTypeDiff;
   private ParametersDiff parametersDiff;
   private ParameterDiff parameterDiff;
   private RequestBodyDiff requestBodyDiff;
@@ -76,6 +77,7 @@ public class OpenApiDiff {
     this.pathDiff = new PathDiff(this);
     this.schemaDiff = new SchemaDiff(this);
     this.contentDiff = new ContentDiff(this);
+    this.mediaTypeDiff = new MediaTypeDiff(this);
     this.parametersDiff = new ParametersDiff(this);
     this.parameterDiff = new ParameterDiff(this);
     this.requestBodyDiff = new RequestBodyDiff(this);
@@ -202,6 +204,10 @@ public class OpenApiDiff {
 
   public ContentDiff getContentDiff() {
     return this.contentDiff;
+  }
+
+  public MediaTypeDiff getMediaTypeDiff() {
+    return this.mediaTypeDiff;
   }
 
   public ParametersDiff getParametersDiff() {

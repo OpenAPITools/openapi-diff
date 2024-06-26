@@ -18,6 +18,8 @@ public class ChangedHeader implements ComposedChanged {
   private boolean style;
   private boolean explode;
   private ChangedMetadata description;
+  private ChangedExamples examples;
+  private ChangedExample example;
   private ChangedSchema schema;
   private ChangedContent content;
   private ChangedExtensions extensions;
@@ -30,7 +32,7 @@ public class ChangedHeader implements ComposedChanged {
 
   @Override
   public List<Changed> getChangedElements() {
-    return Arrays.asList(description, schema, content, extensions);
+    return Arrays.asList(description, example, examples, schema, content, extensions);
   }
 
   @Override
@@ -96,6 +98,14 @@ public class ChangedHeader implements ComposedChanged {
     return this.description;
   }
 
+  public ChangedExamples getExamples() {
+    return this.examples;
+  }
+
+  public ChangedExample getExample() {
+    return this.example;
+  }
+
   public ChangedSchema getSchema() {
     return this.schema;
   }
@@ -133,6 +143,16 @@ public class ChangedHeader implements ComposedChanged {
     return this;
   }
 
+  public ChangedHeader setExamples(ChangedExamples examples) {
+    this.examples = examples;
+    return this;
+  }
+
+  public ChangedHeader setExample(ChangedExample example) {
+    this.example = example;
+    return this;
+  }
+
   public ChangedHeader setSchema(final ChangedSchema schema) {
     this.schema = schema;
     return this;
@@ -161,6 +181,8 @@ public class ChangedHeader implements ComposedChanged {
         && Objects.equals(newHeader, that.newHeader)
         && Objects.equals(context, that.context)
         && Objects.equals(description, that.description)
+        && Objects.equals(examples, that.examples)
+        && Objects.equals(example, that.example)
         && Objects.equals(schema, that.schema)
         && Objects.equals(content, that.content)
         && Objects.equals(extensions, that.extensions);
@@ -177,6 +199,8 @@ public class ChangedHeader implements ComposedChanged {
         style,
         explode,
         description,
+        examples,
+        example,
         schema,
         content,
         extensions);
@@ -200,6 +224,10 @@ public class ChangedHeader implements ComposedChanged {
         + this.isExplode()
         + ", description="
         + this.getDescription()
+        + ", examples="
+        + this.getExamples()
+        + ", example="
+        + this.getExample()
         + ", schema="
         + this.getSchema()
         + ", content="
