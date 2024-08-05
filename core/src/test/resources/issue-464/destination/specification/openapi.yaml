@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: service/someapi/v1
+  version: 1.1.2
+  contact:
+    name: john.doe
+    email: john.doe@acme.com
+  description: Provide description of the API
+servers:
+  - url: 'https://api.acme.com/service/someapi/v1'
+paths:
+  /products:
+    get:
+      summary: Query Products
+      operationId: get-products
+      responses:
+        '200':
+          $ref: '#/components/responses/200-GetProductResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+      description: Get Product Records
+      parameters:
+        - $ref: ./common/parameters/correlation-id.yaml
+        - $ref: ./common/parameters/traceparent.yaml
+      tags:
+        - applicant
+components:
+  schemas:
+    Error:
+      $ref: common/models/error.yaml
+    GetProductResponse:
+      $ref: ./common/models/GetProductResponse.yaml
+  securitySchemes:
+    Oauth:
+      type: oauth2
+      description: Oauth Security Token Enforcement for internal production environment.
+      flows:
+        clientCredentials:
+          tokenUrl: 'https://api.acme.com/auth/app/v1/token'
+          scopes:
+            scope: READ
+  responses:
+    '400':
+      description: 400 Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            400 Bad Request:
+              value:
+                $ref: common/examples/400.yaml
+      headers:
+        correlation-id:
+          schema:
+            type: string
+          description: An ID passed by clients to correlate multiple API requests.
+    '404':
+      description: 404 Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            404 Not Found:
+              value:
+                $ref: common/examples/404.yaml
+      headers:
+        correlation-id:
+          schema:
+            type: string
+          description: An ID passed by clients to correlate multiple API requests.
+    '500':
+      description: 500 Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            500 Internal Server Error:
+              value:
+                $ref: common/examples/500.yaml
+      headers:
+        correlation-id:
+          schema:
+            type: string
+          description: An ID passed by clients to correlate multiple API requests.
+    200-GetProductResponse:
+      description: Get Product Response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetProductResponse'
+          examples:
+            200 - Sample Data:
+              value:
+                $ref: common/examples/Product/200-GetProductResponse.yaml
+      headers:
+        correlation-id:
+          schema:
+            type: string
+          description: An ID passed by clients to correlate multiple API requests.
+security:
+  - Oauth: []
+tags:
+  - name: applicant
