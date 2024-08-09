@@ -125,6 +125,8 @@ public class PathsDiff {
   }
 
   /**
+   * Checks is provided parameter pairs are equal by type and format
+   *
    * @param left parameters from the first compared method
    * @param right parameters from the second compared method
    * @return <code>true</code> in case each parameter pair is of the same type; <code>false</code>
@@ -134,9 +136,21 @@ public class PathsDiff {
     int parametersSize = left.size();
     long intersectedParameters =
         IntStream.range(0, left.size())
-            .filter(
-                i -> left.get(i).getSchema().getType().equals(right.get(i).getSchema().getType()))
+            .filter(i -> parametersTypeEquals(left.get(i), right.get(i)))
             .count();
     return parametersSize == intersectedParameters;
+  }
+
+  /**
+   * Checks is provided parameter pair equal by type and format
+   *
+   * @param left parameter from the first compared method
+   * @param right parameter from the second compared method
+   * @return <code>true</code> in case parameter pair is of the same type; <code>false</code>
+   *     otherwise
+   */
+  private static boolean parametersTypeEquals(Parameter left, Parameter right) {
+    return Objects.equals(left.getSchema().getType(), right.getSchema().getType())
+        && Objects.equals(left.getSchema().getFormat(), right.getSchema().getFormat());
   }
 }
