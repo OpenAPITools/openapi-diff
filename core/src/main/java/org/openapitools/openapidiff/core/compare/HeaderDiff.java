@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import org.openapitools.openapidiff.core.model.Changed;
+import org.openapitools.openapidiff.core.model.ChangedExample;
+import org.openapitools.openapidiff.core.model.ChangedExamples;
 import org.openapitools.openapidiff.core.model.ChangedHeader;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
@@ -49,7 +51,9 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
                 !Boolean.TRUE.equals(left.getDeprecated())
                     && Boolean.TRUE.equals(right.getDeprecated()))
             .setStyle(!Objects.equals(left.getStyle(), right.getStyle()))
-            .setExplode(getBooleanDiff(left.getExplode(), right.getExplode()));
+            .setExplode(getBooleanDiff(left.getExplode(), right.getExplode()))
+            .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
+            .setExample(new ChangedExample(left.getExample(), right.getExample()));
     builder
         .with(
             openApiDiff
