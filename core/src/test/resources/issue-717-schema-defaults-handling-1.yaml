@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  description: Schema defaults handling
+  title: defaults
+  version: 1.0.0
+paths:
+  /defaults/property-schema/:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestDTO'
+components:
+  schemas:
+    TestDTO:
+      type: object
+      properties:
+        field1:
+          default: default value
+          type: string
