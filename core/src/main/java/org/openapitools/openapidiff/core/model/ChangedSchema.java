@@ -136,6 +136,7 @@ public class ChangedSchema implements ComposedChanged {
     if (!changedType
         && (oldSchema == null && newSchema == null || oldSchema != null && newSchema != null)
         && !changeFormat
+        && !changeDefault
         && increasedProperties.isEmpty()
         && missingProperties.isEmpty()
         && changedProperties.values().isEmpty()
