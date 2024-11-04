@@ -125,7 +125,7 @@ public class PathsDiff {
   }
 
   /**
-   * Checks is provided parameter pairs are equal by type and format
+   * Checks if provided parameter pairs are equal by type and format
    *
    * @param left parameters from the first compared method
    * @param right parameters from the second compared method
@@ -142,7 +142,7 @@ public class PathsDiff {
   }
 
   /**
-   * Checks is provided parameter pair equal by type and format
+   * Checks if provided parameter pair is equal by type and format
    *
    * @param left parameter from the first compared method
    * @param right parameter from the second compared method
