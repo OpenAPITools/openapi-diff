@@ -3,6 +3,21 @@ info:
   title: Projects API
   version: 1.0.0
 paths:
+  /projects/{key}:
+    get:
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleResponse'
   /projects/{id}:
     get:
       parameters:
@@ -28,6 +43,26 @@ paths:
           schema:
             type: string
             format: uuid
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleResponse'
+  /projects/{id}.{idPostfix}:
+    get:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: idPostfix
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: 'Success'
