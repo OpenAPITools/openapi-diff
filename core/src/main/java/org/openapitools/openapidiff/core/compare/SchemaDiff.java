@@ -106,7 +106,7 @@ public class SchemaDiff {
     return schema;
   }
 
-  protected static Schema<?> addSchema(Schema<?> schema, Schema<?> fromSchema) {
+  protected static <T, U> Schema<T> addSchema(Schema<T> schema, Schema<U> fromSchema) {
     if (fromSchema.getProperties() != null) {
       if (schema.getProperties() == null) {
         schema.setProperties(new LinkedHashMap<>());
@@ -205,6 +205,9 @@ public class SchemaDiff {
     }
     if (fromSchema.getExample() != null) {
       schema.setExample(fromSchema.getExample());
+    }
+    if (fromSchema.getExamples() != null) {
+      schema.setExamples((List<T>) fromSchema.getExamples());
     }
     if (fromSchema.getExternalDocs() != null) {
       if (schema.getExternalDocs() == null) {

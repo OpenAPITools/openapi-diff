@@ -25,6 +25,8 @@ public class ChangedSchema implements ComposedChanged {
   protected Map<String, Schema<?>> missingProperties;
   protected boolean changeDeprecated;
   protected ChangedMetadata description;
+  protected ChangedExamples examples;
+  protected ChangedExample example;
   protected boolean changeTitle;
   protected ChangedRequired required;
   protected boolean changeDefault;
@@ -106,6 +108,8 @@ public class ChangedSchema implements ComposedChanged {
                   changedProperties.values().stream(),
                   Stream.of(
                       description,
+                      examples,
+                      example,
                       readOnly,
                       writeOnly,
                       items,
@@ -222,6 +226,14 @@ public class ChangedSchema implements ComposedChanged {
     return this.changeDeprecated;
   }
 
+  public ChangedExamples getExamples() {
+    return this.examples;
+  }
+
+  public ChangedExample getExample() {
+    return this.example;
+  }
+
   public ChangedMetadata getDescription() {
     return this.description;
   }
@@ -329,6 +341,18 @@ public class ChangedSchema implements ComposedChanged {
   public ChangedSchema setDescription(final ChangedMetadata description) {
     clearChangedCache();
     this.description = description;
+    return this;
+  }
+
+  public ChangedSchema setExamples(final ChangedExamples examples) {
+    clearChangedCache();
+    this.examples = examples;
+    return this;
+  }
+
+  public ChangedSchema setExample(final ChangedExample example) {
+    clearChangedCache();
+    this.example = example;
     return this;
   }
 
@@ -441,6 +465,8 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(increasedProperties, that.increasedProperties)
         && Objects.equals(missingProperties, that.missingProperties)
         && Objects.equals(description, that.description)
+        && Objects.equals(examples, that.examples)
+        && Objects.equals(example, that.example)
         && Objects.equals(required, that.required)
         && Objects.equals(enumeration, that.enumeration)
         && Objects.equals(readOnly, that.readOnly)
@@ -465,6 +491,8 @@ public class ChangedSchema implements ComposedChanged {
         missingProperties,
         changeDeprecated,
         description,
+        examples,
+        example,
         changeTitle,
         required,
         changeDefault,
@@ -502,6 +530,10 @@ public class ChangedSchema implements ComposedChanged {
         + this.isChangeDeprecated()
         + ", description="
         + this.getDescription()
+        + ", examples="
+        + this.getExamples()
+        + ", example="
+        + this.getExample()
         + ", changeTitle="
         + this.isChangeTitle()
         + ", required="

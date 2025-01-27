@@ -5,7 +5,9 @@ import static org.openapitools.openapidiff.core.utils.ChangedUtils.isUnchanged;
 
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedContent;
 import org.openapitools.openapidiff.core.model.ChangedMediaType;
@@ -34,22 +36,15 @@ public class ContentDiff {
               MediaType oldMediaType = left.get(mediaTypeKey);
               MediaType newMediaType = right.get(mediaTypeKey);
 
-              ChangedMediaType changedMediaType =
-                  new ChangedMediaType(oldMediaType.getSchema(), newMediaType.getSchema(), context);
-
               builder
                   .with(
                       openApiDiff
-                          .getSchemaDiff()
-                          .diff(
-                              oldMediaType.getSchema(),
-                              newMediaType.getSchema(),
-                              context.copyWithRequired(true)))
+                          .getMediaTypeDiff()
+                          .diff(oldMediaType, newMediaType, context.copyWithRequired(true)))
                   .ifPresent(
                       value -> {
-                        changedMediaType.setSchema(value);
-                        if (!isUnchanged(changedMediaType)) {
-                          changedMediaTypes.put(mediaTypeKey, changedMediaType);
+                        if (!isUnchanged(value)) {
+                          changedMediaTypes.put(mediaTypeKey, value);
                         }
                       });
             });
