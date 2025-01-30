@@ -114,7 +114,9 @@ public class ParametersDiff {
       boolean samePathDifferentParameter = !newParameterRealized.equals(parameter);
       newParameterRealized.setName(
           newParameterName); // Important:: MUST Reset the name as this is not a copy
-      return samePathDifferentParameter;
+      if (samePathDifferentParameter) {
+        return true;
+      }
     }
     return false;
   }

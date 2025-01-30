@@ -1,5 +1,6 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_NUMERIC_RANGE_DECREASED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_NUMERIC_RANGE_INCREASED;
 
@@ -34,10 +35,10 @@ public final class ChangedNumericRange implements Changed {
       return DiffResult.COMPATIBLE;
     }
 
-    boolean exclusiveMaxOld = oldMaximumExclusiveValue != null && oldMaximumExclusiveValue;
-    boolean exclusiveMinOld = oldMinimumExclusiveValue != null && oldMinimumExclusiveValue;
-    boolean exclusiveMaxNew = newMaximumExclusiveValue != null && newMaximumExclusiveValue;
-    boolean exclusiveMinNew = newMinimumExclusiveValue != null && newMinimumExclusiveValue;
+    boolean exclusiveMaxOld = isTrue(oldMaximumExclusiveValue);
+    boolean exclusiveMinOld = isTrue(oldMinimumExclusiveValue);
+    boolean exclusiveMaxNew = isTrue(newMaximumExclusiveValue);
+    boolean exclusiveMinNew = isTrue(newMinimumExclusiveValue);
     int diffMax = compare(oldMaximumValue, newMaximumValue, false);
     int diffMin = compare(oldMinimumValue, newMinimumValue, true);
 
