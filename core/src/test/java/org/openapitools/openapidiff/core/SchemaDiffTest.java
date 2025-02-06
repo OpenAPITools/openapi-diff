@@ -8,16 +8,14 @@ import static org.openapitools.openapidiff.core.ChangesResolver.getChangedOperat
 import static org.openapitools.openapidiff.core.ChangesResolver.getRequestBodyChangedSchema;
 import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardCompatible;
 
+import io.swagger.v3.oas.models.PathItem.HttpMethod;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.ChangedOperation;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
-
-import io.swagger.v3.oas.models.PathItem.HttpMethod;
 
 public class SchemaDiffTest {
 
@@ -36,7 +34,6 @@ public class SchemaDiffTest {
     assertTrue(changedSchema.getChangedProperties().get("field1").isChangeDefault());
   }
 
-
   @Test // issue #485
   public void schemaBecomesDeprecatedTest() {
     ChangedOpenApi changedOpenApi =
@@ -44,7 +41,8 @@ public class SchemaDiffTest {
             "schemaDiff/schema-deprecated-handling-1.yaml",
             "schemaDiff/schema-deprecated-handling-2.yaml");
 
-    ChangedOperation operation = getChangedOperation(changedOpenApi, HttpMethod.POST,"/schema-diff/deprecated/added");
+    ChangedOperation operation =
+        getChangedOperation(changedOpenApi, HttpMethod.POST, "/schema-diff/deprecated/added");
     assertNotNull(operation);
 
     ChangedSchema requestBodySchema = getRequestBodyChangedSchema(operation, "application/json");
@@ -59,7 +57,8 @@ public class SchemaDiffTest {
             "schemaDiff/schema-deprecated-handling-1.yaml",
             "schemaDiff/schema-deprecated-handling-2.yaml");
 
-    ChangedOperation operation = getChangedOperation(changedOpenApi, HttpMethod.POST,"/schema-diff/deprecated/removed");
+    ChangedOperation operation =
+        getChangedOperation(changedOpenApi, HttpMethod.POST, "/schema-diff/deprecated/removed");
     assertNotNull(operation);
 
     ChangedSchema requestBodySchema = getRequestBodyChangedSchema(operation, "application/json");
@@ -83,7 +82,8 @@ public class SchemaDiffTest {
 
   @Test
   public void addPropertyHandlingTest() {
-    assertOpenApiBackwardCompatible("schemaDiff/schema-add-property-1.yaml", "schemaDiff/schema-add-property-2.yaml", true);
+    assertOpenApiBackwardCompatible(
+        "schemaDiff/schema-add-property-1.yaml", "schemaDiff/schema-add-property-2.yaml", true);
   }
 
   @Test // issue #537
