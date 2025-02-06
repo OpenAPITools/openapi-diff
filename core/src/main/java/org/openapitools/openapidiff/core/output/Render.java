@@ -19,9 +19,9 @@ public interface Render {
   /**
    * render provided diff object
    *
-   * @deprecated since 2.1.0, use {@link Render#render(ChangedOpenApi, OutputStreamWriter)} to avoid massive String output issues.
-   * details <a href="https://github.com/OpenAPITools/openapi-diff/issues/543">#543</a>
-   *
+   * @deprecated since 2.1.0, use {@link Render#render(ChangedOpenApi, OutputStreamWriter)} to avoid
+   *     massive String output issues. details <a
+   *     href="https://github.com/OpenAPITools/openapi-diff/issues/543">#543</a>
    * @param diff diff object to render
    * @return rendered output
    */
