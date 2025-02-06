@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
