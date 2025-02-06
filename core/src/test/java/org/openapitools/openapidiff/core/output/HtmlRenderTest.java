@@ -1,12 +1,12 @@
-package org.openapitools.openapidiff.core;
+package org.openapitools.openapidiff.core.output;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
-import org.openapitools.openapidiff.core.output.HtmlRender;
 
 public class HtmlRenderTest {
   @Test
