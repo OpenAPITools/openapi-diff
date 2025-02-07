@@ -38,6 +38,14 @@ Available on [Maven Central](https://search.maven.org/artifact/org.openapitools.
 </dependency>
 ```
 
+# Homebrew
+Available for Mac users on [brew](https://formulae.brew.sh/formula/openapi-diff)
+
+```bash
+brew install openapi-diff
+```
+Usage instructions in [Ussage -> Command line](#command-line)
+
 # Docker
 
 Available on [Docker Hub](https://hub.docker.com/r/openapitools/openapi-diff/) as `openapitools/openapi-diff`.
@@ -71,7 +79,6 @@ usage: openapi-diff <old> <new>
     --version                   print the version information and exit
     --warn                      Print warning information
 ```
-
 
 ## Build the image
 
