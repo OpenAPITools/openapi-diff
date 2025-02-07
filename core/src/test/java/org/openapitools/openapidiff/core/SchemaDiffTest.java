@@ -34,6 +34,14 @@ public class SchemaDiffTest {
     assertTrue(changedSchema.getChangedProperties().get("field1").isChangeDefault());
   }
 
+  @Test
+  public void schemaPropertyTypeChanged() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-props-defaults-handling-1.yaml",
+            "schemaDiff/schema-props-defaults-handling-2.yaml");
+  }
+
   @Test // issue #485
   public void schemaBecomesDeprecatedTest() {
     ChangedOpenApi changedOpenApi =
