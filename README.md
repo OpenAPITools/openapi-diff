@@ -200,56 +200,37 @@ public class Main {
 #### HTML
 
 ```java
-String html = new HtmlRender("Changelog",
-        "http://deepoove.com/swagger-diff/stylesheets/demo.css")
-                .render(diff);
-
-try {
-    FileWriter fw = new FileWriter("testNewApi.html");
-    fw.write(html);
-    fw.close();
-} catch (IOException e) {
-    e.printStackTrace();
-}
+String htmlRender = new HtmlRender("Changelog", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
+FileOutputStream outputStream = new FileOutputStream("testDiff.html");
+OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+htmlRender.render(diff, outputStreamWriter);
 ```
 
 #### Markdown
 
 ```java
-String render = new MarkdownRender().render(diff);
-try {
-    FileWriter fw = new FileWriter("testDiff.md");
-    fw.write(render);
-    fw.close();
-} catch (IOException e) {
-    e.printStackTrace();
-}
+JsonRender markdownRender = new MarkdownRender();
+FileOutputStream outputStream = new FileOutputStream("testDiff.md");
+OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+markdownRender.render(diff, outputStreamWriter);
 ```
 
 #### Asciidoc
 
 ```java
-String render = new AsciidocRender().render(diff);
-try {
-    FileWriter fw = new FileWriter("testDiff.adoc");
-    fw.write(render);
-    fw.close();
-} catch (IOException e) {
-    e.printStackTrace();
-}
+JsonRender asciidocRender = new AsciidocRender();
+FileOutputStream outputStream = new FileOutputStream("testDiff.adoc");
+OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+asciidocRender.render(diff, outputStreamWriter);
 ```
 
 #### JSON
 
 ```java
-String render = new JsonRender().render(diff);
-try {
-    FileWriter fw = new FileWriter("testDiff.json");
-    fw.write(render);
-    fw.close();
-} catch (IOException e) {
-    e.printStackTrace();
-}
+JsonRender jsonRender = new JsonRender();
+FileOutputStream outputStream = new FileOutputStream("testDiff.json");
+OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+jsonRender.render(diff, outputStreamWriter);
 ```
 
 ### Extensions
