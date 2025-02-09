@@ -56,7 +56,8 @@ public class OperationDiff {
                 .getMetadataDiff()
                 .diff(oldOperation.getOperationId(), newOperation.getOperationId(), context))
         .ifPresent(changedOperation::setOperationId);
-    changedOperation.setDeprecated(!Objects.equals(oldOperation.getDeprecated(), newOperation.getDeprecated()));
+    changedOperation.setDeprecated(
+        !Objects.equals(oldOperation.getDeprecated(), newOperation.getDeprecated()));
 
     if (oldOperation.getRequestBody() != null || newOperation.getRequestBody() != null) {
       builder

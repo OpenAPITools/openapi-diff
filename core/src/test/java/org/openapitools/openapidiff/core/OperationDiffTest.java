@@ -17,7 +17,8 @@ public class OperationDiffTest {
   @Test
   public void testOperationIdChanged() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
-    ChangedOperation changedOperation = getChangedOperation(changedOpenApi, GET, "/operation/operation-id");
+    ChangedOperation changedOperation =
+        getChangedOperation(changedOpenApi, GET, "/operation/operation-id");
 
     assertThat(changedOperation).isNotNull();
     assertThat(changedOperation.isChanged()).isEqualTo(DiffResult.METADATA);
@@ -27,7 +28,8 @@ public class OperationDiffTest {
   @Test
   public void testOperationSummaryChanged() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
-    ChangedOperation changedOperation = getChangedOperation(changedOpenApi, GET, "/operation/summary");
+    ChangedOperation changedOperation =
+        getChangedOperation(changedOpenApi, GET, "/operation/summary");
 
     assertThat(changedOperation).isNotNull();
     assertThat(changedOperation.isChanged()).isEqualTo(DiffResult.METADATA);
@@ -37,7 +39,8 @@ public class OperationDiffTest {
   @Test
   public void testOperationDescriptionChanged() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
-    ChangedOperation changedOperation = getChangedOperation(changedOpenApi, GET, "/operation/description");
+    ChangedOperation changedOperation =
+        getChangedOperation(changedOpenApi, GET, "/operation/description");
 
     assertThat(changedOperation).isNotNull();
     assertThat(changedOperation.isChanged()).isEqualTo(DiffResult.METADATA);
@@ -47,7 +50,8 @@ public class OperationDiffTest {
   @Test
   public void testOperationBecomesDeprecated() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
-    ChangedOperation changedOperation = getChangedOperation(changedOpenApi, GET, "/operation/becomes-deprecated");
+    ChangedOperation changedOperation =
+        getChangedOperation(changedOpenApi, GET, "/operation/becomes-deprecated");
 
     assertThat(changedOperation).isNotNull();
     assertThat(changedOperation.isDeprecated()).isTrue();
@@ -56,7 +60,8 @@ public class OperationDiffTest {
   @Test
   public void testOperationBecomesNotDeprecated() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
-    ChangedOperation changedOperation = getChangedOperation(changedOpenApi, GET, "/operation/becomes-not-deprecated");
+    ChangedOperation changedOperation =
+        getChangedOperation(changedOpenApi, GET, "/operation/becomes-not-deprecated");
 
     assertThat(changedOperation).isNotNull();
     assertThat(changedOperation.isDeprecated()).isTrue();
