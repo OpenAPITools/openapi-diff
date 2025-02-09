@@ -47,9 +47,7 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     ChangedHeader changedHeader =
         new ChangedHeader(left, right, context)
             .setRequired(getBooleanDiff(left.getRequired(), right.getRequired()))
-            .setDeprecated(
-                !Boolean.TRUE.equals(left.getDeprecated())
-                    && Boolean.TRUE.equals(right.getDeprecated()))
+            .setDeprecated(!Objects.equals(left.getDeprecated(), right.getDeprecated()))
             .setStyle(!Objects.equals(left.getStyle(), right.getStyle()))
             .setExplode(getBooleanDiff(left.getExplode(), right.getExplode()))
             .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))

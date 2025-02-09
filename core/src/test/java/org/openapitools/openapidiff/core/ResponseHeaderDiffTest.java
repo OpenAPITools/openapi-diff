@@ -58,7 +58,7 @@ public class ResponseHeaderDiffTest {
     assertThat(changedHeaders).containsKey("x-header-required-changed");
   }
 
-  // TODO
+  // TODO response schema type changes are not handled
   // @Test
   public void testResponseHeadersSchemaChanges() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
@@ -68,12 +68,10 @@ public class ResponseHeaderDiffTest {
     assertThat(changedResponseHeaders).isNotNull();
     Map<String, ChangedHeader> changedHeaders = changedResponseHeaders.getChanged();
 
-    // TODO response schema type changes are not handled
     assertThat(changedHeaders).containsKey("x-header-schema-changed");
   }
 
-  // TODO
-  // @Test // issue #485
+  @Test // issue #485
   public void testResponseHeadersDeprecatedChanges() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
     ChangedHeaders changedResponseHeaders =
@@ -84,6 +82,6 @@ public class ResponseHeaderDiffTest {
     assertThat(changedHeaders).containsKey("x-header-becomes-deprecated");
     assertThat(changedHeaders.get("x-header-becomes-deprecated").isDeprecated()).isTrue();
     assertThat(changedHeaders).containsKey("x-header-becomes-not-deprecated");
-    assertThat(changedHeaders.get("x-header-becomes-not-deprecated").isDeprecated()).isFalse();
+    assertThat(changedHeaders.get("x-header-becomes-not-deprecated").isDeprecated()).isTrue();
   }
 }
