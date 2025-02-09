@@ -50,9 +50,7 @@ public class SchemaDiffResult {
         .setContext(context)
         .setOldSchema(left)
         .setNewSchema(right)
-        .setChangeDeprecated(
-            !Boolean.TRUE.equals(left.getDeprecated())
-                && Boolean.TRUE.equals(right.getDeprecated()))
+        .setChangeDeprecated(!Objects.equals(left.getDeprecated(), right.getDeprecated()))
         .setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()))
         .setRequired(
             ListDiff.diff(new ChangedRequired(left.getRequired(), right.getRequired(), context)))
