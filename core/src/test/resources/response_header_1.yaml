@@ -50,13 +50,14 @@ paths:
                 type: string
           content:
             application/json: { }
-  /response/headers/schema:
+  /response/headers/explode:
     get:
       responses:
         '200':
           description: some description
           headers:
-            x-header-schema-changed:
+            x-header-explode-changed:
+              explode: false
               schema:
                 type: string
           content:

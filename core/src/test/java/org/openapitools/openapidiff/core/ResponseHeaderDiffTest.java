@@ -58,17 +58,16 @@ public class ResponseHeaderDiffTest {
     assertThat(changedHeaders).containsKey("x-header-required-changed");
   }
 
-  // TODO response schema type changes are not handled
-  // @Test
-  public void testResponseHeadersSchemaChanges() {
+  @Test
+  public void testResponseHeadersExplodeChanges() {
     ChangedOpenApi changedOpenApi = OpenApiCompare.fromLocations(OPENAPI_DOC1, OPENAPI_DOC2);
     ChangedHeaders changedResponseHeaders =
-        getChangedResponseHeaders(changedOpenApi, GET, "/response/headers/schema", "200");
+        getChangedResponseHeaders(changedOpenApi, GET, "/response/headers/explode", "200");
 
     assertThat(changedResponseHeaders).isNotNull();
     Map<String, ChangedHeader> changedHeaders = changedResponseHeaders.getChanged();
 
-    assertThat(changedHeaders).containsKey("x-header-schema-changed");
+    assertThat(changedHeaders).containsKey("x-header-explode-changed");
   }
 
   @Test // issue #485
