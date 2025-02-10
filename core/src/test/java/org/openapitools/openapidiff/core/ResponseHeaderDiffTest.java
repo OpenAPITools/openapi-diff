@@ -12,8 +12,8 @@ import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class ResponseHeaderDiffTest {
 
-  private final String OPENAPI_DOC1 = "response_header_1.yaml";
-  private final String OPENAPI_DOC2 = "response_header_2.yaml";
+  private final String OPENAPI_DOC1 = "responseHeaderDiff/response_header_1.yaml";
+  private final String OPENAPI_DOC2 = "responseHeaderDiff/response_header_2.yaml";
 
   @Test
   public void testResponseHeadersDescriptionChanges() {
