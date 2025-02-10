@@ -9,6 +9,8 @@ import org.openapitools.openapidiff.core.model.ChangedHeaders;
 import org.openapitools.openapidiff.core.model.ChangedMediaType;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.ChangedOperation;
+import org.openapitools.openapidiff.core.model.ChangedParameter;
+import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.ChangedRequestBody;
 import org.openapitools.openapidiff.core.model.ChangedResponse;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
@@ -23,6 +25,25 @@ public class ChangesResolver {
             operation ->
                 operation.getHttpMethod().equals(method) && operation.getPathUrl().equals(path))
         .findFirst()
+        .orElse(null);
+  }
+
+  @Nullable
+  public static ChangedParameter getChangedParameter(
+      ChangedOpenApi changedOpenApi, HttpMethod method, String path, String parameterName) {
+    ChangedOperation changedOperation = getChangedOperation(changedOpenApi, method, path);
+
+    if (changedOperation == null) {
+      return null;
+    }
+
+    return Optional.ofNullable(changedOperation.getParameters())
+        .map(ChangedParameters::getChanged)
+        .flatMap(
+            changedParameters ->
+                changedParameters.stream()
+                    .filter(changedParameter -> changedParameter.getName().equals(parameterName))
+                    .findFirst())
         .orElse(null);
   }
 

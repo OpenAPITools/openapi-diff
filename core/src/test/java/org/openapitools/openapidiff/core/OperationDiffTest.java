@@ -11,8 +11,8 @@ import org.openapitools.openapidiff.core.model.DiffResult;
 
 public class OperationDiffTest {
 
-  private final String OPENAPI_DOC1 = "operation_diff_1.yaml";
-  private final String OPENAPI_DOC2 = "operation_diff_2.yaml";
+  private final String OPENAPI_DOC1 = "operationDiff/operation_diff_1.yaml";
+  private final String OPENAPI_DOC2 = "operationDiff/operation_diff_2.yaml";
 
   @Test
   public void testOperationIdChanged() {
