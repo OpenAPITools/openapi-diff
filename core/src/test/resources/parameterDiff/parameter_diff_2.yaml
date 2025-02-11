@@ -1,0 +1,102 @@
+openapi: "3.1.0"
+info:
+  title: "Parameters diff test"
+  description: "TParameters diff test"
+  version: "1.0"
+paths:
+  /parameter/added:
+    get:
+      parameters:
+        - in: query
+          name: param
+          schema:
+            type: string
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: {}
+  /parameter/removed:
+    get:
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /parameter/becomes-deprecated:
+    get:
+      parameters:
+        - in: header
+          name: X-Header
+          deprecated: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /parameter/becomes-not-deprecated:
+    get:
+      parameters:
+        - in: header
+          name: X-Header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /parameter/required:
+    get:
+      parameters:
+        - in: query
+          name: param
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /parameter/description:
+    get:
+      parameters:
+        - in: query
+          name: param
+          description: changed
+          schema:
+            type: string
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /parameter/explode:
+    get:
+      parameters:
+        - in: query
+          name: param
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /parameter/style:
+    get:
+      parameters:
+        - in: query
+          name: param
+          schema:
+            type: string
+          style: matrix
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }

@@ -1,0 +1,33 @@
+openapi: 3.1.0
+info:
+  description: Schema deprecated handling
+  title: defaults
+  version: 1.0.0
+paths:
+  /schema-diff/deprecated/added:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeprecatedAdded"
+  /schema-diff/deprecated/removed:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeprecatedRemoved"
+components:
+  schemas:
+    DeprecatedAdded:
+      deprecated: true
+      type: object
+      properties:
+        field1:
+          type: string
+    DeprecatedRemoved:
+      type: object
+      properties:
+        field1:
+          type: string

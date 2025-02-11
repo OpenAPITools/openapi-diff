@@ -1,0 +1,64 @@
+openapi: 3.1.0
+info:
+  description: Response headers handling
+  title: response headers
+  version: 1.0.0
+paths:
+  /response/headers/deprecated:
+    get:
+      responses:
+        '200':
+          description: some description
+          headers:
+            x-header-becomes-deprecated:
+              deprecated: true
+              schema:
+                type: string
+            x-header-becomes-not-deprecated:
+              schema:
+                type: string
+          content:
+            application/json: {}
+  /response/headers/description:
+    get:
+      responses:
+        '200':
+          description: some description
+          headers:
+            x-header-description-changed:
+              description: new description
+              schema:
+                type: string
+            x-header-description-added:
+              description: added description
+              schema:
+                type: string
+            x-header-description-removed:
+              schema:
+                type: string
+          content:
+            application/json: { }
+  /response/headers/required:
+    get:
+      responses:
+        '200':
+          description: some description
+          headers:
+            x-header-required-changed:
+              required: false
+              schema:
+                type: string
+          content:
+            application/json: { }
+  /response/headers/explode:
+    get:
+      responses:
+        '200':
+          description: some description
+          headers:
+            x-header-explode-changed:
+              explode: true
+              schema:
+                type: string
+          content:
+            application/json: { }

@@ -1,0 +1,55 @@
+---
+openapi: "3.0.1"
+info:
+  title: "Test title"
+  description: "This is a test metadata"
+  termsOfService: "http://test.com"
+  contact:
+    name: "Mark Snijder"
+    url: "marksnijder.nl"
+    email: "snijderd@gmail.com"
+  license:
+    name: "To be decided"
+    url: "http://test.com"
+  version: "version 1.0"
+paths:
+  /operation/operation-id:
+    get:
+      operationId: changed
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: {}
+  /operation/summary:
+    get:
+      summary: changed
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /operation/description:
+    get:
+      description: changed
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /operation/becomes-deprecated:
+    get:
+      deprecated: true
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }
+  /operation/becomes-not-deprecated:
+    get:
+      deprecated: false
+      responses:
+        '200':
+          description: response
+          content:
+            application/json: { }

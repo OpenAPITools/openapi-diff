@@ -4,7 +4,6 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedExample;
 import org.openapitools.openapidiff.core.model.ChangedExamples;
@@ -51,14 +50,12 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
         new ChangedParameter(right.getName(), right.getIn(), context)
             .setOldParameter(left)
             .setNewParameter(right)
-            .setChangeRequired(getBooleanDiff(left.getRequired(), right.getRequired()))
-            .setDeprecated(
-                !Boolean.TRUE.equals(left.getDeprecated())
-                    && Boolean.TRUE.equals(right.getDeprecated()))
+            .setChangeRequired(!Objects.equals(left.getRequired(), right.getRequired()))
+            .setDeprecated(!Objects.equals(left.getDeprecated(), right.getDeprecated()))
             .setChangeAllowEmptyValue(
-                getBooleanDiff(left.getAllowEmptyValue(), right.getAllowEmptyValue()))
+                !Objects.equals(left.getAllowEmptyValue(), right.getAllowEmptyValue()))
             .setChangeStyle(!Objects.equals(left.getStyle(), right.getStyle()))
-            .setChangeExplode(getBooleanDiff(left.getExplode(), right.getExplode()))
+            .setChangeExplode(!Objects.equals(left.getExplode(), right.getExplode()))
             .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
             .setExample(new ChangedExample(left.getExample(), right.getExample()));
     builder
@@ -83,11 +80,5 @@ public class ParameterDiff extends ReferenceDiffCache<Parameter, ChangedParamete
                 .diff(left.getExtensions(), right.getExtensions(), context))
         .ifPresent(changedParameter::setExtensions);
     return builder.buildIsChanged(changedParameter);
-  }
-
-  private boolean getBooleanDiff(Boolean left, Boolean right) {
-    boolean leftRequired = Optional.ofNullable(left).orElse(Boolean.FALSE);
-    boolean rightRequired = Optional.ofNullable(right).orElse(Boolean.FALSE);
-    return leftRequired != rightRequired;
   }
 }

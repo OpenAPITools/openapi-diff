@@ -4,7 +4,6 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.headers.Header;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.ChangedExample;
 import org.openapitools.openapidiff.core.model.ChangedExamples;
@@ -46,12 +45,10 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
     DeferredBuilder<Changed> builder = new DeferredBuilder<>();
     ChangedHeader changedHeader =
         new ChangedHeader(left, right, context)
-            .setRequired(getBooleanDiff(left.getRequired(), right.getRequired()))
-            .setDeprecated(
-                !Boolean.TRUE.equals(left.getDeprecated())
-                    && Boolean.TRUE.equals(right.getDeprecated()))
+            .setRequired(!Objects.equals(left.getRequired(), right.getRequired()))
+            .setDeprecated(!Objects.equals(left.getDeprecated(), right.getDeprecated()))
             .setStyle(!Objects.equals(left.getStyle(), right.getStyle()))
-            .setExplode(getBooleanDiff(left.getExplode(), right.getExplode()))
+            .setExplode(!Objects.equals(left.getExplode(), right.getExplode()))
             .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
             .setExample(new ChangedExample(left.getExample(), right.getExample()));
     builder
@@ -76,11 +73,5 @@ public class HeaderDiff extends ReferenceDiffCache<Header, ChangedHeader> {
                 .diff(left.getExtensions(), right.getExtensions(), context))
         .ifPresent(changedHeader::setExtensions);
     return builder.buildIsChanged(changedHeader);
-  }
-
-  private boolean getBooleanDiff(Boolean left, Boolean right) {
-    boolean leftRequired = Optional.ofNullable(left).orElse(Boolean.FALSE);
-    boolean rightRequired = Optional.ofNullable(right).orElse(Boolean.FALSE);
-    return leftRequired != rightRequired;
   }
 }
