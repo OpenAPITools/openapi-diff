@@ -17,6 +17,14 @@ import org.openapitools.openapidiff.core.model.ChangedSchema;
 
 public class ChangesResolver {
 
+  /**
+   * Get the ChangedOperation for the given method and path.
+   *
+   * @param changedOpenApi the ChangedOpenApi object
+   * @param method the HTTP method
+   * @param path the path
+   * @return the ChangedOperation object
+   */
   @Nullable
   public static ChangedOperation getChangedOperation(
       ChangedOpenApi changedOpenApi, HttpMethod method, String path) {
@@ -28,6 +36,15 @@ public class ChangesResolver {
         .orElse(null);
   }
 
+  /**
+   * Get the ChangedParameter for the given method, path, and parameter name.
+   *
+   * @param changedOpenApi the ChangedOpenApi object
+   * @param method the HTTP method
+   * @param path the path
+   * @param parameterName the parameter name
+   * @return the ChangedParameter object
+   */
   @Nullable
   public static ChangedParameter getChangedParameter(
       ChangedOpenApi changedOpenApi, HttpMethod method, String path, String parameterName) {
@@ -47,6 +64,15 @@ public class ChangesResolver {
         .orElse(null);
   }
 
+  /**
+   * Get the ChangedHeaders for the given method, path, and response code.
+   *
+   * @param changedOpenApi the ChangedOpenApi object
+   * @param method the HTTP method
+   * @param path the path
+   * @param responseCode the response code
+   * @return the ChangedHeaders object
+   */
   @Nullable
   public static ChangedHeaders getChangedResponseHeaders(
       ChangedOpenApi changedOpenApi, HttpMethod method, String path, String responseCode) {
@@ -58,9 +84,24 @@ public class ChangesResolver {
         .orElse(null);
   }
 
+  /**
+   * Get the ChangedSchema for the given method, path, and media type.
+   *
+   * @param changedOpenApi the ChangedOpenApi object
+   * @param method the HTTP method
+   * @param path the path
+   * @param mediaType the media type
+   * @return the ChangedSchema object
+   */
   @Nullable
   public static ChangedSchema getRequestBodyChangedSchema(
-      ChangedOperation changedOperation, String mediaType) {
+      ChangedOpenApi changedOpenApi, HttpMethod method, String path, String mediaType) {
+    ChangedOperation changedOperation = getChangedOperation(changedOpenApi, method, path);
+
+    if (changedOperation == null) {
+      return null;
+    }
+
     return Optional.ofNullable(changedOperation)
         .map(ChangedOperation::getRequestBody)
         .map(ChangedRequestBody::getContent)
