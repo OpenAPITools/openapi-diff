@@ -22,3 +22,8 @@ components:
         field2:
           type: integer
           multipleOf: 0.01
+        field3:
+          type: integer
+        field4:
+          type: integer
+          multipleOf: 10 

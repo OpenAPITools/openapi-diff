@@ -114,6 +114,8 @@ public class SchemaDiffTest {
     assertThat(changedSchema).isNotNull();
     Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
     assertThat(props).isNotEmpty();
+
+    // Check changes in multipleOf
     assertThat(props.get("field1").getMultipleOf().isIncompatible()).isTrue();
     assertThat(props.get("field1").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(10));
     assertThat(props.get("field1").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(20));
@@ -121,5 +123,15 @@ public class SchemaDiffTest {
     assertThat(props.get("field2").getMultipleOf().isIncompatible()).isTrue();
     assertThat(props.get("field2").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(0.01));
     assertThat(props.get("field2").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(0.1));
+
+    // Check addition of multipleOf
+    assertThat(props.get("field3").getMultipleOf().isIncompatible()).isTrue();
+    assertThat(props.get("field3").getMultipleOf().getLeft()).isNull();
+    assertThat(props.get("field3").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(10));
+
+    // Check deletion of multipleOf
+    assertThat(props.get("field4").getMultipleOf().isIncompatible()).isTrue();
+    assertThat(props.get("field4").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(10));
+    assertThat(props.get("field4").getMultipleOf().getRight()).isNull();
   }
 }
