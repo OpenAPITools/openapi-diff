@@ -119,7 +119,7 @@ public class SchemaDiffTest {
     assertThat(props.get("field1").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(20));
 
     assertThat(props.get("field2").getMultipleOf().isIncompatible()).isTrue();
-    assertThat(props.get("field2").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(0.1));
-    assertThat(props.get("field2").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(0.2));
+    assertThat(props.get("field2").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(0.01));
+    assertThat(props.get("field2").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(0.1));
   }
 }

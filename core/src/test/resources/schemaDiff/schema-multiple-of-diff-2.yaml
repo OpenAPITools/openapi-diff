@@ -21,4 +21,4 @@ components:
           multipleOf: 20
         field2:
           type: integer
-          multipleOf: 0.2  
+          multipleOf: 0.1  
