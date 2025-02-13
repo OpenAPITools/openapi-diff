@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxLength;
+import org.openapitools.openapidiff.core.model.schema.ChangedMultipleOf;
 import org.openapitools.openapidiff.core.model.schema.ChangedNumericRange;
 import org.openapitools.openapidiff.core.model.schema.ChangedReadOnly;
 import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
@@ -37,6 +38,7 @@ public class ChangedSchema implements ComposedChanged {
   protected boolean changedType;
   protected ChangedMaxLength maxLength;
   protected ChangedNumericRange numericRange;
+  protected ChangedMultipleOf multipleOf;
   protected boolean discriminatorPropertyChanged;
   protected ChangedSchema items;
   protected ChangedOneOfSchema oneOfSchema;
@@ -119,6 +121,7 @@ public class ChangedSchema implements ComposedChanged {
                       required,
                       maxLength,
                       numericRange,
+                      multipleOf,
                       extensions))
               .collect(Collectors.toList());
     }
@@ -274,6 +277,14 @@ public class ChangedSchema implements ComposedChanged {
     return this.maxLength;
   }
 
+  public ChangedNumericRange getNumericRange() {
+    return this.numericRange;
+  }
+
+  public ChangedMultipleOf getMultipleOf() {
+    return this.multipleOf;
+  }
+
   public boolean isDiscriminatorPropertyChanged() {
     return this.discriminatorPropertyChanged;
   }
@@ -416,6 +427,12 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
+  public ChangedSchema setMultipleOf(final ChangedMultipleOf multipleOf) {
+    clearChangedCache();
+    this.multipleOf = multipleOf;
+    return this;
+  }
+
   public ChangedSchema setDiscriminatorPropertyChanged(final boolean discriminatorPropertyChanged) {
     clearChangedCache();
     this.discriminatorPropertyChanged = discriminatorPropertyChanged;
@@ -473,6 +490,7 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(writeOnly, that.writeOnly)
         && Objects.equals(maxLength, that.maxLength)
         && Objects.equals(numericRange, that.numericRange)
+        && Objects.equals(multipleOf, that.multipleOf)
         && Objects.equals(items, that.items)
         && Objects.equals(oneOfSchema, that.oneOfSchema)
         && Objects.equals(addProp, that.addProp)
@@ -503,6 +521,7 @@ public class ChangedSchema implements ComposedChanged {
         changedType,
         maxLength,
         numericRange,
+        multipleOf,
         discriminatorPropertyChanged,
         items,
         oneOfSchema,
@@ -552,6 +571,10 @@ public class ChangedSchema implements ComposedChanged {
         + this.isChangedType()
         + ", maxLength="
         + this.getMaxLength()
+        + ", numericRange="
+        + this.getNumericRange()
+        + ", multipleOf="
+        + this.getMultipleOf()
         + ", discriminatorPropertyChanged="
         + this.isDiscriminatorPropertyChanged()
         + ", items="

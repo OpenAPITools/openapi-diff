@@ -71,6 +71,7 @@ public class SchemaDiffResult {
                 left.getExclusiveMaximum(),
                 right.getExclusiveMaximum(),
                 context))
+        .setMultipleOf(new ChangedMultipleOf(left.getMultipleOf(), right.getMultipleOf()))
         .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
         .setExample(new ChangedExample(left.getExample(), right.getExample()));
     builder

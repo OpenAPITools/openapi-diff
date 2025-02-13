@@ -1,19 +1,19 @@
 package org.openapitools.openapidiff.core;
 
+import static io.swagger.v3.oas.models.PathItem.HttpMethod.POST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.openapitools.openapidiff.core.ChangesResolver.getChangedOperation;
 import static org.openapitools.openapidiff.core.ChangesResolver.getRequestBodyChangedSchema;
 import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardCompatible;
 
-import io.swagger.v3.oas.models.PathItem.HttpMethod;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
-import org.openapitools.openapidiff.core.model.ChangedOperation;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 
@@ -49,11 +49,9 @@ public class SchemaDiffTest {
             "schemaDiff/schema-deprecated-handling-1.yaml",
             "schemaDiff/schema-deprecated-handling-2.yaml");
 
-    ChangedOperation operation =
-        getChangedOperation(changedOpenApi, HttpMethod.POST, "/schema-diff/deprecated/added");
-    assertNotNull(operation);
-
-    ChangedSchema requestBodySchema = getRequestBodyChangedSchema(operation, "application/json");
+    ChangedSchema requestBodySchema =
+        getRequestBodyChangedSchema(
+            changedOpenApi, POST, "/schema-diff/deprecated/added", "application/json");
     assertNotNull(requestBodySchema);
     assertTrue(requestBodySchema.isChangeDeprecated());
   }
@@ -65,11 +63,9 @@ public class SchemaDiffTest {
             "schemaDiff/schema-deprecated-handling-1.yaml",
             "schemaDiff/schema-deprecated-handling-2.yaml");
 
-    ChangedOperation operation =
-        getChangedOperation(changedOpenApi, HttpMethod.POST, "/schema-diff/deprecated/removed");
-    assertNotNull(operation);
-
-    ChangedSchema requestBodySchema = getRequestBodyChangedSchema(operation, "application/json");
+    ChangedSchema requestBodySchema =
+        getRequestBodyChangedSchema(
+            changedOpenApi, POST, "/schema-diff/deprecated/removed", "application/json");
     assertNotNull(requestBodySchema);
     assertTrue(requestBodySchema.isChangeDeprecated());
   }
@@ -103,5 +99,39 @@ public class SchemaDiffTest {
 
     assertThat(changedOpenApi.isDifferent()).isTrue();
     assertThat(changedOpenApi.isCompatible()).isTrue();
+  }
+
+  @Test // issues #483 #463
+  public void changeMultipleOfHandling() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-multiple-of-diff-1.yaml",
+            "schemaDiff/schema-multiple-of-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(
+            changedOpenApi, POST, "/schema/numeric/multiple-of", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
+    assertThat(props).isNotEmpty();
+
+    // Check changes in multipleOf
+    assertThat(props.get("field1").getMultipleOf().isIncompatible()).isTrue();
+    assertThat(props.get("field1").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(10));
+    assertThat(props.get("field1").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(20));
+
+    assertThat(props.get("field2").getMultipleOf().isIncompatible()).isTrue();
+    assertThat(props.get("field2").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(0.01));
+    assertThat(props.get("field2").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(0.1));
+
+    // Check addition of multipleOf
+    assertThat(props.get("field3").getMultipleOf().isIncompatible()).isTrue();
+    assertThat(props.get("field3").getMultipleOf().getLeft()).isNull();
+    assertThat(props.get("field3").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(10));
+
+    // Check deletion of multipleOf
+    assertThat(props.get("field4").getMultipleOf().isCompatible()).isTrue();
+    assertThat(props.get("field4").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(10));
+    assertThat(props.get("field4").getMultipleOf().getRight()).isNull();
   }
 }

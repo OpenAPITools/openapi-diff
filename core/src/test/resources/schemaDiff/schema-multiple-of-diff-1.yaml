@@ -1,0 +1,29 @@
+openapi: 3.1.0
+info:
+  description: Schema diff
+  title: schema diff
+  version: 1.0.0
+paths:
+  /schema/numeric/multiple-of:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestDTO'
+components:
+  schemas:
+    TestDTO:
+      type: object
+      properties:
+        field1:
+          type: integer
+          multipleOf: 10
+        field2:
+          type: integer
+          multipleOf: 0.01
+        field3:
+          type: integer
+        field4:
+          type: integer
+          multipleOf: 10 
