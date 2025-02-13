@@ -1,0 +1,28 @@
+openapi: 3.0.1
+info:
+  description: Schema diff nullable
+  title: schema diff nullable
+  version: 1.0.0
+paths:
+  /schema/nullable:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestDTO'
+components:
+  schemas:
+    TestDTO:
+      type: object
+      properties:
+        field0:
+          type: integer
+        field1:
+          type: integer
+          nullable: true
+        field2:
+          type: integer
+          nullable: true
+        field3:
+          type: integer
