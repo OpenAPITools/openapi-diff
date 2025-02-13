@@ -16,7 +16,7 @@ public class ChangedMultipleOf implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() { // no changes
+  public DiffResult isChanged() {
     if (Objects.equals(left, right)) {
       return DiffResult.NO_CHANGES;
     }
