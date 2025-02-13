@@ -130,7 +130,7 @@ public class SchemaDiffTest {
     assertThat(props.get("field3").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(10));
 
     // Check deletion of multipleOf
-    assertThat(props.get("field4").getMultipleOf().isIncompatible()).isTrue();
+    assertThat(props.get("field4").getMultipleOf().isCompatible()).isTrue();
     assertThat(props.get("field4").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(10));
     assertThat(props.get("field4").getMultipleOf().getRight()).isNull();
   }

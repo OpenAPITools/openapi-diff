@@ -1,7 +1,9 @@
-package org.openapitools.openapidiff.core.model;
+package org.openapitools.openapidiff.core.model.schema;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import org.openapitools.openapidiff.core.model.Changed;
+import org.openapitools.openapidiff.core.model.DiffResult;
 
 public class ChangedMultipleOf implements Changed {
 
@@ -14,9 +16,14 @@ public class ChangedMultipleOf implements Changed {
   }
 
   @Override
-  public DiffResult isChanged() {
+  public DiffResult isChanged() { // no changes
     if (Objects.equals(left, right)) {
       return DiffResult.NO_CHANGES;
+    }
+
+    // multipleof removed -> compatible
+    if (right == null) {
+      return DiffResult.COMPATIBLE;
     }
 
     return DiffResult.INCOMPATIBLE;
