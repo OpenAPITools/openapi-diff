@@ -1,4 +1,4 @@
-package org.openapitools.openapidiff.core.model;
+package org.openapitools.openapidiff.core.model.schema;
 
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_ONEOF_DECREASED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_ONEOF_INCREASED;
@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.openapitools.openapidiff.core.model.Changed;
+import org.openapitools.openapidiff.core.model.ChangedSchema;
+import org.openapitools.openapidiff.core.model.ComposedChanged;
+import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.DiffResult;
 
 public class ChangedOneOfSchema implements ComposedChanged {
   private final Map<String, String> oldMapping;

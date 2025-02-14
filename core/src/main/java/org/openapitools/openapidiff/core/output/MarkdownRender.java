@@ -20,6 +20,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
+import org.openapitools.openapidiff.core.model.schema.ChangedOneOfSchema;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 import org.slf4j.Logger;

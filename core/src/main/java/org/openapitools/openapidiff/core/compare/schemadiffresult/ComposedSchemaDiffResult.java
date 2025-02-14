@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.openapitools.openapidiff.core.compare.MapKeyDiff;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
-import org.openapitools.openapidiff.core.model.ChangedOneOfSchema;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
 import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
+import org.openapitools.openapidiff.core.model.schema.ChangedOneOfSchema;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
