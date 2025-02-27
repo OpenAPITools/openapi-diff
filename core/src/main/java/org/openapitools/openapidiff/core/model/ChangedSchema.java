@@ -9,14 +9,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
+import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxLength;
+import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMultipleOf;
 import org.openapitools.openapidiff.core.model.schema.ChangedNumericRange;
 import org.openapitools.openapidiff.core.model.schema.ChangedReadOnly;
 import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
 import org.openapitools.openapidiff.core.model.schema.ChangedWriteOnly;
-import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
-import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
 
 public class ChangedSchema implements ComposedChanged {
   protected DiffContext context;
