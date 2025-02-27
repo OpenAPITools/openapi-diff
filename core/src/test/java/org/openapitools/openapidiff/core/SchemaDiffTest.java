@@ -169,4 +169,35 @@ public class SchemaDiffTest {
     assertThat(props.get("field4").getMaxItems().getOldValue()).isEqualTo(100);
     assertThat(props.get("field4").getMaxItems().getNewValue()).isEqualTo(90);
   }
+
+  @Test // issue #482
+  public void changeNullabeHandling() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-nullable-diff-1.yaml", "schemaDiff/schema-nullable-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(changedOpenApi, POST, "/schema/nullable", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
+    assertThat(props).isNotEmpty();
+
+    // Check no changes in nullable
+    assertThat(props.get("field0")).isNull();
+
+    // Check changes in nullable
+    assertThat(props.get("field1").getNullable().isCompatible()).isTrue();
+    assertThat(props.get("field1").getNullable().getLeft()).isTrue();
+    assertThat(props.get("field1").getNullable().getRight()).isFalse();
+
+    // Check deletion of nullable
+    assertThat(props.get("field2").getNullable().isCompatible()).isTrue();
+    assertThat(props.get("field2").getNullable().getLeft()).isTrue();
+    assertThat(props.get("field2").getNullable().getRight()).isNull();
+
+    // Check addition of nullable
+    assertThat(props.get("field3").getNullable().isCompatible()).isTrue();
+    assertThat(props.get("field3").getNullable().getLeft()).isNull();
+    assertThat(props.get("field3").getNullable().getRight()).isTrue();
+  }
 }

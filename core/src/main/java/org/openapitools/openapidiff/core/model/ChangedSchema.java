@@ -13,7 +13,9 @@ import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxLength;
 import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMultipleOf;
+import org.openapitools.openapidiff.core.model.schema.ChangedNullable;
 import org.openapitools.openapidiff.core.model.schema.ChangedNumericRange;
+import org.openapitools.openapidiff.core.model.schema.ChangedOneOfSchema;
 import org.openapitools.openapidiff.core.model.schema.ChangedReadOnly;
 import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
 import org.openapitools.openapidiff.core.model.schema.ChangedWriteOnly;
@@ -43,6 +45,7 @@ public class ChangedSchema implements ComposedChanged {
   protected ChangedMultipleOf multipleOf;
   protected ChangedMaxItems maxItems;
   protected ChangedMinItems minItems;
+  protected ChangedNullable nullable;
   protected boolean discriminatorPropertyChanged;
   protected ChangedSchema items;
   protected ChangedOneOfSchema oneOfSchema;
@@ -128,6 +131,7 @@ public class ChangedSchema implements ComposedChanged {
                       multipleOf,
                       maxItems,
                       minItems,
+                      nullable,
                       extensions))
               .collect(Collectors.toList());
     }
@@ -299,6 +303,10 @@ public class ChangedSchema implements ComposedChanged {
     return this.minItems;
   }
 
+  public ChangedNullable getNullable() {
+    return this.nullable;
+  }
+
   public boolean isDiscriminatorPropertyChanged() {
     return this.discriminatorPropertyChanged;
   }
@@ -459,6 +467,12 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
+  public ChangedSchema setNullable(final ChangedNullable nullable) {
+    clearChangedCache();
+    this.nullable = nullable;
+    return this;
+  }
+
   public ChangedSchema setDiscriminatorPropertyChanged(final boolean discriminatorPropertyChanged) {
     clearChangedCache();
     this.discriminatorPropertyChanged = discriminatorPropertyChanged;
@@ -519,6 +533,7 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(multipleOf, that.multipleOf)
         && Objects.equals(maxItems, that.maxItems)
         && Objects.equals(minItems, that.minItems)
+        && Objects.equals(nullable, that.nullable)
         && Objects.equals(items, that.items)
         && Objects.equals(oneOfSchema, that.oneOfSchema)
         && Objects.equals(addProp, that.addProp)
@@ -552,6 +567,7 @@ public class ChangedSchema implements ComposedChanged {
         multipleOf,
         maxItems,
         minItems,
+        nullable,
         discriminatorPropertyChanged,
         items,
         oneOfSchema,
@@ -609,6 +625,8 @@ public class ChangedSchema implements ComposedChanged {
         + this.getMaxItems()
         + ", minItems="
         + this.getMinItems()
+        + ", nullable="
+        + this.getNullable()
         + ", discriminatorPropertyChanged="
         + this.isDiscriminatorPropertyChanged()
         + ", items="
