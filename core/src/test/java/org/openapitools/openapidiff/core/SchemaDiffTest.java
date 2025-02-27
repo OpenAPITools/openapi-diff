@@ -135,6 +135,41 @@ public class SchemaDiffTest {
     assertThat(props.get("field4").getMultipleOf().getRight()).isNull();
   }
 
+  @Test // issues #480
+  public void changeMinMaxItemsHandling() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-min-max-items-diff-1.yaml",
+            "schemaDiff/schema-min-max-items-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(
+            changedOpenApi, POST, "/schema/array/items", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
+    assertThat(props).isNotEmpty();
+
+    // Check increasing of minItems
+    assertThat(props.get("field1").getMinItems().isIncompatible()).isTrue();
+    assertThat(props.get("field1").getMinItems().getOldValue()).isEqualTo(1);
+    assertThat(props.get("field1").getMinItems().getNewValue()).isEqualTo(2);
+
+    // Check decreasing of minItems
+    assertThat(props.get("field2").getMinItems().isCompatible()).isTrue();
+    assertThat(props.get("field2").getMinItems().getOldValue()).isEqualTo(20);
+    assertThat(props.get("field2").getMinItems().getNewValue()).isEqualTo(10);
+
+    // Check increasing of maxItems
+    assertThat(props.get("field3").getMaxItems().isCompatible()).isTrue();
+    assertThat(props.get("field3").getMaxItems().getOldValue()).isEqualTo(90);
+    assertThat(props.get("field3").getMaxItems().getNewValue()).isEqualTo(100);
+
+    // Check decreasing of maxItems
+    assertThat(props.get("field4").getMaxItems().isIncompatible()).isTrue();
+    assertThat(props.get("field4").getMaxItems().getOldValue()).isEqualTo(100);
+    assertThat(props.get("field4").getMaxItems().getNewValue()).isEqualTo(90);
+  }
+
   @Test // issue #482
   public void changeNullabeHandling() {
     ChangedOpenApi changedOpenApi =

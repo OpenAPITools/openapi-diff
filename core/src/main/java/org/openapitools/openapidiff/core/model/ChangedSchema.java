@@ -9,7 +9,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
+import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxLength;
+import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMultipleOf;
 import org.openapitools.openapidiff.core.model.schema.ChangedNullable;
 import org.openapitools.openapidiff.core.model.schema.ChangedNumericRange;
@@ -41,6 +43,8 @@ public class ChangedSchema implements ComposedChanged {
   protected ChangedMaxLength maxLength;
   protected ChangedNumericRange numericRange;
   protected ChangedMultipleOf multipleOf;
+  protected ChangedMaxItems maxItems;
+  protected ChangedMinItems minItems;
   protected ChangedNullable nullable;
   protected boolean discriminatorPropertyChanged;
   protected ChangedSchema items;
@@ -125,6 +129,8 @@ public class ChangedSchema implements ComposedChanged {
                       maxLength,
                       numericRange,
                       multipleOf,
+                      maxItems,
+                      minItems,
                       nullable,
                       extensions))
               .collect(Collectors.toList());
@@ -289,6 +295,14 @@ public class ChangedSchema implements ComposedChanged {
     return this.multipleOf;
   }
 
+  public ChangedMaxItems getMaxItems() {
+    return this.maxItems;
+  }
+
+  public ChangedMinItems getMinItems() {
+    return this.minItems;
+  }
+
   public ChangedNullable getNullable() {
     return this.nullable;
   }
@@ -441,6 +455,18 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
+  public ChangedSchema setMaxItems(final ChangedMaxItems maxItems) {
+    clearChangedCache();
+    this.maxItems = maxItems;
+    return this;
+  }
+
+  public ChangedSchema setMinItems(final ChangedMinItems minItems) {
+    clearChangedCache();
+    this.minItems = minItems;
+    return this;
+  }
+
   public ChangedSchema setNullable(final ChangedNullable nullable) {
     clearChangedCache();
     this.nullable = nullable;
@@ -505,6 +531,8 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(maxLength, that.maxLength)
         && Objects.equals(numericRange, that.numericRange)
         && Objects.equals(multipleOf, that.multipleOf)
+        && Objects.equals(maxItems, that.maxItems)
+        && Objects.equals(minItems, that.minItems)
         && Objects.equals(nullable, that.nullable)
         && Objects.equals(items, that.items)
         && Objects.equals(oneOfSchema, that.oneOfSchema)
@@ -537,6 +565,8 @@ public class ChangedSchema implements ComposedChanged {
         maxLength,
         numericRange,
         multipleOf,
+        maxItems,
+        minItems,
         nullable,
         discriminatorPropertyChanged,
         items,
@@ -591,6 +621,10 @@ public class ChangedSchema implements ComposedChanged {
         + this.getNumericRange()
         + ", multipleOf="
         + this.getMultipleOf()
+        + ", maxItems="
+        + this.getMaxItems()
+        + ", minItems="
+        + this.getMinItems()
         + ", nullable="
         + this.getNullable()
         + ", discriminatorPropertyChanged="

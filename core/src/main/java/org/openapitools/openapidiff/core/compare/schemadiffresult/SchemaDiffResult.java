@@ -19,6 +19,8 @@ import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 import org.openapitools.openapidiff.core.model.schema.*;
+import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
+import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
 
 public class SchemaDiffResult {
   protected ChangedSchema changedSchema;
@@ -74,7 +76,9 @@ public class SchemaDiffResult {
         .setMultipleOf(new ChangedMultipleOf(left.getMultipleOf(), right.getMultipleOf()))
         .setNullable(new ChangedNullable(left.getNullable(), right.getNullable()))
         .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
-        .setExample(new ChangedExample(left.getExample(), right.getExample()));
+        .setExample(new ChangedExample(left.getExample(), right.getExample()))
+        .setMaxItems(new ChangedMaxItems(left.getMaxItems(), right.getMaxItems(), context))
+        .setMinItems(new ChangedMinItems(left.getMinItems(), right.getMinItems(), context));
     builder
         .with(
             openApiDiff

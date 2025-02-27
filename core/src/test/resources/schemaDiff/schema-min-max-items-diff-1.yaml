@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  description: Schema diff
+  title: schema diff
+  version: 1.0.0
+paths:
+  /schema/array/items:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestDTO'
+components:
+  schemas:
+    TestDTO:
+      type: object
+      properties:
+        field1:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 100
+        field2:
+          type: array
+          items:
+            type: string
+          minItems: 20
+          maxItems: 100
+        field3:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 90              
+        field4:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 100
