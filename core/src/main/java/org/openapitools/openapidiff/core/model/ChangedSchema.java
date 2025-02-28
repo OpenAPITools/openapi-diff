@@ -11,7 +11,9 @@ import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxLength;
+import org.openapitools.openapidiff.core.model.schema.ChangedMaxProperties;
 import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
+import org.openapitools.openapidiff.core.model.schema.ChangedMinProperties;
 import org.openapitools.openapidiff.core.model.schema.ChangedMultipleOf;
 import org.openapitools.openapidiff.core.model.schema.ChangedNullable;
 import org.openapitools.openapidiff.core.model.schema.ChangedNumericRange;
@@ -45,6 +47,8 @@ public class ChangedSchema implements ComposedChanged {
   protected ChangedMultipleOf multipleOf;
   protected ChangedMaxItems maxItems;
   protected ChangedMinItems minItems;
+  protected ChangedMaxProperties maxProperties;
+  protected ChangedMinProperties minProperties;
   protected ChangedNullable nullable;
   protected boolean discriminatorPropertyChanged;
   protected ChangedSchema items;
@@ -131,6 +135,8 @@ public class ChangedSchema implements ComposedChanged {
                       multipleOf,
                       maxItems,
                       minItems,
+                      maxProperties,
+                      minProperties,
                       nullable,
                       extensions))
               .collect(Collectors.toList());
@@ -327,6 +333,14 @@ public class ChangedSchema implements ComposedChanged {
     return this.extensions;
   }
 
+  public ChangedMaxProperties getMaxProperties() {
+    return this.maxProperties;
+  }
+
+  public ChangedMinProperties getMinProperties() {
+    return this.minProperties;
+  }
+
   public ChangedSchema setContext(final DiffContext context) {
     this.context = context;
     return this;
@@ -503,6 +517,18 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
+  public ChangedSchema setMaxProperties(final ChangedMaxProperties maxProperties) {
+    clearChangedCache();
+    this.maxProperties = maxProperties;
+    return this;
+  }
+
+  public ChangedSchema setMinProperties(final ChangedMinProperties minProperties) {
+    clearChangedCache();
+    this.minProperties = minProperties;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -537,7 +563,9 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(items, that.items)
         && Objects.equals(oneOfSchema, that.oneOfSchema)
         && Objects.equals(addProp, that.addProp)
-        && Objects.equals(extensions, that.extensions);
+        && Objects.equals(extensions, that.extensions)
+        && Objects.equals(maxProperties, that.maxProperties)
+        && Objects.equals(minProperties, that.minProperties);
   }
 
   @Override
@@ -572,7 +600,9 @@ public class ChangedSchema implements ComposedChanged {
         items,
         oneOfSchema,
         addProp,
-        extensions);
+        extensions,
+        maxProperties,
+        minProperties);
   }
 
   @java.lang.Override
@@ -637,6 +667,10 @@ public class ChangedSchema implements ComposedChanged {
         + this.getAddProp()
         + ", extensions="
         + this.getExtensions()
+        + ", maxProperties="
+        + this.getMaxProperties()
+        + ", minProperties="
+        + this.getMinProperties()
         + ")";
   }
 }
