@@ -78,7 +78,11 @@ public class SchemaDiffResult {
         .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
         .setExample(new ChangedExample(left.getExample(), right.getExample()))
         .setMaxItems(new ChangedMaxItems(left.getMaxItems(), right.getMaxItems(), context))
-        .setMinItems(new ChangedMinItems(left.getMinItems(), right.getMinItems(), context));
+        .setMinItems(new ChangedMinItems(left.getMinItems(), right.getMinItems(), context))
+        .setMaxProperties(
+            new ChangedMaxProperties(left.getMaxProperties(), right.getMaxProperties(), context))
+        .setMinProperties(
+            new ChangedMinProperties(left.getMinProperties(), right.getMinProperties(), context));
     builder
         .with(
             openApiDiff

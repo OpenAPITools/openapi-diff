@@ -1,0 +1,30 @@
+openapi: 3.0.1
+info:
+  description: Schema diff
+  title: schema diff
+  version: 1.0.0
+paths:
+  /schema/object/min-max-properties:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestDTO'
+components:
+  schemas:
+    TestDTO:
+      type: object
+      properties:
+        field1:
+          type: object
+          minProperties: 10
+        field2:
+          type: object
+          minProperties: 1
+        field3:
+          type: object
+          maxProperties: 100
+        field4:
+          type: object
+          maxProperties: 10

@@ -200,4 +200,39 @@ public class SchemaDiffTest {
     assertThat(props.get("field3").getNullable().getLeft()).isNull();
     assertThat(props.get("field3").getNullable().getRight()).isTrue();
   }
+
+  @Test // issue #479
+  public void changeMinMaxPropertiesHandling() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-min-max-properties-diff-1.yaml",
+            "schemaDiff/schema-min-max-properties-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(
+            changedOpenApi, POST, "/schema/object/min-max-properties", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
+    assertThat(props).isNotEmpty();
+
+    // Check increasing of minProperties
+    assertThat(props.get("field1").getMinProperties().isIncompatible()).isTrue();
+    assertThat(props.get("field1").getMinProperties().getOldValue()).isEqualTo(1);
+    assertThat(props.get("field1").getMinProperties().getNewValue()).isEqualTo(10);
+
+    // Check decreasing of minProperties
+    assertThat(props.get("field2").getMinProperties().isCompatible()).isTrue();
+    assertThat(props.get("field2").getMinProperties().getOldValue()).isEqualTo(10);
+    assertThat(props.get("field2").getMinProperties().getNewValue()).isEqualTo(1);
+
+    // Check increasing of maxProperties
+    assertThat(props.get("field3").getMaxProperties().isCompatible()).isTrue();
+    assertThat(props.get("field3").getMaxProperties().getOldValue()).isEqualTo(10);
+    assertThat(props.get("field3").getMaxProperties().getNewValue()).isEqualTo(100);
+
+    // Check decreasing of maxProperties
+    assertThat(props.get("field4").getMaxProperties().isIncompatible()).isTrue();
+    assertThat(props.get("field4").getMaxProperties().getOldValue()).isEqualTo(100);
+    assertThat(props.get("field4").getMaxProperties().getNewValue()).isEqualTo(10);
+  }
 }
