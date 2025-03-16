@@ -35,7 +35,10 @@ public class Main {
     Options options = new Options();
     options.addOption(Option.builder("h").longOpt("help").desc("print this message").build());
     options.addOption(
-        Option.builder().longOpt("version").desc("print the version information and exit").build());
+        Option.builder("v")
+            .longOpt("version")
+            .desc("print the version information and exit")
+            .build());
     options.addOption(
         Option.builder()
             .longOpt("state")
@@ -71,6 +74,7 @@ public class Main {
         Option.builder().longOpt("info").desc("Print additional information").build());
     options.addOption(Option.builder().longOpt("warn").desc("Print warning information").build());
     options.addOption(Option.builder().longOpt("error").desc("Print error information").build());
+    options.addOption(Option.builder().longOpt("off").desc("No information printed").build());
     options.addOption(Option.builder().longOpt("off").desc("No information printed").build());
     options.addOption(
         Option.builder("l")
@@ -147,6 +151,11 @@ public class Main {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("h")) { // automatically generate the help statement
         printHelp(options);
+        System.exit(0);
+      }
+      if (line.hasOption("version") || line.hasOption("v")) {
+        String version = Main.class.getPackage().getImplementationVersion();
+        System.out.println("openapi-diff version: " + (version != null ? version : "DEV"));
         System.exit(0);
       }
       String logLevel = "ERROR";
