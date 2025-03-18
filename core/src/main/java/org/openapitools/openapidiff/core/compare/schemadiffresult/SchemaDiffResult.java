@@ -75,6 +75,7 @@ public class SchemaDiffResult {
                 context))
         .setMultipleOf(new ChangedMultipleOf(left.getMultipleOf(), right.getMultipleOf()))
         .setNullable(new ChangedNullable(left.getNullable(), right.getNullable()))
+        .setUniqueItems(new ChangedUniqueItems(left.getUniqueItems(), right.getUniqueItems()))
         .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
         .setExample(new ChangedExample(left.getExample(), right.getExample()))
         .setMaxItems(new ChangedMaxItems(left.getMaxItems(), right.getMaxItems(), context))
