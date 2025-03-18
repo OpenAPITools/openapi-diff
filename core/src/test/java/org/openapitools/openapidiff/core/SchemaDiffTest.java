@@ -171,7 +171,7 @@ public class SchemaDiffTest {
   }
 
   @Test // issue #482
-  public void changeNullabeHandling() {
+  public void changeNullableHandling() {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
             "schemaDiff/schema-nullable-diff-1.yaml", "schemaDiff/schema-nullable-diff-2.yaml");
@@ -199,6 +199,44 @@ public class SchemaDiffTest {
     assertThat(props.get("field3").getNullable().isCompatible()).isTrue();
     assertThat(props.get("field3").getNullable().getLeft()).isNull();
     assertThat(props.get("field3").getNullable().getRight()).isTrue();
+  }
+
+  @Test // issue #478
+  public void changeUniqueItemsHandling() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-uniqueItems-diff-1.yaml",
+            "schemaDiff/schema-uniqueItems-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(
+            changedOpenApi, POST, "/schema/uniqueItems", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
+    assertThat(props).isNotEmpty();
+
+    // Check no changes in uniqueItems
+    assertThat(props.get("field0")).isNull();
+
+    // Check changes true -> false
+    assertThat(props.get("field1").getUniqueItems().isCompatible()).isTrue();
+    assertThat(props.get("field1").getUniqueItems().getLeft()).isTrue();
+    assertThat(props.get("field1").getUniqueItems().getRight()).isFalse();
+
+    // Check changes false -> true
+    assertThat(props.get("field2").getUniqueItems().isIncompatible()).isTrue();
+    assertThat(props.get("field2").getUniqueItems().getLeft()).isFalse();
+    assertThat(props.get("field2").getUniqueItems().getRight()).isTrue();
+
+    // Check deletion of uniqueItems
+    assertThat(props.get("field3").getUniqueItems().isCompatible()).isTrue();
+    assertThat(props.get("field3").getUniqueItems().getLeft()).isTrue();
+    assertThat(props.get("field3").getUniqueItems().getRight()).isNull();
+
+    // Check addition of uniqueItems
+    assertThat(props.get("field4").getUniqueItems().isIncompatible()).isTrue();
+    assertThat(props.get("field4").getUniqueItems().getLeft()).isNull();
+    assertThat(props.get("field4").getUniqueItems().getRight()).isTrue();
   }
 
   @Test // issue #479

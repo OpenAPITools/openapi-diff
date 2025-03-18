@@ -1,0 +1,31 @@
+openapi: 3.0.1
+info:
+  description: Schema diff uniqueItems
+  title: schema diff uniqueItems
+  version: 1.0.0
+paths:
+  /schema/uniqueItems:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestDTO'
+components:
+  schemas:
+    TestDTO:
+      type: object
+      properties:
+        field0:
+          type: integer
+        field1:
+          type: integer
+          uniqueItems: true
+        field2:
+          type: integer
+          uniqueItems: false
+        field3:
+          type: integer
+          uniqueItems: true
+        field4:
+          type: integer
