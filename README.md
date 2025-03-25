@@ -200,7 +200,7 @@ public class Main {
 #### HTML
 
 ```java
-String htmlRender = new HtmlRender("Changelog", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
+HtmlRender htmlRender = new HtmlRender("Changelog", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
 FileOutputStream outputStream = new FileOutputStream("testDiff.html");
 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
 htmlRender.render(diff, outputStreamWriter);
@@ -209,7 +209,7 @@ htmlRender.render(diff, outputStreamWriter);
 #### Markdown
 
 ```java
-JsonRender markdownRender = new MarkdownRender();
+MarkdownRender markdownRender = new MarkdownRender();
 FileOutputStream outputStream = new FileOutputStream("testDiff.md");
 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
 markdownRender.render(diff, outputStreamWriter);
@@ -218,7 +218,7 @@ markdownRender.render(diff, outputStreamWriter);
 #### Asciidoc
 
 ```java
-JsonRender asciidocRender = new AsciidocRender();
+AsciidocRender asciidocRender = new AsciidocRender();
 FileOutputStream outputStream = new FileOutputStream("testDiff.adoc");
 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
 asciidocRender.render(diff, outputStreamWriter);
