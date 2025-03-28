@@ -44,7 +44,7 @@ Available for Mac users on [brew](https://formulae.brew.sh/formula/openapi-diff)
 ```bash
 brew install openapi-diff
 ```
-Usage instructions in [Ussage -> Command line](#command-line)
+Usage instructions in [Usage -> Command line](#command-line)
 
 # Docker
 
