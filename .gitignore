@@ -2,8 +2,6 @@
 
 .classpath
 .project
-.settings/*
-.idea
 *.iml
 
 # Mobile Tools for Java (J2ME)
@@ -19,5 +17,6 @@ hs_err_pid*
 target/
 
 # IDE files
-.vscode
 .settings
+.idea
+.vscode
