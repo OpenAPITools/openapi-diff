@@ -110,4 +110,32 @@ public class ChangesResolver {
         .map(ChangedMediaType::getSchema)
         .orElse(null);
   }
+
+  /**
+   * Get the response ChangedSchema for the given method, path, response code, and media type.
+   *
+   * @param changedOpenApi the ChangedOpenApi object
+   * @param method the HTTP method
+   * @param path the path
+   * @param responseCode the response code
+   * @param mediaType the media type
+   * @return the ChangedSchema object
+   */
+  @Nullable
+  public static ChangedSchema getResponseBodyChangedSchema(
+      ChangedOpenApi changedOpenApi,
+      HttpMethod method,
+      String path,
+      String responseCode,
+      String mediaType) {
+    return Optional.ofNullable(getChangedOperation(changedOpenApi, method, path))
+        .map(ChangedOperation::getApiResponses)
+        .map(ChangedApiResponse::getChanged)
+        .map(responses -> responses.get(responseCode))
+        .map(ChangedResponse::getContent)
+        .map(ChangedContent::getChanged)
+        .map(changedMediaTypes -> changedMediaTypes.get(mediaType))
+        .map(ChangedMediaType::getSchema)
+        .orElse(null);
+  }
 }
