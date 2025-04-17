@@ -56,7 +56,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.8.1</version>
+          <version>3.13.1</version>
+          <configuration>
+            <goalPrefix>openapi-diff</goalPrefix>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
