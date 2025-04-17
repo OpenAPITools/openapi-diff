@@ -20,3 +20,4 @@ target/
 .settings
 .idea
 .vscode
+.mvn/maven.config
