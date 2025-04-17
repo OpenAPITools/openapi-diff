@@ -4,6 +4,9 @@
 .project
 *.iml
 
+# Maven configuration
+.mvn/maven.config
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

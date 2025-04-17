@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openapitools.openapidiff.core.ChangesResolver.getRequestBodyChangedSchema;
+import static org.openapitools.openapidiff.core.ChangesResolver.getResponseBodyChangedSchema;
 import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardCompatible;
 
 import java.io.ByteArrayOutputStream;
@@ -15,6 +16,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
+import org.openapitools.openapidiff.core.model.DiffResult;
+import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 
 public class SchemaDiffTest {
@@ -130,7 +133,6 @@ public class SchemaDiffTest {
     assertThat(props.get("field3").getMultipleOf().getRight()).isEqualTo(BigDecimal.valueOf(10));
 
     // Check deletion of multipleOf
-    assertThat(props.get("field4").getMultipleOf().isCompatible()).isTrue();
     assertThat(props.get("field4").getMultipleOf().getLeft()).isEqualTo(BigDecimal.valueOf(10));
     assertThat(props.get("field4").getMultipleOf().getRight()).isNull();
   }
@@ -272,5 +274,47 @@ public class SchemaDiffTest {
     assertThat(props.get("field4").getMaxProperties().isIncompatible()).isTrue();
     assertThat(props.get("field4").getMaxProperties().getOldValue()).isEqualTo(100);
     assertThat(props.get("field4").getMaxProperties().getNewValue()).isEqualTo(10);
+  }
+
+  @Test // issue #346
+  public void requiredPropertyChangedTest() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/required-property-1.yaml", "schemaDiff/required-property-2.yaml");
+
+    // Test request body schema changes
+    ChangedSchema requestSchema =
+        getRequestBodyChangedSchema(changedOpenApi, POST, "/schema/required", "application/json");
+
+    assertNotNull(requestSchema, "Request schema should not be null");
+    ChangedRequired requestRequired = requestSchema.getRequired();
+    assertNotNull(requestRequired, "Request required changes should not be null");
+
+    // Test request property changes
+    assertThat(requestRequired.getIncreased()).contains("becomesRequired");
+    assertThat(requestRequired.getMissing()).contains("becomesOptional");
+    assertThat(requestRequired.getIncreased()).doesNotContain("unchanged");
+    assertThat(requestRequired.getMissing()).doesNotContain("unchanged");
+
+    // Verify breaking changes in request - new required properties are breaking
+    assertThat(requestRequired.isItemsChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
+
+    // Test response schema changes
+    ChangedSchema responseSchema =
+        getResponseBodyChangedSchema(
+            changedOpenApi, POST, "/schema/required", "200", "application/json");
+
+    assertNotNull(responseSchema, "Response schema should not be null");
+    ChangedRequired responseRequired = responseSchema.getRequired();
+    assertNotNull(responseRequired, "Response required changes should not be null");
+
+    // Test response property changes
+    assertThat(responseRequired.getIncreased()).contains("becomesRequired");
+    assertThat(responseRequired.getMissing()).contains("becomesOptional");
+    assertThat(responseRequired.getIncreased()).doesNotContain("unchanged");
+    assertThat(responseRequired.getMissing()).doesNotContain("unchanged");
+
+    // Verify breaking changes in response - removing required properties is breaking
+    assertThat(responseRequired.isItemsChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
   }
 }

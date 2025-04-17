@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: Required Property Test API
+  version: 1.0.0
+paths:
+  /schema/required:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [becomesRequired, unchanged]
+              properties:
+                becomesRequired:
+                  type: string
+                  description: Property that changes from optional to required (breaking for requests)
+                becomesOptional:
+                  type: string
+                  description: Property that changes from required to optional (breaking for responses)
+                unchanged:
+                  type: string
+                  description: Property that remains unchanged in terms of required status
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [becomesRequired, unchanged]
+                properties:
+                  becomesRequired:
+                    type: string
+                  becomesOptional:
+                    type: string
+                  unchanged:
+                    type: string
