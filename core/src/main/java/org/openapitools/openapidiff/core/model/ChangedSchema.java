@@ -5,7 +5,11 @@ import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.S
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_TYPE_CHANGED;
 
 import io.swagger.v3.oas.models.media.Schema;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
@@ -18,6 +22,7 @@ import org.openapitools.openapidiff.core.model.schema.ChangedMultipleOf;
 import org.openapitools.openapidiff.core.model.schema.ChangedNullable;
 import org.openapitools.openapidiff.core.model.schema.ChangedNumericRange;
 import org.openapitools.openapidiff.core.model.schema.ChangedOneOfSchema;
+import org.openapitools.openapidiff.core.model.schema.ChangedPattern;
 import org.openapitools.openapidiff.core.model.schema.ChangedReadOnly;
 import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
 import org.openapitools.openapidiff.core.model.schema.ChangedUniqueItems;
@@ -53,6 +58,7 @@ public class ChangedSchema implements ComposedChanged {
   protected ChangedNullable nullable;
   protected ChangedUniqueItems uniqueItems;
   protected boolean discriminatorPropertyChanged;
+  protected ChangedPattern pattern;
   protected ChangedSchema items;
   protected ChangedOneOfSchema oneOfSchema;
   protected ChangedSchema addProp;
@@ -141,6 +147,7 @@ public class ChangedSchema implements ComposedChanged {
                       minProperties,
                       nullable,
                       uniqueItems,
+                      pattern,
                       extensions))
               .collect(Collectors.toList());
     }
@@ -318,6 +325,10 @@ public class ChangedSchema implements ComposedChanged {
 
   public ChangedUniqueItems getUniqueItems() {
     return uniqueItems;
+  }
+
+  public ChangedPattern getPattern() {
+    return pattern;
   }
 
   public boolean isDiscriminatorPropertyChanged() {
@@ -500,6 +511,12 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
+  public ChangedSchema setPattern(ChangedPattern pattern) {
+    clearChangedCache();
+    this.pattern = pattern;
+    return this;
+  }
+
   public ChangedSchema setDiscriminatorPropertyChanged(final boolean discriminatorPropertyChanged) {
     clearChangedCache();
     this.discriminatorPropertyChanged = discriminatorPropertyChanged;
@@ -579,6 +596,7 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(addProp, that.addProp)
         && Objects.equals(extensions, that.extensions)
         && Objects.equals(maxProperties, that.maxProperties)
+        && Objects.equals(pattern, that.pattern)
         && Objects.equals(minProperties, that.minProperties);
   }
 
@@ -617,6 +635,7 @@ public class ChangedSchema implements ComposedChanged {
         addProp,
         extensions,
         maxProperties,
+        pattern,
         minProperties);
   }
 
@@ -688,6 +707,8 @@ public class ChangedSchema implements ComposedChanged {
         + this.getMaxProperties()
         + ", minProperties="
         + this.getMinProperties()
+        + ", pattern="
+        + this.getPattern()
         + ")";
   }
 }
