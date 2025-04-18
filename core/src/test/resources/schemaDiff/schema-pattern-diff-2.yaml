@@ -1,0 +1,24 @@
+openapi: 3.0.0
+info:
+  title: Schema Pattern Diff Test - New
+  version: 1.0.0
+paths:
+  /schema/pattern:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patternUnchanged:
+                  type: string
+                  pattern: "^[a-z]+$"
+                patternModified:
+                  type: string
+                  pattern: "^[a-zA-Z]+$"
+                patternRemoved:
+                  type: string
+                patternAdded:
+                  type: string
+                  pattern: "^\\d{3}-\\d{2}-\\d{4}$?"

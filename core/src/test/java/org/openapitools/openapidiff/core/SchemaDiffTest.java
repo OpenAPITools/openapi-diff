@@ -317,4 +317,40 @@ public class SchemaDiffTest {
     // Verify breaking changes in response - removing required properties is breaking
     assertThat(responseRequired.isItemsChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
   }
+
+  @Test // issue #104
+  public void changePatternHandling() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-pattern-diff-1.yaml", "schemaDiff/schema-pattern-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(changedOpenApi, POST, "/schema/pattern", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
+    assertThat(props).isNotEmpty();
+
+    // Check no changes in pattern
+    assertThat(props.get("patternUnchanged")).isNull();
+
+    // Check changes in pattern (modification)
+    assertThat(props.get("patternModified").getPattern().isChanged())
+        .isEqualTo(DiffResult.INCOMPATIBLE);
+    assertThat(props.get("patternModified").getPattern().getOldPattern()).isEqualTo("^[a-z]+$");
+    assertThat(props.get("patternModified").getPattern().getNewPattern()).isEqualTo("^[a-zA-Z]+$");
+
+    // Check deletion of pattern
+    assertThat(props.get("patternRemoved").getPattern().isChanged())
+        .isEqualTo(DiffResult.INCOMPATIBLE);
+    assertThat(props.get("patternRemoved").getPattern().getOldPattern()).isEqualTo("^[0-9]+$");
+    assertThat(props.get("patternRemoved").getPattern().getNewPattern()).isNull();
+
+    // Check addition of pattern
+    assertThat(props.get("patternAdded").getPattern().isChanged())
+        .isEqualTo(DiffResult.INCOMPATIBLE);
+    assertThat(props.get("patternAdded").getPattern().getOldPattern()).isNull();
+    // Adjust assertion to expect single backslashes as parsed from YAML
+    assertThat(props.get("patternAdded").getPattern().getNewPattern())
+        .isEqualTo("^\\d{3}-\\d{2}-\\d{4}$?");
+  }
 }

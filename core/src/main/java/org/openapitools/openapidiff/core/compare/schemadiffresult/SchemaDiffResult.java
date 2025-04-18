@@ -21,6 +21,10 @@ import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 import org.openapitools.openapidiff.core.model.schema.*;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
+import org.openapitools.openapidiff.core.model.schema.ChangedPattern;
+import org.openapitools.openapidiff.core.model.schema.ChangedReadOnly;
+import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
+import org.openapitools.openapidiff.core.model.schema.ChangedUniqueItems;
 
 public class SchemaDiffResult {
   protected ChangedSchema changedSchema;
@@ -75,6 +79,7 @@ public class SchemaDiffResult {
                 context))
         .setMultipleOf(new ChangedMultipleOf(left.getMultipleOf(), right.getMultipleOf()))
         .setNullable(new ChangedNullable(left.getNullable(), right.getNullable()))
+        .setPattern(new ChangedPattern(left.getPattern(), right.getPattern(), context))
         .setUniqueItems(new ChangedUniqueItems(left.getUniqueItems(), right.getUniqueItems()))
         .setExamples(new ChangedExamples(left.getExamples(), right.getExamples()))
         .setExample(new ChangedExample(left.getExample(), right.getExample()))
