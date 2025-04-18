@@ -349,7 +349,6 @@ public class SchemaDiffTest {
     assertThat(props.get("patternAdded").getPattern().isChanged())
         .isEqualTo(DiffResult.INCOMPATIBLE);
     assertThat(props.get("patternAdded").getPattern().getOldPattern()).isNull();
-    // Adjust assertion to expect single backslashes as parsed from YAML
     assertThat(props.get("patternAdded").getPattern().getNewPattern())
         .isEqualTo("^\\d{3}-\\d{2}-\\d{4}$?");
   }
