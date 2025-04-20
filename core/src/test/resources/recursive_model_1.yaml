@@ -25,6 +25,17 @@ components:
           type: string
         message2:
           type: string
+        recursiveDirect:
+          $ref: '#/components/schemas/B'
+        recursiveAllOf:
+          allOf:
+            - $ref: '#/components/schemas/B'
+        recursiveOneOf:
+          oneOf:
+            - $ref: '#/components/schemas/B'
+        recursiveAnyOf:
+          anyOf:
+            - $ref: '#/components/schemas/B'
         details:
           type: array
           items:
