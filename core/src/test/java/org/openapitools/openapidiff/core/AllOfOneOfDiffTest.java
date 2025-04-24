@@ -9,6 +9,6 @@ public class AllOfOneOfDiffTest {
   @Test
   void allOfReferringToOneOfSchemasAreSupported() {
     ChangedOpenApi diff = OpenApiCompare.fromLocations("issue-317_1.json", "issue-317_2.json");
-    assertThat(diff.isCoreChanged().isUnchanged());
+    assertThat(diff.isCoreChanged().isUnchanged()).isTrue();
   }
 }
