@@ -1,0 +1,23 @@
+openapi: 3.0.0
+info:
+  title: Schema Type Handling Test - Before
+  version: 1.0.0
+paths:
+  /test:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestSchema'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    TestSchema:
+      type: object
+      properties:
+        field1:
+          type: string
+          description: A field that will change type

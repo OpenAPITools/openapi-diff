@@ -41,8 +41,15 @@ public class SchemaDiffTest {
   public void schemaPropertyTypeChanged() {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
-            "schemaDiff/schema-props-defaults-handling-1.yaml",
-            "schemaDiff/schema-props-defaults-handling-2.yaml");
+            "schemaDiff/schema-props-type-handling-1.yaml",
+            "schemaDiff/schema-props-type-handling-2.yaml");
+
+    assertEquals(1, changedOpenApi.getChangedOperations().size());
+    assertEquals(1, changedOpenApi.getChangedSchemas().size());
+    ChangedSchema changedSchema = changedOpenApi.getChangedSchemas().get(0);
+    assertEquals(1, changedSchema.getChangedProperties().size());
+    assertTrue(changedSchema.getChangedProperties().containsKey("field1"));
+    assertTrue(changedSchema.getChangedProperties().get("field1").isChangedType());
   }
 
   @Test // issue #485
