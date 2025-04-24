@@ -1,0 +1,33 @@
+openapi: 3.0.0
+info:
+  title: AnyOf Diff Test - Version 2
+  version: 1.0.0
+paths:
+  /anyof/test:
+    post:
+      summary: Test endpoint for anyOf diff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - $ref: '#/components/schemas/TypeA'
+                - $ref: '#/components/schemas/TypeC'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    TypeA:
+      type: object
+      properties:
+        fieldA:
+          type: string
+        commonField:
+          type: integer
+    TypeC:
+      type: object
+      properties:
+        fieldC:
+          type: number

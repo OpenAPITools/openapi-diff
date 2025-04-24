@@ -352,4 +352,60 @@ public class SchemaDiffTest {
     assertThat(props.get("patternAdded").getPattern().getNewPattern())
         .isEqualTo("^\\d{3}-\\d{2}-\\d{4}$?");
   }
+
+  @Test // issue #212
+  public void testAnyOfDiff() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/anyOf-diff-1.yaml", "schemaDiff/anyOf-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(changedOpenApi, POST, "/anyof/test", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    // The diff compares the *merged* schema resulting from anyOf, not the anyOf structure itself.
+    // See details in #772
+    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+
+    // fieldA only changed required status, not its schema
+    assertThat(changedSchema.getChangedProperties()).isEmpty();
+
+    // fieldB: Removed from the merged schema properties
+    assertThat(changedSchema.getMissingProperties()).containsKey("fieldB");
+
+    // fieldC: Added to the merged schema properties
+    assertThat(changedSchema.getIncreasedProperties()).containsKey("fieldC");
+
+    // Check the overall required list changes for the merged schema
+    assertThat(changedSchema.getRequired().isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+    assertThat(changedSchema.getRequired().getMissing()).containsExactly("fieldA");
+    assertThat(changedSchema.getRequired().getIncreased()).isEmpty();
+  }
+
+  @Test // issue #212 - adapted for allOf
+  public void testAllOfDiff() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/allOf-diff-1.yaml", "schemaDiff/allOf-diff-2.yaml");
+    ChangedSchema changedSchema =
+        getRequestBodyChangedSchema(changedOpenApi, POST, "/allof/test", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    // The diff compares the *merged* schema resulting from allOf, not the allOf structure itself.
+    // See details in #772
+    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+
+    // fieldA only changed required status, commonField is unchanged
+    assertThat(changedSchema.getChangedProperties()).isEmpty();
+
+    // fieldB: Removed from the merged schema properties
+    assertThat(changedSchema.getMissingProperties()).containsKey("fieldB");
+
+    // fieldC: Added to the merged schema properties
+    assertThat(changedSchema.getIncreasedProperties()).containsKey("fieldC");
+
+    // Check the overall required list changes for the merged schema
+    assertThat(changedSchema.getRequired().isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+    assertThat(changedSchema.getRequired().getMissing()).containsExactly("fieldA");
+    assertThat(changedSchema.getRequired().getIncreased()).isEmpty();
+  }
 }
