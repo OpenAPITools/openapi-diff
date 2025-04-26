@@ -1,0 +1,15 @@
+name: Update Homebrew Formula On Release
+on:
+  release:
+    types: [released]
+
+jobs:
+  homebrew:
+    name: Update Homebrew Formula
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Homebrew Formula
+        uses: dawidd6/action-homebrew-bump-formula@v4
+        with:
+          token: ${{ secrets.HOMEBREW_PR_TOKEN }}
+          formula: openapi-diff
