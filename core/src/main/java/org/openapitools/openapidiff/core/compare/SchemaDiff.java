@@ -96,7 +96,7 @@ public class SchemaDiff {
             updatedVisitedRefs.add(composed.get$ref());
             composed = refPointer.resolveRef(components, composed, composed.get$ref());
             composed = resolveComposedSchema(components, composed, updatedVisitedRefs);
-            schema = addSchema(schema, composed);
+            addSchema(schema, composed);
           }
         }
         composedSchema.setAllOf(null);
@@ -340,8 +340,8 @@ public class SchemaDiff {
     left = refPointer.resolveRef(this.leftComponents, left, getSchemaRef(left));
     right = refPointer.resolveRef(this.rightComponents, right, getSchemaRef(right));
 
-    left = resolveComposedSchema(leftComponents, left, new HashSet<>());
-    right = resolveComposedSchema(rightComponents, right, new HashSet<>());
+    left = resolveComposedSchema(leftComponents, left, refSet.getLeftKeys());
+    right = resolveComposedSchema(rightComponents, right, refSet.getRightKeys());
 
     // If type of schemas are different, just set old & new schema, set changedType to true in
     // SchemaDiffResult and
