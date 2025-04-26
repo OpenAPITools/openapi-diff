@@ -3,10 +3,10 @@ on:
   workflow_dispatch:
     inputs:
       releaseVersion:
-        description: 'Default version to use when preparing a release or a branch.'
+        description: 'Release version to tag (e.g., 2.1.0). Will be used for release artifacts and git tag.'
         required: true
       developmentVersion:
-        description: 'Default version to use for new local working copy.'
+        description: 'Next development version (e.g., 2.2.0-SNAPSHOT). Will be used for continuing development after release.'
         required: true
 env:
   OSS_USERNAME: ${{ secrets.OSS_USERNAME }}
