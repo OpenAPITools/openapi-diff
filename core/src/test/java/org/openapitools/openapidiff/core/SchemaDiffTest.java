@@ -180,6 +180,26 @@ public class SchemaDiffTest {
     assertThat(props.get("field4").getMaxItems().isIncompatible()).isTrue();
     assertThat(props.get("field4").getMaxItems().getOldValue()).isEqualTo(100);
     assertThat(props.get("field4").getMaxItems().getNewValue()).isEqualTo(90);
+
+    // Check removal of minItems
+    assertThat(props.get("field5").getMinItems().isCompatible()).isTrue();
+    assertThat(props.get("field5").getMinItems().getOldValue()).isEqualTo(1);
+    assertThat(props.get("field5").getMinItems().getNewValue()).isNull();
+
+    // Check removal of maxItems
+    assertThat(props.get("field5").getMaxItems().isCompatible()).isTrue();
+    assertThat(props.get("field5").getMaxItems().getOldValue()).isEqualTo(100);
+    assertThat(props.get("field5").getMaxItems().getNewValue()).isNull();
+
+    // Check addition of minItems
+    assertThat(props.get("field6").getMinItems().isCompatible()).isTrue();
+    assertThat(props.get("field6").getMinItems().getOldValue()).isNull();
+    assertThat(props.get("field6").getMinItems().getNewValue()).isEqualTo(1);
+
+    // Check addition of maxItems
+    assertThat(props.get("field6").getMaxItems().isCompatible()).isTrue();
+    assertThat(props.get("field6").getMaxItems().getOldValue()).isNull();
+    assertThat(props.get("field6").getMaxItems().getNewValue()).isEqualTo(100);
   }
 
   @Test // issue #482

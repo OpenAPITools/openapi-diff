@@ -46,3 +46,13 @@ components:
             type: string
           minItems: 1
           maxItems: 90
+        field5:
+          type: array
+          items:
+            type: string
+        field6:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 100

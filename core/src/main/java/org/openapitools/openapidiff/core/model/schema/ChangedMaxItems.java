@@ -20,9 +20,6 @@ public class ChangedMaxItems implements Changed {
     if (oldValue == newValue) {
       return DiffResult.NO_CHANGES;
     }
-    if (oldValue == null && newValue == null) {
-      return DiffResult.NO_CHANGES;
-    }
     if (oldValue == null || newValue == null) {
       return DiffResult.COMPATIBLE;
     }
