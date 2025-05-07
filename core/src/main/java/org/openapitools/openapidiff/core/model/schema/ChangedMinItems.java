@@ -17,6 +17,9 @@ public class ChangedMinItems implements Changed {
 
   @Override
   public DiffResult isChanged() {
+    if (oldValue == newValue) {
+      return DiffResult.NO_CHANGES;
+    }
     if (oldValue == null && newValue == null) {
       return DiffResult.NO_CHANGES;
     }

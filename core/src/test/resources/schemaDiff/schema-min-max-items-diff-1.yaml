@@ -16,6 +16,12 @@ components:
     TestDTO:
       type: object
       properties:
+        field0:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 10
         field1:
           type: array
           items:
@@ -33,7 +39,7 @@ components:
           items:
             type: string
           minItems: 1
-          maxItems: 90              
+          maxItems: 90
         field4:
           type: array
           items:

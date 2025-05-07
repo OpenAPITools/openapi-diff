@@ -144,7 +144,7 @@ public class SchemaDiffTest {
     assertThat(props.get("field4").getMultipleOf().getRight()).isNull();
   }
 
-  @Test // issues #480
+  @Test // issues #480 and #779
   public void changeMinMaxItemsHandling() {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
@@ -157,6 +157,9 @@ public class SchemaDiffTest {
     assertThat(changedSchema).isNotNull();
     Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
     assertThat(props).isNotEmpty();
+
+    // Check no changes in minItems and maxItems
+    assertThat(props.get("field0")).isNull();
 
     // Check increasing of minItems
     assertThat(props.get("field1").getMinItems().isIncompatible()).isTrue();
