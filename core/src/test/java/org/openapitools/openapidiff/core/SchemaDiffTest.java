@@ -144,7 +144,7 @@ public class SchemaDiffTest {
     assertThat(props.get("field4").getMultipleOf().getRight()).isNull();
   }
 
-  @Test // issues #480
+  @Test // issues #480 and #779
   public void changeMinMaxItemsHandling() {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
@@ -157,6 +157,9 @@ public class SchemaDiffTest {
     assertThat(changedSchema).isNotNull();
     Map<String, ChangedSchema> props = changedSchema.getChangedProperties();
     assertThat(props).isNotEmpty();
+
+    // Check no changes in minItems and maxItems
+    assertThat(props.get("field0")).isNull();
 
     // Check increasing of minItems
     assertThat(props.get("field1").getMinItems().isIncompatible()).isTrue();
@@ -177,6 +180,26 @@ public class SchemaDiffTest {
     assertThat(props.get("field4").getMaxItems().isIncompatible()).isTrue();
     assertThat(props.get("field4").getMaxItems().getOldValue()).isEqualTo(100);
     assertThat(props.get("field4").getMaxItems().getNewValue()).isEqualTo(90);
+
+    // Check removal of minItems
+    assertThat(props.get("field5").getMinItems().isCompatible()).isTrue();
+    assertThat(props.get("field5").getMinItems().getOldValue()).isEqualTo(1);
+    assertThat(props.get("field5").getMinItems().getNewValue()).isNull();
+
+    // Check removal of maxItems
+    assertThat(props.get("field5").getMaxItems().isCompatible()).isTrue();
+    assertThat(props.get("field5").getMaxItems().getOldValue()).isEqualTo(100);
+    assertThat(props.get("field5").getMaxItems().getNewValue()).isNull();
+
+    // Check addition of minItems
+    assertThat(props.get("field6").getMinItems().isCompatible()).isTrue();
+    assertThat(props.get("field6").getMinItems().getOldValue()).isNull();
+    assertThat(props.get("field6").getMinItems().getNewValue()).isEqualTo(1);
+
+    // Check addition of maxItems
+    assertThat(props.get("field6").getMaxItems().isCompatible()).isTrue();
+    assertThat(props.get("field6").getMaxItems().getOldValue()).isNull();
+    assertThat(props.get("field6").getMaxItems().getNewValue()).isEqualTo(100);
   }
 
   @Test // issue #482
