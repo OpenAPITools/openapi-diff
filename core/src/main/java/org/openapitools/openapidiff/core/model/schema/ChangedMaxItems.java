@@ -1,5 +1,6 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import java.util.Objects;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.DiffResult;
@@ -17,7 +18,7 @@ public class ChangedMaxItems implements Changed {
 
   @Override
   public DiffResult isChanged() {
-    if (Objects.equals(oldValue == newValue)) {
+    if (Objects.equals(oldValue, newValue)) {
       return DiffResult.NO_CHANGES;
     }
     if (oldValue == null || newValue == null) {

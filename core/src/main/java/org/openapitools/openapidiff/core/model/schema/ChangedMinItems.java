@@ -1,5 +1,6 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import java.util.Objects;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.DiffResult;
