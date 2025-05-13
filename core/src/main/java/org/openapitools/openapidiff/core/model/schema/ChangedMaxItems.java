@@ -17,7 +17,7 @@ public class ChangedMaxItems implements Changed {
 
   @Override
   public DiffResult isChanged() {
-    if (oldValue == newValue) {
+    if (Objects.equals(oldValue == newValue)) {
       return DiffResult.NO_CHANGES;
     }
     if (oldValue == null || newValue == null) {
