@@ -24,7 +24,7 @@ jobs:
           java-version: 11
           cache: 'maven'
           # Value of the distributionManagement/repository/id field of the pom.xml
-          server-id: sonatype-nexus-staging
+          server-id: central
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           server-username: OSS_USERNAME
           server-password: OSS_PASSWORD
