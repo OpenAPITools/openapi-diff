@@ -34,7 +34,7 @@ jobs:
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
         # Value of the distributionManagement/repository/id field of the pom.xml
-        server-id: sonatype-nexus-snapshots
+        server-id: central
         server-username: OSS_USERNAME
         server-password: OSS_PASSWORD
     - name: Cache SonarCloud packages
