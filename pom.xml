@@ -59,13 +59,13 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>central</id>
+            <id>ossrh</id>
             <url>https://central.sonatype.com/repository/maven-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
     <repositories>
         <repository>
-            <id>central</id>
+            <id>ossrh</id>
             <url>https://central.sonatype.com/repository/maven-snapshots</url>
             <releases>
                 <enabled>false</enabled>
