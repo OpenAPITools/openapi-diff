@@ -54,6 +54,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: ./mvnw -B -ntp -ff org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-    - name: Release Snapshot
-      if: matrix.java_version == '11'
-      run: ./mvnw -V -B -ntp -ff deploy
+    # snapshot releases now handled by maven-release.yml
+    #- name: Release Snapshot
+    #  if: matrix.java_version == '11'
+    #  run: ./mvnw -V -B -ntp -ff deploy
