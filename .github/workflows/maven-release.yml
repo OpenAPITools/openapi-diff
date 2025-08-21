@@ -56,7 +56,7 @@ jobs:
           server-password: MAVEN_PASSWORD
 
       - name: Publish package
-        run: ./mvnw -DskipTests=true --batch-mode -P release -Dgpg.passphrase=${{ secrets.OSS_PASSWORD }} deploy
+        run: ./mvnw -DskipTests=true --batch-mode -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} deploy
         env:
           MAVEN_USERNAME: ${{ secrets.OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSS_PASSWORD }}
