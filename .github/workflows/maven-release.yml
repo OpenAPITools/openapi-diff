@@ -1,9 +1,7 @@
 name: Make release
 
 on:
-  pull:
-    branches:
-      - fix-release
+  pull_request:
   push:
     branches:
       - master
