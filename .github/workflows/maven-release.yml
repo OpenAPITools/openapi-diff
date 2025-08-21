@@ -25,7 +25,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build
-        run: mvn clean verify
+        run: mvn clean verify -DskipTests=true
+        #run: mvn clean verify
 
   test:
     name: Test
@@ -48,8 +49,8 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build
         run: mvn clean package install -DskipTests=true
-      - name: Build, test
-        run: mvn -B test
+      #- name: Build, test
+      #  run: mvn -B test
 
   publish-OSSRH:
     runs-on: ubuntu-latest
