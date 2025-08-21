@@ -25,8 +25,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build
-        run: mvn clean verify -DskipTests=true
-        #run: mvn clean verify
+        run: ./mvnw clean verify -DskipTests=true
+        #run: ./mvnw clean verify
 
   test:
     name: Test
@@ -48,9 +48,9 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build
-        run: mvn clean package install -DskipTests=true
+        run: ./mvnw clean package install -DskipTests=true
       #- name: Build, test
-      #  run: mvn -B test
+      #  run: ./mvnw -B test
 
   publish-OSSRH:
     runs-on: ubuntu-latest
@@ -80,7 +80,7 @@ jobs:
           server-password: MAVEN_PASSWORD
 
       - name: Publish package
-        run: mvn -DskipTests=true --batch-mode -P release -Dgpg.passphrase=${{ secrets.OSS_PASSWORD }} deploy
+        run: ./mvnw -DskipTests=true --batch-mode -P release -Dgpg.passphrase=${{ secrets.OSS_PASSWORD }} deploy
         env:
           MAVEN_USERNAME: ${{ secrets.OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSS_PASSWORD }}
