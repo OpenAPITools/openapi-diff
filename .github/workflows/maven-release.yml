@@ -2,6 +2,8 @@ name: Make release
 
 on:
   pull:
+    branches:
+      - fix-release
   push:
     branches:
       - master
