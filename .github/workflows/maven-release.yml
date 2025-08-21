@@ -31,7 +31,7 @@ jobs:
   publish-OSSRH:
     runs-on: ubuntu-latest
     name: Publish to Maven Central
-    needs: install
+    needs: build
     permissions:
       contents: read
       packages: write
