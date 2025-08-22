@@ -1,6 +1,5 @@
 name: Docker Release
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
       releaseVersion:
