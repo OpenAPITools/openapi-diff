@@ -13,35 +13,36 @@ env:
   OSS_PASSWORD: ${{ secrets.OSS_PASSWORD }}
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: 11
-          cache: 'maven'
-          # Value of the distributionManagement/repository/id field of the pom.xml
-          server-id: central
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          server-username: OSS_USERNAME
-          server-password: OSS_PASSWORD
-          gpg-passphrase: GPG_PASSPHRASE
-      - name: Setup Git
-        run: |
-          git config --global committer.email "noreply@github.com"
-          git config --global committer.name "GitHub Release"
-          git config --global author.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git config --global author.name "${GITHUB_ACTOR}"
-      - name: Release
-        run: ./mvnw -V -B -ntp -Prelease -DreleaseVersion=${{ github.event.inputs.releaseVersion }} -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} release:prepare release:perform
-      - name: Rollback on failure
-        if: ${{ failure() }}
-        run: |
-          ./mvnw -B release:rollback -Prelease -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}}
-          echo "You may need to manually delete the GitHub tag, if it was created."
+  # replaced by maven-release.yml
+  #release:
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - name: Set up JDK 11
+  #      uses: actions/setup-java@v4
+  #      with:
+  #        distribution: 'zulu'
+  #        java-version: 11
+  #        cache: 'maven'
+  #        # Value of the distributionManagement/repository/id field of the pom.xml
+  #        server-id: central
+  #        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+  #        server-username: OSS_USERNAME
+  #        server-password: OSS_PASSWORD
+  #        gpg-passphrase: GPG_PASSPHRASE
+  #    - name: Setup Git
+  #      run: |
+  #        git config --global committer.email "noreply@github.com"
+  #        git config --global committer.name "GitHub Release"
+  #        git config --global author.email "${GITHUB_ACTOR}@users.noreply.github.com"
+  #        git config --global author.name "${GITHUB_ACTOR}"
+  #    - name: Release
+  #      run: ./mvnw -V -B -ntp -Prelease -DreleaseVersion=${{ github.event.inputs.releaseVersion }} -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }} release:prepare release:perform
+  #    - name: Rollback on failure
+  #      if: ${{ failure() }}
+  #      run: |
+  #        ./mvnw -B release:rollback -Prelease -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}}
+  #        echo "You may need to manually delete the GitHub tag, if it was created."
   docker:
     needs: release
     runs-on: ubuntu-latest
