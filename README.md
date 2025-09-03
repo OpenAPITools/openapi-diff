@@ -193,6 +193,21 @@ public class Main {
 }
 ```
 
+### Path Matching while comparing two OpenAPI paths
+
+Path matching controls how paths from the old and new specs are paired during comparison (PathsDiff.java). The default matcher (DefaultPathMatcher) obfuscates path parameter names, meaning `/users/{id}` matches `/users/{userId}`. Default matcher fails on ambiguous signatures if spec contains few paths semantically identical. In case this behaviour is not fitting your use case, you can implement your own matching strategy.
+
+You can plug in a custom matcher via `OpenApiDiffOptions` implementing the `PathMatcher` interface.:
+
+```java
+OpenApiDiffOptions options = OpenApiDiffOptions
+    .builder()
+    .pathMatcher(new MyCustomPathMatcher())
+    .build();
+
+ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec, null, options);
+```
+
 ### Render difference
 
 ---

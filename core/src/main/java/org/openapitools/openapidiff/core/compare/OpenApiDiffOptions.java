@@ -6,9 +6,12 @@ import java.io.FileReader;
 import org.apache.commons.configuration2.CompositeConfiguration;
 import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.openapitools.openapidiff.core.compare.matchers.DefaultPathMatcher;
+import org.openapitools.openapidiff.core.compare.matchers.PathMatcher;
 
 public class OpenApiDiffOptions {
   private final CompositeConfiguration config;
+  private PathMatcher pathMatcher;
 
   private OpenApiDiffOptions(CompositeConfiguration config) {
     this.config = config;
@@ -16,6 +19,10 @@ public class OpenApiDiffOptions {
 
   public CompositeConfiguration getConfig() {
     return config;
+  }
+
+  public PathMatcher getPathMatcher() {
+    return pathMatcher != null ? pathMatcher : new DefaultPathMatcher();
   }
 
   public static Builder builder() {
@@ -44,6 +51,11 @@ public class OpenApiDiffOptions {
 
     public OpenApiDiffOptions build() {
       return built;
+    }
+
+    public Builder pathMatcher(PathMatcher matcher) {
+      built.pathMatcher = matcher;
+      return this;
     }
   }
 }
