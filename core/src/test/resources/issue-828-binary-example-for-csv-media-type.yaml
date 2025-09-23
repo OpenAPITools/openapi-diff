@@ -1,0 +1,26 @@
+openapi: 3.0.1
+info:
+  title: My API
+  version: 1.0.0
+paths:
+  /api/v1/csv:
+    get:
+      operationId: someCsvEndpoint
+      responses:
+        "200":
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+                example: Example
+          description: Successful operation
+      security:
+        - Bearer: []
+      summary: Download a CSV or something
+components:
+  securitySchemes:
+    Bearer:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http

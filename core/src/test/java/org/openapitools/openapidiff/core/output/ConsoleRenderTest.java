@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
@@ -75,5 +76,20 @@ public class ConsoleRenderTest {
     assertThat(outputStream.toString())
         .contains("What's Changed")
         .containsSubsequence("- GET    /widgets", "Parameter:", "- Changed query-param-1 in query");
+  }
+
+  @Test
+  void renderShowsNoDifferencesWhenCSVMediaTypeResponseExampleIsByteArray() {
+    ConsoleRender render = new ConsoleRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-828-binary-example-for-csv-media-type.yaml",
+            "issue-828-binary-example-for-csv-media-type.yaml");
+    render.render(diff, outputStreamWriter);
+    Assertions.assertThat(outputStream.toString()).isNotBlank();
+    Assertions.assertThat(outputStream.toString())
+        .hasToString("No differences. Specifications are equivalents");
   }
 }
