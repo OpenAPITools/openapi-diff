@@ -32,8 +32,8 @@ public class AsciidocRender implements Render {
           bigTitle(
               diff.getNewSpecOpenApi().getInfo().getTitle(),
               diff.getNewSpecOpenApi().getInfo().getVersion()));
-      safelyAppend(outputStreamWriter, System.lineSeparator());
-      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, "\n");
+      safelyAppend(outputStreamWriter, "\n");
       safelyAppend(outputStreamWriter, "NOTE: No differences. Specifications are equivalents");
     } else {
       safelyAppend(
@@ -41,9 +41,9 @@ public class AsciidocRender implements Render {
           bigTitle(
               diff.getNewSpecOpenApi().getInfo().getTitle(),
               diff.getNewSpecOpenApi().getInfo().getVersion()));
-      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, "\n");
       safelyAppend(outputStreamWriter, ":reproducible:\n:sectlinks:\n:toc:\n");
-      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, "\n");
 
       List<Endpoint> newEndpoints = diff.getNewEndpoints();
       listEndpoints(newEndpoints, "What's New", outputStreamWriter);
@@ -57,13 +57,13 @@ public class AsciidocRender implements Render {
       List<ChangedOperation> changedOperations = diff.getChangedOperations();
       ol_changed(changedOperations, outputStreamWriter);
 
-      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, "\n");
       safelyAppend(
           outputStreamWriter,
           diff.isCompatible()
               ? "NOTE: API changes are backward compatible"
               : "WARNING: API changes broke backward compatibility");
-      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, "\n");
     }
     try {
       outputStreamWriter.close();
@@ -78,7 +78,7 @@ public class AsciidocRender implements Render {
       return;
     }
     safelyAppend(outputStreamWriter, title("What's Changed", 2));
-    safelyAppend(outputStreamWriter, System.lineSeparator());
+    safelyAppend(outputStreamWriter, "\n");
     for (ChangedOperation operation : operations) {
       String pathUrl = operation.getPathUrl();
       String method = operation.getHttpMethod().toString();
@@ -89,18 +89,18 @@ public class AsciidocRender implements Render {
       if (result(operation.getParameters()).isDifferent()) {
         safelyAppend(outputStreamWriter, "* Parameter:\n");
         safelyAppend(outputStreamWriter, ul_param(operation.getParameters()));
-        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, "\n");
       }
       if (operation.resultRequestBody().isDifferent()) {
         safelyAppend(outputStreamWriter, "* Request:\n");
         safelyAppend(
             outputStreamWriter, ul_content(operation.getRequestBody().getContent(), true, 2));
-        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, "\n");
       }
       if (operation.resultApiResponses().isDifferent()) {
         safelyAppend(outputStreamWriter, "* Return Type:\n");
         safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
-        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, "\n");
       }
     }
   }
@@ -226,7 +226,7 @@ public class AsciidocRender implements Render {
   }
 
   protected String property(String name, String title, String type) {
-    return String.format("*** %s: %s (%s)%n\n", title, name, type);
+    return String.format("*** %s: %s (%s)\n\n", title, name, type);
   }
 
   protected Schema<?> resolve(Schema<?> schema) {
@@ -264,7 +264,7 @@ public class AsciidocRender implements Render {
   }
 
   private String itemParam(String title, Parameter param) {
-    return title + param.getName() + " in " + param.getIn() + System.lineSeparator();
+    return title + param.getName() + " in " + param.getIn() + "\n";
   }
 
   private String li_changedParam(ChangedParameter changeParam) {
@@ -287,11 +287,11 @@ public class AsciidocRender implements Render {
           itemEndpoint(
               endpoint.getMethod().toString(), endpoint.getPathUrl(), endpoint.getSummary()));
     }
-    return sb.append(System.lineSeparator()).toString();
+    return sb.append("\n").toString();
   }
 
   private String itemEndpoint(String method, String path, String desc) {
-    return String.format("=== %s%s%n", StringUtils.rightPad(method, 6), path);
+    return String.format("=== %s%s\n", StringUtils.rightPad(method, 6), path);
   }
 
   public String bigTitle(String title, String version) {
