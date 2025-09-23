@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
@@ -88,8 +87,8 @@ public class ConsoleRenderTest {
             "issue-828-binary-example-for-csv-media-type.yaml",
             "issue-828-binary-example-for-csv-media-type.yaml");
     render.render(diff, outputStreamWriter);
-    Assertions.assertThat(outputStream.toString()).isNotBlank();
-    Assertions.assertThat(outputStream.toString())
+    assertThat(outputStream.toString()).isNotBlank();
+    assertThat(outputStream.toString())
         .hasToString("No differences. Specifications are equivalents");
   }
 }
