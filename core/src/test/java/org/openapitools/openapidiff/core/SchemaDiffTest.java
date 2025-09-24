@@ -443,8 +443,8 @@ public class SchemaDiffTest {
   void renderShowsNoDifferencesWhenCSVMediaTypeResponseExampleIsByteArray() {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
-            "issue-828-binary-example-for-csv-media-type.yaml",
-            "issue-828-binary-example-for-csv-media-type.yaml");
+            "schemaDiff/issue-828-binary-example-for-csv-media-type.yaml",
+            "schemaDiff/issue-828-binary-example-for-csv-media-type.yaml");
 
     assertThat(changedOpenApi).isNotNull();
 
