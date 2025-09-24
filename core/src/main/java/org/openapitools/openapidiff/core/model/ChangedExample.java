@@ -1,7 +1,5 @@
 package org.openapitools.openapidiff.core.model;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-
 import java.util.Objects;
 
 public class ChangedExample implements Changed {
