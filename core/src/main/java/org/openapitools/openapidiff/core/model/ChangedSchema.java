@@ -177,11 +177,20 @@ public class ChangedSchema implements ComposedChanged {
         && !discriminatorPropertyChanged) {
       return DiffResult.NO_CHANGES;
     }
-    if (changedType) {
-      if (SCHEMA_TYPE_CHANGED.enabled(context)) {
-        return DiffResult.INCOMPATIBLE;
+    if (changedType && SCHEMA_TYPE_CHANGED.enabled(context)) {
+      if (oldSchema != null && newSchema != null) {
+        if (context.isResponse() && hasMatchingType(oldSchema.getOneOf(), newSchema.getType())) {
+          return DiffResult.COMPATIBLE;
+        }
+
+        if (context.isRequest() && hasMatchingType(newSchema.getOneOf(), oldSchema.getType())) {
+          return DiffResult.COMPATIBLE;
+        }
       }
+
+      return DiffResult.INCOMPATIBLE;
     }
+
     if (discriminatorPropertyChanged) {
       if (SCHEMA_DISCRIMINATOR_CHANGED.enabled(context)) {
         return DiffResult.INCOMPATIBLE;
@@ -192,6 +201,14 @@ public class ChangedSchema implements ComposedChanged {
       return DiffResult.INCOMPATIBLE;
     }
     return DiffResult.COMPATIBLE;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private boolean hasMatchingType(List<Schema> schemas, String targetType) {
+    if (schemas == null || targetType == null) {
+      return false;
+    }
+    return schemas.stream().map(Schema::getType).anyMatch(targetType::equals);
   }
 
   private boolean compatibleForRequest() {
