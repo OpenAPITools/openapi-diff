@@ -89,6 +89,6 @@ public class ConsoleRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
     assertThat(outputStream.toString())
-        .hasToString("No differences. Specifications are equivalents");
+        .hasToString("No differences. Specifications are equivalent");
   }
 }

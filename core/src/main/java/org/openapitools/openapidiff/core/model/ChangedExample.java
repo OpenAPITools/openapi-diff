@@ -1,6 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
-import java.lang.reflect.Array;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import java.util.Objects;
 
 public class ChangedExample implements Changed {
@@ -31,33 +32,8 @@ public class ChangedExample implements Changed {
 
   @Override
   public DiffResult isChanged() {
-    DiffResult arrayDiff = compareArrays();
-    if (arrayDiff != null) {
-      return arrayDiff;
-    }
-
-    return Objects.equals(leftExample, rightExample) ? DiffResult.NO_CHANGES : DiffResult.METADATA;
-  }
-
-  private DiffResult compareArrays() {
-    if (leftExample == null || rightExample == null) {
-      return null;
-    }
-
-    if (!leftExample.getClass().isArray() || !rightExample.getClass().isArray()) {
-      return null;
-    }
-
-    int leftLength = Array.getLength(leftExample);
-
-    if (leftLength != Array.getLength(rightExample)) {
+    if (!Objects.deepEquals(leftExample, rightExample)) {
       return DiffResult.METADATA;
-    }
-
-    for (int i = 0; i < leftLength; i++) {
-      if (!Objects.deepEquals(Array.get(leftExample, i), Array.get(rightExample, i))) {
-        return DiffResult.METADATA;
-      }
     }
 
     return DiffResult.NO_CHANGES;
