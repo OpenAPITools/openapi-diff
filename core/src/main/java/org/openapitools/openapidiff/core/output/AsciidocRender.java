@@ -32,8 +32,8 @@ public class AsciidocRender implements Render {
           bigTitle(
               diff.getNewSpecOpenApi().getInfo().getTitle(),
               diff.getNewSpecOpenApi().getInfo().getVersion()));
-      safelyAppend(outputStreamWriter, "\n");
-      safelyAppend(outputStreamWriter, "\n");
+      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, System.lineSeparator());
       safelyAppend(outputStreamWriter, "NOTE: No differences. Specifications are equivalents");
     } else {
       safelyAppend(
@@ -41,9 +41,14 @@ public class AsciidocRender implements Render {
           bigTitle(
               diff.getNewSpecOpenApi().getInfo().getTitle(),
               diff.getNewSpecOpenApi().getInfo().getVersion()));
-      safelyAppend(outputStreamWriter, "\n");
-      safelyAppend(outputStreamWriter, ":reproducible:\n:sectlinks:\n:toc:\n");
-      safelyAppend(outputStreamWriter, "\n");
+      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, ":reproducible:");
+      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, ":sectlinks:");
+      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, ":toc:");
+      safelyAppend(outputStreamWriter, System.lineSeparator());
+      safelyAppend(outputStreamWriter, System.lineSeparator());
 
       List<Endpoint> newEndpoints = diff.getNewEndpoints();
       listEndpoints(newEndpoints, "What's New", outputStreamWriter);
@@ -57,13 +62,13 @@ public class AsciidocRender implements Render {
       List<ChangedOperation> changedOperations = diff.getChangedOperations();
       ol_changed(changedOperations, outputStreamWriter);
 
-      safelyAppend(outputStreamWriter, "\n");
+      safelyAppend(outputStreamWriter, System.lineSeparator());
       safelyAppend(
           outputStreamWriter,
           diff.isCompatible()
               ? "NOTE: API changes are backward compatible"
               : "WARNING: API changes broke backward compatibility");
-      safelyAppend(outputStreamWriter, "\n");
+      safelyAppend(outputStreamWriter, System.lineSeparator());
     }
     try {
       outputStreamWriter.close();
@@ -78,7 +83,7 @@ public class AsciidocRender implements Render {
       return;
     }
     safelyAppend(outputStreamWriter, title("What's Changed", 2));
-    safelyAppend(outputStreamWriter, "\n");
+    safelyAppend(outputStreamWriter, System.lineSeparator());
     for (ChangedOperation operation : operations) {
       String pathUrl = operation.getPathUrl();
       String method = operation.getHttpMethod().toString();
@@ -86,21 +91,25 @@ public class AsciidocRender implements Render {
           Optional.ofNullable(operation.getSummary()).map(ChangedMetadata::getRight).orElse("");
 
       safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
+      safelyAppend(outputStreamWriter, System.lineSeparator());
       if (result(operation.getParameters()).isDifferent()) {
-        safelyAppend(outputStreamWriter, "* Parameter:\n");
+        safelyAppend(outputStreamWriter, "* Parameter:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_param(operation.getParameters()));
-        safelyAppend(outputStreamWriter, "\n");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
       }
       if (operation.resultRequestBody().isDifferent()) {
-        safelyAppend(outputStreamWriter, "* Request:\n");
+        safelyAppend(outputStreamWriter, "* Request:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(
             outputStreamWriter, ul_content(operation.getRequestBody().getContent(), true, 2));
-        safelyAppend(outputStreamWriter, "\n");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
       }
       if (operation.resultApiResponses().isDifferent()) {
-        safelyAppend(outputStreamWriter, "* Return Type:\n");
+        safelyAppend(outputStreamWriter, "* Return Type:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
-        safelyAppend(outputStreamWriter, "\n");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
       }
     }
   }
@@ -128,13 +137,14 @@ public class AsciidocRender implements Render {
     if (!code.equals("default") && !code.matches("[1-5]XX")) {
       status = HttpStatus.getReasonPhrase(Integer.parseInt(code));
     }
-    sb.append(title).append(code).append(' ').append(status).append("\n");
+    sb.append(title).append(code).append(' ').append(status).append(System.lineSeparator());
     return sb.toString();
   }
 
   private String itemChangedResponse(String title, String contentType, ChangedResponse response) {
     return itemResponse(title, contentType)
-        + "** Media types:\n"
+        + "** Media types:"
+        + System.lineSeparator()
         + ul_content(response.getContent(), false, 3);
   }
 
@@ -158,7 +168,7 @@ public class AsciidocRender implements Render {
   }
 
   private String itemContent(String title, String contentType, int indent) {
-    return StringUtils.repeat('*', indent) + " " + title + contentType + "\n";
+    return StringUtils.repeat('*', indent) + " " + title + contentType + System.lineSeparator();
   }
 
   private String itemContent(
@@ -171,7 +181,7 @@ public class AsciidocRender implements Render {
     sb.append(itemContent(title, contentType, indent))
         .append(itemContent("Schema:", "", indent))
         .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
-        .append("\n");
+        .append(System.lineSeparator());
     if (!changedMediaType.isCompatible()) {
       sb.append(incompatibilities(changedMediaType.getSchema()));
     }
@@ -190,6 +200,8 @@ public class AsciidocRender implements Render {
     if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
       String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
       sb.append(property(propName, "Changed property type", type));
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
     }
     String prefix = propName.isEmpty() ? "" : propName + ".";
     sb.append(
@@ -226,7 +238,7 @@ public class AsciidocRender implements Render {
   }
 
   protected String property(String name, String title, String type) {
-    return String.format("*** %s: %s (%s)\n\n", title, name, type);
+    return String.format("*** %s: %s (%s)", title, name, type);
   }
 
   protected Schema<?> resolve(Schema<?> schema) {
@@ -264,7 +276,7 @@ public class AsciidocRender implements Render {
   }
 
   private String itemParam(String title, Parameter param) {
-    return title + param.getName() + " in " + param.getIn() + "\n";
+    return title + param.getName() + " in " + param.getIn() + System.lineSeparator();
   }
 
   private String li_changedParam(ChangedParameter changeParam) {
@@ -286,12 +298,13 @@ public class AsciidocRender implements Render {
       sb.append(
           itemEndpoint(
               endpoint.getMethod().toString(), endpoint.getPathUrl(), endpoint.getSummary()));
+      sb.append(System.lineSeparator());
     }
-    return sb.append("\n").toString();
+    return sb.append(System.lineSeparator()).toString();
   }
 
   private String itemEndpoint(String method, String path, String desc) {
-    return String.format("=== %s%s\n", StringUtils.rightPad(method, 6), path);
+    return String.format("=== %s%s", StringUtils.rightPad(method, 6), path);
   }
 
   public String bigTitle(String title, String version) {
