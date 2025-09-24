@@ -84,4 +84,25 @@ public class MarkdownRenderTest {
     assertThat(removeResult).contains("Removed enum value:");
     assertThat(removeResult).doesNotContain("Renamed");
   }
+
+  @Test
+  public void testOriginalIssueScenario() {
+    // Test to reproduce the original issue scenario
+    MarkdownRender render = new MarkdownRender();
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("enum_issue_old.yaml", "enum_issue_new.yaml");
+
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    render.render(diff, outputStreamWriter);
+
+    String result = outputStream.toString();
+    System.out.println("=== ENHANCED OUTPUT ===");
+    System.out.println(result);
+    System.out.println("=== END OUTPUT ===");
+
+    // With the enhancement, this should show as a rename instead of separate add/remove
+    assertThat(result).contains("Renamed enum value");
+    assertThat(result).contains("`StatusThree` -> `StatusNew`");
+  }
 }
