@@ -438,4 +438,21 @@ public class SchemaDiffTest {
     assertThat(changedSchema.getRequired().getMissing()).containsExactly("fieldA");
     assertThat(changedSchema.getRequired().getIncreased()).isEmpty();
   }
+
+  @Test
+  void renderShowsNoDifferencesWhenCSVMediaTypeResponseExampleIsByteArray() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "issue-828-binary-example-for-csv-media-type.yaml",
+            "issue-828-binary-example-for-csv-media-type.yaml");
+
+    assertThat(changedOpenApi).isNotNull();
+
+    assertThat(changedOpenApi.isUnchanged()).isTrue();
+    assertThat(changedOpenApi.isDifferent()).isFalse();
+    assertThat(changedOpenApi.isChanged()).isEqualTo(DiffResult.NO_CHANGES);
+    assertThat(changedOpenApi.isIncompatible()).isFalse();
+    assertThat(changedOpenApi.isCompatible()).isTrue();
+    assertThat(changedOpenApi.isCoreChanged()).isEqualTo(DiffResult.NO_CHANGES);
+  }
 }

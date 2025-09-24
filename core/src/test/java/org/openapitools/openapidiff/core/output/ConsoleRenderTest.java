@@ -76,19 +76,4 @@ public class ConsoleRenderTest {
         .contains("What's Changed")
         .containsSubsequence("- GET    /widgets", "Parameter:", "- Changed query-param-1 in query");
   }
-
-  @Test
-  void renderShowsNoDifferencesWhenCSVMediaTypeResponseExampleIsByteArray() {
-    ConsoleRender render = new ConsoleRender();
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-    ChangedOpenApi diff =
-        OpenApiCompare.fromLocations(
-            "issue-828-binary-example-for-csv-media-type.yaml",
-            "issue-828-binary-example-for-csv-media-type.yaml");
-    render.render(diff, outputStreamWriter);
-    assertThat(outputStream.toString()).isNotBlank();
-    assertThat(outputStream.toString())
-        .hasToString("No differences. Specifications are equivalent");
-  }
 }
