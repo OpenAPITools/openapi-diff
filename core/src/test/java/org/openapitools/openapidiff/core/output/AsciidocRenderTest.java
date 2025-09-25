@@ -50,7 +50,7 @@ public class AsciidocRenderTest {
         OpenApiCompare.fromLocations("missing_property_1.yaml", "missing_property_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString())
-        .isEqualTo(
+        .isEqualToNormalizingNewlines(
             "= TITLE (v 1.0.0)\n"
                 + ":reproducible:\n"
                 + ":sectlinks:\n"
@@ -78,7 +78,7 @@ public class AsciidocRenderTest {
         OpenApiCompare.fromLocations("range_statuscode_1.yaml", "range_statuscode_2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString())
-        .isEqualTo(
+        .isEqualToNormalizingNewlines(
             "= PROJECTS API (v 1.0.0)\n"
                 + ":reproducible:\n"
                 + ":sectlinks:\n"
