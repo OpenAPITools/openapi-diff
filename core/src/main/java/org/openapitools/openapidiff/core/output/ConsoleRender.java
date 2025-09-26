@@ -27,7 +27,7 @@ public class ConsoleRender implements Render {
   public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     this.diff = diff;
     if (diff.isUnchanged()) {
-      safelyAppend(outputStreamWriter, "No differences. Specifications are equivalents");
+      safelyAppend(outputStreamWriter, "No differences. Specifications are equivalent");
     } else {
       safelyAppend(outputStreamWriter, bigTitle("Api Change Log"));
       safelyAppend(

@@ -30,9 +30,10 @@ public class ChangedExample implements Changed {
 
   @Override
   public DiffResult isChanged() {
-    if (!Objects.equals(leftExample, rightExample)) {
+    if (!Objects.deepEquals(leftExample, rightExample)) {
       return DiffResult.METADATA;
     }
+
     return DiffResult.NO_CHANGES;
   }
 

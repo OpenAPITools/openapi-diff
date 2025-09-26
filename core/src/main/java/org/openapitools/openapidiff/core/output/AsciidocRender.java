@@ -34,7 +34,7 @@ public class AsciidocRender implements Render {
               diff.getNewSpecOpenApi().getInfo().getVersion()));
       safelyAppend(outputStreamWriter, System.lineSeparator());
       safelyAppend(outputStreamWriter, System.lineSeparator());
-      safelyAppend(outputStreamWriter, "NOTE: No differences. Specifications are equivalents");
+      safelyAppend(outputStreamWriter, "NOTE: No differences. Specifications are equivalent");
     } else {
       safelyAppend(
           outputStreamWriter,
