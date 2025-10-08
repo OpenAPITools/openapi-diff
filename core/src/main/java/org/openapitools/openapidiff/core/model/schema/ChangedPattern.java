@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_PATTERN_CHANGED;
+
 import java.util.Objects;
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.DiffContext;
@@ -18,7 +20,13 @@ public class ChangedPattern implements Changed {
 
   @Override
   public DiffResult isChanged() {
-    return Objects.equals(oldPattern, newPattern) ? DiffResult.NO_CHANGES : DiffResult.INCOMPATIBLE;
+    if (Objects.equals(oldPattern, newPattern)) {
+      return DiffResult.NO_CHANGES;
+    } else if (SCHEMA_PATTERN_CHANGED.enabled(context)) {
+      return DiffResult.INCOMPATIBLE;
+    } else {
+      return DiffResult.COMPATIBLE;
+    }
   }
 
   @Override

@@ -53,6 +53,7 @@ public enum BackwardIncompatibleProp {
   SECURITY_SCHEME_SCOPES_INCREASED("incompatible.security.scheme.scopes.increased", true),
   SCHEMA_DISCRIMINATOR_CHANGED("incompatible.schema.discriminator.changed", true),
   SCHEMA_TYPE_CHANGED("incompatible.schema.type.changed", true),
+  SCHEMA_PATTERN_CHANGED("incompatible.schema.pattern.changed", true),
   ;
 
   private final String propertyName;
