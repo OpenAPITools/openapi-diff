@@ -90,7 +90,7 @@ public class Main {
             .numberOfArgs(2)
             .valueSeparator()
             .argName("property=value")
-            .desc("use given header for authorisation")
+            .desc("use given header for authorization")
             .build());
     options.addOption(
         Option.builder()
@@ -99,7 +99,7 @@ public class Main {
             .numberOfArgs(2)
             .valueSeparator()
             .argName("property=value")
-            .desc("use query param for authorisation")
+            .desc("use query param for authorization")
             .build());
     options.addOption(
         Option.builder()
@@ -187,7 +187,7 @@ public class Main {
             && !logLevel.equalsIgnoreCase("OFF")) {
           throw new ParseException(
               String.format(
-                  "Invalid log level. Excepted: [TRACE, DEBUG, INFO, WARN, ERROR, OFF]. Given: %s",
+                  "Invalid log level. Expected: [TRACE, DEBUG, INFO, WARN, ERROR, OFF]. Given: %s",
                   logLevel));
         }
       }

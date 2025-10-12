@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-/** compare two Maps by key */
+/** Compare two Maps by key. */
 public class MapKeyDiff<K, V> {
 
   private Map<K, V> increased;
