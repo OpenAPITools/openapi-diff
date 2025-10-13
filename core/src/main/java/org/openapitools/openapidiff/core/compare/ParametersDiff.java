@@ -28,7 +28,7 @@ class ParametersDiffResult {
     this.sameOperationsDiffSchema = sameOperationsDiffSchema;
   }
 }
-/** compare two parameter */
+/** Compare two parameters. */
 public class ParametersDiff {
 
   private static final RefPointer<Parameter> refPointer = new RefPointer<>(RefType.PARAMETERS);
@@ -108,12 +108,12 @@ public class ParametersDiff {
               .findFirst();
       if (!newParameter.isPresent()) return false;
 
-      // Check if  the old and new Parameters match . IF so, return TRUE
+      // Check if the old and new Parameters match. IF so, return TRUE
       Parameter newParameterRealized = newParameter.get();
       newParameterRealized.setName(parameter.getName()); // Make names similar
       boolean samePathDifferentParameter = !newParameterRealized.equals(parameter);
       newParameterRealized.setName(
-          newParameterName); // Important:: MUST Reset the name as this is not a copy
+          newParameterName); // Important: MUST Reset the name as this is not a copy
       if (samePathDifferentParameter) {
         return true;
       }

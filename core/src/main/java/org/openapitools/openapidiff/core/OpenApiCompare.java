@@ -21,10 +21,10 @@ public class OpenApiCompare {
   private OpenApiCompare() {}
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldContent old api-doc location:Json or Http
-   * @param newContent new api-doc location:Json or Http
+   * @param oldContent old API document location: JSON or HTTP
+   * @param newContent new API document location: JSON or HTTP
    * @return Comparison result
    */
   public static ChangedOpenApi fromContents(String oldContent, String newContent) {
@@ -32,11 +32,11 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldContent old api-doc location:Json or Http
-   * @param newContent new api-doc location:Json or Http
-   * @param auths
+   * @param oldContent old API document location: JSON or HTTP
+   * @param newContent new API document location: JSON or HTTP
+   * @param auths authorization values
    * @return Comparison result
    */
   public static ChangedOpenApi fromContents(
@@ -45,12 +45,12 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldContent old api-doc location:Json or Http
-   * @param newContent new api-doc location:Json or Http
-   * @param auths
-   * @param options
+   * @param oldContent old API document location: JSON or HTTP
+   * @param newContent new API document location: JSON or HTTP
+   * @param auths authorization values
+   * @param options comparison options
    * @return Comparison result
    */
   public static ChangedOpenApi fromContents(
@@ -63,10 +63,10 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldFile old api-doc file
-   * @param newFile new api-doc file
+   * @param oldFile old API document file
+   * @param newFile new API document file
    * @return Comparison result
    */
   public static ChangedOpenApi fromFiles(File oldFile, File newFile) {
@@ -74,11 +74,11 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldFile old api-doc file
-   * @param newFile new api-doc file
-   * @param auths
+   * @param oldFile old API document file
+   * @param newFile new API document file
+   * @param auths authorization values
    * @return Comparison result
    */
   public static ChangedOpenApi fromFiles(
@@ -87,12 +87,12 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldFile old api-doc file
-   * @param newFile new api-doc file
-   * @param auths
-   * @param options
+   * @param oldFile old API document file
+   * @param newFile new API document file
+   * @param auths authorization values
+   * @param options comparison options
    * @return Comparison result
    */
   public static ChangedOpenApi fromFiles(
@@ -101,10 +101,10 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldLocation old api-doc location (local or http)
-   * @param newLocation new api-doc location (local or http)
+   * @param oldLocation old API document location (local or HTTP)
+   * @param newLocation new API document location (local or HTTP)
    * @return Comparison result
    */
   public static ChangedOpenApi fromLocations(String oldLocation, String newLocation) {
@@ -112,11 +112,11 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldLocation old api-doc location (local or http)
-   * @param newLocation new api-doc location (local or http)
-   * @param auths
+   * @param oldLocation old API document location (local or HTTP)
+   * @param newLocation new API document location (local or HTTP)
+   * @param auths authorization values
    * @return Comparison result
    */
   public static ChangedOpenApi fromLocations(
@@ -125,12 +125,12 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldLocation old api-doc location (local or http)
-   * @param newLocation new api-doc location (local or http)
-   * @param auths
-   * @param options
+   * @param oldLocation old API document location (local or HTTP)
+   * @param newLocation new API document location (local or HTTP)
+   * @param auths authorization values
+   * @param options comparison options
    * @return Comparison result
    */
   public static ChangedOpenApi fromLocations(
@@ -143,10 +143,10 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldSpec old api-doc specification
-   * @param newSpec new api-doc specification
+   * @param oldSpec old API document specification
+   * @param newSpec new API document specification
    * @return Comparison result
    */
   public static ChangedOpenApi fromSpecifications(OpenAPI oldSpec, OpenAPI newSpec) {
@@ -154,11 +154,11 @@ public class OpenApiCompare {
   }
 
   /**
-   * compare two openapi doc
+   * Compare two OpenAPI documents.
    *
-   * @param oldSpec old api-doc specification
-   * @param newSpec new api-doc specification
-   * @param options
+   * @param oldSpec old API document specification
+   * @param newSpec new API document specification
+   * @param options comparison options
    * @return Comparison result
    */
   public static ChangedOpenApi fromSpecifications(

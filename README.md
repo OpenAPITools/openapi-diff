@@ -1,6 +1,6 @@
 # OpenAPI-diff 
 
-Compare two OpenAPI specifications (3.x) and render the difference to HTML plaintext, Markdown files, or JSON files.
+Compare two OpenAPI specifications (3.x) and render the difference to HTML plain text, Markdown files, or JSON files.
 
 [![Build](https://github.com/OpenAPITools/openapi-diff/workflows/Main%20Build/badge.svg)](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3A"Main+Build")
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenAPITools_openapi-diff&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenAPITools_openapi-diff)
@@ -20,7 +20,7 @@ Compare two OpenAPI specifications (3.x) and render the difference to HTML plain
 # Feature
 
 * Supports OpenAPI spec v3.0.
-* Depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
+* In-depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
 * Supports swagger api Authorization
 * Render difference of property with Expression Language
 * HTML, Markdown, Asciidoc & JSON render
@@ -195,9 +195,9 @@ public class Main {
 
 ### Path Matching while comparing two OpenAPI paths
 
-Path matching controls how paths from the old and new specs are paired during comparison (PathsDiff.java). The default matcher (DefaultPathMatcher) obfuscates path parameter names, meaning `/users/{id}` matches `/users/{userId}`. Default matcher fails on ambiguous signatures if spec contains few paths semantically identical. In case this behaviour is not fitting your use case, you can implement your own matching strategy.
+Path matching controls how paths from the old and new specs are paired during comparison (PathsDiff.java). The default matcher (DefaultPathMatcher) obfuscates path parameter names, meaning `/users/{id}` matches `/users/{userId}`. The default matcher fails on ambiguous signatures if the spec contains a few paths semantically identical. In case this behaviour is not fitting your use case, you can implement your own matching strategy.
 
-You can plug in a custom matcher via `OpenApiDiffOptions` implementing the `PathMatcher` interface.:
+You can plug in a custom matcher via `OpenApiDiffOptions` implementing the `PathMatcher` interface:
 
 ```java
 OpenApiDiffOptions options = OpenApiDiffOptions
@@ -249,7 +249,7 @@ jsonRender.render(diff, outputStreamWriter);
 
 ### Extensions
 
-This project uses Java Service Provider Inteface (SPI) so additional extensions can be added. 
+This project uses Java Service Provider Interface (SPI) so additional extensions can be added. 
 
 To build your own extension, you simply need to create a `src/main/resources/META-INF/services/org.openapitools.openapidiff.core.compare.ExtensionDiff` file with the full classname of your implementation.
 Your class must also implement the `org.openapitools.openapidiff.core.compare.ExtensionDiff` interface.
