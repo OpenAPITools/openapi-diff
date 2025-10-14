@@ -6,6 +6,7 @@ import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_REQUIRED_DECREASED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_DISCRIMINATOR_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_PATTERN_CHANGED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_TYPE_CHANGED;
 
 import org.junit.jupiter.api.Test;
@@ -68,5 +69,11 @@ public class SchemaBCTest {
   public void typeChanged() {
     BackwardIncompatibleProp prop = SCHEMA_TYPE_CHANGED;
     assertSpecIncompatible(BASE, "bc_schema_type_changed.yaml", prop);
+  }
+
+  @Test
+  public void patternChanged() {
+    BackwardIncompatibleProp prop = SCHEMA_PATTERN_CHANGED;
+    assertSpecIncompatible(BASE, "bc_schema_pattern_changed.yaml", prop);
   }
 }
