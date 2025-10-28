@@ -93,7 +93,7 @@ components:
         stuffBounded:
           type: object
           minProperties: 1
-          maxProperties: 10
+          maxProperties: 5
           additionalProperties:
             type: string
       required:

@@ -88,6 +88,7 @@ components:
           deprecated: true
         stuffUnbounded:
           type: object
+          minProperties: 5
           additionalProperties:
             type: string
         stuffBounded:
