@@ -4,10 +4,7 @@ import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiBackwardI
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecChangedButCompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecIncompatible;
 import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
-import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_REQUIRED_DECREASED;
-import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_DISCRIMINATOR_CHANGED;
-import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_PATTERN_CHANGED;
-import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_TYPE_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.*;
 
 import org.junit.jupiter.api.Test;
 import org.openapitools.openapidiff.core.model.BackwardIncompatibleProp;
@@ -75,5 +72,29 @@ public class SchemaBCTest {
   public void patternChanged() {
     BackwardIncompatibleProp prop = SCHEMA_PATTERN_CHANGED;
     assertSpecIncompatible(BASE, "bc_schema_pattern_changed.yaml", prop);
+  }
+
+  @Test
+  public void minPropertiesIncreased() {
+    BackwardIncompatibleProp prop = SCHEMA_MIN_PROPERTIES_CHANGED;
+    assertSpecIncompatible(BASE, "bc_schema_min_properties_increased.yaml", prop);
+  }
+
+  @Test
+  public void minPropertiesAdded() {
+    BackwardIncompatibleProp prop = SCHEMA_MIN_PROPERTIES_CHANGED;
+    assertSpecIncompatible(BASE, "bc_schema_min_properties_added.yaml", prop);
+  }
+
+  @Test
+  public void maxPropertiesDecreased() {
+    BackwardIncompatibleProp prop = SCHEMA_MAX_PROPERTIES_CHANGED;
+    assertSpecIncompatible(BASE, "bc_schema_max_properties_decreased.yaml", prop);
+  }
+
+  @Test
+  public void maxPropertiesAdded() {
+    BackwardIncompatibleProp prop = SCHEMA_MAX_PROPERTIES_CHANGED;
+    assertSpecIncompatible(BASE, "bc_schema_max_properties_added.yaml", prop);
   }
 }

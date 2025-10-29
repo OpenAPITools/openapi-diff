@@ -52,8 +52,10 @@ public enum BackwardIncompatibleProp {
   SECURITY_SCHEME_SCHEME_CHANGED("incompatible.security.scheme.scheme.changed", true),
   SECURITY_SCHEME_SCOPES_INCREASED("incompatible.security.scheme.scopes.increased", true),
   SCHEMA_DISCRIMINATOR_CHANGED("incompatible.schema.discriminator.changed", true),
-  SCHEMA_TYPE_CHANGED("incompatible.schema.type.changed", true),
   SCHEMA_PATTERN_CHANGED("incompatible.schema.pattern.changed", true),
+  SCHEMA_MIN_PROPERTIES_CHANGED("incompatible.schema.min-properties.changed", true),
+  SCHEMA_MAX_PROPERTIES_CHANGED("incompatible.schema.max-properties.changed", true),
+  SCHEMA_TYPE_CHANGED("incompatible.schema.type.changed", true),
   ;
 
   private final String propertyName;

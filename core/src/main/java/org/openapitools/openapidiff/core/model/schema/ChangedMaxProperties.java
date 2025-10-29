@@ -1,5 +1,7 @@
 package org.openapitools.openapidiff.core.model.schema;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_MAX_PROPERTIES_CHANGED;
+
 import org.openapitools.openapidiff.core.model.Changed;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.DiffResult;
@@ -30,7 +32,11 @@ public class ChangedMaxProperties implements Changed {
     }
 
     if (oldValue == null) {
-      return DiffResult.INCOMPATIBLE;
+      if (SCHEMA_MAX_PROPERTIES_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      } else {
+        return DiffResult.COMPATIBLE;
+      }
     }
 
     if (newValue == null) {
@@ -38,7 +44,11 @@ public class ChangedMaxProperties implements Changed {
     }
 
     if (!oldValue.equals(newValue)) {
-      return oldValue > newValue ? DiffResult.INCOMPATIBLE : DiffResult.COMPATIBLE;
+      if (SCHEMA_MAX_PROPERTIES_CHANGED.enabled(context) && oldValue > newValue) {
+        return DiffResult.INCOMPATIBLE;
+      } else {
+        return DiffResult.COMPATIBLE;
+      }
     }
 
     return DiffResult.NO_CHANGES;
