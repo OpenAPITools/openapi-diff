@@ -51,15 +51,44 @@ public class MarkdownRender implements Render {
   public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     this.diff = diff;
     this.handledSchemas.clear();
+
+    apiTitle(
+        diff.getNewSpecOpenApi().getInfo().getTitle(),
+        diff.getNewSpecOpenApi().getInfo().getVersion(),
+        outputStreamWriter);
     listEndpoints("What's New", diff.getNewEndpoints(), outputStreamWriter);
     listEndpoints("What's Deleted", diff.getMissingEndpoints(), outputStreamWriter);
     listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints(), outputStreamWriter);
     listEndpoints(diff.getChangedOperations(), outputStreamWriter);
+    changeSummary("Result", diff, outputStreamWriter);
     try {
       outputStreamWriter.close();
     } catch (IOException e) {
       throw new RendererException(e);
     }
+  }
+
+  protected String bigTitle(String title) {
+    return H3 + title + '\n' + HR + '\n';
+  }
+
+  protected void apiTitle(String title, String version, OutputStreamWriter outputStreamWriter) {
+    safelyAppend(outputStreamWriter, bigTitle(title + " (v " + version + ")"));
+  }
+
+  protected void changeSummary(
+      String title, ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
+    safelyAppend(outputStreamWriter, sectionTitle(title));
+
+    if (diff.isUnchanged()) {
+      safelyAppend(outputStreamWriter, "No differences. Specifications are equivalent");
+    } else if (diff.isCompatible()) {
+      safelyAppend(outputStreamWriter, "API changes are backward compatible");
+    } else {
+      safelyAppend(outputStreamWriter, "API changes broke backward compatibility");
+    }
+
+    safelyAppend(outputStreamWriter, "\n\n");
   }
 
   protected String sectionTitle(String title) {
