@@ -17,6 +17,7 @@ import org.openapitools.openapidiff.core.model.schema.ChangedMaxItems;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxLength;
 import org.openapitools.openapidiff.core.model.schema.ChangedMaxProperties;
 import org.openapitools.openapidiff.core.model.schema.ChangedMinItems;
+import org.openapitools.openapidiff.core.model.schema.ChangedMinLength;
 import org.openapitools.openapidiff.core.model.schema.ChangedMinProperties;
 import org.openapitools.openapidiff.core.model.schema.ChangedMultipleOf;
 import org.openapitools.openapidiff.core.model.schema.ChangedNullable;
@@ -49,6 +50,7 @@ public class ChangedSchema implements ComposedChanged {
   protected ChangedWriteOnly writeOnly;
   protected boolean changedType;
   protected ChangedMaxLength maxLength;
+  protected ChangedMinLength minLength;
   protected ChangedNumericRange numericRange;
   protected ChangedMultipleOf multipleOf;
   protected ChangedMaxItems maxItems;
@@ -139,6 +141,7 @@ public class ChangedSchema implements ComposedChanged {
                       enumeration,
                       required,
                       maxLength,
+                      minLength,
                       numericRange,
                       multipleOf,
                       maxItems,
@@ -301,6 +304,10 @@ public class ChangedSchema implements ComposedChanged {
 
   public ChangedMaxLength getMaxLength() {
     return this.maxLength;
+  }
+
+  public ChangedMinLength getMinLength() {
+    return this.minLength;
   }
 
   public ChangedNumericRange getNumericRange() {
@@ -475,6 +482,12 @@ public class ChangedSchema implements ComposedChanged {
     return this;
   }
 
+  public ChangedSchema setMinLength(final ChangedMinLength minLength) {
+    clearChangedCache();
+    this.minLength = minLength;
+    return this;
+  }
+
   public ChangedSchema setNumericRange(final ChangedNumericRange numericRange) {
     clearChangedCache();
     this.numericRange = numericRange;
@@ -585,6 +598,7 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(readOnly, that.readOnly)
         && Objects.equals(writeOnly, that.writeOnly)
         && Objects.equals(maxLength, that.maxLength)
+        && Objects.equals(minLength, that.minLength)
         && Objects.equals(numericRange, that.numericRange)
         && Objects.equals(multipleOf, that.multipleOf)
         && Objects.equals(maxItems, that.maxItems)
@@ -623,6 +637,7 @@ public class ChangedSchema implements ComposedChanged {
         writeOnly,
         changedType,
         maxLength,
+        minLength,
         numericRange,
         multipleOf,
         maxItems,
@@ -681,6 +696,8 @@ public class ChangedSchema implements ComposedChanged {
         + this.isChangedType()
         + ", maxLength="
         + this.getMaxLength()
+        + ", minLength="
+        + this.getMinLength()
         + ", numericRange="
         + this.getNumericRange()
         + ", multipleOf="

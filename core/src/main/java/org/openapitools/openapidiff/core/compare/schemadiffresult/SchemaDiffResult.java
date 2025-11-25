@@ -66,6 +66,7 @@ public class SchemaDiffResult {
         .setReadOnly(new ChangedReadOnly(left.getReadOnly(), right.getReadOnly(), context))
         .setWriteOnly(new ChangedWriteOnly(left.getWriteOnly(), right.getWriteOnly(), context))
         .setMaxLength(new ChangedMaxLength(left.getMaxLength(), right.getMaxLength(), context))
+        .setMinLength(new ChangedMinLength(left.getMinLength(), right.getMinLength(), context))
         .setNumericRange(
             new ChangedNumericRange(
                 left.getMinimum(),
