@@ -21,23 +21,25 @@ public class HtmlRenderTest {
   }
 
   @Test
-  public void renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+  public void issue865_renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
     HtmlRender render = new HtmlRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-        OpenApiCompare.fromLocations("null_schema_issue_1.yaml", "null_schema_issue_2.yaml");
+        OpenApiCompare.fromLocations(
+            "issue-865-null-schema-1.yaml", "issue-865-null-schema-2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
 
   @Test
-  public void renderWithShowAllChangesDoesNotFailWhenSchemaIsNullButExampleChanged() {
+  public void issue865_renderWithShowAllChangesDoesNotFailWhenSchemaIsNullButExampleChanged() {
     HtmlRender render = new HtmlRender(true);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-        OpenApiCompare.fromLocations("null_schema_issue_1.yaml", "null_schema_issue_2.yaml");
+        OpenApiCompare.fromLocations(
+            "issue-865-null-schema-1.yaml", "issue-865-null-schema-2.yaml");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
