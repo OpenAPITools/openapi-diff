@@ -342,13 +342,15 @@ public class HtmlRender implements Render {
   }
 
   private LiTag li_changedRequest(String name, ChangedMediaType request) {
-    LiTag li =
-        li().with(div_changedSchema(request.getSchema()))
-            .withText(String.format("Changed body: '%s'", name));
-    if (request.isIncompatible() && !showAllChanges) {
-      incompatibilities(li, request.getSchema());
-    } else if (showAllChanges) {
-      allChanges(li, request.getSchema());
+    LiTag li = li().withText(String.format("Changed body: '%s'", name));
+    ChangedSchema schema = request.getSchema();
+    if (schema != null) {
+      li.with(div_changedSchema(schema));
+      if (request.isIncompatible() && !showAllChanges) {
+        incompatibilities(li, schema);
+      } else if (showAllChanges) {
+        allChanges(li, schema);
+      }
     }
     return li;
   }

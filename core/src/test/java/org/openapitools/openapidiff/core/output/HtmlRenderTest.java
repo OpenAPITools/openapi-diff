@@ -19,4 +19,26 @@ public class HtmlRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+    HtmlRender render = new HtmlRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("null_schema_issue_1.yaml", "null_schema_issue_2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
+  }
+
+  @Test
+  public void renderWithShowAllChangesDoesNotFailWhenSchemaIsNullButExampleChanged() {
+    HtmlRender render = new HtmlRender(true);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("null_schema_issue_1.yaml", "null_schema_issue_2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
+  }
 }
