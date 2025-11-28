@@ -461,6 +461,18 @@ public class MarkdownRender implements Render {
     if (listDiff == null) {
       return "";
     }
+
+    // Check if this looks like a simple rename (1 added, 1 removed)
+    if (listDiff.getIncreased().size() == 1 && listDiff.getMissing().size() == 1) {
+      StringBuilder sb = new StringBuilder();
+      Object oldValue = listDiff.getMissing().get(0);
+      Object newValue = listDiff.getIncreased().get(0);
+      sb.append(format("%sRenamed %s value:\n\n", indent(deepness), name));
+      sb.append(format("%s* `%s` -> `%s`\n", indent(deepness), oldValue, newValue));
+      return sb.toString();
+    }
+
+    // Fall back to current behavior for other cases
     return listItem(deepness, "Added " + name, listDiff.getIncreased())
         + listItem(deepness, "Removed " + name, listDiff.getMissing());
   }
