@@ -93,4 +93,16 @@ public class AsciidocRenderTest {
                 + "\n"
                 + "WARNING: API changes broke backward compatibility\n");
   }
+
+  @Test
+  public void issue870_renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+    AsciidocRender render = new AsciidocRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-865-null-schema-1.yaml", "issue-865-null-schema-2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
+  }
 }

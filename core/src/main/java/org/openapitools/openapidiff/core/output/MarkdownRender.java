@@ -274,7 +274,11 @@ public class MarkdownRender implements Render {
   }
 
   protected String itemContent(int deepness, String mediaType, ChangedMediaType content) {
-    return itemContent("Changed content type", mediaType) + schema(deepness, content.getSchema());
+    String result = itemContent("Changed content type", mediaType);
+    if (content.getSchema() != null) {
+      result += schema(deepness, content.getSchema());
+    }
+    return result;
   }
 
   protected String schema(ChangedSchema schema) {

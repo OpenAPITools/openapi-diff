@@ -182,7 +182,7 @@ public class AsciidocRender implements Render {
         .append(itemContent("Schema:", "", indent))
         .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
         .append(System.lineSeparator());
-    if (!changedMediaType.isCompatible()) {
+    if (!changedMediaType.isCompatible() && changedMediaType.getSchema() != null) {
       sb.append(incompatibilities(changedMediaType.getSchema()));
     }
     return sb.toString();
