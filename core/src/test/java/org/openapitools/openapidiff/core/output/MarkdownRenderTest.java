@@ -42,7 +42,7 @@ public class MarkdownRenderTest {
   }
 
   @Test
-  public void renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+  public void issue870_renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
     MarkdownRender render = new MarkdownRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);

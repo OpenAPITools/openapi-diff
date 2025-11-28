@@ -78,7 +78,7 @@ public class ConsoleRenderTest {
   }
 
   @Test
-  public void renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+  public void issue870_renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
     ConsoleRender render = new ConsoleRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);

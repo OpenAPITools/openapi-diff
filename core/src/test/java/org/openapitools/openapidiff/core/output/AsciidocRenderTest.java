@@ -95,7 +95,7 @@ public class AsciidocRenderTest {
   }
 
   @Test
-  public void renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+  public void issue870_renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
     AsciidocRender render = new AsciidocRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
