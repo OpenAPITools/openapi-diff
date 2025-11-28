@@ -171,7 +171,7 @@ public class ConsoleRender implements Render {
         .append("Schema: ")
         .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
         .append(System.lineSeparator());
-    if (!changedMediaType.isCompatible()) {
+    if (!changedMediaType.isCompatible() && changedMediaType.getSchema() != null) {
       sb.append(incompatibilities(changedMediaType.getSchema()));
     }
     return sb.toString();

@@ -76,4 +76,16 @@ public class ConsoleRenderTest {
         .contains("What's Changed")
         .containsSubsequence("- GET    /widgets", "Parameter:", "- Changed query-param-1 in query");
   }
+
+  @Test
+  public void renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+    ConsoleRender render = new ConsoleRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-865-null-schema-1.yaml", "issue-865-null-schema-2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
+  }
 }

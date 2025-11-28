@@ -40,4 +40,16 @@ public class MarkdownRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
+    MarkdownRender render = new MarkdownRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-865-null-schema-1.yaml", "issue-865-null-schema-2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank();
+  }
 }
