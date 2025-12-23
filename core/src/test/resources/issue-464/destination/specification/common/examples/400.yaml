@@ -1,0 +1,5 @@
+type: /problem/bad-request
+title: Bad Request
+status: 400
+detail: Invalid or malformed request syntax
+instance: /problem/bad-request#invalid-or-malformed-request-syntax
