@@ -40,6 +40,7 @@ public class OpenApiDiff {
   private OAuthFlowDiff oAuthFlowDiff;
   private ExtensionsDiff extensionsDiff;
   private MetadataDiff metadataDiff;
+  private OperationIdDiff operationIdDiff;
   private final OpenAPI oldSpecOpenApi;
   private final OpenAPI newSpecOpenApi;
   private final OpenApiDiffOptions options;
@@ -93,6 +94,7 @@ public class OpenApiDiff {
     this.oAuthFlowDiff = new OAuthFlowDiff(this);
     this.extensionsDiff = new ExtensionsDiff(this);
     this.metadataDiff = new MetadataDiff(this);
+    this.operationIdDiff = new OperationIdDiff(this);
     this.deferredSchemaCache = new DeferredSchemaCache(this);
   }
 
@@ -268,6 +270,10 @@ public class OpenApiDiff {
 
   public MetadataDiff getMetadataDiff() {
     return this.metadataDiff;
+  }
+
+  public OperationIdDiff getOperationIdDiff() {
+    return this.operationIdDiff;
   }
 
   public OpenAPI getOldSpecOpenApi() {

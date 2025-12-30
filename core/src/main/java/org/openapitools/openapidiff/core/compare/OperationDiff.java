@@ -53,7 +53,7 @@ public class OperationDiff {
     builder
         .with(
             openApiDiff
-                .getMetadataDiff()
+                .getOperationIdDiff()
                 .diff(oldOperation.getOperationId(), newOperation.getOperationId(), context))
         .ifPresent(changedOperation::setOperationId);
     changedOperation.setDeprecated(
