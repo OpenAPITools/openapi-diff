@@ -143,8 +143,8 @@ public class ChangedOpenApi implements ComposedChanged {
         changedExtensions);
   }
 
-  @java.lang.Override
-  public java.lang.String toString() {
+  @Override
+  public String toString() {
     return "ChangedOpenApi(oldSpecOpenApi="
         + this.getOldSpecOpenApi()
         + ", newSpecOpenApi="
