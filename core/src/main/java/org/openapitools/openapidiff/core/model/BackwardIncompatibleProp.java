@@ -10,6 +10,7 @@ public enum BackwardIncompatibleProp {
   EXTENSION_CONTENT_TYPES_DECREASED("incompatible.extension.content.types.decreased", false),
   EXTENSION_CONTENT_TYPE_DELETED("incompatible.extension.content.type.%s.deleted", false),
   OPENAPI_ENDPOINTS_DECREASED("incompatible.openapi.endpoints.decreased", true),
+  OPERATION_ID_CHANGED("incompatible.operation.id.changed", false),
   REQUEST_BODY_REQUIRED_INCREASED("incompatible.request.body.increased", true),
   REQUEST_CONTENT_DECREASED("incompatible.request.content.decreased", true),
   REQUEST_ENUM_DECREASED("incompatible.request.enum.decreased", true),

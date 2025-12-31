@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.PathItem;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.openapitools.openapidiff.core.model.schema.ChangedOperationId;
 
 public class ChangedOperation implements ComposedChanged {
   private Operation oldOperation;
@@ -15,7 +16,7 @@ public class ChangedOperation implements ComposedChanged {
   private PathItem.HttpMethod httpMethod;
   private ChangedMetadata summary;
   private ChangedMetadata description;
-  private ChangedMetadata operationId;
+  private ChangedOperationId operationId;
   private boolean deprecated;
   private ChangedParameters parameters;
   private ChangedRequestBody requestBody;
@@ -92,7 +93,7 @@ public class ChangedOperation implements ComposedChanged {
     return this.description;
   }
 
-  public ChangedMetadata getOperationId() {
+  public ChangedOperationId getOperationId() {
     return this.operationId;
   }
 
@@ -150,7 +151,7 @@ public class ChangedOperation implements ComposedChanged {
     return this;
   }
 
-  public ChangedOperation setOperationId(final ChangedMetadata operationId) {
+  public ChangedOperation setOperationId(final ChangedOperationId operationId) {
     this.operationId = operationId;
     return this;
   }
