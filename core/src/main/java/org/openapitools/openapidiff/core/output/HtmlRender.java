@@ -571,10 +571,6 @@ public class HtmlRender implements Render {
   }
 
   private UlTag ul_operation_id(ChangedOperationId changedOperationId) {
-    SpanTag spanTag = span("Changed");
-    spanTag.with(pre(changedOperationId.getLeft()));
-    spanTag.withText("to");
-    spanTag.with(pre(changedOperationId.getRight()));
-    return ul().withClass("change").with(li().with(spanTag));
+    return ul().withClass("change").with(li().withText("Changed " + changedOperationId.getLeft() + " to " + changedOperationId.getRight()));
   }
 }
