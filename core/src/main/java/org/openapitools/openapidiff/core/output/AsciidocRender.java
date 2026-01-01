@@ -14,7 +14,19 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
-import org.openapitools.openapidiff.core.model.*;
+import org.openapitools.openapidiff.core.model.ChangedApiResponse;
+import org.openapitools.openapidiff.core.model.ChangedContent;
+import org.openapitools.openapidiff.core.model.ChangedMediaType;
+import org.openapitools.openapidiff.core.model.ChangedMetadata;
+import org.openapitools.openapidiff.core.model.ChangedOpenApi;
+import org.openapitools.openapidiff.core.model.ChangedOperation;
+import org.openapitools.openapidiff.core.model.ChangedParameter;
+import org.openapitools.openapidiff.core.model.ChangedParameters;
+import org.openapitools.openapidiff.core.model.ChangedResponse;
+import org.openapitools.openapidiff.core.model.ChangedSchema;
+import org.openapitools.openapidiff.core.model.DiffContext;
+import org.openapitools.openapidiff.core.model.DiffResult;
+import org.openapitools.openapidiff.core.model.Endpoint;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
@@ -92,6 +104,12 @@ public class AsciidocRender implements Render {
 
       safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
       safelyAppend(outputStreamWriter, System.lineSeparator());
+      if (result(operation.getOperationId()).isDifferent()) {
+        safelyAppend(outputStreamWriter, "* Operation ID:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, String.format("** Changed %s to %s", operation.getOperationId().getLeft(), operation.getOperationId().getRight()));
+        safelyAppend(outputStreamWriter, System.lineSeparator());
+      }
       if (result(operation.getParameters()).isDifferent()) {
         safelyAppend(outputStreamWriter, "* Parameter:");
         safelyAppend(outputStreamWriter, System.lineSeparator());

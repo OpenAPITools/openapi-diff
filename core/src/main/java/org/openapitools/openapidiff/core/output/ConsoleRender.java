@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
+import org.openapitools.openapidiff.core.model.schema.ChangedOperationId;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
@@ -79,6 +80,12 @@ public class ConsoleRender implements Render {
 
       safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
 
+      if (result(operation.getOperationId()).isDifferent()) {
+        safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
+        safelyAppend(outputStreamWriter, "Operation ID:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(outputStreamWriter, ul_operation_id(operation.getOperationId()));
+      }
       if (result(operation.getParameters()).isDifferent()) {
         safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
         safelyAppend(outputStreamWriter, "Parameter:");
@@ -299,6 +306,10 @@ public class ConsoleRender implements Render {
 
   private String itemEndpoint(String method, String path, String desc) {
     return String.format("- %s %s%n", StringUtils.rightPad(method, 6), path);
+  }
+
+  private String ul_operation_id(ChangedOperationId operationId) {
+    return String.format("    - Changed %s to %s\n", operationId.getLeft(), operationId.getRight());
   }
 
   public String renderBody(String ol_new, String ol_miss, String ol_deprec, String ol_changed) {
