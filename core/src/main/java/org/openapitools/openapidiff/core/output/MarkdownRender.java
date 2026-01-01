@@ -133,7 +133,7 @@ public class MarkdownRender implements Render {
                   operation.getHttpMethod().toString(),
                   operation.getPathUrl(),
                   operation.getSummary()));
-          if (operation.getOperationId() != null && operation.getOperationId().isDifferent()) {
+          if (result(operation.getOperationId()).isDifferent()) {
             safelyAppend(outputStreamWriter, titleH5("Operation ID:"));
             safelyAppend(outputStreamWriter, operationId(operation.getOperationId()));
           }
