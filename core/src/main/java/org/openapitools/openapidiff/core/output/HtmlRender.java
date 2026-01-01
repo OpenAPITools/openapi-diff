@@ -16,6 +16,7 @@ import static j2html.TagCreator.link;
 import static j2html.TagCreator.meta;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.pre;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.title;
 import static j2html.TagCreator.ul;
@@ -33,6 +34,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.OlTag;
+import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.UlTag;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -56,6 +58,7 @@ import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.DiffResult;
 import org.openapitools.openapidiff.core.model.Endpoint;
+import org.openapitools.openapidiff.core.model.schema.ChangedOperationId;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 
@@ -202,6 +205,11 @@ public class HtmlRender implements Render {
               .orElse("");
 
       UlTag ul_detail = ul().withClass("detail");
+      if (result(changedOperation.getOperationId()).isDifferent()) {
+        ul_detail.with(
+            li().with(h3("Operation ID")).with(ul_operation_id(changedOperation.getOperationId()))
+        );
+      }
       if (result(changedOperation.getParameters()).isDifferent()) {
         ul_detail.with(
             li().with(h3("Parameters")).with(ul_param(changedOperation.getParameters())));
@@ -560,5 +568,13 @@ public class HtmlRender implements Render {
           .with(span(rightParam.getDescription()).withClass(COMMENT));
     }
     return li;
+  }
+
+  private UlTag ul_operation_id(ChangedOperationId changedOperationId) {
+    SpanTag spanTag = span("Changed");
+    spanTag.with(pre(changedOperationId.getLeft()));
+    spanTag.withText("to");
+    spanTag.with(pre(changedOperationId.getRight()));
+    return ul().withClass("change").with(li().with(spanTag));
   }
 }
