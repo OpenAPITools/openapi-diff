@@ -78,7 +78,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Pet'
+            $ref: './reusableSchemas/PetWithModifiedContent.yaml'
       description: Pet object that needs to be added to the store
       required: true
   securitySchemes:
@@ -98,7 +98,7 @@ components:
     Cat:
       description: Cat class
       allOf:
-      - $ref: './components/Pet.yaml'
+      - $ref: './reusableSchemas/PetWithModifiedContent.yaml'
       type: object
       properties:
         name:
@@ -106,7 +106,7 @@ components:
     Dog:
       description: Dog class
       allOf:
-      - $ref: './components/Pet.yaml'
+      - $ref: './reusableSchemas/PetWithModifiedContent.yaml'
       type: object
       properties:
         bark:
