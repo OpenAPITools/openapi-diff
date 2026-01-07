@@ -78,7 +78,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Pet'
+            $ref: './reusableSchemas/PetWithoutNestedRef.yaml'
       description: Pet object that needs to be added to the store
       required: true
   securitySchemes:
@@ -95,30 +95,18 @@ components:
       name: api_key
       in: header
   schemas:
-    Pet:
-      type: object
-      required:
-      - pet_type
-      properties:
-        pet_type:
-          nullable: false
-          type: string
     Cat:
       description: Cat class
+      allOf:
+      - $ref: './reusableSchemas/PetWithoutNestedRef.yaml'
       type: object
-      required:
-      - pet_type
       properties:
-        pet_type:
-          type: string
         name:
-          type: string
-        pet_color:
           type: string
     Dog:
       description: Dog class
       allOf:
-      - $ref: './components/Pet.yaml'
+      - $ref: './reusableSchemas/PetWithoutNestedRef.yaml'
       type: object
       properties:
         bark:
