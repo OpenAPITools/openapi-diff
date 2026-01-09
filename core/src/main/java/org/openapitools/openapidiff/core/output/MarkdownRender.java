@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
 import org.openapitools.openapidiff.core.model.schema.ChangedOneOfSchema;
+import org.openapitools.openapidiff.core.model.schema.ChangedOperationId;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
 import org.slf4j.Logger;
@@ -132,6 +133,10 @@ public class MarkdownRender implements Render {
                   operation.getHttpMethod().toString(),
                   operation.getPathUrl(),
                   operation.getSummary()));
+          if (result(operation.getOperationId()).isDifferent()) {
+            safelyAppend(outputStreamWriter, titleH5("Operation ID:"));
+            safelyAppend(outputStreamWriter, operationId(operation.getOperationId()));
+          }
           if (result(operation.getParameters()).isDifferent()) {
             safelyAppend(outputStreamWriter, titleH5("Parameters:"));
             safelyAppend(outputStreamWriter, parameters(operation.getParameters()));
@@ -539,6 +544,10 @@ public class MarkdownRender implements Render {
     } else {
       return metadata(beginning, name, changedMetadata.getRight());
     }
+  }
+
+  protected String operationId(ChangedOperationId operationId) {
+    return String.format("\nChanged: %s to %s\n\n", code(operationId.getLeft()), code(operationId.getRight()));
   }
 
   protected String metadata(String metadata) {
