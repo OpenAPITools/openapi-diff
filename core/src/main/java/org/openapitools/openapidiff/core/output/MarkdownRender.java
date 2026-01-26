@@ -547,7 +547,8 @@ public class MarkdownRender implements Render {
   }
 
   protected String operationId(ChangedOperationId operationId) {
-    return String.format("\nChanged: %s to %s\n\n", code(operationId.getLeft()), code(operationId.getRight()));
+    return String.format(
+        "\nChanged: %s to %s\n\n", code(operationId.getLeft()), code(operationId.getRight()));
   }
 
   protected String metadata(String metadata) {

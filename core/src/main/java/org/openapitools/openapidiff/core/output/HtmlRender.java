@@ -16,7 +16,6 @@ import static j2html.TagCreator.link;
 import static j2html.TagCreator.meta;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.pre;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.title;
 import static j2html.TagCreator.ul;
@@ -34,7 +33,6 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.OlTag;
-import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.UlTag;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -207,8 +205,7 @@ public class HtmlRender implements Render {
       UlTag ul_detail = ul().withClass("detail");
       if (result(changedOperation.getOperationId()).isDifferent()) {
         ul_detail.with(
-            li().with(h3("Operation ID")).with(ul_operation_id(changedOperation.getOperationId()))
-        );
+            li().with(h3("Operation ID")).with(ul_operation_id(changedOperation.getOperationId())));
       }
       if (result(changedOperation.getParameters()).isDifferent()) {
         ul_detail.with(
@@ -571,13 +568,12 @@ public class HtmlRender implements Render {
   }
 
   private UlTag ul_operation_id(ChangedOperationId changedOperationId) {
-    return ul().withClass("change").with(
-        li().withText(
-            "Changed " +
-            Optional.ofNullable(changedOperationId.getLeft()).orElse("") +
-            " to " +
-            Optional.ofNullable(changedOperationId.getRight()).orElse("")
-        )
-    );
+    return ul().withClass("change")
+        .with(
+            li().withText(
+                    "Changed "
+                        + Optional.ofNullable(changedOperationId.getLeft()).orElse("")
+                        + " to "
+                        + Optional.ofNullable(changedOperationId.getRight()).orElse("")));
   }
 }

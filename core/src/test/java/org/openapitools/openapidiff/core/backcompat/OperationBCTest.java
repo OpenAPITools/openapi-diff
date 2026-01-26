@@ -27,6 +27,9 @@ public class OperationBCTest {
 
   @Test
   public void operationIdChangedInCompatibleWithFlagSet() {
-    assertSpecIncompatible(BASE, "bc_operation_changed_incompatible_operation_id.yaml", BackwardIncompatibleProp.OPERATION_ID_CHANGED);
+    assertSpecIncompatible(
+        BASE,
+        "bc_operation_changed_incompatible_operation_id.yaml",
+        BackwardIncompatibleProp.OPERATION_ID_CHANGED);
   }
 }

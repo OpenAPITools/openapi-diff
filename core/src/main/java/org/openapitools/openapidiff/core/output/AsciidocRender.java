@@ -107,7 +107,11 @@ public class AsciidocRender implements Render {
       if (result(operation.getOperationId()).isDifferent()) {
         safelyAppend(outputStreamWriter, "* Operation ID:");
         safelyAppend(outputStreamWriter, System.lineSeparator());
-        safelyAppend(outputStreamWriter, String.format("** Changed %s to %s", operation.getOperationId().getLeft(), operation.getOperationId().getRight()));
+        safelyAppend(
+            outputStreamWriter,
+            String.format(
+                "** Changed %s to %s",
+                operation.getOperationId().getLeft(), operation.getOperationId().getRight()));
         safelyAppend(outputStreamWriter, System.lineSeparator());
       }
       if (result(operation.getParameters()).isDifferent()) {
