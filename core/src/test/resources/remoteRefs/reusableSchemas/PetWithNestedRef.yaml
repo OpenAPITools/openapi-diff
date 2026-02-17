@@ -1,0 +1,8 @@
+allOf:
+  - $ref: './BasePet.yaml'
+  - type: object
+    required:
+      - pet_type
+    properties:
+      pet_type:
+        type: string
