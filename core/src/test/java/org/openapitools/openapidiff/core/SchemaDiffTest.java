@@ -440,6 +440,48 @@ public class SchemaDiffTest {
   }
 
   @Test
+  void testOneOfResponseDiffCompatibleChange() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/issue-798-one-of-response-diff-1.yaml",
+            "schemaDiff/issue-798-one-of-response-diff-2.yaml");
+
+    assertThat(changedOpenApi).isNotNull();
+    assertThat(changedOpenApi.isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+  }
+
+  @Test
+  void testOneOfRequestDiffCompatibleChange() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/issue-798-one-of-request-diff-3.yaml",
+            "schemaDiff/issue-798-one-of-request-diff-4.yaml");
+
+    assertThat(changedOpenApi.isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+  }
+
+  @Test
+  void testOneOfResponseDiffIncompatibleChange() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/issue-798-one-of-response-diff-2.yaml",
+            "schemaDiff/issue-798-one-of-response-diff-1.yaml");
+
+    assertThat(changedOpenApi).isNotNull();
+    assertThat(changedOpenApi.isChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
+  }
+
+  @Test
+  void testOneOfRequestDiffIncompatibleChange() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/issue-798-one-of-request-diff-4.yaml",
+            "schemaDiff/issue-798-one-of-request-diff-3.yaml");
+
+    assertThat(changedOpenApi.isChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
+  }
+
+  @Test
   void renderShowsNoDifferencesWhenCSVMediaTypeResponseExampleIsByteArray() {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
