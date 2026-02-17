@@ -9,7 +9,7 @@
 
     <groupId>org.openapitools.openapidiff</groupId>
     <artifactId>openapi-diff-parent</artifactId>
-    <version>2.1.7</version>
+    <version>2.1.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>openapi-diff-parent</name>
@@ -82,7 +82,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2026-01-26T10:43:25Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-02-17T09:22:48Z</project.build.outputTimestamp>
         <project.scm.id>github</project.scm.id>
 
         <sonar.organization>openapitools</sonar.organization>
@@ -99,7 +99,7 @@
             <dependency>
                 <groupId>org.openapitools.openapidiff</groupId>
                 <artifactId>openapi-diff-core</artifactId>
-                <version>2.1.7</version>
+                <version>2.1.8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.junit</groupId>
