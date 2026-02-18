@@ -1,0 +1,6 @@
+name: correlation-id
+in: header
+schema:
+  type: string
+  example: 4cbc91f7-11d3-4019-a92b-64a54964b470
+description: A unique identifier attached to request and responses as header that allows reference to a particular transaction or chain of transactions. Based on UUID conforming to RFC 4122 - https://datatracker.ietf.org/doc/html/rfc4122
