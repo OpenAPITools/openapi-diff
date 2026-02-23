@@ -117,16 +117,18 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
 
   private Map<String, String> getMapping(ComposedSchema composedSchema) {
     Map<String, String> reverseMapping = new LinkedHashMap<>();
-    for (Schema<?> schema : composedSchema.getOneOf()) {
-      String ref = schema.get$ref();
-      if (ref == null) {
-        continue;
+    if (composedSchema.getOneOf() != null) {
+      for (Schema<?> schema : composedSchema.getOneOf()) {
+        String ref = schema.get$ref();
+        if (ref == null) {
+          continue;
+        }
+        String schemaName = refPointer.getRefName(ref);
+        if (schemaName == null) {
+          throw new IllegalArgumentException("invalid schema: " + ref);
+        }
+        reverseMapping.put(ref, schemaName);
       }
-      String schemaName = refPointer.getRefName(ref);
-      if (schemaName == null) {
-        throw new IllegalArgumentException("invalid schema: " + ref);
-      }
-      reverseMapping.put(ref, schemaName);
     }
 
     if (composedSchema.getDiscriminator() != null

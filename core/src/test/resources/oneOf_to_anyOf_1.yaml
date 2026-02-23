@@ -1,0 +1,34 @@
+openapi: 3.0.1
+info:
+  title: oneOf to anyOf repro (old)
+  version: 1.0.0
+paths:
+  /example:
+    get:
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+components:
+  schemas:
+    Result:
+      oneOf:
+        - $ref: "#/components/schemas/TypeA"
+        - $ref: "#/components/schemas/TypeB"
+    TypeA:
+      type: object
+      required:
+        - a
+      properties:
+        a:
+          type: string
+    TypeB:
+      type: object
+      required:
+        - b
+      properties:
+        b:
+          type: string
