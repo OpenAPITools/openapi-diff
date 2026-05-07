@@ -28,33 +28,33 @@ public class ConsoleRender implements Render {
   public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     this.diff = diff;
     if (diff.isUnchanged()) {
-      safelyAppend(outputStreamWriter, "No differences. Specifications are equivalent");
+      safelyAppend(outputStreamWriter, I18n.getMessage("no.differences"));
     } else {
-      safelyAppend(outputStreamWriter, bigTitle("Api Change Log"));
+      safelyAppend(outputStreamWriter, bigTitle(I18n.getMessage("api.change.log")));
       safelyAppend(
           outputStreamWriter,
-          StringUtils.center(diff.getNewSpecOpenApi().getInfo().getTitle(), LINE_LENGTH));
+          centerCjk(diff.getNewSpecOpenApi().getInfo().getTitle(), LINE_LENGTH));
       safelyAppend(outputStreamWriter, System.lineSeparator());
 
       List<Endpoint> newEndpoints = diff.getNewEndpoints();
-      listEndpoints(newEndpoints, "What's New", outputStreamWriter);
+      listEndpoints(newEndpoints, I18n.getMessage("whats.new"), outputStreamWriter);
 
       List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-      listEndpoints(missingEndpoints, "What's Deleted", outputStreamWriter);
+      listEndpoints(missingEndpoints, I18n.getMessage("whats.deleted"), outputStreamWriter);
 
       List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
-      listEndpoints(deprecatedEndpoints, "What's Deprecated", outputStreamWriter);
+      listEndpoints(deprecatedEndpoints, I18n.getMessage("whats.deprecated"), outputStreamWriter);
 
       List<ChangedOperation> changedOperations = diff.getChangedOperations();
       ol_changed(changedOperations, outputStreamWriter);
 
-      safelyAppend(outputStreamWriter, title("Result"));
+      safelyAppend(outputStreamWriter, title(I18n.getMessage("result")));
       safelyAppend(
           outputStreamWriter,
-          StringUtils.center(
+          centerCjk(
               diff.isCompatible()
-                  ? "API changes are backward compatible"
-                  : "API changes broke backward compatibility",
+                  ? I18n.getMessage("api.changes.backward.compatible")
+                  : I18n.getMessage("api.changes.broke.compatibility"),
               LINE_LENGTH));
       safelyAppend(outputStreamWriter, System.lineSeparator());
       safelyAppend(outputStreamWriter, separator('-'));
@@ -71,7 +71,7 @@ public class ConsoleRender implements Render {
     if (null == operations || operations.isEmpty()) {
       return;
     }
-    safelyAppend(outputStreamWriter, title("What's Changed"));
+    safelyAppend(outputStreamWriter, title(I18n.getMessage("whats.changed")));
     for (ChangedOperation operation : operations) {
       String pathUrl = operation.getPathUrl();
       String method = operation.getHttpMethod().toString();
@@ -82,25 +82,25 @@ public class ConsoleRender implements Render {
 
       if (result(operation.getOperationId()).isDifferent()) {
         safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
-        safelyAppend(outputStreamWriter, "Operation ID:");
+        safelyAppend(outputStreamWriter, I18n.getMessage("operation.id") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_operation_id(operation.getOperationId()));
       }
       if (result(operation.getParameters()).isDifferent()) {
         safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
-        safelyAppend(outputStreamWriter, "Parameter:");
+        safelyAppend(outputStreamWriter, I18n.getMessage("parameter") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_param(operation.getParameters()));
       }
       if (operation.resultRequestBody().isDifferent()) {
         safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
-        safelyAppend(outputStreamWriter, "Request:");
+        safelyAppend(outputStreamWriter, I18n.getMessage("request") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_content(operation.getRequestBody().getContent(), true));
       }
       if (operation.resultApiResponses().isDifferent()) {
         safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
-        safelyAppend(outputStreamWriter, "Return Type:");
+        safelyAppend(outputStreamWriter, I18n.getMessage("return.type") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
       }
@@ -113,13 +113,15 @@ public class ConsoleRender implements Render {
     Map<String, ChangedResponse> changedResponses = changedApiResponse.getChanged();
     StringBuilder sb = new StringBuilder();
     for (String propName : addResponses.keySet()) {
-      sb.append(itemResponse("Add ", propName));
+      sb.append(itemResponse(I18n.getMessage("action.add") + " ", propName));
     }
     for (String propName : delResponses.keySet()) {
-      sb.append(itemResponse("Deleted ", propName));
+      sb.append(itemResponse(I18n.getMessage("action.deleted") + " ", propName));
     }
     for (Entry<String, ChangedResponse> entry : changedResponses.entrySet()) {
-      sb.append(itemChangedResponse("Changed ", entry.getKey(), entry.getValue()));
+      sb.append(
+          itemChangedResponse(
+              I18n.getMessage("action.changed") + " ", entry.getKey(), entry.getValue()));
     }
     return sb.toString();
   }
@@ -143,7 +145,8 @@ public class ConsoleRender implements Render {
   private String itemChangedResponse(String title, String contentType, ChangedResponse response) {
     return itemResponse(title, contentType)
         + StringUtils.repeat(' ', 6)
-        + "Media types:"
+        + I18n.getMessage("media.types")
+        + ":"
         + System.lineSeparator()
         + ul_content(response.getContent(), false);
   }
@@ -154,14 +157,18 @@ public class ConsoleRender implements Render {
       return sb.toString();
     }
     for (String propName : changedContent.getIncreased().keySet()) {
-      sb.append(itemContent("Added ", propName));
+      sb.append(itemContent(I18n.getMessage("action.added") + " ", propName));
     }
     for (String propName : changedContent.getMissing().keySet()) {
-      sb.append(itemContent("Deleted ", propName));
+      sb.append(itemContent(I18n.getMessage("action.deleted") + " ", propName));
     }
     for (String propName : changedContent.getChanged().keySet()) {
       sb.append(
-          itemContent("Changed ", propName, changedContent.getChanged().get(propName), isRequest));
+          itemContent(
+              I18n.getMessage("action.changed") + " ",
+              propName,
+              changedContent.getChanged().get(propName),
+              isRequest));
     }
     return sb.toString();
   }
@@ -175,8 +182,11 @@ public class ConsoleRender implements Render {
     StringBuilder sb = new StringBuilder();
     sb.append(itemContent(title, contentType))
         .append(StringUtils.repeat(' ', 10))
-        .append("Schema: ")
-        .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
+        .append(I18n.getMessage("schema") + ": ")
+        .append(
+            changedMediaType.isCompatible()
+                ? I18n.getMessage("backward.compatible")
+                : I18n.getMessage("broken.compatibility"))
         .append(System.lineSeparator());
     if (!changedMediaType.isCompatible() && changedMediaType.getSchema() != null) {
       sb.append(incompatibilities(changedMediaType.getSchema()));
@@ -195,11 +205,15 @@ public class ConsoleRender implements Render {
     }
     if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
       String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
-      sb.append(property(propName, "Changed property type", type));
+      sb.append(property(propName, I18n.getMessage("changed.property.type"), type));
     }
     String prefix = propName.isEmpty() ? "" : propName + ".";
     sb.append(
-        properties(prefix, "Missing property", schema.getMissingProperties(), schema.getContext()));
+        properties(
+            prefix,
+            I18n.getMessage("missing.property"),
+            schema.getMissingProperties(),
+            schema.getContext()));
     schema
         .getChangedProperties()
         .forEach((name, property) -> sb.append(incompatibilities(prefix + name, property)));
@@ -258,13 +272,13 @@ public class ConsoleRender implements Render {
     List<ChangedParameter> changed = changedParameters.getChanged();
     StringBuilder sb = new StringBuilder();
     for (Parameter param : addParameters) {
-      sb.append(itemParam("Add ", param));
+      sb.append(itemParam(I18n.getMessage("action.add") + " ", param));
     }
     for (ChangedParameter param : changed) {
       sb.append(li_changedParam(param));
     }
     for (Parameter param : delParameters) {
-      sb.append(itemParam("Delete ", param));
+      sb.append(itemParam(I18n.getMessage("action.delete") + " ", param));
     }
     return sb.toString();
   }
@@ -275,16 +289,18 @@ public class ConsoleRender implements Render {
         + "- "
         + title
         + param.getName()
-        + " in "
+        + " "
+        + I18n.getMessage("in")
+        + " "
         + param.getIn()
         + System.lineSeparator();
   }
 
   private String li_changedParam(ChangedParameter changeParam) {
     if (changeParam.isDeprecated()) {
-      return itemParam("Deprecated ", changeParam.getNewParameter());
+      return itemParam(I18n.getMessage("action.deprecated") + " ", changeParam.getNewParameter());
     } else {
-      return itemParam("Changed ", changeParam.getNewParameter());
+      return itemParam(I18n.getMessage("action.changed") + " ", changeParam.getNewParameter());
     }
   }
 
@@ -309,7 +325,12 @@ public class ConsoleRender implements Render {
   }
 
   private String ul_operation_id(ChangedOperationId operationId) {
-    return String.format("    - Changed %s to %s\n", operationId.getLeft(), operationId.getRight());
+    return String.format(
+        "    - %s %s %s %s\n",
+        I18n.getMessage("action.changed"),
+        operationId.getLeft(),
+        I18n.getMessage("to"),
+        operationId.getRight());
   }
 
   public String renderBody(String ol_new, String ol_miss, String ol_deprec, String ol_changed) {
@@ -329,10 +350,54 @@ public class ConsoleRender implements Render {
     String little = StringUtils.repeat(ch, 2);
     return String.format(
         "%s%s%s%s%n%s",
-        separator(ch), little, StringUtils.center(title, LINE_LENGTH - 4), little, separator(ch));
+        separator(ch), little, centerCjk(title, LINE_LENGTH - 4), little, separator(ch));
   }
 
   public String separator(char ch) {
     return StringUtils.repeat(ch, LINE_LENGTH) + System.lineSeparator();
+  }
+
+  static int displayWidth(String text) {
+    if (text == null) {
+      return 0;
+    }
+    int width = 0;
+    for (int i = 0; i < text.length(); i++) {
+      char c = text.charAt(i);
+      if (isFullWidth(c)) {
+        width += 2;
+      } else {
+        width += 1;
+      }
+    }
+    return width;
+  }
+
+  static boolean isFullWidth(char c) {
+    return (c >= '\u1100' && c <= '\u115F')
+        || (c >= '\u2E80' && c <= '\u303E')
+        || (c >= '\u3040' && c <= '\u33BF')
+        || (c >= '\u3400' && c <= '\u4DBF')
+        || (c >= '\u4E00' && c <= '\u9FFF')
+        || (c >= '\uA960' && c <= '\uA97F')
+        || (c >= '\uAC00' && c <= '\uD7FF')
+        || (c >= '\uF900' && c <= '\uFAFF')
+        || (c >= '\uFE30' && c <= '\uFE4F')
+        || (c >= '\uFF00' && c <= '\uFF60')
+        || (c >= '\uFFE0' && c <= '\uFFE6');
+  }
+
+  static String centerCjk(String text, int width) {
+    if (text == null) {
+      text = "";
+    }
+    int textWidth = displayWidth(text);
+    if (textWidth >= width) {
+      return text;
+    }
+    int totalPadding = width - textWidth;
+    int leftPadding = totalPadding / 2;
+    int rightPadding = totalPadding - leftPadding;
+    return StringUtils.repeat(' ', leftPadding) + text + StringUtils.repeat(' ', rightPadding);
   }
 }

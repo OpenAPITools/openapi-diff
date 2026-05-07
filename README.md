@@ -1,29 +1,29 @@
-# OpenAPI-diff 
+# OpenAPI-diff
 
 Compare two OpenAPI specifications (3.x) and render the difference to HTML plain text, Markdown files, or JSON files.
 
-[![Build](https://github.com/OpenAPITools/openapi-diff/workflows/Main%20Build/badge.svg)](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3A"Main+Build")
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenAPITools_openapi-diff&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenAPITools_openapi-diff)
+[Build](https://github.com/OpenAPITools/openapi-diff/actions?query=branch%3Amaster+workflow%3A"Main+Build")
+[Quality Gate Status](https://sonarcloud.io/dashboard?id=OpenAPITools_openapi-diff)
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.openapitools.openapidiff/openapi-diff-core)](https://search.maven.org/artifact/org.openapitools.openapidiff/openapi-diff-core)
+[Maven Central](https://search.maven.org/artifact/org.openapitools.openapidiff/openapi-diff-core)
 
-[![Contribute with Gitpod](https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/OpenAPITools/openapi-diff)
-[![Join the Slack chat room](https://img.shields.io/badge/Slack-Join%20the%20chat%20room-orange)](https://join.slack.com/t/openapi-generator/shared_invite/zt-12jxxd7p2-XUeQM~4pzsU9x~eGLQqX2g)
+[Contribute with Gitpod](https://gitpod.io/#https://github.com/OpenAPITools/openapi-diff)
+[Join the Slack chat room](https://join.slack.com/t/openapi-generator/shared_invite/zt-12jxxd7p2-XUeQM~4pzsU9x~eGLQqX2g)
 
-[![Docker Automated build](https://img.shields.io/docker/automated/openapitools/openapi-diff)](https://hub.docker.com/r/openapitools/openapi-diff)
-[![Docker Image Version](https://img.shields.io/docker/v/openapitools/openapi-diff?sort=semver)](https://hub.docker.com/r/openapitools/openapi-diff/tags)
+[Docker Automated build](https://hub.docker.com/r/openapitools/openapi-diff)
+[Docker Image Version](https://hub.docker.com/r/openapitools/openapi-diff/tags)
 
 # Requirements
 
-* Java 8
+- Java 8
 
 # Feature
 
-* Supports OpenAPI spec v3.0.
-* In-depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
-* Supports swagger api Authorization
-* Render difference of property with Expression Language
-* HTML, Markdown, Asciidoc & JSON render
+- Supports OpenAPI spec v3.0.
+- In-depth comparison of parameters, responses, endpoint, http method (GET,POST,PUT,DELETE...)
+- Supports swagger api Authorization
+- Render difference of property with Expression Language
+- HTML, Markdown, Asciidoc & JSON render
 
 # Maven
 
@@ -38,11 +38,13 @@ Available on [Maven Central](https://search.maven.org/artifact/org.openapitools.
 ```
 
 # Homebrew
+
 Available for Mac users on [brew](https://formulae.brew.sh/formula/openapi-diff)
 
 ```bash
 brew install openapi-diff
 ```
+
 Usage instructions in [Usage -> Command line](#command-line)
 
 # Docker
@@ -211,6 +213,7 @@ ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec, null, optio
 ### Render difference
 
 ---
+
 #### HTML
 
 ```java
@@ -500,7 +503,8 @@ openapi-diff is released under the Apache License 2.0.
 
 # Thanks
 
-* Adarsh Sharma / [adarshsharma](https://github.com/adarshsharma)
-* Quentin Desramé / [quen2404](https://github.com/quen2404)
-* [Sayi](https://github.com/Sayi) for his project [swagger-diff](https://github.com/Sayi/swagger-diff) 
-  which was a source of inspiration for this tool
+- Adarsh Sharma / [adarshsharma](https://github.com/adarshsharma)
+- Quentin Desramé / [quen2404](https://github.com/quen2404)
+- [Sayi](https://github.com/Sayi) for his project [swagger-diff](https://github.com/Sayi/swagger-diff) 
+which was a source of inspiration for this tool
+

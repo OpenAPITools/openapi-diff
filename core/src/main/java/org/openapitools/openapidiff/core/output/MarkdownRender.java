@@ -57,11 +57,12 @@ public class MarkdownRender implements Render {
         diff.getNewSpecOpenApi().getInfo().getTitle(),
         diff.getNewSpecOpenApi().getInfo().getVersion(),
         outputStreamWriter);
-    listEndpoints("What's New", diff.getNewEndpoints(), outputStreamWriter);
-    listEndpoints("What's Deleted", diff.getMissingEndpoints(), outputStreamWriter);
-    listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints(), outputStreamWriter);
+    listEndpoints(I18n.getMessage("whats.new"), diff.getNewEndpoints(), outputStreamWriter);
+    listEndpoints(I18n.getMessage("whats.deleted"), diff.getMissingEndpoints(), outputStreamWriter);
+    listEndpoints(
+        I18n.getMessage("whats.deprecated"), diff.getDeprecatedEndpoints(), outputStreamWriter);
     listEndpoints(diff.getChangedOperations(), outputStreamWriter);
-    changeSummary("Result", diff, outputStreamWriter);
+    changeSummary(I18n.getMessage("result"), diff, outputStreamWriter);
     try {
       outputStreamWriter.close();
     } catch (IOException e) {
@@ -82,11 +83,11 @@ public class MarkdownRender implements Render {
     safelyAppend(outputStreamWriter, sectionTitle(title));
 
     if (diff.isUnchanged()) {
-      safelyAppend(outputStreamWriter, "No differences. Specifications are equivalent");
+      safelyAppend(outputStreamWriter, I18n.getMessage("no.differences"));
     } else if (diff.isCompatible()) {
-      safelyAppend(outputStreamWriter, "API changes are backward compatible");
+      safelyAppend(outputStreamWriter, I18n.getMessage("api.changes.backward.compatible"));
     } else {
-      safelyAppend(outputStreamWriter, "API changes broke backward compatibility");
+      safelyAppend(outputStreamWriter, I18n.getMessage("api.changes.broke.compatibility"));
     }
 
     safelyAppend(outputStreamWriter, "\n\n");
@@ -124,7 +125,7 @@ public class MarkdownRender implements Render {
     if (null == changedOperations || changedOperations.isEmpty()) {
       return;
     }
-    safelyAppend(outputStreamWriter, sectionTitle("What's Changed"));
+    safelyAppend(outputStreamWriter, sectionTitle(I18n.getMessage("whats.changed")));
     changedOperations.forEach(
         operation -> {
           safelyAppend(
@@ -134,22 +135,23 @@ public class MarkdownRender implements Render {
                   operation.getPathUrl(),
                   operation.getSummary()));
           if (result(operation.getOperationId()).isDifferent()) {
-            safelyAppend(outputStreamWriter, titleH5("Operation ID:"));
+            safelyAppend(outputStreamWriter, titleH5(I18n.getMessage("operation.id") + ":"));
             safelyAppend(outputStreamWriter, operationId(operation.getOperationId()));
           }
           if (result(operation.getParameters()).isDifferent()) {
-            safelyAppend(outputStreamWriter, titleH5("Parameters:"));
+            safelyAppend(outputStreamWriter, titleH5(I18n.getMessage("parameters") + ":"));
             safelyAppend(outputStreamWriter, parameters(operation.getParameters()));
           }
           if (operation.resultRequestBody().isDifferent()) {
-            safelyAppend(outputStreamWriter, titleH5("Request:"));
+            safelyAppend(outputStreamWriter, titleH5(I18n.getMessage("request") + ":"));
             safelyAppend(
                 outputStreamWriter,
-                metadata("Description", operation.getRequestBody().getDescription()));
+                metadata(
+                    I18n.getMessage("description"), operation.getRequestBody().getDescription()));
             safelyAppend(outputStreamWriter, bodyContent(operation.getRequestBody().getContent()));
           }
           if (operation.resultApiResponses().isDifferent()) {
-            safelyAppend(outputStreamWriter, titleH5("Return Type:"));
+            safelyAppend(outputStreamWriter, titleH5(I18n.getMessage("return.type") + ":"));
             safelyAppend(outputStreamWriter, responses(operation.getApiResponses()));
           }
         });
@@ -157,8 +159,8 @@ public class MarkdownRender implements Render {
 
   protected String responses(ChangedApiResponse changedApiResponse) {
     StringBuilder sb = new StringBuilder("\n");
-    sb.append(listResponse("New response", changedApiResponse.getIncreased()));
-    sb.append(listResponse("Deleted response", changedApiResponse.getMissing()));
+    sb.append(listResponse(I18n.getMessage("new.response"), changedApiResponse.getIncreased()));
+    sb.append(listResponse(I18n.getMessage("deleted.response"), changedApiResponse.getMissing()));
     changedApiResponse.getChanged().entrySet().stream()
         .map(e -> this.itemResponse(e.getKey(), e.getValue()))
         .forEach(sb::append);
@@ -181,7 +183,7 @@ public class MarkdownRender implements Render {
     StringBuilder sb = new StringBuilder();
     sb.append(
         this.itemResponse(
-            "Changed response",
+            I18n.getMessage("changed.response"),
             code,
             null == response.getNewApiResponse()
                 ? ""
@@ -207,8 +209,8 @@ public class MarkdownRender implements Render {
   protected String headers(ChangedHeaders headers) {
     StringBuilder sb = new StringBuilder();
     if (headers != null) {
-      sb.append(listHeader("New header", headers.getIncreased()))
-          .append(listHeader("Deleted header", headers.getMissing()));
+      sb.append(listHeader(I18n.getMessage("new.header"), headers.getIncreased()))
+          .append(listHeader(I18n.getMessage("deleted.header"), headers.getMissing()));
       headers.getChanged().entrySet().stream()
           .map(e -> this.itemHeader(e.getKey(), e.getValue()))
           .forEach(sb::append);
@@ -230,7 +232,7 @@ public class MarkdownRender implements Render {
 
   protected String itemHeader(String code, ChangedHeader header) {
     return this.itemHeader(
-        "Changed header",
+        I18n.getMessage("changed.header"),
         code,
         null == header.getNewHeader() ? "" : header.getNewHeader().getDescription());
   }
@@ -244,8 +246,10 @@ public class MarkdownRender implements Render {
       return "";
     }
     StringBuilder sb = new StringBuilder("\n");
-    sb.append(listContent(prefix, "New content type", changedContent.getIncreased()));
-    sb.append(listContent(prefix, "Deleted content type", changedContent.getMissing()));
+    sb.append(
+        listContent(prefix, I18n.getMessage("new.content.type"), changedContent.getIncreased()));
+    sb.append(
+        listContent(prefix, I18n.getMessage("deleted.content.type"), changedContent.getMissing()));
     final int deepness;
     if (StringUtils.isNotBlank(prefix)) {
       deepness = 1;
@@ -279,7 +283,7 @@ public class MarkdownRender implements Render {
   }
 
   protected String itemContent(int deepness, String mediaType, ChangedMediaType content) {
-    String result = itemContent("Changed content type", mediaType);
+    String result = itemContent(I18n.getMessage("changed.content.type"), mediaType);
     if (content.getSchema() != null) {
       result += schema(deepness, content.getSchema());
     }
@@ -296,18 +300,31 @@ public class MarkdownRender implements Render {
         .getMissing()
         .keySet()
         .forEach(
-            key -> sb.append(format("%sDeleted '%s' %s\n", indent(deepness), key, discriminator)));
+            key ->
+                sb.append(
+                    format(
+                        "%s%s '%s' %s\n",
+                        indent(deepness), I18n.getMessage("action.deleted"), key, discriminator)));
     schema
         .getIncreased()
         .forEach(
             (key, sub) ->
-                sb.append(format("%sAdded '%s' %s:\n", indent(deepness), key, discriminator))
+                sb.append(
+                        format(
+                            "%s%s '%s' %s:\n",
+                            indent(deepness), I18n.getMessage("action.added"), key, discriminator))
                     .append(schema(deepness, sub, schema.getContext())));
     schema
         .getChanged()
         .forEach(
             (key, sub) ->
-                sb.append(format("%sUpdated `%s` %s:\n", indent(deepness), key, discriminator))
+                sb.append(
+                        format(
+                            "%s%s `%s` %s:\n",
+                            indent(deepness),
+                            I18n.getMessage("action.updated"),
+                            key,
+                            discriminator))
                     .append(schema(deepness, sub)));
     return sb.toString();
   }
@@ -335,24 +352,32 @@ public class MarkdownRender implements Render {
       sb.append(oneOfSchema(deepness, schema.getOneOfSchema(), discriminator));
     }
     if (schema.getRequired() != null) {
-      sb.append(required(deepness, "New required properties", schema.getRequired().getIncreased()));
-      sb.append(required(deepness, "New optional properties", schema.getRequired().getMissing()));
+      sb.append(
+          required(
+              deepness,
+              I18n.getMessage("new.required.properties"),
+              schema.getRequired().getIncreased()));
+      sb.append(
+          required(
+              deepness,
+              I18n.getMessage("new.optional.properties"),
+              schema.getRequired().getMissing()));
     }
     if (schema.getItems() != null) {
       sb.append(items(deepness, schema.getItems()));
     }
-    sb.append(listDiff(deepness, "enum", schema.getEnumeration()));
+    sb.append(listDiff(deepness, I18n.getMessage("enum"), schema.getEnumeration()));
     sb.append(
         properties(
             deepness,
-            "Added property",
+            I18n.getMessage("added.property"),
             schema.getIncreasedProperties(),
             true,
             schema.getContext()));
     sb.append(
         properties(
             deepness,
-            "Deleted property",
+            I18n.getMessage("deleted.property"),
             schema.getMissingProperties(),
             false,
             schema.getContext()));
@@ -372,7 +397,7 @@ public class MarkdownRender implements Render {
     }
     if (schema.getOneOf() != null) {
       LOGGER.debug("One of schema");
-      sb.append(format("%sOne of:\n\n", indent(deepness)));
+      sb.append(format("%s%s:\n\n", indent(deepness), I18n.getMessage("one.of")));
       schema.getOneOf().stream()
           .map(this::resolve)
           .forEach(composedChild -> sb.append(schema(deepness + 1, composedChild, context)));
@@ -384,8 +409,9 @@ public class MarkdownRender implements Render {
     if (handledSchemas.contains(schema)) return "";
     handledSchemas.add(schema);
     StringBuilder sb = new StringBuilder();
-    sb.append(listItem(deepness, "Enum", schema.getEnum()));
-    sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
+    sb.append(listItem(deepness, I18n.getMessage("enum.label"), schema.getEnum()));
+    sb.append(
+        properties(deepness, I18n.getMessage("property"), schema.getProperties(), true, context));
     if (schema instanceof ComposedSchema) {
       sb.append(schema(deepness, (ComposedSchema) schema, context));
     } else if (schema instanceof ArraySchema) {
@@ -400,13 +426,18 @@ public class MarkdownRender implements Render {
     if (schema.isChangedType()) {
       type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
     }
-    sb.append(items(deepness, "Changed items", type, schema.getNewSchema().getDescription()));
+    sb.append(
+        items(
+            deepness,
+            I18n.getMessage("changed.items"),
+            type,
+            schema.getNewSchema().getDescription()));
     sb.append(schema(deepness, schema));
     return sb.toString();
   }
 
   protected String items(int deepness, Schema<?> schema, DiffContext context) {
-    return items(deepness, "Items", type(schema), schema.getDescription())
+    return items(deepness, I18n.getMessage("items"), type(schema), schema.getDescription())
         + schema(deepness, schema, context);
   }
 
@@ -450,7 +481,12 @@ public class MarkdownRender implements Render {
       type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
     }
     sb.append(
-        property(deepness, "Changed property", name, type, schema.getNewSchema().getDescription()));
+        property(
+            deepness,
+            I18n.getMessage("changed.property"),
+            name,
+            type,
+            schema.getNewSchema().getDescription()));
     sb.append(schema(++deepness, schema));
     return sb.toString();
   }
@@ -470,14 +506,16 @@ public class MarkdownRender implements Render {
     if (listDiff == null) {
       return "";
     }
-    return listItem(deepness, "Added " + name, listDiff.getIncreased())
-        + listItem(deepness, "Removed " + name, listDiff.getMissing());
+    return listItem(deepness, I18n.getMessage("action.added") + " " + name, listDiff.getIncreased())
+        + listItem(deepness, I18n.getMessage("action.removed") + " " + name, listDiff.getMissing());
   }
 
   protected <T> String listItem(int deepness, String name, List<T> list) {
     StringBuilder sb = new StringBuilder();
     if (list != null && !list.isEmpty()) {
-      sb.append(format("%s%s value%s:\n\n", indent(deepness), name, list.size() > 1 ? "s" : ""));
+      String valueWord =
+          list.size() > 1 ? I18n.getMessage("value.plural") : I18n.getMessage("value.singular");
+      sb.append(format("%s%s %s:\n\n", indent(deepness), name, valueWord));
       list.forEach(p -> sb.append(format("%s* `%s`\n", indent(deepness), p)));
     }
     return sb.toString();
@@ -486,8 +524,8 @@ public class MarkdownRender implements Render {
   protected String parameters(ChangedParameters changedParameters) {
     List<ChangedParameter> changed = changedParameters.getChanged();
     StringBuilder sb = new StringBuilder("\n");
-    sb.append(listParameter("Added", changedParameters.getIncreased()))
-        .append(listParameter("Deleted", changedParameters.getMissing()));
+    sb.append(listParameter(I18n.getMessage("action.added"), changedParameters.getIncreased()))
+        .append(listParameter(I18n.getMessage("action.deleted"), changedParameters.getMissing()));
     changed.stream().map(this::itemParameter).forEach(sb::append);
     return sb.toString();
   }
@@ -506,7 +544,9 @@ public class MarkdownRender implements Render {
   protected String itemParameter(String title, String name, String in, String description) {
     return format("%s: ", title)
         + code(name)
-        + " in "
+        + " "
+        + I18n.getMessage("in")
+        + " "
         + code(in)
         + '\n'
         + metadata(description)
@@ -517,10 +557,16 @@ public class MarkdownRender implements Render {
     Parameter rightParam = param.getNewParameter();
     if (param.isDeprecated()) {
       return itemParameter(
-          "Deprecated", rightParam.getName(), rightParam.getIn(), rightParam.getDescription());
+          I18n.getMessage("action.deprecated"),
+          rightParam.getName(),
+          rightParam.getIn(),
+          rightParam.getDescription());
     }
     return itemParameter(
-        "Changed", rightParam.getName(), rightParam.getIn(), rightParam.getDescription());
+        I18n.getMessage("action.changed"),
+        rightParam.getName(),
+        rightParam.getIn(),
+        rightParam.getDescription());
   }
 
   protected String code(String string) {
@@ -537,9 +583,11 @@ public class MarkdownRender implements Render {
     }
     if (!isUnchanged(changedMetadata) && showChangedMetadata) {
       return format(
-          "Changed %s:\n%s\nto:\n%s\n\n",
+          "%s %s:\n%s\n%s:\n%s\n\n",
+          I18n.getMessage("action.changed"),
           name,
           metadata(beginning, changedMetadata.getLeft()),
+          I18n.getMessage("to"),
           metadata(beginning, changedMetadata.getRight()));
     } else {
       return metadata(beginning, name, changedMetadata.getRight());
@@ -548,7 +596,11 @@ public class MarkdownRender implements Render {
 
   protected String operationId(ChangedOperationId operationId) {
     return String.format(
-        "\nChanged: %s to %s\n\n", code(operationId.getLeft()), code(operationId.getRight()));
+        "\n%s: %s %s %s\n\n",
+        I18n.getMessage("action.changed"),
+        code(operationId.getLeft()),
+        I18n.getMessage("to"),
+        code(operationId.getRight()));
   }
 
   protected String metadata(String metadata) {

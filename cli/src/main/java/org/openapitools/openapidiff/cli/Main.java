@@ -22,6 +22,7 @@ import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.output.AsciidocRender;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.HtmlRender;
+import org.openapitools.openapidiff.core.output.I18n;
 import org.openapitools.openapidiff.core.output.JsonRender;
 import org.openapitools.openapidiff.core.output.MarkdownRender;
 import org.slf4j.Logger;
@@ -143,6 +144,13 @@ public class Main {
             .argName("file")
             .desc("export diff as json in given file")
             .build());
+    options.addOption(
+        Option.builder()
+            .longOpt("lang")
+            .hasArg()
+            .argName("language")
+            .desc("output language (en, zh-Hant, zh-CN). Default: en")
+            .build());
 
     // create the parser
     CommandLineParser parser = new DefaultParser();
@@ -155,8 +163,12 @@ public class Main {
       }
       if (line.hasOption("version") || line.hasOption("v")) {
         String version = Main.class.getPackage().getImplementationVersion();
-        System.out.println("openapi-diff version: " + (version != null ? version : "DEV"));
+        System.out.println(
+            I18n.getMessage("cli.version.prefix") + " " + (version != null ? version : "DEV"));
         System.exit(0);
+      }
+      if (line.hasOption("lang")) {
+        I18n.setLocale(I18n.parseLocale(line.getOptionValue("lang")));
       }
       String logLevel = "ERROR";
       if (line.hasOption("off")) {
@@ -185,10 +197,7 @@ public class Main {
             && !logLevel.equalsIgnoreCase("WARN")
             && !logLevel.equalsIgnoreCase("ERROR")
             && !logLevel.equalsIgnoreCase("OFF")) {
-          throw new ParseException(
-              String.format(
-                  "Invalid log level. Expected: [TRACE, DEBUG, INFO, WARN, ERROR, OFF]. Given: %s",
-                  logLevel));
+          throw new ParseException(I18n.getMessage("cli.invalid.log.level", logLevel));
         }
       }
       if (line.hasOption("state")) {
@@ -199,7 +208,7 @@ public class Main {
       root.setLevel(Level.toLevel(logLevel));
 
       if (line.getArgList().size() < 2) {
-        throw new ParseException("Missing arguments");
+        throw new ParseException(I18n.getMessage("cli.missing.arguments"));
       }
       String oldPath = line.getArgList().get(0);
       String newPath = line.getArgList().get(1);
@@ -223,7 +232,8 @@ public class Main {
         for (String propKeyAndVal : configProps) {
           String[] split = propKeyAndVal.split(":");
           if (split.length != 2 || split[0].isEmpty() || split[1].isEmpty()) {
-            throw new IllegalArgumentException("--config-prop unexpected format: " + propKeyAndVal);
+            throw new IllegalArgumentException(
+                I18n.getMessage("cli.config.prop.unexpected.format") + " " + propKeyAndVal);
           }
           optionBuilder.configProperty(split[0], split[1]);
         }
@@ -283,12 +293,13 @@ public class Main {
       }
     } catch (ParseException e) {
       // oops, something went wrong
-      System.err.println("Parsing failed. Reason: " + e.getMessage());
+      System.err.println(I18n.getMessage("cli.parsing.failed") + " " + e.getMessage());
       printHelp(options);
       System.exit(2);
     } catch (Exception e) {
       System.err.println(
-          "Unexpected exception. Reason: "
+          I18n.getMessage("cli.unexpected.exception")
+              + " "
               + e.getMessage()
               + "\n"
               + ExceptionUtils.getStackTrace(e));

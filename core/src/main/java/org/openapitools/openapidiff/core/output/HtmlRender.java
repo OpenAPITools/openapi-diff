@@ -72,11 +72,15 @@ public class HtmlRender implements Render {
   protected ChangedOpenApi diff;
 
   public HtmlRender() {
-    this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css");
+    this(
+        I18n.getMessage("api.change.log"), "http://deepoove.com/swagger-diff/stylesheets/demo.css");
   }
 
   public HtmlRender(boolean showAllChanges) {
-    this("Api Change Log", "http://deepoove.com/swagger-diff/stylesheets/demo.css", showAllChanges);
+    this(
+        I18n.getMessage("api.change.log"),
+        "http://deepoove.com/swagger-diff/stylesheets/demo.css",
+        showAllChanges);
   }
 
   public HtmlRender(String title, String linkCss) {
@@ -118,7 +122,7 @@ public class HtmlRender implements Render {
       OutputStreamWriter outputStreamWriter) {
     HtmlTag html =
         html()
-            .attr("lang", "en")
+            .attr("lang", I18n.getLocale().toLanguageTag())
             .with(
                 head()
                     .with(
@@ -131,10 +135,13 @@ public class HtmlRender implements Render {
                         div()
                             .withClass("article")
                             .with(
-                                div().with(h2("What's New"), hr(), ol_new),
-                                div().with(h2("What's Deleted"), hr(), ol_miss),
-                                div().with(h2("What's Deprecated"), hr(), ol_deprec),
-                                div().with(h2("What's Changed"), hr(), ol_changed))));
+                                div().with(h2(I18n.getMessage("whats.new")), hr(), ol_new),
+                                div().with(h2(I18n.getMessage("whats.deleted")), hr(), ol_miss),
+                                div()
+                                    .with(h2(I18n.getMessage("whats.deprecated")), hr(), ol_deprec),
+                                div()
+                                    .with(
+                                        h2(I18n.getMessage("whats.changed")), hr(), ol_changed))));
 
     try {
       FlatHtml<OutputStreamWriter> flatHtml = FlatHtml.into(outputStreamWriter);
@@ -205,24 +212,27 @@ public class HtmlRender implements Render {
       UlTag ul_detail = ul().withClass("detail");
       if (result(changedOperation.getOperationId()).isDifferent()) {
         ul_detail.with(
-            li().with(h3("Operation ID")).with(ul_operation_id(changedOperation.getOperationId())));
+            li().with(h3(I18n.getMessage("operation.id")))
+                .with(ul_operation_id(changedOperation.getOperationId())));
       }
       if (result(changedOperation.getParameters()).isDifferent()) {
         ul_detail.with(
-            li().with(h3("Parameters")).with(ul_param(changedOperation.getParameters())));
+            li().with(h3(I18n.getMessage("parameters")))
+                .with(ul_param(changedOperation.getParameters())));
       }
       if (changedOperation.resultRequestBody().isDifferent()) {
         ul_detail.with(
-            li().with(h3("Request"))
+            li().with(h3(I18n.getMessage("request")))
                 .with(ul_request(changedOperation.getRequestBody().getContent())));
       }
       if (changedOperation.resultApiResponses().isDifferent()) {
         ul_detail.with(
-            li().with(h3("Response")).with(ul_response(changedOperation.getApiResponses())));
+            li().with(h3(I18n.getMessage("response")))
+                .with(ul_response(changedOperation.getApiResponses())));
       }
       if (showAllChanges && changedOperation.resultSecurityRequirements().isDifferent()) {
         ul_detail.with(
-            li().with(h3("Security Requirements"))
+            li().with(h3(I18n.getMessage("security.requirements")))
                 .with(ul_securityRequirements(changedOperation.getSecurityRequirements())));
       }
       ol.with(
@@ -259,18 +269,18 @@ public class HtmlRender implements Render {
   }
 
   private LiTag li_addSecurityRequirement(SecurityRequirement securityRequirement) {
-    return li().withText("New security requirement : ")
+    return li().withText(I18n.getMessage("new.security.requirement") + " ")
         .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
   }
 
   private LiTag li_missingSecurityRequirement(SecurityRequirement securityRequirement) {
-    return li().withText("Deleted security requirement : ")
+    return li().withText(I18n.getMessage("deleted.security.requirement") + " ")
         .with(span(null == securityRequirement.toString() ? "" : (securityRequirement.toString())));
   }
 
   private LiTag li_changedSecurityRequirement(
       ChangedSecurityRequirement changedSecurityRequirement) {
-    return li().withText(String.format("Changed security requirement : "))
+    return li().withText(I18n.getMessage("changed.security.requirement") + " ")
         .with(
             span(
                 (null == changedSecurityRequirement.getNewSecurityRequirement()
@@ -298,21 +308,21 @@ public class HtmlRender implements Render {
   }
 
   private LiTag li_addResponse(String name, ApiResponse response) {
-    return li().withText(String.format("New response : [%s]", name))
+    return li().withText(I18n.getMessage("new.response.code", name))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
                 .withClass(COMMENT));
   }
 
   private LiTag li_missingResponse(String name, ApiResponse response) {
-    return li().withText(String.format("Deleted response : [%s]", name))
+    return li().withText(I18n.getMessage("deleted.response.code", name))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
                 .withClass(COMMENT));
   }
 
   private LiTag li_changedResponse(String name, ChangedResponse response) {
-    return li().withText(String.format("Changed response : [%s]", name))
+    return li().withText(I18n.getMessage("changed.response.code", name))
         .with(
             span((null == response.getNewApiResponse()
                         || null == response.getNewApiResponse().getDescription())
@@ -339,15 +349,15 @@ public class HtmlRender implements Render {
   }
 
   private LiTag li_addRequest(String name, MediaType request) {
-    return li().withText(String.format("New body: '%s'", name));
+    return li().withText(I18n.getMessage("new.body", name));
   }
 
   private LiTag li_missingRequest(String name, MediaType request) {
-    return li().withText(String.format("Deleted body: '%s'", name));
+    return li().withText(I18n.getMessage("deleted.body", name));
   }
 
   private LiTag li_changedRequest(String name, ChangedMediaType request) {
-    LiTag li = li().withText(String.format("Changed body: '%s'", name));
+    LiTag li = li().withText(I18n.getMessage("changed.body", name));
     ChangedSchema schema = request.getSchema();
     if (schema != null) {
       li.with(div_changedSchema(schema));
@@ -362,7 +372,10 @@ public class HtmlRender implements Render {
 
   private DivTag div_changedSchema(ChangedSchema schema) {
     DivTag div = div();
-    div.with(h3("Schema" + (schema.isIncompatible() ? " incompatible" : "")));
+    div.with(
+        h3(
+            I18n.getMessage("schema")
+                + (schema.isIncompatible() ? " " + I18n.getMessage("schema.incompatible") : "")));
     return div;
   }
 
@@ -374,12 +387,24 @@ public class HtmlRender implements Render {
       final ContainerTag<?> output, String propName, final ChangedSchema schema) {
     String prefix = propName.isEmpty() ? "" : propName + ".";
     properties(
-        output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
+        output,
+        prefix,
+        I18n.getMessage("missing.property"),
+        schema.getMissingProperties(),
+        schema.getContext());
     properties(
-        output, prefix, "Added property", schema.getIncreasedProperties(), schema.getContext());
+        output,
+        prefix,
+        I18n.getMessage("added.property"),
+        schema.getIncreasedProperties(),
+        schema.getContext());
 
     propertiesChanged(
-        output, prefix, "Changed property", schema.getChangedProperties(), schema.getContext());
+        output,
+        prefix,
+        I18n.getMessage("changed.property"),
+        schema.getChangedProperties(),
+        schema.getContext());
     if (schema.getItems() != null) {
       itemsAllChanges(output, propName, schema.getItems());
     }
@@ -399,11 +424,15 @@ public class HtmlRender implements Render {
     }
     if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
       String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
-      property(output, propName, "Changed property type", type);
+      property(output, propName, I18n.getMessage("changed.property.type"), type);
     }
     String prefix = propName.isEmpty() ? "" : propName + ".";
     properties(
-        output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
+        output,
+        prefix,
+        I18n.getMessage("missing.property"),
+        schema.getMissingProperties(),
+        schema.getContext());
     schema
         .getChangedProperties()
         .forEach((name, property) -> incompatibilities(output, prefix + name, property));
@@ -511,7 +540,14 @@ public class HtmlRender implements Render {
   }
 
   private LiTag li_addParam(Parameter param) {
-    return li().withText("Add " + param.getName() + " in " + param.getIn())
+    return li().withText(
+            I18n.getMessage("action.add")
+                + " "
+                + param.getName()
+                + " "
+                + I18n.getMessage("in")
+                + " "
+                + param.getIn())
         .with(
             span(null == param.getDescription() ? "" : ("//" + param.getDescription()))
                 .withClass(COMMENT));
@@ -519,9 +555,9 @@ public class HtmlRender implements Render {
 
   private LiTag li_missingParam(Parameter param) {
     return li().withClass(MISSING)
-        .with(span("Delete"))
+        .with(span(I18n.getMessage("action.delete")))
         .with(del(param.getName()))
-        .with(span("in ").withText(param.getIn()))
+        .with(span(I18n.getMessage("in") + " ").withText(param.getIn()))
         .with(
             span(null == param.getDescription() ? "" : ("//" + param.getDescription()))
                 .withClass(COMMENT));
@@ -529,9 +565,9 @@ public class HtmlRender implements Render {
 
   private LiTag li_deprecatedParam(ChangedParameter param) {
     return li().withClass(MISSING)
-        .with(span("Deprecated"))
+        .with(span(I18n.getMessage("action.deprecated")))
         .with(del(param.getName()))
-        .with(span("in ").withText(param.getIn()))
+        .with(span(I18n.getMessage("in") + " ").withText(param.getIn()))
         .with(
             span(null == param.getNewParameter().getDescription()
                     ? ""
@@ -550,18 +586,22 @@ public class HtmlRender implements Render {
             .orElse(false);
     Parameter rightParam = changeParam.getNewParameter();
     Parameter leftParam = changeParam.getOldParameter();
-    LiTag li = li().withText(changeParam.getName() + " in " + changeParam.getIn());
+    LiTag li =
+        li().withText(
+                changeParam.getName() + " " + I18n.getMessage("in") + " " + changeParam.getIn());
     if (changeRequired) {
       li.withText(
-          " change into "
+          " "
+              + I18n.getMessage("change.into")
+              + " "
               + (rightParam.getRequired() != null && rightParam.getRequired()
-                  ? "required"
-                  : "not required"));
+                  ? I18n.getMessage("required")
+                  : I18n.getMessage("not.required")));
     }
     if (changeDescription) {
-      li.withText(" Notes ")
+      li.withText(" " + I18n.getMessage("notes") + " ")
           .with(del(leftParam.getDescription()).withClass(COMMENT))
-          .withText(" change into ")
+          .withText(" " + I18n.getMessage("change.into") + " ")
           .with(span(rightParam.getDescription()).withClass(COMMENT));
     }
     return li;
@@ -571,9 +611,12 @@ public class HtmlRender implements Render {
     return ul().withClass("change")
         .with(
             li().withText(
-                    "Changed "
+                    I18n.getMessage("action.changed")
+                        + " "
                         + Optional.ofNullable(changedOperationId.getLeft()).orElse("")
-                        + " to "
+                        + " "
+                        + I18n.getMessage("to")
+                        + " "
                         + Optional.ofNullable(changedOperationId.getRight()).orElse("")));
   }
 }

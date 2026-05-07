@@ -46,7 +46,7 @@ public class AsciidocRender implements Render {
               diff.getNewSpecOpenApi().getInfo().getVersion()));
       safelyAppend(outputStreamWriter, System.lineSeparator());
       safelyAppend(outputStreamWriter, System.lineSeparator());
-      safelyAppend(outputStreamWriter, "NOTE: No differences. Specifications are equivalent");
+      safelyAppend(outputStreamWriter, I18n.getMessage("note.no.differences"));
     } else {
       safelyAppend(
           outputStreamWriter,
@@ -63,13 +63,13 @@ public class AsciidocRender implements Render {
       safelyAppend(outputStreamWriter, System.lineSeparator());
 
       List<Endpoint> newEndpoints = diff.getNewEndpoints();
-      listEndpoints(newEndpoints, "What's New", outputStreamWriter);
+      listEndpoints(newEndpoints, I18n.getMessage("whats.new"), outputStreamWriter);
 
       List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-      listEndpoints(missingEndpoints, "What's Deleted", outputStreamWriter);
+      listEndpoints(missingEndpoints, I18n.getMessage("whats.deleted"), outputStreamWriter);
 
       List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
-      listEndpoints(deprecatedEndpoints, "What's Deprecated", outputStreamWriter);
+      listEndpoints(deprecatedEndpoints, I18n.getMessage("whats.deprecated"), outputStreamWriter);
 
       List<ChangedOperation> changedOperations = diff.getChangedOperations();
       ol_changed(changedOperations, outputStreamWriter);
@@ -78,8 +78,8 @@ public class AsciidocRender implements Render {
       safelyAppend(
           outputStreamWriter,
           diff.isCompatible()
-              ? "NOTE: API changes are backward compatible"
-              : "WARNING: API changes broke backward compatibility");
+              ? I18n.getMessage("note.backward.compatible")
+              : I18n.getMessage("warning.broke.compatibility"));
       safelyAppend(outputStreamWriter, System.lineSeparator());
     }
     try {
@@ -94,7 +94,7 @@ public class AsciidocRender implements Render {
     if (null == operations || operations.isEmpty()) {
       return;
     }
-    safelyAppend(outputStreamWriter, title("What's Changed", 2));
+    safelyAppend(outputStreamWriter, title(I18n.getMessage("whats.changed"), 2));
     safelyAppend(outputStreamWriter, System.lineSeparator());
     for (ChangedOperation operation : operations) {
       String pathUrl = operation.getPathUrl();
@@ -105,30 +105,33 @@ public class AsciidocRender implements Render {
       safelyAppend(outputStreamWriter, itemEndpoint(method, pathUrl, desc));
       safelyAppend(outputStreamWriter, System.lineSeparator());
       if (result(operation.getOperationId()).isDifferent()) {
-        safelyAppend(outputStreamWriter, "* Operation ID:");
+        safelyAppend(outputStreamWriter, "* " + I18n.getMessage("operation.id") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(
             outputStreamWriter,
             String.format(
-                "** Changed %s to %s",
-                operation.getOperationId().getLeft(), operation.getOperationId().getRight()));
+                "** %s %s %s %s",
+                I18n.getMessage("action.changed"),
+                operation.getOperationId().getLeft(),
+                I18n.getMessage("to"),
+                operation.getOperationId().getRight()));
         safelyAppend(outputStreamWriter, System.lineSeparator());
       }
       if (result(operation.getParameters()).isDifferent()) {
-        safelyAppend(outputStreamWriter, "* Parameter:");
+        safelyAppend(outputStreamWriter, "* " + I18n.getMessage("parameter") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_param(operation.getParameters()));
         safelyAppend(outputStreamWriter, System.lineSeparator());
       }
       if (operation.resultRequestBody().isDifferent()) {
-        safelyAppend(outputStreamWriter, "* Request:");
+        safelyAppend(outputStreamWriter, "* " + I18n.getMessage("request") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(
             outputStreamWriter, ul_content(operation.getRequestBody().getContent(), true, 2));
         safelyAppend(outputStreamWriter, System.lineSeparator());
       }
       if (operation.resultApiResponses().isDifferent()) {
-        safelyAppend(outputStreamWriter, "* Return Type:");
+        safelyAppend(outputStreamWriter, "* " + I18n.getMessage("return.type") + ":");
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
         safelyAppend(outputStreamWriter, System.lineSeparator());
@@ -142,13 +145,15 @@ public class AsciidocRender implements Render {
     Map<String, ChangedResponse> changedResponses = changedApiResponse.getChanged();
     StringBuilder sb = new StringBuilder();
     for (String propName : addResponses.keySet()) {
-      sb.append(itemResponse("** Add ", propName));
+      sb.append(itemResponse("** " + I18n.getMessage("action.add") + " ", propName));
     }
     for (String propName : delResponses.keySet()) {
-      sb.append(itemResponse("** Deleted ", propName));
+      sb.append(itemResponse("** " + I18n.getMessage("action.deleted") + " ", propName));
     }
     for (Entry<String, ChangedResponse> entry : changedResponses.entrySet()) {
-      sb.append(itemChangedResponse("** Changed ", entry.getKey(), entry.getValue()));
+      sb.append(
+          itemChangedResponse(
+              "** " + I18n.getMessage("action.changed") + " ", entry.getKey(), entry.getValue()));
     }
     return sb.toString();
   }
@@ -165,7 +170,9 @@ public class AsciidocRender implements Render {
 
   private String itemChangedResponse(String title, String contentType, ChangedResponse response) {
     return itemResponse(title, contentType)
-        + "** Media types:"
+        + "** "
+        + I18n.getMessage("media.types")
+        + ":"
         + System.lineSeparator()
         + ul_content(response.getContent(), false, 3);
   }
@@ -176,15 +183,19 @@ public class AsciidocRender implements Render {
       return sb.toString();
     }
     for (String propName : changedContent.getIncreased().keySet()) {
-      sb.append(itemContent("Added ", propName, indent));
+      sb.append(itemContent(I18n.getMessage("action.added") + " ", propName, indent));
     }
     for (String propName : changedContent.getMissing().keySet()) {
-      sb.append(itemContent("Deleted ", propName, indent));
+      sb.append(itemContent(I18n.getMessage("action.deleted") + " ", propName, indent));
     }
     for (String propName : changedContent.getChanged().keySet()) {
       sb.append(
           itemContent(
-              "Changed ", propName, indent, changedContent.getChanged().get(propName), isRequest));
+              I18n.getMessage("action.changed") + " ",
+              propName,
+              indent,
+              changedContent.getChanged().get(propName),
+              isRequest));
     }
     return sb.toString();
   }
@@ -201,8 +212,11 @@ public class AsciidocRender implements Render {
       boolean isRequest) {
     StringBuilder sb = new StringBuilder();
     sb.append(itemContent(title, contentType, indent))
-        .append(itemContent("Schema:", "", indent))
-        .append(changedMediaType.isCompatible() ? "Backward compatible" : "Broken compatibility")
+        .append(itemContent(I18n.getMessage("schema") + ":", "", indent))
+        .append(
+            changedMediaType.isCompatible()
+                ? I18n.getMessage("backward.compatible")
+                : I18n.getMessage("broken.compatibility"))
         .append(System.lineSeparator());
     if (!changedMediaType.isCompatible() && changedMediaType.getSchema() != null) {
       sb.append(incompatibilities(changedMediaType.getSchema()));
@@ -221,13 +235,17 @@ public class AsciidocRender implements Render {
     }
     if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
       String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
-      sb.append(property(propName, "Changed property type", type));
+      sb.append(property(propName, I18n.getMessage("changed.property.type"), type));
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
     }
     String prefix = propName.isEmpty() ? "" : propName + ".";
     sb.append(
-        properties(prefix, "Missing property", schema.getMissingProperties(), schema.getContext()));
+        properties(
+            prefix,
+            I18n.getMessage("missing.property"),
+            schema.getMissingProperties(),
+            schema.getContext()));
     schema
         .getChangedProperties()
         .forEach((name, property) -> sb.append(incompatibilities(prefix + name, property)));
@@ -286,26 +304,34 @@ public class AsciidocRender implements Render {
     List<ChangedParameter> changed = changedParameters.getChanged();
     StringBuilder sb = new StringBuilder();
     for (Parameter param : addParameters) {
-      sb.append(itemParam("** Add ", param));
+      sb.append(itemParam("** " + I18n.getMessage("action.add") + " ", param));
     }
     for (ChangedParameter param : changed) {
       sb.append(li_changedParam(param));
     }
     for (Parameter param : delParameters) {
-      sb.append(itemParam("** Delete ", param));
+      sb.append(itemParam("** " + I18n.getMessage("action.delete") + " ", param));
     }
     return sb.toString();
   }
 
   private String itemParam(String title, Parameter param) {
-    return title + param.getName() + " in " + param.getIn() + System.lineSeparator();
+    return title
+        + param.getName()
+        + " "
+        + I18n.getMessage("in")
+        + " "
+        + param.getIn()
+        + System.lineSeparator();
   }
 
   private String li_changedParam(ChangedParameter changeParam) {
     if (changeParam.isDeprecated()) {
-      return itemParam("** Deprecated ", changeParam.getNewParameter());
+      return itemParam(
+          "** " + I18n.getMessage("action.deprecated") + " ", changeParam.getNewParameter());
     } else {
-      return itemParam("** Changed ", changeParam.getNewParameter());
+      return itemParam(
+          "** " + I18n.getMessage("action.changed") + " ", changeParam.getNewParameter());
     }
   }
 
