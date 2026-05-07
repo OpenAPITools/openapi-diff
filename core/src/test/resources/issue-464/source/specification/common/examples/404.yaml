@@ -1,0 +1,5 @@
+type: /problem/data-not-found
+title: Data not found
+status: 404
+detail: Requested data not found
+instance: /problem/data-not-found#requested-data-not-found

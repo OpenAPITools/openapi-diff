@@ -1,0 +1,15 @@
+type: object
+description: Product Data Model
+title: ''
+properties:
+  id:
+    type: string
+    example: Prod-00001
+    description: An unique Id of product record
+  status:
+    type: string
+    example: Active
+    enum:
+      - Active
+      - Expired
+    description: Defines the current status of the product
