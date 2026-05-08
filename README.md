@@ -8,7 +8,7 @@ Compare two OpenAPI specifications (3.x) and render the difference to HTML plain
 [![Maven Central](https://img.shields.io/maven-central/v/org.openapitools.openapidiff/openapi-diff-core)](https://search.maven.org/artifact/org.openapitools.openapidiff/openapi-diff-core)
 
 [![Contribute with Gitpod](https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/OpenAPITools/openapi-diff)
-[![Join the Slack chat room](https://img.shields.io/badge/Slack-Join%20the%20chat%20room-orange)](https://join.slack.com/t/openapi-generator/shared_invite/zt-12jxxd7p2-XUeQM~4pzsU9x~eGLQqX2g)
+[![Join the Slack chat room](https://img.shields.io/badge/Slack-Join%20the%20chat%20room-orange)](https://join.slack.com/t/openapi-generator/shared_invite/zt-36ucx4ybl-jYrN6euoYn6zxXNZdldoZA)
 
 [![Docker Automated build](https://img.shields.io/docker/automated/openapitools/openapi-diff)](https://hub.docker.com/r/openapitools/openapi-diff)
 [![Docker Image Version](https://img.shields.io/docker/v/openapitools/openapi-diff?sort=semver)](https://hub.docker.com/r/openapitools/openapi-diff/tags)
