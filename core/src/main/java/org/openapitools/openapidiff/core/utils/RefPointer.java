@@ -57,7 +57,10 @@ public class RefPointer<T> {
 
     final String baseRef = getBaseRefForType(refType.getName());
     if (!ref.startsWith(baseRef)) {
-      throw new IllegalArgumentException("Invalid ref: " + ref);
+      // If the ref doesn't point to something in #/components,
+      // we return it as-is.  This avoids making an assumption
+      // that we can simplify refs without collisions.
+      return ref;
     }
     return ref.substring(baseRef.length());
   }
