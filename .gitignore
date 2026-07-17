@@ -27,3 +27,6 @@ target/
 
 # OpenCode
 .opencode/
+
+# Claude Code (personal/local settings; shared config is CLAUDE.md -> AGENTS.md)
+.claude/settings.local.json
