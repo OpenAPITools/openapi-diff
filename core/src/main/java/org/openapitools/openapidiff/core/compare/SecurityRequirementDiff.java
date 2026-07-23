@@ -35,11 +35,22 @@ public class SecurityRequirementDiff {
 
   private LinkedHashMap<String, List<String>> contains(
       SecurityRequirement right, String schemeRef) {
-    SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(schemeRef);
+    Map<String, SecurityScheme> leftSchemes =
+        leftComponents != null ? leftComponents.getSecuritySchemes() : null;
+    Map<String, SecurityScheme> rightSchemes =
+        rightComponents != null ? rightComponents.getSecuritySchemes() : null;
     LinkedHashMap<String, List<String>> found = new LinkedHashMap<>();
 
+    if (leftSchemes == null || rightSchemes == null) {
+      if (right.containsKey(schemeRef)) {
+        found.put(schemeRef, right.get(schemeRef));
+      }
+      return found;
+    }
+
+    SecurityScheme leftSecurityScheme = leftSchemes.get(schemeRef);
     for (Map.Entry<String, List<String>> entry : right.entrySet()) {
-      SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(entry.getKey());
+      SecurityScheme rightSecurityScheme = rightSchemes.get(entry.getKey());
       if (leftSecurityScheme.getType() == rightSecurityScheme.getType()) {
         switch (leftSecurityScheme.getType()) {
           case APIKEY:
