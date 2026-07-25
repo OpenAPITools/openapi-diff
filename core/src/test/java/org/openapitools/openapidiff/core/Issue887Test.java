@@ -1,10 +1,9 @@
 package org.openapitools.openapidiff.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.openapitools.openapidiff.core.TestUtils.assertOpenApiAreEquals;
 
 import org.junit.jupiter.api.Test;
-import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 
 public class Issue887Test {
 
@@ -24,8 +23,7 @@ public class Issue887Test {
   }
 
   @Test
-  public void testAllOfArrayToDirectArrayIsCompatible() {
-    ChangedOpenApi diff = OpenApiCompare.fromLocations(ALLOF_ARRAY, DIRECT_ARRAY);
-    assertThat(diff.isCompatible()).isTrue();
+  public void testAllOfArrayToDirectArrayAreEquals() {
+    assertOpenApiAreEquals(ALLOF_ARRAY, DIRECT_ARRAY);
   }
 }
