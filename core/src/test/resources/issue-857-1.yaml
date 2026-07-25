@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: Sample API
+  version: 1.0.0
+paths:
+  /sample-api/{id}/actions/CAN:
+    post:
+      description: Sample description
+      operationId: cancel_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '201':
+          description: Cancel executed

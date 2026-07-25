@@ -203,6 +203,10 @@ public class HtmlRender implements Render {
               .orElse("");
 
       UlTag ul_detail = ul().withClass("detail");
+      if (result(changedOperation.getDescription()).isDifferent()) {
+        ul_detail.with(
+            li().with(h3("Description")).with(ul_metadata(changedOperation.getDescription())));
+      }
       if (result(changedOperation.getOperationId()).isDifferent()) {
         ul_detail.with(
             li().with(h3("Operation ID")).with(ul_operation_id(changedOperation.getOperationId())));
@@ -575,5 +579,14 @@ public class HtmlRender implements Render {
                         + Optional.ofNullable(changedOperationId.getLeft()).orElse("")
                         + " to "
                         + Optional.ofNullable(changedOperationId.getRight()).orElse("")));
+  }
+
+  private UlTag ul_metadata(ChangedMetadata metadata) {
+    return ul().withClass("change")
+        .with(
+            li().with(del(Optional.ofNullable(metadata.getLeft()).orElse("")).withClass(COMMENT))
+                .withText(" change into ")
+                .with(
+                    span(Optional.ofNullable(metadata.getRight()).orElse("")).withClass(COMMENT)));
   }
 }

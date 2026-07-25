@@ -43,4 +43,19 @@ public class HtmlRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void issue857_rendersOperationDescriptionChange() {
+    HtmlRender render = new HtmlRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff = OpenApiCompare.fromLocations("issue-857-1.yaml", "issue-857-2.yaml");
+    render.render(diff, outputStreamWriter);
+    String html = outputStream.toString();
+    assertThat(html).contains("Description");
+    assertThat(html).contains("change into");
+    assertThat(html).contains(">Sample description</del>");
+    assertThat(html).contains(">Sample description changed</span>");
+    assertThat(html).doesNotContain("<ul class=\"detail\"></ul>");
+  }
 }
