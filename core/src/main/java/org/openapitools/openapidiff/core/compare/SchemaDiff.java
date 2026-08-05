@@ -240,6 +240,9 @@ public class SchemaDiff {
     if (fromSchema.getMinItems() != null) {
       schema.setMinItems(fromSchema.getMinItems());
     }
+    if (fromSchema.getItems() != null) {
+      schema.setItems(fromSchema.getItems());
+    }
     if (fromSchema.getMaxProperties() != null) {
       schema.setMaxProperties(fromSchema.getMaxProperties());
     }

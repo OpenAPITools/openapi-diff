@@ -1,7 +1,6 @@
 package org.openapitools.openapidiff.core.compare.schemadiffresult;
 
 import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
@@ -22,9 +21,6 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
       T left,
       T right,
       DiffContext context) {
-    ArraySchema leftArraySchema = (ArraySchema) left;
-    ArraySchema rightArraySchema = (ArraySchema) right;
-
     DeferredChanged<ChangedSchema> superSchemaDiff =
         super.diff(refSet, leftComponents, rightComponents, left, right, context)
             .flatMap(
@@ -34,8 +30,8 @@ public class ArraySchemaDiffResult extends SchemaDiffResult {
                           .getSchemaDiff()
                           .diff(
                               refSet,
-                              leftArraySchema.getItems(),
-                              rightArraySchema.getItems(),
+                              left.getItems(),
+                              right.getItems(),
                               context.copyWithRequired(true));
                   itemsDiff.ifPresent(changedSchema::setItems);
                   return itemsDiff;
