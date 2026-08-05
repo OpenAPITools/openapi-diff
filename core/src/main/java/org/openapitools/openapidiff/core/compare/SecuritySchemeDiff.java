@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.openapitools.openapidiff.core.model.ChangedSecurityScheme;
 import org.openapitools.openapidiff.core.model.ChangedSecuritySchemeScopes;
@@ -36,8 +37,15 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
       String rightSchemeRef,
       List<String> rightScopes,
       DiffContext context) {
-    SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(leftSchemeRef);
-    SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(rightSchemeRef);
+    Map<String, SecurityScheme> leftSchemes =
+        leftComponents != null ? leftComponents.getSecuritySchemes() : null;
+    Map<String, SecurityScheme> rightSchemes =
+        rightComponents != null ? rightComponents.getSecuritySchemes() : null;
+    if (leftSchemes == null || rightSchemes == null) {
+      return RealizedChanged.empty();
+    }
+    SecurityScheme leftSecurityScheme = leftSchemes.get(leftSchemeRef);
+    SecurityScheme rightSecurityScheme = rightSchemes.get(rightSchemeRef);
     DeferredChanged<ChangedSecurityScheme> changedSecuritySchemeOpt =
         cachedDiff(
             new HashSet<>(),
