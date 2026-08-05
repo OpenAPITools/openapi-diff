@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.openapitools.openapidiff.core.compare.MapKeyDiff;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
+import org.openapitools.openapidiff.core.compare.SchemaDiff;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.deferred.DeferredBuilder;
@@ -98,9 +99,22 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
           .build()
           .flatMap(
               values -> super.diff(refSet, leftComponents, rightComponents, left, right, context));
+    } else if (isResolvedToPlainSchema(right)) {
+      // `right` is a composed schema whose allOf/anyOf members have already been merged into it
+      // by SchemaDiff#resolveComposedSchema, so structurally it is a plain schema. Types and
+      // formats were compared in SchemaDiff#computeDiffForReal before this result was selected,
+      // so diff both sides with the result matching the left-hand schema instead of reporting a
+      // type change.
+      return SchemaDiff.getSchemaDiffResult(left.getClass(), openApiDiff)
+          .diff(refSet, leftComponents, rightComponents, left, right, context);
     } else {
       return openApiDiff.getSchemaDiff().getTypeChangedSchema(left, right, context);
     }
+  }
+
+  private static boolean isResolvedToPlainSchema(Schema<?> schema) {
+    return schema instanceof ComposedSchema
+        && CollectionUtils.isEmpty(((ComposedSchema) schema).getOneOf());
   }
 
   private Map<String, Schema> getSchema(

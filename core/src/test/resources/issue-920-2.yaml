@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  version: 1.0.0
+
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResponse'
+
+components:
+  schemas:
+    TestResponse:
+      type: object
+      properties:
+        valuations:
+          allOf:
+            - $ref: '#/components/schemas/Valuations'
+
+    Valuations:
+      type: array
+      items:
+        type: object
+        properties:
+          value:
+            type: integer
