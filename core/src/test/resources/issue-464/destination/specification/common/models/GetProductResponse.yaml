@@ -1,0 +1,9 @@
+type: object
+description: Model for response from call to GET products requiring an array of products to be returned.
+title: GetProductResponse
+properties:
+  Products:
+    type: array
+    items:
+      $ref: Product.yaml
+
