@@ -332,8 +332,21 @@ public class SchemaDiff {
     CacheKey key = new CacheKey(getSchemaRef(left), getSchemaRef(right), context);
     if (key.getLeft() != null && key.getRight() != null) {
       return openApiDiff.getDeferredSchemaCache().getOrAddSchema(refSet, key, left, right);
-    } else {
+    }
+
+    // A schema with no $ref of its own never reaches the guard above, so a cycle among such schemas
+    // was followed until the stack overflowed. Guarding on identity rather than on a reference also
+    // covers schemas whose reference resolveComposedSchema has already cleared.
+    if (left == null || right == null) {
       return computeDiffForReal(refSet, left, right, context);
+    }
+    if (!refSet.enter(left, right)) {
+      return DeferredChanged.empty();
+    }
+    try {
+      return computeDiffForReal(refSet, left, right, context);
+    } finally {
+      refSet.leave(left, right);
     }
   }
 
