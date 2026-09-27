@@ -1,0 +1,42 @@
+openapi: 3.0.1
+info:
+  title: Multiple discriminator aliases
+  version: '1.0'
+paths:
+  /state:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/A'
+                - $ref: '#/components/schemas/B'
+              discriminator:
+                propertyName: realtype
+                mapping:
+                  z-type: '#/components/schemas/A'
+                  a-type: '#/components/schemas/A'
+                  b-type: '#/components/schemas/B'
+      responses:
+        '201':
+          description: OK
+components:
+  schemas:
+    A:
+      type: object
+      required: [realtype, value]
+      properties:
+        realtype:
+          type: string
+        value:
+          type: string
+    B:
+      type: object
+      required: [realtype, value]
+      properties:
+        realtype:
+          type: string
+        value:
+          type: integer

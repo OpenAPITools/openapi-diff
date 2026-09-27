@@ -4,12 +4,14 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.openapitools.openapidiff.core.compare.CacheKey;
 import org.openapitools.openapidiff.core.compare.MapKeyDiff;
 import org.openapitools.openapidiff.core.compare.OpenApiDiff;
 import org.openapitools.openapidiff.core.compare.SchemaDiff;
@@ -73,16 +75,30 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
                 getSchema(leftComponents, leftMapping, leftComposedSchema),
                 getSchema(rightComponents, rightMapping, rightComposedSchema));
         Map<String, ChangedSchema> changedMapping = new LinkedHashMap<>();
+        // Guard against ancestors, not other aliases scheduled in this same oneOf.
+        RecursiveSchemaSet mappingAncestors = new RecursiveSchemaSet();
+        mappingAncestors.getLeftKeys().addAll(refSet.getLeftKeys());
+        mappingAncestors.getRightKeys().addAll(refSet.getRightKeys());
+        DiffContext mappingContext = context.copyWithRequired(true);
         for (String key : mappingDiff.getSharedKey()) {
           Schema<?> leftSchema = new Schema<>();
           leftSchema.set$ref(leftMapping.get(key));
           Schema<?> rightSchema = new Schema<>();
           rightSchema.set$ref(rightMapping.get(key));
-          discriminatorChangedBuilder
-              .with(
-                  openApiDiff
+          CacheKey schemaKey =
+              new CacheKey(leftSchema.get$ref(), rightSchema.get$ref(), mappingContext);
+          // Keep the shared visited set for deferred traversal, including mutually recursive
+          // schemas.
+          DeferredChanged<ChangedSchema> schemaDiff =
+              leftSchema.get$ref() != null && rightSchema.get$ref() != null
+                  ? openApiDiff
+                      .getDeferredSchemaCache()
+                      .getOrAddSchema(refSet, mappingAncestors, schemaKey, leftSchema, rightSchema)
+                  : openApiDiff
                       .getSchemaDiff()
-                      .diff(refSet, leftSchema, rightSchema, context.copyWithRequired(true)))
+                      .diff(refSet, leftSchema, rightSchema, mappingContext);
+          discriminatorChangedBuilder
+              .with(schemaDiff)
               .ifPresent(schema -> changedMapping.put(key, schema));
         }
 
@@ -130,7 +146,13 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
   }
 
   private Map<String, String> getMapping(ComposedSchema composedSchema) {
-    Map<String, String> reverseMapping = new LinkedHashMap<>();
+    Map<String, String> mapping = new LinkedHashMap<>();
+    if (composedSchema.getDiscriminator() != null
+        && composedSchema.getDiscriminator().getMapping() != null) {
+      // Keep every alias: multiple discriminator values can refer to the same schema.
+      mapping.putAll(composedSchema.getDiscriminator().getMapping());
+    }
+    Set<String> explicitlyMappedRefs = new HashSet<>(mapping.values());
     if (composedSchema.getOneOf() != null) {
       for (Schema<?> schema : composedSchema.getOneOf()) {
         String ref = schema.get$ref();
@@ -141,19 +163,14 @@ public class ComposedSchemaDiffResult extends SchemaDiffResult {
         if (schemaName == null) {
           throw new IllegalArgumentException("invalid schema: " + ref);
         }
-        reverseMapping.put(ref, schemaName);
+        // Use the implicit schema name only when no explicit alias maps to this reference.
+        if (!explicitlyMappedRefs.contains(ref)) {
+          mapping.putIfAbsent(schemaName, ref);
+        }
       }
     }
 
-    if (composedSchema.getDiscriminator() != null
-        && composedSchema.getDiscriminator().getMapping() != null) {
-      for (String ref : composedSchema.getDiscriminator().getMapping().keySet()) {
-        reverseMapping.put(composedSchema.getDiscriminator().getMapping().get(ref), ref);
-      }
-    }
-
-    return reverseMapping.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+    return mapping;
   }
 
   private Map<String, Schema> getUnnamedSchemas(List<Schema> schemas, String name) {
