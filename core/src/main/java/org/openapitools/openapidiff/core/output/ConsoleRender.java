@@ -181,6 +181,17 @@ public class ConsoleRender implements Render {
     if (!changedMediaType.isCompatible() && changedMediaType.getSchema() != null) {
       sb.append(incompatibilities(changedMediaType.getSchema()));
     }
+    MediaTypeExampleChanges.render(changedMediaType)
+        .forEach(
+            (label, value) ->
+                sb.append(StringUtils.repeat(' ', 10))
+                    .append(label)
+                    .append(":")
+                    .append(System.lineSeparator())
+                    .append(StringUtils.repeat(' ', 12))
+                    .append(
+                        value.replace("\n", System.lineSeparator() + StringUtils.repeat(' ', 12)))
+                    .append(System.lineSeparator()));
     return sb.toString();
   }
 
