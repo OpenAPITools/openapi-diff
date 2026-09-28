@@ -137,6 +137,100 @@ class MediaTypeExampleRenderTest {
     assertThat(output).doesNotContain("\ninclude::remote[]");
   }
 
+  static Stream<Arguments> serializationFailures() {
+    return Stream.of("markdown", "console", "asciidoc", "html")
+        .flatMap(
+            renderer ->
+                Stream.of("example", "examples")
+                    .flatMap(
+                        kind ->
+                            Stream.of("throwing-getter", "self-reference")
+                                .map(failure -> Arguments.of(renderer, kind, failure))));
+  }
+
+  @ParameterizedTest(name = "{0}: {1}, {2}")
+  @MethodSource("serializationFailures")
+  void keepsRenderingOtherDetailsWhenAnExampleCannotBeSerialized(
+      String renderer, String kind, String failure) {
+    OpenAPI oldSpec = readSpec();
+    OpenAPI newSpec = readSpec();
+    Object invalidValue =
+        "throwing-getter".equals(failure) ? new ThrowingExample() : new SelfReferencingExample();
+    if ("example".equals(kind)) {
+      mediaType(newSpec, false).setExample(invalidValue);
+    } else {
+      mediaType(newSpec, false).addExamples("invalid", new Example().value(invalidValue));
+    }
+    oldSpec
+        .getPaths()
+        .get("/examples")
+        .getPost()
+        .getRequestBody()
+        .getContent()
+        .addMediaType("text/plain", new MediaType().schema(new StringSchema()));
+    newSpec
+        .getPaths()
+        .get("/examples")
+        .getPost()
+        .getRequestBody()
+        .getContent()
+        .addMediaType(
+            "text/plain",
+            new MediaType().schema(new StringSchema()).example("valid-media-type-example"));
+    setExample(mediaType(oldSpec, true), "example", "old-response-example");
+    setExample(mediaType(newSpec, true), "example", "new-response-example");
+
+    ChangedOpenApi diff = OpenApiCompare.fromSpecifications(oldSpec, newSpec);
+    assertThat(diff.isChanged()).isEqualTo(DiffResult.METADATA);
+    assertThat(renderer(renderer).render(diff))
+        .contains(
+            "Example could not be serialized as JSON",
+            "valid-media-type-example",
+            "old-response-example",
+            "new-response-example");
+  }
+
+  public static class ThrowingExample {
+    public String getValue() {
+      throw new IllegalStateException("Example getter failed");
+    }
+
+    @Override
+    public String toString() {
+      throw new IllegalStateException("Example toString must not be used as a fallback");
+    }
+  }
+
+  static Stream<Arguments> invalidCounterparts() {
+    return Stream.of("markdown", "console", "asciidoc", "html")
+        .flatMap(
+            renderer ->
+                Stream.of(false, true).map(invalidOld -> Arguments.of(renderer, invalidOld)));
+  }
+
+  @ParameterizedTest(name = "{0}: invalid old example={1}")
+  @MethodSource("invalidCounterparts")
+  void keepsTheSerializableValueWhenTheOtherSideFails(String renderer, boolean invalidOld) {
+    OpenAPI oldSpec = readSpec();
+    OpenAPI newSpec = readSpec();
+    mediaType(invalidOld ? oldSpec : newSpec, false).setExample(new ThrowingExample());
+    setExample(mediaType(invalidOld ? newSpec : oldSpec, false), "example", "valid-counterpart");
+    ChangedOpenApi diff = OpenApiCompare.fromSpecifications(oldSpec, newSpec);
+    assertThat(diff.isChanged()).isEqualTo(DiffResult.METADATA);
+    assertThat(renderer(renderer).render(diff))
+        .contains(
+            "Old example",
+            "New example",
+            "Example could not be serialized as JSON",
+            "valid-counterpart");
+  }
+
+  public static class SelfReferencingExample {
+    public SelfReferencingExample getValue() {
+      return this;
+    }
+  }
+
   private OpenAPI readSpec() {
     return new OpenAPIParser().readLocation(FIXTURE, null, new ParseOptions()).getOpenAPI();
   }

@@ -6,13 +6,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.ChangedExample;
 import org.openapitools.openapidiff.core.model.ChangedExamples;
 import org.openapitools.openapidiff.core.model.ChangedMediaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Example details shared by the text and HTML reports; markup is handled by each renderer. */
 final class MediaTypeExampleChanges {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MediaTypeExampleChanges.class);
+
   private MediaTypeExampleChanges() {}
 
   static Map<String, String> render(ChangedMediaType mediaType) {
@@ -47,7 +50,11 @@ final class MediaTypeExampleChanges {
           .writeValueAsString(value)
           .replace("\r\n", "\n");
     } catch (JsonProcessingException e) {
-      throw new RendererException("Could not serialize media type example", e);
+      LOGGER.warn(
+          "Could not serialize media type example as JSON ({}); rendering a placeholder",
+          e.getClass().getSimpleName());
+      // Do not call toString() on arbitrary example objects: it can fail as well.
+      return "\"[Example could not be serialized as JSON]\"";
     }
   }
 }
