@@ -205,22 +205,33 @@ class MediaTypeExampleRenderTest {
     return Stream.of("markdown", "console", "asciidoc", "html")
         .flatMap(
             renderer ->
-                Stream.of(false, true).map(invalidOld -> Arguments.of(renderer, invalidOld)));
+                Stream.of("example", "examples")
+                    .flatMap(
+                        kind ->
+                            Stream.of(false, true)
+                                .map(invalidOld -> Arguments.of(renderer, kind, invalidOld))));
   }
 
-  @ParameterizedTest(name = "{0}: invalid old example={1}")
+  @ParameterizedTest(name = "{0}: {1}, invalid old example={2}")
   @MethodSource("invalidCounterparts")
-  void keepsTheSerializableValueWhenTheOtherSideFails(String renderer, boolean invalidOld) {
+  void keepsTheSerializableValueWhenTheOtherSideFails(
+      String renderer, String kind, boolean invalidOld) {
     OpenAPI oldSpec = readSpec();
     OpenAPI newSpec = readSpec();
-    mediaType(invalidOld ? oldSpec : newSpec, false).setExample(new ThrowingExample());
-    setExample(mediaType(invalidOld ? newSpec : oldSpec, false), "example", "valid-counterpart");
+    MediaType invalidMediaType = mediaType(invalidOld ? oldSpec : newSpec, false);
+    if ("example".equals(kind)) {
+      invalidMediaType.setExample(new ThrowingExample());
+    } else {
+      invalidMediaType.addExamples(
+          "sample", new Example().summary("Sample payload").value(new ThrowingExample()));
+    }
+    setExample(mediaType(invalidOld ? newSpec : oldSpec, false), kind, "valid-counterpart");
     ChangedOpenApi diff = OpenApiCompare.fromSpecifications(oldSpec, newSpec);
     assertThat(diff.isChanged()).isEqualTo(DiffResult.METADATA);
     assertThat(renderer(renderer).render(diff))
         .contains(
-            "Old example",
-            "New example",
+            "Old " + kind,
+            "New " + kind,
             "Example could not be serialized as JSON",
             "valid-counterpart");
   }
