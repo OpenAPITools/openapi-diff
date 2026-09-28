@@ -16,6 +16,7 @@ import static j2html.TagCreator.link;
 import static j2html.TagCreator.meta;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.pre;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.title;
 import static j2html.TagCreator.ul;
@@ -357,6 +358,8 @@ public class HtmlRender implements Render {
         allChanges(li, schema);
       }
     }
+    MediaTypeExampleChanges.render(request)
+        .forEach((label, value) -> li.with(div(h3(label), pre(value))));
     return li;
   }
 
