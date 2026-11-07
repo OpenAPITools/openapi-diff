@@ -11,6 +11,9 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.OAuthFlow;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashSet;
@@ -152,7 +155,136 @@ public class MarkdownRender implements Render {
             safelyAppend(outputStreamWriter, titleH5("Return Type:"));
             safelyAppend(outputStreamWriter, responses(operation.getApiResponses()));
           }
+          if (operation.resultSecurityRequirements().isDifferent()) {
+            safelyAppend(outputStreamWriter, titleH5("Security Requirements:"));
+            safelyAppend(
+                outputStreamWriter, securityRequirements(operation.getSecurityRequirements()));
+          }
         });
+  }
+
+  protected String securityRequirements(ChangedSecurityRequirements changedSecurityRequirements) {
+    StringBuilder sb = new StringBuilder("\n");
+    if (changedSecurityRequirements.getIncreased() != null) {
+      changedSecurityRequirements.getIncreased().stream()
+          .map(item -> itemSecurityRequirement("New security requirement", item))
+          .forEach(sb::append);
+    }
+    if (changedSecurityRequirements.getMissing() != null) {
+      changedSecurityRequirements.getMissing().stream()
+          .map(item -> itemSecurityRequirement("Deleted security requirement", item))
+          .forEach(sb::append);
+    }
+    changedSecurityRequirements.getChanged().stream()
+        .map(this::itemSecurityRequirement)
+        .forEach(sb::append);
+    return sb.toString();
+  }
+
+  protected String itemSecurityRequirement(String title, SecurityRequirement securityRequirement) {
+    return format("%s: %s\n\n", title, code(securityRequirementName(securityRequirement)));
+  }
+
+  protected String itemSecurityRequirement(ChangedSecurityRequirement changedSecurityRequirement) {
+    StringBuilder sb = new StringBuilder();
+    SecurityRequirement nameSource = changedSecurityRequirement.getNewSecurityRequirement();
+    if (nameSource == null || nameSource.isEmpty()) {
+      nameSource = changedSecurityRequirement.getOldSecurityRequirement();
+    }
+    sb.append(
+        format("Changed security requirement: %s\n", code(securityRequirementName(nameSource))));
+    changedSecurityRequirement.getChanged().forEach(scheme -> sb.append(securityScheme(scheme)));
+    return sb.append('\n').toString();
+  }
+
+  private String securityRequirementName(SecurityRequirement securityRequirement) {
+    return securityRequirement == null ? "" : String.join(", ", securityRequirement.keySet());
+  }
+
+  protected String securityScheme(ChangedSecurityScheme changedSecurityScheme) {
+    StringBuilder sb = new StringBuilder();
+    SecurityScheme oldScheme = changedSecurityScheme.getOldSecurityScheme();
+    SecurityScheme newScheme = changedSecurityScheme.getNewSecurityScheme();
+    if (changedSecurityScheme.isChangedType()) {
+      sb.append(
+          format(
+              "%s* Changed security scheme type: `%s` -> `%s`\n",
+              indent(1), oldScheme.getType(), newScheme.getType()));
+    }
+    if (changedSecurityScheme.isChangedIn()) {
+      sb.append(
+          format(
+              "%s* Changed security scheme location: `%s` -> `%s`\n",
+              indent(1), oldScheme.getIn(), newScheme.getIn()));
+    }
+    if (changedSecurityScheme.isChangedScheme()) {
+      sb.append(
+          format(
+              "%s* Changed security scheme: `%s` -> `%s`\n",
+              indent(1), oldScheme.getScheme(), newScheme.getScheme()));
+    }
+    if (changedSecurityScheme.isChangedBearerFormat()) {
+      sb.append(
+          format(
+              "%s* Changed bearer format: `%s` -> `%s`\n",
+              indent(1), oldScheme.getBearerFormat(), newScheme.getBearerFormat()));
+    }
+    if (changedSecurityScheme.isChangedOpenIdConnectUrl()) {
+      sb.append(
+          format(
+              "%s* Changed openIdConnectUrl: %s -> %s\n",
+              indent(1),
+              url(oldScheme.getOpenIdConnectUrl()),
+              url(newScheme.getOpenIdConnectUrl())));
+    }
+    sb.append(listDiff(1, "scope", changedSecurityScheme.getChangedScopes()));
+    sb.append(metadata(indent(1), "description", changedSecurityScheme.getDescription()));
+    if (changedSecurityScheme.getOAuthFlows() != null) {
+      sb.append(oAuthFlows(changedSecurityScheme.getOAuthFlows()));
+    }
+    return sb.toString();
+  }
+
+  protected String oAuthFlows(ChangedOAuthFlows changedOAuthFlows) {
+    return oAuthFlow("implicit", changedOAuthFlows.getImplicitOAuthFlow())
+        + oAuthFlow("password", changedOAuthFlows.getPasswordOAuthFlow())
+        + oAuthFlow("clientCredentials", changedOAuthFlows.getClientCredentialOAuthFlow())
+        + oAuthFlow("authorizationCode", changedOAuthFlows.getAuthorizationCodeOAuthFlow());
+  }
+
+  protected String oAuthFlow(String flowName, ChangedOAuthFlow changedOAuthFlow) {
+    if (changedOAuthFlow == null) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder();
+    OAuthFlow oldFlow = changedOAuthFlow.getOldOAuthFlow();
+    OAuthFlow newFlow = changedOAuthFlow.getNewOAuthFlow();
+    if (changedOAuthFlow.isAuthorizationUrl()) {
+      sb.append(
+          format(
+              "%s* authorizationUrl: %s -> %s\n",
+              indent(2), url(oldFlow.getAuthorizationUrl()), url(newFlow.getAuthorizationUrl())));
+    }
+    if (changedOAuthFlow.isTokenUrl()) {
+      sb.append(
+          format(
+              "%s* tokenUrl: %s -> %s\n",
+              indent(2), url(oldFlow.getTokenUrl()), url(newFlow.getTokenUrl())));
+    }
+    if (changedOAuthFlow.isRefreshUrl()) {
+      sb.append(
+          format(
+              "%s* refreshUrl: %s -> %s\n",
+              indent(2), url(oldFlow.getRefreshUrl()), url(newFlow.getRefreshUrl())));
+    }
+    if (sb.length() == 0) {
+      return "";
+    }
+    return format("%s* Changed %s flow:\n", indent(1), flowName) + sb;
+  }
+
+  private String url(String url) {
+    return code(StringUtils.defaultString(url));
   }
 
   protected String responses(ChangedApiResponse changedApiResponse) {

@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: Company API
+  version: V0
+paths:
+  /users:
+    post:
+      operationId: createUser
+      responses:
+        '201':
+          description: Created
+      security:
+        - OAuth2: []
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: ''
+          tokenUrl: ''
+          scopes: {}
