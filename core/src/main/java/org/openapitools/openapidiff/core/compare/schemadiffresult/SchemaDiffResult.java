@@ -25,8 +25,12 @@ import org.openapitools.openapidiff.core.model.schema.ChangedPattern;
 import org.openapitools.openapidiff.core.model.schema.ChangedReadOnly;
 import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
 import org.openapitools.openapidiff.core.model.schema.ChangedUniqueItems;
+import org.openapitools.openapidiff.core.utils.RefPointer;
+import org.openapitools.openapidiff.core.utils.RefType;
 
 public class SchemaDiffResult {
+  private static final RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
+
   protected ChangedSchema changedSchema;
   protected OpenApiDiff openApiDiff;
 
@@ -106,7 +110,17 @@ public class SchemaDiffResult {
     Map<String, Schema> rightProperties = right.getProperties();
     MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
     for (String key : propertyDiff.getSharedKey()) {
-      if (isReadOnlyPropertyInRequest(leftProperties.get(key), rightProperties.get(key), context)) {
+      if (isReadOnlyPropertyInRequest(
+          leftComponents,
+          rightComponents,
+          leftProperties.get(key),
+          rightProperties.get(key),
+          context)) {
+        // The property is treated as unchanged, so any parent `required` change for it is
+        // dropped as well; otherwise adding a response-only field to `required` would still
+        // flag the request as breaking.
+        changedSchema.getRequired().getIncreased().remove(key);
+        changedSchema.getRequired().getMissing().remove(key);
         // Changes inside a readOnly property cannot affect the request contract, since
         // clients never send readOnly properties, so the property is compared as unchanged.
         // When the readOnly flag itself differs, one side is not readOnly and is still compared.
@@ -170,10 +184,22 @@ public class SchemaDiffResult {
   }
 
   private boolean isReadOnlyPropertyInRequest(
-      Schema<?> leftProperty, Schema<?> rightProperty, DiffContext context) {
-    return context.isRequest()
-        && Boolean.TRUE.equals(leftProperty.getReadOnly())
-        && Boolean.TRUE.equals(rightProperty.getReadOnly());
+      Components leftComponents,
+      Components rightComponents,
+      Schema<?> leftProperty,
+      Schema<?> rightProperty,
+      DiffContext context) {
+    if (!context.isRequest() || leftProperty == null || rightProperty == null) {
+      return false;
+    }
+    // Properties may be `$ref` wrappers without a readOnly flag of their own, so resolve
+    // the refs before checking the flag.
+    Schema<?> leftResolved =
+        refPointer.resolveRef(leftComponents, leftProperty, leftProperty.get$ref());
+    Schema<?> rightResolved =
+        refPointer.resolveRef(rightComponents, rightProperty, rightProperty.get$ref());
+    return Boolean.TRUE.equals(leftResolved.getReadOnly())
+        && Boolean.TRUE.equals(rightResolved.getReadOnly());
   }
 
   private DiffContext required(DiffContext context, String key, List<String> required) {
