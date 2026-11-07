@@ -106,6 +106,12 @@ public class SchemaDiffResult {
     Map<String, Schema> rightProperties = right.getProperties();
     MapKeyDiff<String, Schema> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
     for (String key : propertyDiff.getSharedKey()) {
+      if (isReadOnlyPropertyInRequest(leftProperties.get(key), rightProperties.get(key), context)) {
+        // Changes inside a readOnly property cannot affect the request contract, since
+        // clients never send readOnly properties, so the property is compared as unchanged.
+        // When the readOnly flag itself differs, one side is not readOnly and is still compared.
+        continue;
+      }
       builder
           .with(
               openApiDiff
@@ -161,6 +167,13 @@ public class SchemaDiffResult {
   private boolean isPropertyApplicable(Schema<?> schema, DiffContext context) {
     return !(context.isResponse() && Boolean.TRUE.equals(schema.getWriteOnly()))
         && !(context.isRequest() && Boolean.TRUE.equals(schema.getReadOnly()));
+  }
+
+  private boolean isReadOnlyPropertyInRequest(
+      Schema<?> leftProperty, Schema<?> rightProperty, DiffContext context) {
+    return context.isRequest()
+        && Boolean.TRUE.equals(leftProperty.getReadOnly())
+        && Boolean.TRUE.equals(rightProperty.getReadOnly());
   }
 
   private DiffContext required(DiffContext context, String key, List<String> required) {
