@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
@@ -182,7 +183,7 @@ public class MarkdownRender implements Render {
   }
 
   protected String itemSecurityRequirement(String title, SecurityRequirement securityRequirement) {
-    return format("%s: %s\n\n", title, code(securityRequirementName(securityRequirement)));
+    return format("%s: %s\n\n", title, code(securityRequirementWithScopes(securityRequirement)));
   }
 
   protected String itemSecurityRequirement(ChangedSecurityRequirement changedSecurityRequirement) {
@@ -192,9 +193,27 @@ public class MarkdownRender implements Render {
       nameSource = changedSecurityRequirement.getOldSecurityRequirement();
     }
     sb.append(
-        format("Changed security requirement: %s\n", code(securityRequirementName(nameSource))));
+        format("Changed security requirement: %s\n\n", code(securityRequirementName(nameSource))));
+    if (changedSecurityRequirement.getIncreased() != null) {
+      sb.append(
+          itemSecurityRequirement(
+              "New security scheme", changedSecurityRequirement.getIncreased()));
+    }
+    if (changedSecurityRequirement.getMissing() != null) {
+      sb.append(
+          itemSecurityRequirement(
+              "Deleted security scheme", changedSecurityRequirement.getMissing()));
+    }
     changedSecurityRequirement.getChanged().forEach(scheme -> sb.append(securityScheme(scheme)));
     return sb.append('\n').toString();
+  }
+
+  private String securityRequirementWithScopes(SecurityRequirement securityRequirement) {
+    return securityRequirement == null
+        ? ""
+        : securityRequirement.entrySet().stream()
+            .map(entry -> format("%s: [%s]", entry.getKey(), String.join(", ", entry.getValue())))
+            .collect(Collectors.joining(", "));
   }
 
   private String securityRequirementName(SecurityRequirement securityRequirement) {

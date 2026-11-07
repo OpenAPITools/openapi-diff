@@ -1,8 +1,11 @@
 package org.openapitools.openapidiff.core.output;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_REQUIREMENTS_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_REQUIREMENT_SCHEMES_INCREASED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_OAUTH2_TOKEN_URL_CHANGED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SECURITY_SCHEME_SCOPES_INCREASED;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -68,9 +71,21 @@ public class MarkdownRenderTest {
     assertThat(output).contains("##### `POST` /users");
     assertThat(output).contains("Security Requirements:");
     assertThat(output).contains("Changed security requirement: `OAuth2`");
+    // a blank line separates the heading from the nested scheme bullets
+    assertThat(output).contains("Changed security requirement: `OAuth2`\n\n");
     assertThat(output).contains("Changed authorizationCode flow:");
     assertThat(output).contains("authorizationUrl: `` -> `some_value`");
     assertThat(output).contains("tokenUrl: `` -> `some_value`");
+    // added and deleted security requirements are rendered with their scopes
+    assertThat(output).contains("##### `GET` /orders");
+    assertThat(output).contains("New security requirement: `OpenIdConnect: [openid, profile]`");
+    assertThat(output).contains("Deleted security requirement: `BasicAuth: [user]`");
+    // schemes added to or removed from a changed requirement are rendered with their scopes
+    assertThat(output).contains("Changed security requirement: `OAuth2, NewApiKey`");
+    assertThat(output).contains("New security scheme: `NewApiKey: [admin]`");
+    assertThat(output).contains("Deleted security scheme: `OldApiKey: []`");
+    assertThat(output).contains("Added scope value:");
+    assertThat(output).contains("* `write`");
     // the compatibility status follows the diff model, which marks OAuth2 flow URL
     // changes as incompatible unless configured otherwise
     assertThat(diff.isIncompatible()).isTrue();
@@ -83,6 +98,9 @@ public class MarkdownRenderTest {
         OpenApiDiffOptions.builder()
             .configProperty(SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED.getPropertyName(), "false")
             .configProperty(SECURITY_SCHEME_OAUTH2_TOKEN_URL_CHANGED.getPropertyName(), "false")
+            .configProperty(SECURITY_REQUIREMENTS_DECREASED.getPropertyName(), "false")
+            .configProperty(SECURITY_REQUIREMENT_SCHEMES_INCREASED.getPropertyName(), "false")
+            .configProperty(SECURITY_SCHEME_SCOPES_INCREASED.getPropertyName(), "false")
             .build();
     ChangedOpenApi diff =
         OpenApiCompare.fromLocations(
@@ -98,6 +116,10 @@ public class MarkdownRenderTest {
     assertThat(output).contains("Security Requirements:");
     assertThat(output).contains("Changed security requirement: `OAuth2`");
     assertThat(output).contains("authorizationUrl: `` -> `some_value`");
+    assertThat(output).contains("New security requirement: `OpenIdConnect: [openid, profile]`");
+    assertThat(output).contains("Deleted security requirement: `BasicAuth: [user]`");
+    assertThat(output).contains("New security scheme: `NewApiKey: [admin]`");
+    assertThat(output).contains("Deleted security scheme: `OldApiKey: []`");
     assertThat(output).contains("API changes are backward compatible");
   }
 }

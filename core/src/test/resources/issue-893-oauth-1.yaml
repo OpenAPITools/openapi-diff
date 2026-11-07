@@ -11,6 +11,16 @@ paths:
           description: Created
       security:
         - OAuth2: []
+  /orders:
+    get:
+      operationId: listOrders
+      responses:
+        '200':
+          description: OK
+      security:
+        - OAuth2: [read]
+          OldApiKey: []
+        - BasicAuth: [user]
 components:
   securitySchemes:
     OAuth2:
@@ -20,3 +30,10 @@ components:
           authorizationUrl: ''
           tokenUrl: ''
           scopes: {}
+    OldApiKey:
+      type: apiKey
+      in: header
+      name: X-Old-Key
+    BasicAuth:
+      type: http
+      scheme: basic
