@@ -178,6 +178,48 @@ Add openapi-diff to your POM to show diffs when you test your Maven project. You
 </plugin>
 ```
 
+### Maven Site Report
+
+The `report` goal adds an *OpenAPI Diff* page to the *Project Reports* of your [Maven site](https://maven.apache.org/plugins/maven-site-plugin/). The page shows the overall result and the new, deleted, deprecated and changed endpoints, and explains which changes break backward compatibility. It accepts the same `oldSpec`, `newSpec`, `configFiles`, `configProps` and `skip` parameters as the `diff` goal. The report only documents changes and never fails the build; use the `diff` goal for that.
+
+```xml
+<build>
+  <pluginManagement>
+    <plugins>
+      <!-- The report needs maven-site-plugin 3.21.0 or newer (Doxia 2) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.22.0</version>
+      </plugin>
+    </plugins>
+  </pluginManagement>
+</build>
+
+<reporting>
+  <plugins>
+    <plugin>
+      <groupId>org.openapitools.openapidiff</groupId>
+      <artifactId>openapi-diff-maven</artifactId>
+      <version>${openapi-diff-version}</version>
+      <configuration>
+        <oldSpec>https://petstore3.swagger.io/api/v3/openapi.json</oldSpec>
+        <newSpec>${project.basedir}/target/openapi.yaml</newSpec>
+      </configuration>
+      <reportSets>
+        <reportSet>
+          <reports>
+            <report>report</report>
+          </reports>
+        </reportSet>
+      </reportSets>
+    </plugin>
+  </plugins>
+</reporting>
+```
+
+If the new specification is generated during the build, run `mvn verify site` so it exists when the site is rendered. The page can also be generated on its own with `mvn org.openapitools.openapidiff:openapi-diff-maven:report`.
+
 ## Direct Invocation
 
 ```java
