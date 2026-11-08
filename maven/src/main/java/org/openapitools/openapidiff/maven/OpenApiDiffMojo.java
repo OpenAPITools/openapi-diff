@@ -68,14 +68,7 @@ public class OpenApiDiffMojo extends AbstractMojo {
     }
 
     try {
-      OpenApiDiffOptions.Builder optionBuilder = OpenApiDiffOptions.builder();
-      if (configFiles != null) {
-        configFiles.forEach(optionBuilder::configYaml);
-      }
-      if (configProps != null) {
-        configProps.forEach(optionBuilder::configProperty);
-      }
-      OpenApiDiffOptions options = optionBuilder.build();
+      OpenApiDiffOptions options = OpenApiDiffOptionsFactory.create(configFiles, configProps);
 
       final ChangedOpenApi diff = OpenApiCompare.fromLocations(oldSpec, newSpec, null, options);
 
