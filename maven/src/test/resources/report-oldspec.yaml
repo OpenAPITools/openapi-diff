@@ -12,6 +12,10 @@ paths:
           in: query
           schema:
             type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: A list of pets
@@ -24,6 +28,7 @@ paths:
     post:
       summary: Create a pet
       operationId: createPet
+      deprecated: true
       requestBody:
         content:
           application/json:
@@ -52,6 +57,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pet'
+        '404':
+          description: Not found
     delete:
       summary: Delete a pet
       operationId: deletePet

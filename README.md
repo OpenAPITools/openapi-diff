@@ -218,7 +218,9 @@ The `report` goal adds an *OpenAPI Diff* page to the *Project Reports* of your [
 </reporting>
 ```
 
-If the new specification is generated during the build, run `mvn verify site` so it exists when the site is rendered. The page can also be generated on its own with `mvn org.openapitools.openapidiff:openapi-diff-maven:report`.
+If the new specification is generated during the build, run `mvn verify site` so it exists when the site is rendered.
+
+The page can also be generated on its own with `mvn -DoldSpec=<old spec> -DnewSpec=<new spec> org.openapitools.openapidiff:openapi-diff-maven:report`, which writes `target/reports/openapi-diff.html`. Maven only applies the `<reporting>` configuration when it renders the site, so a direct run needs the specifications as properties, or in the plugin's `<configuration>` under `<build>`.
 
 ## Direct Invocation
 

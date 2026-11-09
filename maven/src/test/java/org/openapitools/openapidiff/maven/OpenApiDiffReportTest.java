@@ -5,15 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.swagger.v3.oas.models.PathItem;
 import java.io.File;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import org.apache.maven.doxia.sink.impl.Xhtml5BaseSink;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.MavenReport;
 import org.apache.maven.reporting.MavenReportException;
 import org.junit.jupiter.api.Test;
+import org.openapitools.openapidiff.core.OpenApiCompare;
+import org.openapitools.openapidiff.core.model.ChangedOpenApi;
+import org.openapitools.openapidiff.core.model.Endpoint;
 
 class OpenApiDiffReportTest {
 
@@ -103,6 +108,37 @@ class OpenApiDiffReportTest {
   }
 
   @Test
+  void Should_ExplainBreakingAdditionsAndDeletions_When_TheyBreakCompatibility()
+      throws MavenReportException {
+    final String page = render(report(reportOldSpecFile, reportNewSpecFile));
+
+    assertTrue(page.contains("Deleted sort in query (breaks backward compatibility)"));
+    assertTrue(page.contains("Added X-Request-Id in header (breaks backward compatibility)"));
+    assertFalse(page.contains("Added offset in query (breaks"));
+    assertTrue(page.contains("Deleted application/xml (breaks backward compatibility)"));
+    assertTrue(page.contains("Deleted 404 Not Found (breaks backward compatibility)"));
+    assertFalse(page.contains("Added 400 Bad Request (breaks"));
+  }
+
+  @Test
+  void Should_ListOnlyNewlyDeprecatedEndpoints_When_DeprecationIsRemoved()
+      throws MavenReportException {
+    final ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            reportOldSpecFile.getAbsolutePath(), reportNewSpecFile.getAbsolutePath());
+
+    final List<Endpoint> deprecated = OpenApiDiffReportRenderer.deprecatedEndpoints(diff);
+
+    assertEquals(1, deprecated.size());
+    assertEquals(PathItem.HttpMethod.GET, deprecated.get(0).getMethod());
+    assertEquals("/pets/{petId}", deprecated.get(0).getPathUrl());
+
+    final String page = render(report(reportOldSpecFile, reportNewSpecFile));
+    assertTrue(page.contains("Operation deprecated"));
+    assertTrue(page.contains("Operation no longer deprecated"));
+  }
+
+  @Test
   void Should_EscapeSpecificationText_When_Rendering() throws MavenReportException {
     final String html = renderHtml(report(reportOldSpecFile, reportNewSpecFile));
 
@@ -149,6 +185,19 @@ class OpenApiDiffReportTest {
         "openapi.yaml",
         report.displayLocation(
             new File(System.getProperty("java.io.tmpdir"), "openapi.yaml").getAbsolutePath()));
+    // file: URIs are files too, so they never show absolute paths
+    assertEquals(
+        "src/test/resources/oldspec.yaml",
+        report.displayLocation(oldSpecFile.getAbsoluteFile().toURI().toString()));
+    assertEquals(
+        "openapi.yaml",
+        report.displayLocation(
+            new File(System.getProperty("java.io.tmpdir"), "openapi.yaml").toURI().toString()));
+    // credentials in the user info or the query must not be published
+    assertEquals(
+        "https://example.com:8443/specs/openapi.json",
+        report.displayLocation(
+            "https://user:secret@example.com:8443/specs/openapi.json?token=abc#latest"));
   }
 
   private static int occurrences(String text, String part) {
