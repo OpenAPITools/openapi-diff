@@ -17,6 +17,11 @@ paths:
           in: query
           schema:
             type: integer
+        - name: X-Request-Id
+          in: header
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: A list of pets

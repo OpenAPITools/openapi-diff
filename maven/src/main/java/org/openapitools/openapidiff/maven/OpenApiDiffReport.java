@@ -1,6 +1,8 @@
 package org.openapitools.openapidiff.maven;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -87,7 +89,7 @@ public class OpenApiDiffReport extends AbstractMavenReport {
           String.format(
               "Unable to compare %s with %s: %s. If a specification is generated during the"
                   + " build, generate the site with 'mvn verify site'.",
-              oldSpec, newSpec, e.getMessage()),
+              displayLocation(oldSpec), displayLocation(newSpec), e.getMessage()),
           e);
     }
     new OpenApiDiffReportRenderer(
@@ -96,28 +98,62 @@ public class OpenApiDiffReport extends AbstractMavenReport {
   }
 
   /**
-   * Returns the location to show on the page. URLs are shown as they are, files below the project
-   * directory relative to it and other files by name only, so a published site does not expose
-   * absolute paths of the build machine.
+   * Returns the location to show on the page without exposing the build machine or secrets. Files,
+   * including {@code file:} URIs, are shown relative to the project directory, or by name when they
+   * are outside of it. URLs are shown without user info, query and fragment, which may hold
+   * credentials.
    */
   String displayLocation(String location) {
-    if (location.contains("://")) {
-      return location;
+    URI uri = toUri(location);
+    if (uri != null && "file".equalsIgnoreCase(uri.getScheme())) {
+      try {
+        return displayPath(Paths.get(uri));
+      } catch (IllegalArgumentException e) {
+        // e.g. an opaque URI such as file:relative.yaml
+        return lastSegment(location);
+      }
+    }
+    if (uri != null && uri.getHost() != null) {
+      String port = uri.getPort() != -1 ? ":" + uri.getPort() : "";
+      String path = uri.getRawPath() != null ? uri.getRawPath() : "";
+      return uri.getScheme() + "://" + uri.getHost() + port + path;
     }
     try {
-      Path path = Paths.get(location).toAbsolutePath().normalize();
-      MavenProject project = getProject();
-      if (project != null && project.getBasedir() != null) {
-        Path basedir = project.getBasedir().toPath().toAbsolutePath().normalize();
-        if (path.startsWith(basedir)) {
-          return basedir.relativize(path).toString().replace(File.separatorChar, '/');
-        }
-      }
-      Path fileName = path.getFileName();
-      return fileName != null ? fileName.toString() : location;
+      return displayPath(Paths.get(location));
     } catch (InvalidPathException e) {
-      return location;
+      return lastSegment(location);
     }
+  }
+
+  private String displayPath(Path location) {
+    Path path = location.toAbsolutePath().normalize();
+    MavenProject project = getProject();
+    if (project != null && project.getBasedir() != null) {
+      Path basedir = project.getBasedir().toPath().toAbsolutePath().normalize();
+      if (path.startsWith(basedir)) {
+        return basedir.relativize(path).toString().replace(File.separatorChar, '/');
+      }
+    }
+    Path fileName = path.getFileName();
+    return fileName != null ? fileName.toString() : "";
+  }
+
+  /** Parses a location as a URI with a scheme, or returns {@code null} for plain paths. */
+  private static URI toUri(String location) {
+    try {
+      URI uri = new URI(location);
+      // a one-letter scheme is a Windows drive, as in C:/specs/openapi.yaml
+      return uri.getScheme() != null && uri.getScheme().length() > 1 ? uri : null;
+    } catch (URISyntaxException e) {
+      return null;
+    }
+  }
+
+  /** Returns the part after the last slash, without query and fragment. */
+  private static String lastSegment(String location) {
+    String withoutQuery = location.split("[?#]", 2)[0];
+    int separator = Math.max(withoutQuery.lastIndexOf('/'), withoutQuery.lastIndexOf('\\'));
+    return withoutQuery.substring(separator + 1);
   }
 
   private static boolean isBlank(String value) {

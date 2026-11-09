@@ -1,5 +1,8 @@
 package org.openapitools.openapidiff.maven;
 
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_PARAMS_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_PARAMS_REQUIRED_INCREASED;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
@@ -27,12 +30,14 @@ import org.openapitools.openapidiff.core.model.ChangedParameters;
 import org.openapitools.openapidiff.core.model.ChangedRequestBody;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
+import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.DiffResult;
 import org.openapitools.openapidiff.core.model.Endpoint;
 import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
 import org.openapitools.openapidiff.core.model.schema.ChangedOperationId;
 import org.openapitools.openapidiff.core.model.schema.ChangedRequired;
 import org.openapitools.openapidiff.core.output.HttpStatus;
+import org.openapitools.openapidiff.core.utils.EndpointUtils;
 
 /**
  * Writes a {@link ChangedOpenApi} as a Maven site page using the Doxia {@link Sink} API.
@@ -76,9 +81,26 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
     renderSummary();
     renderEndpoints("What's New", diff.getNewEndpoints());
     renderEndpoints("What's Deleted", diff.getMissingEndpoints());
-    renderEndpoints("What's Deprecated", diff.getDeprecatedEndpoints());
+    renderEndpoints("What's Deprecated", deprecatedEndpoints(diff));
     renderChangedOperations(diff.getChangedOperations());
     endSection();
+  }
+
+  /**
+   * Returns the endpoints that the new specification deprecates. {@link
+   * ChangedOpenApi#getDeprecatedEndpoints()} lists every change of the deprecated flag, including
+   * operations that are no longer deprecated, so those are left out here.
+   */
+  static List<Endpoint> deprecatedEndpoints(ChangedOpenApi diff) {
+    List<Endpoint> endpoints = new ArrayList<>();
+    for (ChangedOperation operation : nullToEmpty(diff.getChangedOperations())) {
+      if (operation.isDeprecated() && isDeprecated(operation.getNewOperation())) {
+        endpoints.add(
+            EndpointUtils.convert2Endpoint(
+                operation.getPathUrl(), operation.getHttpMethod(), operation.getNewOperation()));
+      }
+    }
+    return endpoints;
   }
 
   /** Same wording as the console and Markdown renderers. */
@@ -108,7 +130,7 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
     summaryRow("Result", verdict(diff), true);
     summaryRow("New endpoints", String.valueOf(size(diff.getNewEndpoints())), false);
     summaryRow("Deleted endpoints", String.valueOf(size(diff.getMissingEndpoints())), false);
-    summaryRow("Deprecated endpoints", String.valueOf(size(diff.getDeprecatedEndpoints())), false);
+    summaryRow("Deprecated endpoints", String.valueOf(size(deprecatedEndpoints(diff))), false);
     summaryRow("Changed endpoints", String.valueOf(size(diff.getChangedOperations())), false);
     endTable();
   }
@@ -188,6 +210,15 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
   /** Lists what changed in an operation, grouped like the console renderer. */
   List<Line> describeChanges(ChangedOperation operation) {
     List<Line> lines = new ArrayList<>();
+    if (operation.isDeprecated()) {
+      boolean wasDeprecated = isDeprecated(operation.getOldOperation());
+      boolean isDeprecated = isDeprecated(operation.getNewOperation());
+      if (isDeprecated && !wasDeprecated) {
+        lines.add(new Line("Operation deprecated"));
+      } else if (wasDeprecated && !isDeprecated) {
+        lines.add(new Line("Operation no longer deprecated"));
+      }
+    }
     ChangedOperationId operationId = operation.getOperationId();
     if (operationId != null && operationId.isDifferent()) {
       lines.add(
@@ -215,8 +246,12 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
     if (parameters == null) {
       return group;
     }
+    // same rules as ChangedParameters#isCoreChanged
+    DiffContext context = parameters.getContext();
+    boolean requiredIncreasedBreaks = REQUEST_PARAMS_REQUIRED_INCREASED.enabled(context);
     for (Parameter parameter : nullToEmpty(parameters.getIncreased())) {
-      group.add("Added " + describe(parameter));
+      boolean breaks = requiredIncreasedBreaks && Boolean.TRUE.equals(parameter.getRequired());
+      group.add("Added " + describe(parameter) + marker(breaks));
     }
     for (ChangedParameter parameter : nullToEmpty(parameters.getChanged())) {
       Parameter newParameter = parameter.getNewParameter();
@@ -225,8 +260,9 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
       String text = (deprecated ? "Deprecated " : "Changed ") + describe(newParameter);
       group.add(parameter.isIncompatible() ? text + BREAKS_COMPATIBILITY : text);
     }
+    boolean decreasedBreaks = REQUEST_PARAMS_DECREASED.enabled(context);
     for (Parameter parameter : nullToEmpty(parameters.getMissing())) {
-      group.add("Deleted " + describe(parameter));
+      group.add("Deleted " + describe(parameter) + marker(decreasedBreaks));
     }
     return group;
   }
@@ -255,8 +291,10 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
     for (String code : nullToEmpty(responses.getIncreased()).keySet()) {
       group.add("Added " + describeStatus(code));
     }
+    // deleted responses are the only reason for an incompatible core result
+    boolean deletionsBreak = responses.isCoreChanged().isIncompatible();
     for (String code : nullToEmpty(responses.getMissing()).keySet()) {
-      group.add("Deleted " + describeStatus(code));
+      group.add("Deleted " + describeStatus(code) + marker(deletionsBreak));
     }
     nullToEmpty(responses.getChanged())
         .forEach(
@@ -277,8 +315,10 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
     for (String mediaType : nullToEmpty(content.getIncreased()).keySet()) {
       group.add("Added " + mediaType);
     }
+    // deleted media types are the only reason for an incompatible core result
+    boolean deletionsBreak = content.isCoreChanged().isIncompatible();
     for (String mediaType : nullToEmpty(content.getMissing()).keySet()) {
-      group.add("Deleted " + mediaType);
+      group.add("Deleted " + mediaType + marker(deletionsBreak));
     }
     nullToEmpty(content.getChanged())
         .forEach(
@@ -301,8 +341,10 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
     for (String name : nullToEmpty(headers.getIncreased()).keySet()) {
       group.add("Added header " + name);
     }
+    // deleted headers are the only reason for an incompatible core result
+    boolean deletionsBreak = headers.isCoreChanged().isIncompatible();
     for (String name : nullToEmpty(headers.getMissing()).keySet()) {
-      group.add("Deleted header " + name);
+      group.add("Deleted header " + name + marker(deletionsBreak));
     }
     nullToEmpty(headers.getChanged())
         .forEach(
@@ -321,8 +363,10 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
     for (SecurityRequirement requirement : nullToEmpty(security.getIncreased())) {
       group.add("Added " + describe(requirement));
     }
+    // deleted requirements are the only reason for an incompatible core result
+    boolean deletionsBreak = security.isCoreChanged().isIncompatible();
     for (SecurityRequirement requirement : nullToEmpty(security.getMissing())) {
-      group.add("Deleted " + describe(requirement));
+      group.add("Deleted " + describe(requirement) + marker(deletionsBreak));
     }
     nullToEmpty(security.getChanged())
         .forEach(
@@ -404,6 +448,14 @@ class OpenApiDiffReportRenderer extends AbstractMavenReportRenderer {
         .forEach(
             (property, changed) ->
                 incompatibilities(parent, join(path, property), changed, depth + 1));
+  }
+
+  private static String marker(boolean breaksCompatibility) {
+    return breaksCompatibility ? BREAKS_COMPATIBILITY : "";
+  }
+
+  private static boolean isDeprecated(Operation operation) {
+    return operation != null && Boolean.TRUE.equals(operation.getDeprecated());
   }
 
   private static void changedIfIncompatible(
