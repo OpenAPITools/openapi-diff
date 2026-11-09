@@ -20,7 +20,7 @@ paths:
       security:
         - OAuth2: [read]
           OldApiKey: []
-        - BasicAuth: [user]
+        - BasicAuth: []
 components:
   securitySchemes:
     OAuth2:
@@ -29,7 +29,8 @@ components:
         authorizationCode:
           authorizationUrl: ''
           tokenUrl: ''
-          scopes: {}
+          scopes:
+            read: Read access
     OldApiKey:
       type: apiKey
       in: header

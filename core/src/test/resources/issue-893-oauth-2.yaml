@@ -19,7 +19,7 @@ paths:
           description: OK
       security:
         - OAuth2: [read, write]
-          NewApiKey: [admin]
+          NewApiKey: []
         - OpenIdConnect: [openid, profile]
 components:
   securitySchemes:
@@ -29,7 +29,9 @@ components:
         authorizationCode:
           authorizationUrl: some_value
           tokenUrl: some_value
-          scopes: {}
+          scopes:
+            read: Read access
+            write: Write access
     NewApiKey:
       type: apiKey
       in: header

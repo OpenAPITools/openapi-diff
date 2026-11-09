@@ -79,15 +79,15 @@ public class MarkdownRenderTest {
     // added and deleted security requirements are rendered with their scopes
     assertThat(output).contains("##### `GET` /orders");
     assertThat(output).contains("New security requirement: `OpenIdConnect: [openid, profile]`");
-    assertThat(output).contains("Deleted security requirement: `BasicAuth: [user]`");
+    assertThat(output).contains("Deleted security requirement: `BasicAuth: []`");
     // schemes added to or removed from a changed requirement are rendered with their scopes
     assertThat(output).contains("Changed security requirement: `OAuth2, NewApiKey`");
-    assertThat(output).contains("New security scheme: `NewApiKey: [admin]`");
+    assertThat(output).contains("New security scheme: `NewApiKey: []`");
     assertThat(output).contains("Deleted security scheme: `OldApiKey: []`");
     assertThat(output).contains("Added scope value:");
     assertThat(output).contains("* `write`");
     // the compatibility status follows the diff model, which marks OAuth2 flow URL
-    // changes as incompatible unless configured otherwise
+    // changes and increased OAuth2 scopes as incompatible unless configured otherwise
     assertThat(diff.isIncompatible()).isTrue();
     assertThat(output).contains("API changes broke backward compatibility");
   }
@@ -117,8 +117,8 @@ public class MarkdownRenderTest {
     assertThat(output).contains("Changed security requirement: `OAuth2`");
     assertThat(output).contains("authorizationUrl: `` -> `some_value`");
     assertThat(output).contains("New security requirement: `OpenIdConnect: [openid, profile]`");
-    assertThat(output).contains("Deleted security requirement: `BasicAuth: [user]`");
-    assertThat(output).contains("New security scheme: `NewApiKey: [admin]`");
+    assertThat(output).contains("Deleted security requirement: `BasicAuth: []`");
+    assertThat(output).contains("New security scheme: `NewApiKey: []`");
     assertThat(output).contains("Deleted security scheme: `OldApiKey: []`");
     assertThat(output).contains("API changes are backward compatible");
   }
