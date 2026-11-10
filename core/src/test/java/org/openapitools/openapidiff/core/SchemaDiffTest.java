@@ -65,6 +65,7 @@ public class SchemaDiffTest {
     assertEquals(1, changedSchema.getChangedProperties().size());
     assertTrue(changedSchema.getChangedProperties().containsKey("weight"));
     assertTrue(changedSchema.getChangedProperties().get("weight").isChangedType());
+    assertTrue(changedOpenApi.isIncompatible());
   }
 
   @Test // issue #485
