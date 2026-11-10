@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: Schema Type Handling Test - Before
+  version: '1'
+paths:
+  /widgets:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Widget:
+      type: object
+      properties:
+        weight:
+          type: integer

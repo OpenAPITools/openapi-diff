@@ -303,6 +303,26 @@ public class SchemaDiff {
     return ofNullable(schema).map(Schema::get$ref).orElse(null);
   }
 
+  /**
+   * Returns the union of {@link Schema#getType()} and {@link Schema#getTypes()}.
+   *
+   * <p>The type of a schema is carried by different fields depending on the OpenAPI version and how
+   * the schema was deserialized: OpenAPI 3.1 schemas (JsonSchema) hold the `type` keyword in the
+   * `types` set with `getType()` returning null, while OpenAPI 3.0 schemas hold it in `type` and,
+   * for composed schemas merged from their allOf/anyOf children, in `type` only. Comparing the
+   * effective type set makes the type-change detection work across all of these representations.
+   */
+  private static Set<String> getEffectiveTypes(Schema<?> schema) {
+    Set<String> types = new HashSet<>();
+    if (schema.getType() != null) {
+      types.add(schema.getType());
+    }
+    if (schema.getTypes() != null) {
+      types.addAll(schema.getTypes());
+    }
+    return types;
+  }
+
   public DeferredChanged<ChangedSchema> diff(Schema left, Schema right, DiffContext context) {
     return this.diff(new RecursiveSchemaSet(), left, right, context);
   }
@@ -349,8 +369,12 @@ public class SchemaDiff {
     // If type of schemas are different, just set old & new schema, set changedType to true in
     // SchemaDiffResult and
     // return the object
+    // In OpenAPI 3.1 the `type` keyword is deserialized into the `types` set and
+    // `Schema#getType()` returns null, so the effective types must be compared as well
+    // (see https://github.com/OpenAPITools/openapi-diff/issues/910)
     if ((left == null || right == null)
         || !Objects.equals(left.getType(), right.getType())
+        || !Objects.equals(getEffectiveTypes(left), getEffectiveTypes(right))
         || !Objects.equals(left.getFormat(), right.getFormat())) {
       return getTypeChangedSchema(left, right, context);
     }
