@@ -43,4 +43,32 @@ public class HtmlRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void issue857_renderShowsChangedOperationDescription() {
+    HtmlRender render = new HtmlRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-857-operation-description-1.json", "issue-857-operation-description-2.json");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).contains("Changed description:");
+    assertThat(outputStream.toString()).contains("<del class=\"comment\">Sample description</del>");
+    assertThat(outputStream.toString())
+        .contains("<span class=\"comment\">Sample description changed</span>");
+  }
+
+  @Test
+  public void issue857_renderWithShowAllChangesShowsChangedOperationDescription() {
+    HtmlRender render = new HtmlRender(true);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-857-operation-description-1.json", "issue-857-operation-description-2.json");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).contains("Changed description:");
+    assertThat(outputStream.toString()).contains("Sample description changed");
+  }
 }
