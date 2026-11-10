@@ -30,9 +30,9 @@ public class MarkdownRenderTest {
         OpenApiCompare.fromLocations(
             "issue-857-operation-description-1.json", "issue-857-operation-description-2.json");
     render.render(diff, outputStreamWriter);
-    assertThat(outputStream.toString()).contains("Changed description:");
-    assertThat(outputStream.toString()).contains("Sample description");
-    assertThat(outputStream.toString()).contains("Sample description changed");
+    assertThat(outputStream.toString())
+        .contains(
+            "Changed description:\n> Sample description\n\n\nto:\n> Sample description changed");
   }
 
   @Test

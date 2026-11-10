@@ -69,6 +69,8 @@ public class HtmlRenderTest {
             "issue-857-operation-description-1.json", "issue-857-operation-description-2.json");
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).contains("Changed description:");
-    assertThat(outputStream.toString()).contains("Sample description changed");
+    assertThat(outputStream.toString()).contains("<del class=\"comment\">Sample description</del>");
+    assertThat(outputStream.toString())
+        .contains("<span class=\"comment\">Sample description changed</span>");
   }
 }
