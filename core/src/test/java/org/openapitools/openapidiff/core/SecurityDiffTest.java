@@ -101,4 +101,45 @@ public class SecurityDiffTest {
         IllegalArgumentException.class,
         () -> OpenApiCompare.fromLocations(OPENAPI_DOC5, OPENAPI_DOC5));
   }
+
+  @Test
+  public void testApiKeySchemeNameChangeIsCaptured() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations("issue-802-api-key-1.yaml", "issue-802-api-key-2.yaml");
+
+    assertThat(changedOpenApi.getChangedOperations()).hasSize(1);
+    ChangedSecurityRequirements changedSecurityRequirements =
+        changedOpenApi.getChangedOperations().get(0).getSecurityRequirements();
+    // the requirement itself is new at operation level
+    assertThat(changedSecurityRequirements.getIncreased()).hasSize(1);
+    // but the referenced scheme exists on both sides and its name changed
+    assertThat(changedSecurityRequirements.getChangedSchemes()).hasSize(1);
+
+    ChangedSecurityScheme changedSecurityScheme =
+        changedSecurityRequirements.getChangedSchemes().get(0);
+    assertThat(changedSecurityScheme.isChangedName()).isTrue();
+    assertThat(changedSecurityScheme.getOldSecurityScheme().getName()).isEqualTo("Authorization");
+    assertThat(changedSecurityScheme.getNewSecurityScheme().getName()).isEqualTo("pat");
+  }
+
+  @Test
+  public void testApiKeySchemeNameChangeWithinMatchedRequirement() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "bc_security_scheme_base.yaml", "bc_security_scheme_api_key_name_changed.yaml");
+
+    assertThat(changedOpenApi.getChangedOperations()).hasSize(1);
+    ChangedSecurityRequirements changedSecurityRequirements =
+        changedOpenApi.getChangedOperations().get(0).getSecurityRequirements();
+    assertThat(changedSecurityRequirements.getChanged()).hasSize(1);
+
+    ChangedSecurityRequirement changedSecurityRequirement =
+        changedSecurityRequirements.getChanged().get(0);
+    assertThat(changedSecurityRequirement.getChanged()).hasSize(1);
+
+    ChangedSecurityScheme changedSecurityScheme = changedSecurityRequirement.getChanged().get(0);
+    assertThat(changedSecurityScheme.isChangedName()).isTrue();
+    assertThat(changedSecurityScheme.getOldSecurityScheme().getName()).isEqualTo("api_key");
+    assertThat(changedSecurityScheme.getNewSecurityScheme().getName()).isEqualTo("api_key_renamed");
+  }
 }

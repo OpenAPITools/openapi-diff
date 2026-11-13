@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info:
+  title: Company API
+  version: V0
+paths:
+  /info:
+    get:
+      operationId: getInfo
+      responses:
+        '200':
+          description: OK
+    security:
+      - PAT:
+          - context_management
+components:
+  securitySchemes:
+    PAT:
+      type: apiKey
+      name: Authorization
+      in: header

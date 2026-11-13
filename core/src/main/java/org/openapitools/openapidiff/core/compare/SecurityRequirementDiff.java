@@ -58,6 +58,18 @@ public class SecurityRequirementDiff {
       }
     }
 
+    // An apiKey scheme is matched by its parameter name above. When that parameter name is
+    // what changed, fall back to the scheme key so the rename is diffed as a scheme change
+    // instead of being reported as a deleted and re-added security requirement.
+    for (Map.Entry<String, List<String>> entry : right.entrySet()) {
+      SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(entry.getKey());
+      if (schemeRef.equals(entry.getKey())
+          && leftSecurityScheme.getType() == rightSecurityScheme.getType()) {
+        found.put(entry.getKey(), entry.getValue());
+        return found;
+      }
+    }
+
     return found;
   }
 

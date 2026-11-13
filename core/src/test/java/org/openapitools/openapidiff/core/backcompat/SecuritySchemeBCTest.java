@@ -52,4 +52,10 @@ public class SecuritySchemeBCTest {
     BackwardIncompatibleProp prop = SECURITY_SCHEME_SCOPES_INCREASED;
     assertSpecIncompatible(BASE, "bc_security_scheme_scopes_increased.yaml", prop);
   }
+
+  @Test
+  public void apiKeyNameChanged() {
+    BackwardIncompatibleProp prop = SECURITY_SCHEME_API_KEY_NAME_CHANGED;
+    assertSpecIncompatible(BASE, "bc_security_scheme_api_key_name_changed.yaml", prop);
+  }
 }
