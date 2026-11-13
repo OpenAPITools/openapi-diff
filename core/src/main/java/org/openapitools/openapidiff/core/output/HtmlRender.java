@@ -26,7 +26,9 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import j2html.rendering.FlatHtml;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
@@ -36,6 +38,7 @@ import j2html.tags.specialized.OlTag;
 import j2html.tags.specialized.UlTag;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,6 +48,8 @@ import org.openapitools.openapidiff.core.model.ChangedApiResponse;
 import org.openapitools.openapidiff.core.model.ChangedContent;
 import org.openapitools.openapidiff.core.model.ChangedMediaType;
 import org.openapitools.openapidiff.core.model.ChangedMetadata;
+import org.openapitools.openapidiff.core.model.ChangedOAuthFlow;
+import org.openapitools.openapidiff.core.model.ChangedOAuthFlows;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.ChangedOperation;
 import org.openapitools.openapidiff.core.model.ChangedParameter;
@@ -53,6 +58,8 @@ import org.openapitools.openapidiff.core.model.ChangedResponse;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
+import org.openapitools.openapidiff.core.model.ChangedSecurityScheme;
+import org.openapitools.openapidiff.core.model.ChangedSecuritySchemeScopes;
 import org.openapitools.openapidiff.core.model.DiffContext;
 import org.openapitools.openapidiff.core.model.DiffResult;
 import org.openapitools.openapidiff.core.model.Endpoint;
@@ -254,6 +261,11 @@ public class HtmlRender implements Render {
         ul.with(li_changedSecurityRequirement(changedRequirement));
       }
     }
+    if (changedSecurityRequirements.getChangedSchemes() != null) {
+      for (ChangedSecurityScheme scheme : changedSecurityRequirements.getChangedSchemes()) {
+        ul.with(li_changedSecurityScheme(scheme));
+      }
+    }
 
     return ul;
   }
@@ -270,6 +282,10 @@ public class HtmlRender implements Render {
 
   private LiTag li_changedSecurityRequirement(
       ChangedSecurityRequirement changedSecurityRequirement) {
+    UlTag ul_schemes = ul().withClass("change security schemes");
+    for (ChangedSecurityScheme scheme : changedSecurityRequirement.getChanged()) {
+      ul_schemes.with(li_changedSecurityScheme(scheme));
+    }
     return li().withText(String.format("Changed security requirement : "))
         .with(
             span(
@@ -277,7 +293,89 @@ public class HtmlRender implements Render {
                         || null
                             == changedSecurityRequirement.getNewSecurityRequirement().toString())
                     ? ""
-                    : (changedSecurityRequirement.getNewSecurityRequirement().toString())));
+                    : (changedSecurityRequirement.getNewSecurityRequirement().toString())))
+        .with(ul_schemes);
+  }
+
+  private LiTag li_changedSecurityScheme(ChangedSecurityScheme changedSecurityScheme) {
+    return li().withClass("change security scheme")
+        .withText("Changed security scheme : ")
+        .with(span(securitySchemeChanges(changedSecurityScheme)));
+  }
+
+  private String securitySchemeChanges(ChangedSecurityScheme changedSecurityScheme) {
+    SecurityScheme oldScheme = changedSecurityScheme.getOldSecurityScheme();
+    SecurityScheme newScheme = changedSecurityScheme.getNewSecurityScheme();
+    List<String> changes = new ArrayList<>();
+    if (changedSecurityScheme.isChangedType()) {
+      changes.add(String.format("type: %s -> %s", oldScheme.getType(), newScheme.getType()));
+    }
+    if (changedSecurityScheme.isChangedIn()) {
+      changes.add(String.format("in: %s -> %s", oldScheme.getIn(), newScheme.getIn()));
+    }
+    if (changedSecurityScheme.isChangedName()) {
+      changes.add(String.format("name: %s -> %s", oldScheme.getName(), newScheme.getName()));
+    }
+    if (changedSecurityScheme.isChangedScheme()) {
+      changes.add(String.format("scheme: %s -> %s", oldScheme.getScheme(), newScheme.getScheme()));
+    }
+    if (changedSecurityScheme.isChangedBearerFormat()) {
+      changes.add(
+          String.format(
+              "bearerFormat: %s -> %s", oldScheme.getBearerFormat(), newScheme.getBearerFormat()));
+    }
+    if (changedSecurityScheme.isChangedOpenIdConnectUrl()) {
+      changes.add(
+          String.format(
+              "openIdConnectUrl: %s -> %s",
+              oldScheme.getOpenIdConnectUrl(), newScheme.getOpenIdConnectUrl()));
+    }
+    if (changedSecurityScheme.getChangedScopes() != null) {
+      ChangedSecuritySchemeScopes changedScopes = changedSecurityScheme.getChangedScopes();
+      if (!changedScopes.getIncreased().isEmpty()) {
+        changes.add("added scopes: " + String.join(", ", changedScopes.getIncreased()));
+      }
+      if (!changedScopes.getMissing().isEmpty()) {
+        changes.add("removed scopes: " + String.join(", ", changedScopes.getMissing()));
+      }
+    }
+    if (changedSecurityScheme.getOAuthFlows() != null) {
+      ChangedOAuthFlows changedOAuthFlows = changedSecurityScheme.getOAuthFlows();
+      addOAuthFlowChanges("implicit", changedOAuthFlows.getImplicitOAuthFlow(), changes);
+      addOAuthFlowChanges("password", changedOAuthFlows.getPasswordOAuthFlow(), changes);
+      addOAuthFlowChanges(
+          "clientCredentials", changedOAuthFlows.getClientCredentialOAuthFlow(), changes);
+      addOAuthFlowChanges(
+          "authorizationCode", changedOAuthFlows.getAuthorizationCodeOAuthFlow(), changes);
+    }
+    return String.join("; ", changes);
+  }
+
+  private void addOAuthFlowChanges(
+      String flowName, ChangedOAuthFlow changedOAuthFlow, List<String> changes) {
+    if (changedOAuthFlow == null) {
+      return;
+    }
+    OAuthFlow oldFlow = changedOAuthFlow.getOldOAuthFlow();
+    OAuthFlow newFlow = changedOAuthFlow.getNewOAuthFlow();
+    if (changedOAuthFlow.isAuthorizationUrl()) {
+      changes.add(
+          String.format(
+              "%s flow authorizationUrl: %s -> %s",
+              flowName, oldFlow.getAuthorizationUrl(), newFlow.getAuthorizationUrl()));
+    }
+    if (changedOAuthFlow.isTokenUrl()) {
+      changes.add(
+          String.format(
+              "%s flow tokenUrl: %s -> %s",
+              flowName, oldFlow.getTokenUrl(), newFlow.getTokenUrl()));
+    }
+    if (changedOAuthFlow.isRefreshUrl()) {
+      changes.add(
+          String.format(
+              "%s flow refreshUrl: %s -> %s",
+              flowName, oldFlow.getRefreshUrl(), newFlow.getRefreshUrl()));
+    }
   }
 
   private UlTag ul_response(ChangedApiResponse changedApiResponse) {

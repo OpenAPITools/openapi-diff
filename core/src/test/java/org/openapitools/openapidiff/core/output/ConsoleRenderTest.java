@@ -88,4 +88,19 @@ public class ConsoleRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void issue802_renderChangedApiKeySchemeNameInConsole() {
+    ConsoleRender render = new ConsoleRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("issue-802-api-key-1.yaml", "issue-802-api-key-2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString())
+        .contains("Security Requirements:")
+        .containsSubsequence(
+            "- New security requirement: PAT: [context_management]",
+            "Changed security scheme name: Authorization -> pat");
+  }
 }

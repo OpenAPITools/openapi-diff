@@ -43,6 +43,7 @@ public enum BackwardIncompatibleProp {
   SECURITY_REQUIREMENT_SCHEMES_INCREASED(
       "incompatible.security.requirement.schemes.increased", true),
   SECURITY_REQUIREMENTS_DECREASED("incompatible.security.requirements.decreased", true),
+  SECURITY_SCHEME_API_KEY_NAME_CHANGED("incompatible.security.scheme.apikey.name.changed", true),
   SECURITY_SCHEME_BEARER_FORMAT_CHANGED("incompatible.security.scheme.bearer.format.changed", true),
   SECURITY_SCHEME_OAUTH2_AUTH_URL_CHANGED(
       "incompatible.security.scheme.oauth2.auth.url.changed", true),

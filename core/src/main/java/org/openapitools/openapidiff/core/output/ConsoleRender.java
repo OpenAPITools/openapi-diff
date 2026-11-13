@@ -6,12 +6,15 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
@@ -104,7 +107,182 @@ public class ConsoleRender implements Render {
         safelyAppend(outputStreamWriter, System.lineSeparator());
         safelyAppend(outputStreamWriter, ul_response(operation.getApiResponses()));
       }
+      if (operation.resultSecurityRequirements().isDifferent()) {
+        safelyAppend(outputStreamWriter, StringUtils.repeat(' ', 2));
+        safelyAppend(outputStreamWriter, "Security Requirements:");
+        safelyAppend(outputStreamWriter, System.lineSeparator());
+        safelyAppend(
+            outputStreamWriter, ul_securityRequirements(operation.getSecurityRequirements()));
+      }
     }
+  }
+
+  private String ul_securityRequirements(ChangedSecurityRequirements changedSecurityRequirements) {
+    StringBuilder sb = new StringBuilder();
+    if (changedSecurityRequirements.getIncreased() != null) {
+      for (SecurityRequirement requirement : changedSecurityRequirements.getIncreased()) {
+        sb.append(itemSecurityRequirement("New security requirement", requirement));
+      }
+    }
+    if (changedSecurityRequirements.getMissing() != null) {
+      for (SecurityRequirement requirement : changedSecurityRequirements.getMissing()) {
+        sb.append(itemSecurityRequirement("Deleted security requirement", requirement));
+      }
+    }
+    for (ChangedSecurityRequirement requirement : changedSecurityRequirements.getChanged()) {
+      sb.append(itemChangedSecurityRequirement(requirement));
+    }
+    if (changedSecurityRequirements.getChangedSchemes() != null) {
+      for (ChangedSecurityScheme scheme : changedSecurityRequirements.getChangedSchemes()) {
+        sb.append(itemChangedSecurityScheme(scheme));
+      }
+    }
+    return sb.toString();
+  }
+
+  private String itemSecurityRequirement(String title, SecurityRequirement securityRequirement) {
+    return String.format(
+        "%s- %s: %s%n",
+        StringUtils.repeat(' ', 4), title, securityRequirementWithScopes(securityRequirement));
+  }
+
+  private String itemChangedSecurityRequirement(
+      ChangedSecurityRequirement changedSecurityRequirement) {
+    StringBuilder sb = new StringBuilder();
+    SecurityRequirement nameSource = changedSecurityRequirement.getNewSecurityRequirement();
+    if (nameSource == null || nameSource.isEmpty()) {
+      nameSource = changedSecurityRequirement.getOldSecurityRequirement();
+    }
+    sb.append(
+        String.format(
+            "%s- Changed security requirement: %s%n",
+            StringUtils.repeat(' ', 4), securityRequirementName(nameSource)));
+    for (ChangedSecurityScheme scheme : changedSecurityRequirement.getChanged()) {
+      sb.append(itemChangedSecurityScheme(scheme));
+    }
+    return sb.toString();
+  }
+
+  private String itemChangedSecurityScheme(ChangedSecurityScheme changedSecurityScheme) {
+    SecurityScheme oldScheme = changedSecurityScheme.getOldSecurityScheme();
+    SecurityScheme newScheme = changedSecurityScheme.getNewSecurityScheme();
+    StringBuilder sb = new StringBuilder();
+    if (changedSecurityScheme.isChangedType()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "Changed security scheme type",
+              String.format("%s -> %s", oldScheme.getType(), newScheme.getType())));
+    }
+    if (changedSecurityScheme.isChangedIn()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "Changed security scheme location",
+              String.format("%s -> %s", oldScheme.getIn(), newScheme.getIn())));
+    }
+    if (changedSecurityScheme.isChangedName()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "Changed security scheme name",
+              String.format("%s -> %s", oldScheme.getName(), newScheme.getName())));
+    }
+    if (changedSecurityScheme.isChangedScheme()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "Changed security scheme",
+              String.format("%s -> %s", oldScheme.getScheme(), newScheme.getScheme())));
+    }
+    if (changedSecurityScheme.isChangedBearerFormat()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "Changed bearer format",
+              String.format("%s -> %s", oldScheme.getBearerFormat(), newScheme.getBearerFormat())));
+    }
+    if (changedSecurityScheme.isChangedOpenIdConnectUrl()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "Changed openIdConnectUrl",
+              String.format(
+                  "%s -> %s", oldScheme.getOpenIdConnectUrl(), newScheme.getOpenIdConnectUrl())));
+    }
+    if (changedSecurityScheme.getChangedScopes() != null) {
+      ChangedSecuritySchemeScopes changedScopes = changedSecurityScheme.getChangedScopes();
+      if (!changedScopes.getIncreased().isEmpty()) {
+        sb.append(
+            itemSecuritySchemeChange(
+                "Added scope value(s)", String.join(", ", changedScopes.getIncreased())));
+      }
+      if (!changedScopes.getMissing().isEmpty()) {
+        sb.append(
+            itemSecuritySchemeChange(
+                "Removed scope value(s)", String.join(", ", changedScopes.getMissing())));
+      }
+    }
+    if (changedSecurityScheme.getOAuthFlows() != null) {
+      ChangedOAuthFlows changedOAuthFlows = changedSecurityScheme.getOAuthFlows();
+      sb.append(itemChangedOAuthFlow("implicit", changedOAuthFlows.getImplicitOAuthFlow()));
+      sb.append(itemChangedOAuthFlow("password", changedOAuthFlows.getPasswordOAuthFlow()));
+      sb.append(
+          itemChangedOAuthFlow(
+              "clientCredentials", changedOAuthFlows.getClientCredentialOAuthFlow()));
+      sb.append(
+          itemChangedOAuthFlow(
+              "authorizationCode", changedOAuthFlows.getAuthorizationCodeOAuthFlow()));
+    }
+    return sb.toString();
+  }
+
+  private String itemChangedOAuthFlow(String flowName, ChangedOAuthFlow changedOAuthFlow) {
+    if (changedOAuthFlow == null) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder();
+    if (changedOAuthFlow.isAuthorizationUrl()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              String.format("Changed %s flow authorizationUrl", flowName),
+              String.format(
+                  "%s -> %s",
+                  changedOAuthFlow.getOldOAuthFlow().getAuthorizationUrl(),
+                  changedOAuthFlow.getNewOAuthFlow().getAuthorizationUrl())));
+    }
+    if (changedOAuthFlow.isTokenUrl()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              String.format("Changed %s flow tokenUrl", flowName),
+              String.format(
+                  "%s -> %s",
+                  changedOAuthFlow.getOldOAuthFlow().getTokenUrl(),
+                  changedOAuthFlow.getNewOAuthFlow().getTokenUrl())));
+    }
+    if (changedOAuthFlow.isRefreshUrl()) {
+      sb.append(
+          itemSecuritySchemeChange(
+              String.format("Changed %s flow refreshUrl", flowName),
+              String.format(
+                  "%s -> %s",
+                  changedOAuthFlow.getOldOAuthFlow().getRefreshUrl(),
+                  changedOAuthFlow.getNewOAuthFlow().getRefreshUrl())));
+    }
+    return sb.toString();
+  }
+
+  private String itemSecuritySchemeChange(String title, String detail) {
+    return String.format(
+        "%s* %s: %s%n", StringUtils.repeat(' ', 6), title, StringUtils.defaultString(detail));
+  }
+
+  private String securityRequirementWithScopes(SecurityRequirement securityRequirement) {
+    if (securityRequirement == null) {
+      return "";
+    }
+    return securityRequirement.entrySet().stream()
+        .map(
+            entry -> String.format("%s: [%s]", entry.getKey(), String.join(", ", entry.getValue())))
+        .collect(Collectors.joining(", "));
+  }
+
+  private String securityRequirementName(SecurityRequirement securityRequirement) {
+    return securityRequirement == null ? "" : String.join(", ", securityRequirement.keySet());
   }
 
   private String ul_response(ChangedApiResponse changedApiResponse) {

@@ -4,9 +4,11 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -104,7 +106,44 @@ public class SecurityRequirementsDiff {
     }
     right.forEach(changedSecurityRequirements::addIncreased);
 
+    // A requirement may be added at this level while the schemes it references already exist
+    // in the other spec's components. Diff those definitions as well so that their changes
+    // (e.g. an apiKey scheme whose parameter name changed) are not lost.
+    if (changedSecurityRequirements.getIncreased() != null) {
+      Set<String> diffedSchemeRefs = new HashSet<>();
+      for (SecurityRequirement increasedSecurity : changedSecurityRequirements.getIncreased()) {
+        for (Map.Entry<String, List<String>> entry : increasedSecurity.entrySet()) {
+          if (diffedSchemeRefs.add(entry.getKey())
+              && hasSecurityScheme(leftComponents, entry.getKey())
+              && hasSecurityScheme(rightComponents, entry.getKey())) {
+            builder
+                .with(
+                    openApiDiff
+                        .getSecuritySchemeDiff()
+                        .diff(
+                            entry.getKey(),
+                            entry.getValue(),
+                            entry.getKey(),
+                            entry.getValue(),
+                            context))
+                .ifPresent(
+                    changedSecurityScheme -> {
+                      if (changedSecurityScheme.isChanged().isDifferent()) {
+                        changedSecurityRequirements.addChangedScheme(changedSecurityScheme);
+                      }
+                    });
+          }
+        }
+      }
+    }
+
     return builder.buildIsChanged(changedSecurityRequirements);
+  }
+
+  private static boolean hasSecurityScheme(Components components, String schemeRef) {
+    return components != null
+        && components.getSecuritySchemes() != null
+        && components.getSecuritySchemes().containsKey(schemeRef);
   }
 
   private List<SecurityRequirement> getCopy(List<SecurityRequirement> right) {

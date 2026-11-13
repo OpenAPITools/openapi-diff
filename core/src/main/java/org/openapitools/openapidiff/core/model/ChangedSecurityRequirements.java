@@ -15,6 +15,7 @@ public class ChangedSecurityRequirements implements ComposedChanged {
   private List<SecurityRequirement> missing;
   private List<SecurityRequirement> increased;
   private List<ChangedSecurityRequirement> changed;
+  private List<ChangedSecurityScheme> changedSchemes;
 
   public ChangedSecurityRequirements(
       List<SecurityRequirement> oldSecurityRequirements,
@@ -28,7 +29,11 @@ public class ChangedSecurityRequirements implements ComposedChanged {
 
   @Override
   public List<Changed> getChangedElements() {
-    return new ArrayList<>(changed);
+    List<Changed> changedElements = new ArrayList<>(changed);
+    if (changedSchemes != null) {
+      changedElements.addAll(changedSchemes);
+    }
+    return changedElements;
   }
 
   @Override
@@ -65,6 +70,13 @@ public class ChangedSecurityRequirements implements ComposedChanged {
     this.changed.add(changedSecurityRequirement);
   }
 
+  public void addChangedScheme(ChangedSecurityScheme changedSecurityScheme) {
+    if (this.changedSchemes == null) {
+      this.changedSchemes = new ArrayList<>();
+    }
+    this.changedSchemes.add(changedSecurityScheme);
+  }
+
   public List<SecurityRequirement> getOldSecurityRequirements() {
     return this.oldSecurityRequirements;
   }
@@ -83,6 +95,10 @@ public class ChangedSecurityRequirements implements ComposedChanged {
 
   public List<ChangedSecurityRequirement> getChanged() {
     return this.changed;
+  }
+
+  public List<ChangedSecurityScheme> getChangedSchemes() {
+    return this.changedSchemes;
   }
 
   public ChangedSecurityRequirements setOldSecurityRequirements(
@@ -112,6 +128,12 @@ public class ChangedSecurityRequirements implements ComposedChanged {
     return this;
   }
 
+  public ChangedSecurityRequirements setChangedSchemes(
+      final List<ChangedSecurityScheme> changedSchemes) {
+    this.changedSchemes = changedSchemes;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -121,13 +143,19 @@ public class ChangedSecurityRequirements implements ComposedChanged {
         && Objects.equals(newSecurityRequirements, that.newSecurityRequirements)
         && Objects.equals(missing, that.missing)
         && Objects.equals(increased, that.increased)
-        && Objects.equals(changed, that.changed);
+        && Objects.equals(changed, that.changed)
+        && Objects.equals(changedSchemes, that.changedSchemes);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(
-        oldSecurityRequirements, newSecurityRequirements, missing, increased, changed);
+        oldSecurityRequirements,
+        newSecurityRequirements,
+        missing,
+        increased,
+        changed,
+        changedSchemes);
   }
 
   @java.lang.Override
@@ -142,6 +170,8 @@ public class ChangedSecurityRequirements implements ComposedChanged {
         + this.getIncreased()
         + ", changed="
         + this.getChanged()
+        + ", changedSchemes="
+        + this.getChangedSchemes()
         + ")";
   }
 }
