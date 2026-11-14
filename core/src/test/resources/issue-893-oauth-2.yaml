@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: Company API
+  version: V0
+paths:
+  /users:
+    post:
+      operationId: createUser
+      responses:
+        '201':
+          description: Created
+      security:
+        - OAuth2: []
+  /orders:
+    get:
+      operationId: listOrders
+      responses:
+        '200':
+          description: OK
+      security:
+        - OAuth2: [read, write]
+          NewApiKey: []
+        - OpenIdConnect: [openid, profile]
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: some_value
+          tokenUrl: some_value
+          scopes:
+            read: Read access
+            write: Write access
+    NewApiKey:
+      type: apiKey
+      in: header
+      name: X-New-Key
+    OpenIdConnect:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
