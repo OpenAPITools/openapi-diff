@@ -1,0 +1,8 @@
+type: object
+required:
+  - pet_type
+properties:
+  pet_color:
+    type: string
+  pet_type:
+    type: string

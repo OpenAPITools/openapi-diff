@@ -1,0 +1,14 @@
+Pet:
+  allOf:
+  - $ref: '#/BasePet'
+  - type: object
+    required:
+      - pet_type
+    properties:
+      pet_type:
+        type: string
+BasePet:
+  type: object
+  properties:
+    pet_color:
+      type: string
