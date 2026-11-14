@@ -1,0 +1,25 @@
+openapi: 3.0.2
+info:
+  title: Media type example changes
+  version: 1.0.0
+paths:
+  /examples:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string

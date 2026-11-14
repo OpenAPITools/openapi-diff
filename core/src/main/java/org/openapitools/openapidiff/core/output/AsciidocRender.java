@@ -207,6 +207,13 @@ public class AsciidocRender implements Render {
     if (!changedMediaType.isCompatible() && changedMediaType.getSchema() != null) {
       sb.append(incompatibilities(changedMediaType.getSchema()));
     }
+    MediaTypeExampleChanges.render(changedMediaType)
+        .forEach(
+            (label, value) ->
+                sb.append(itemContent(label + ":", "", indent + 1))
+                    .append("+\n[source,json]\n----\n")
+                    .append(value)
+                    .append("\n----\n"));
     return sb.toString();
   }
 

@@ -283,6 +283,18 @@ public class MarkdownRender implements Render {
     if (content.getSchema() != null) {
       result += schema(deepness, content.getSchema());
     }
+    String prefix = indent(deepness);
+    for (Map.Entry<String, String> detail : MediaTypeExampleChanges.render(content).entrySet()) {
+      result +=
+          format(
+              "%s%s:\n\n%s```json\n%s%s\n%s```\n\n",
+              prefix,
+              detail.getKey(),
+              prefix,
+              prefix,
+              detail.getValue().replace("\n", "\n" + prefix),
+              prefix);
+    }
     return result;
   }
 
