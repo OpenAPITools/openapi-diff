@@ -14,6 +14,7 @@ public class ChangedSecurityScheme implements ComposedChanged {
   private boolean changedType;
   private boolean changedIn;
   private boolean changedScheme;
+  private boolean changedName;
   private boolean changedBearerFormat;
   private boolean changedOpenIdConnectUrl;
   private ChangedSecuritySchemeScopes changedScopes;
@@ -38,12 +39,18 @@ public class ChangedSecurityScheme implements ComposedChanged {
     if (!changedType
         && !changedIn
         && !changedScheme
+        && !changedName
         && !changedBearerFormat
         && !changedOpenIdConnectUrl
         && (changedScopes == null || changedScopes.isUnchanged())) {
       return DiffResult.NO_CHANGES;
     }
 
+    if (changedName) {
+      if (SECURITY_SCHEME_API_KEY_NAME_CHANGED.enabled(context)) {
+        return DiffResult.INCOMPATIBLE;
+      }
+    }
     if (changedBearerFormat) {
       if (SECURITY_SCHEME_BEARER_FORMAT_CHANGED.enabled(context)) {
         return DiffResult.INCOMPATIBLE;
@@ -95,6 +102,10 @@ public class ChangedSecurityScheme implements ComposedChanged {
     return this.changedScheme;
   }
 
+  public boolean isChangedName() {
+    return this.changedName;
+  }
+
   public boolean isChangedBearerFormat() {
     return this.changedBearerFormat;
   }
@@ -144,6 +155,11 @@ public class ChangedSecurityScheme implements ComposedChanged {
     return this;
   }
 
+  public ChangedSecurityScheme setChangedName(final boolean changedName) {
+    this.changedName = changedName;
+    return this;
+  }
+
   public ChangedSecurityScheme setChangedBearerFormat(final boolean changedBearerFormat) {
     this.changedBearerFormat = changedBearerFormat;
     return this;
@@ -182,6 +198,7 @@ public class ChangedSecurityScheme implements ComposedChanged {
     return changedType == that.changedType
         && changedIn == that.changedIn
         && changedScheme == that.changedScheme
+        && changedName == that.changedName
         && changedBearerFormat == that.changedBearerFormat
         && changedOpenIdConnectUrl == that.changedOpenIdConnectUrl
         && Objects.equals(oldSecurityScheme, that.oldSecurityScheme)
@@ -200,6 +217,7 @@ public class ChangedSecurityScheme implements ComposedChanged {
         changedType,
         changedIn,
         changedScheme,
+        changedName,
         changedBearerFormat,
         changedOpenIdConnectUrl,
         changedScopes,
@@ -220,6 +238,8 @@ public class ChangedSecurityScheme implements ComposedChanged {
         + this.isChangedIn()
         + ", changedScheme="
         + this.isChangedScheme()
+        + ", changedName="
+        + this.isChangedName()
         + ", changedBearerFormat="
         + this.isChangedBearerFormat()
         + ", changedOpenIdConnectUrl="

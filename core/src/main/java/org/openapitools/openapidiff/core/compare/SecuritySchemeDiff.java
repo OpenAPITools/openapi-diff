@@ -82,6 +82,12 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
       case APIKEY:
         changedSecurityScheme.setChangedIn(
             !Objects.equals(leftSecurityScheme.getIn(), rightSecurityScheme.getIn()));
+        // The parameter name is an apiKey-only property; when the scheme is no longer an
+        // apiKey on the other side the type change is reported instead.
+        if (rightSecurityScheme.getType() == SecurityScheme.Type.APIKEY) {
+          changedSecurityScheme.setChangedName(
+              !Objects.equals(leftSecurityScheme.getName(), rightSecurityScheme.getName()));
+        }
         break;
 
       case OAUTH2:
@@ -121,6 +127,7 @@ public class SecuritySchemeDiff extends ReferenceDiffCache<SecurityScheme, Chang
         .setChangedType(original.isChangedType())
         .setChangedIn(original.isChangedIn())
         .setChangedScheme(original.isChangedScheme())
+        .setChangedName(original.isChangedName())
         .setChangedBearerFormat(original.isChangedBearerFormat())
         .setDescription(original.getDescription())
         .setOAuthFlows(original.getOAuthFlows())
