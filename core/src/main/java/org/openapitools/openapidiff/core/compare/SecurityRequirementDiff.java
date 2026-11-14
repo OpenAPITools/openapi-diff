@@ -38,6 +38,21 @@ public class SecurityRequirementDiff {
     SecurityScheme leftSecurityScheme = leftComponents.getSecuritySchemes().get(schemeRef);
     LinkedHashMap<String, List<String>> found = new LinkedHashMap<>();
 
+    // Match by component key first: when the other requirement still references the same
+    // securityScheme key, it is the same scheme even if the apiKey parameter name changed,
+    // and the name change is diffed as a scheme change. Matching by name first mispairs
+    // schemes when a requirement contains several apiKey schemes.
+    for (Map.Entry<String, List<String>> entry : right.entrySet()) {
+      SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(entry.getKey());
+      if (schemeRef.equals(entry.getKey())
+          && leftSecurityScheme.getType() == rightSecurityScheme.getType()) {
+        found.put(entry.getKey(), entry.getValue());
+        return found;
+      }
+    }
+
+    // Fall back to matching by parameter name so a renamed component key is not reported
+    // as a removed and re-added scheme while the parameter name clients send is unchanged.
     for (Map.Entry<String, List<String>> entry : right.entrySet()) {
       SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(entry.getKey());
       if (leftSecurityScheme.getType() == rightSecurityScheme.getType()) {
@@ -55,18 +70,6 @@ public class SecurityRequirementDiff {
             found.put(entry.getKey(), entry.getValue());
             return found;
         }
-      }
-    }
-
-    // An apiKey scheme is matched by its parameter name above. When that parameter name is
-    // what changed, fall back to the scheme key so the rename is diffed as a scheme change
-    // instead of being reported as a deleted and re-added security requirement.
-    for (Map.Entry<String, List<String>> entry : right.entrySet()) {
-      SecurityScheme rightSecurityScheme = rightComponents.getSecuritySchemes().get(entry.getKey());
-      if (schemeRef.equals(entry.getKey())
-          && leftSecurityScheme.getType() == rightSecurityScheme.getType()) {
-        found.put(entry.getKey(), entry.getValue());
-        return found;
       }
     }
 

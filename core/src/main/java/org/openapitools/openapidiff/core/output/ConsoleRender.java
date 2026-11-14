@@ -132,11 +132,6 @@ public class ConsoleRender implements Render {
     for (ChangedSecurityRequirement requirement : changedSecurityRequirements.getChanged()) {
       sb.append(itemChangedSecurityRequirement(requirement));
     }
-    if (changedSecurityRequirements.getChangedSchemes() != null) {
-      for (ChangedSecurityScheme scheme : changedSecurityRequirements.getChangedSchemes()) {
-        sb.append(itemChangedSecurityScheme(scheme));
-      }
-    }
     return sb.toString();
   }
 
@@ -157,6 +152,18 @@ public class ConsoleRender implements Render {
         String.format(
             "%s- Changed security requirement: %s%n",
             StringUtils.repeat(' ', 4), securityRequirementName(nameSource)));
+    if (changedSecurityRequirement.getIncreased() != null) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "New security scheme",
+              securityRequirementWithScopes(changedSecurityRequirement.getIncreased())));
+    }
+    if (changedSecurityRequirement.getMissing() != null) {
+      sb.append(
+          itemSecuritySchemeChange(
+              "Deleted security scheme",
+              securityRequirementWithScopes(changedSecurityRequirement.getMissing())));
+    }
     for (ChangedSecurityScheme scheme : changedSecurityRequirement.getChanged()) {
       sb.append(itemChangedSecurityScheme(scheme));
     }

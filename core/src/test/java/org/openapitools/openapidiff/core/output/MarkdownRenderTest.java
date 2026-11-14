@@ -61,16 +61,53 @@ public class MarkdownRenderTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-        OpenApiCompare.fromLocations("issue-802-api-key-1.yaml", "issue-802-api-key-2.yaml");
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-name-changed-1.yaml", "issue-802-api-key-name-changed-2.yaml");
     render.render(diff, outputStreamWriter);
     String output = outputStream.toString();
     assertThat(output).contains("##### `GET` /info");
     assertThat(output).contains("Security Requirements:");
-    assertThat(output).contains("New security requirement: `PAT: [context_management]`");
-    assertThat(output).contains("Changed security scheme name: `Authorization` -> `pat`");
+    assertThat(output).contains("* Changed security requirement: `PAT`");
+    // two-space list indent: a four-space indent would render as a code block
+    assertThat(output).contains("  * Changed security scheme name: `Authorization` -> `pat`");
+    assertThat(output).doesNotContain("\n    * Changed security scheme name");
     // changing the apiKey parameter name is wire-breaking unless configured otherwise
     assertThat(diff.isIncompatible()).isTrue();
     assertThat(output).contains("API changes broke backward compatibility");
+  }
+
+  @Test
+  public void issue802_renderRemovedAndAddedApiKeySchemeInMarkdown() {
+    MarkdownRender render = new MarkdownRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-key-and-name-changed-1.yaml",
+            "issue-802-api-key-key-and-name-changed-2.yaml");
+    render.render(diff, outputStreamWriter);
+    String output = outputStream.toString();
+    assertThat(output)
+        .contains("* Changed security requirement: `PAT2`")
+        .contains("  * New security scheme: `PAT2: []`")
+        .contains("  * Deleted security scheme: `PAT: []`");
+    // no rename is guessed
+    assertThat(output).doesNotContain("Changed security scheme name");
+  }
+
+  @Test
+  public void issue802_renderAddedAlternativeSecurityRequirementInMarkdown() {
+    MarkdownRender render = new MarkdownRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-802-security-requirement-added-1.yaml",
+            "issue-802-security-requirement-added-2.yaml");
+    render.render(diff, outputStreamWriter);
+    String output = outputStream.toString();
+    assertThat(output).contains("* New security requirement: `petstore_auth: [read]`");
+    assertThat(output).contains("API changes are backward compatible");
   }
 
   @Test
@@ -81,7 +118,10 @@ public class MarkdownRenderTest {
             .build();
     ChangedOpenApi diff =
         OpenApiCompare.fromLocations(
-            "issue-802-api-key-1.yaml", "issue-802-api-key-2.yaml", null, options);
+            "issue-802-api-key-name-changed-1.yaml",
+            "issue-802-api-key-name-changed-2.yaml",
+            null,
+            options);
     assertThat(diff.isDifferent()).isTrue();
     assertThat(diff.isCompatible()).isTrue();
 
@@ -91,8 +131,8 @@ public class MarkdownRenderTest {
     render.render(diff, outputStreamWriter);
     String output = outputStream.toString();
     assertThat(output).contains("Security Requirements:");
-    assertThat(output).contains("New security requirement: `PAT: [context_management]`");
-    assertThat(output).contains("Changed security scheme name: `Authorization` -> `pat`");
+    assertThat(output).contains("* Changed security requirement: `PAT`");
+    assertThat(output).contains("  * Changed security scheme name: `Authorization` -> `pat`");
     assertThat(output).contains("API changes are backward compatible");
   }
 }

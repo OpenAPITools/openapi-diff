@@ -1,6 +1,8 @@
 package org.openapitools.openapidiff.core;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -102,24 +104,125 @@ public class SecurityDiffTest {
         () -> OpenApiCompare.fromLocations(OPENAPI_DOC5, OPENAPI_DOC5));
   }
 
+  /** Case 1: the component key is renamed but the apiKey parameter name is unchanged. */
   @Test
-  public void testApiKeySchemeNameChangeIsCaptured() {
+  public void testApiKeyKeyRenamedNameSame() {
     ChangedOpenApi changedOpenApi =
-        OpenApiCompare.fromLocations("issue-802-api-key-1.yaml", "issue-802-api-key-2.yaml");
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-key-renamed-1.yaml", "issue-802-api-key-key-renamed-2.yaml");
+
+    assertThat(changedOpenApi.isUnchanged()).isTrue();
+    assertThat(changedOpenApi.getChangedOperations()).isEmpty();
+  }
+
+  /**
+   * Case 2 (#802): same component key, the apiKey parameter name changed. The name change is
+   * reported on the scheme inside the matched requirement.
+   */
+  @Test
+  public void testApiKeyNameChanged() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-name-changed-1.yaml", "issue-802-api-key-name-changed-2.yaml");
 
     assertThat(changedOpenApi.getChangedOperations()).hasSize(1);
+    assertThat(changedOpenApi.isIncompatible()).isTrue();
+
     ChangedSecurityRequirements changedSecurityRequirements =
         changedOpenApi.getChangedOperations().get(0).getSecurityRequirements();
-    // the requirement itself is new at operation level
-    assertThat(changedSecurityRequirements.getIncreased()).hasSize(1);
-    // but the referenced scheme exists on both sides and its name changed
-    assertThat(changedSecurityRequirements.getChangedSchemes()).hasSize(1);
+    assertThat(changedSecurityRequirements.getIncreased()).isNull();
+    assertThat(changedSecurityRequirements.getMissing()).isNull();
+    assertThat(changedSecurityRequirements.getChanged()).hasSize(1);
 
-    ChangedSecurityScheme changedSecurityScheme =
-        changedSecurityRequirements.getChangedSchemes().get(0);
+    ChangedSecurityRequirement changedSecurityRequirement =
+        changedSecurityRequirements.getChanged().get(0);
+    assertThat(changedSecurityRequirement.getIncreased()).isNull();
+    assertThat(changedSecurityRequirement.getMissing()).isNull();
+    assertThat(changedSecurityRequirement.getChanged()).hasSize(1);
+
+    ChangedSecurityScheme changedSecurityScheme = changedSecurityRequirement.getChanged().get(0);
     assertThat(changedSecurityScheme.isChangedName()).isTrue();
     assertThat(changedSecurityScheme.getOldSecurityScheme().getName()).isEqualTo("Authorization");
     assertThat(changedSecurityScheme.getNewSecurityScheme().getName()).isEqualTo("pat");
+  }
+
+  /**
+   * Case 3: both the component key and the parameter name changed. The scheme is reported as
+   * removed and added, not as a rename.
+   */
+  @Test
+  public void testApiKeyKeyAndNameChanged() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-key-and-name-changed-1.yaml",
+            "issue-802-api-key-key-and-name-changed-2.yaml");
+
+    assertThat(changedOpenApi.getChangedOperations()).hasSize(1);
+    assertThat(changedOpenApi.isIncompatible()).isTrue();
+
+    ChangedSecurityRequirements changedSecurityRequirements =
+        changedOpenApi.getChangedOperations().get(0).getSecurityRequirements();
+    assertThat(changedSecurityRequirements.getChanged()).hasSize(1);
+
+    ChangedSecurityRequirement changedSecurityRequirement =
+        changedSecurityRequirements.getChanged().get(0);
+    assertThat(changedSecurityRequirement.getMissing())
+        .hasSize(1)
+        .containsKey("PAT")
+        .containsValue(emptyList());
+    assertThat(changedSecurityRequirement.getIncreased())
+        .hasSize(1)
+        .containsKey("PAT2")
+        .containsValue(emptyList());
+    // no rename is guessed
+    assertThat(changedSecurityRequirement.getChanged()).isEmpty();
+  }
+
+  /** Case 4: a new alternative security requirement is added, which is compatible. */
+  @Test
+  public void testAlternativeSecurityRequirementAdded() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "issue-802-security-requirement-added-1.yaml",
+            "issue-802-security-requirement-added-2.yaml");
+
+    assertThat(changedOpenApi.getChangedOperations()).hasSize(1);
+    assertThat(changedOpenApi.isCompatible()).isTrue();
+    assertThat(changedOpenApi.isIncompatible()).isFalse();
+
+    ChangedSecurityRequirements changedSecurityRequirements =
+        changedOpenApi.getChangedOperations().get(0).getSecurityRequirements();
+    assertThat(changedSecurityRequirements.getIncreased())
+        .hasSize(1)
+        .first()
+        .satisfies(requirement -> assertThat(requirement).containsKey("petstore_auth"));
+    assertThat(changedSecurityRequirements.getMissing()).isNull();
+  }
+
+  /**
+   * Several apiKey schemes in one requirement are paired by component key first, so a name swap
+   * between two schemes is reported on both schemes instead of pairing each scheme with the other
+   * one by name.
+   */
+  @Test
+  public void testSeveralApiKeysMatchedByComponentKeyFirst() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-two-schemes-names-swapped-1.yaml",
+            "issue-802-api-key-two-schemes-names-swapped-2.yaml");
+
+    assertThat(changedOpenApi.getChangedOperations()).hasSize(1);
+    assertThat(changedOpenApi.isIncompatible()).isTrue();
+
+    ChangedSecurityRequirement changedSecurityRequirement =
+        changedOpenApi.getChangedOperations().get(0).getSecurityRequirements().getChanged().get(0);
+    assertThat(changedSecurityRequirement.getChanged()).hasSize(2);
+    assertThat(changedSecurityRequirement.getChanged())
+        .extracting(
+            scheme -> scheme.getOldSecurityScheme().getName(),
+            scheme -> scheme.getNewSecurityScheme().getName())
+        .containsExactlyInAnyOrder(
+            tuple("Authorization", "X-Key"), tuple("X-Key", "Authorization"));
   }
 
   @Test

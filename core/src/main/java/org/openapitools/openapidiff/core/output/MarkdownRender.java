@@ -179,16 +179,12 @@ public class MarkdownRender implements Render {
     changedSecurityRequirements.getChanged().stream()
         .map(this::itemSecurityRequirement)
         .forEach(sb::append);
-    if (changedSecurityRequirements.getChangedSchemes() != null) {
-      changedSecurityRequirements.getChangedSchemes().stream()
-          .map(this::securityScheme)
-          .forEach(sb::append);
-    }
     return sb.toString();
   }
 
   protected String itemSecurityRequirement(String title, SecurityRequirement securityRequirement) {
-    return format("%s: %s\n\n", title, code(securityRequirementWithScopes(securityRequirement)));
+    return format(
+        "%s%s: %s\n", LI, title, code(securityRequirementWithScopes(securityRequirement)));
   }
 
   protected String itemSecurityRequirement(ChangedSecurityRequirement changedSecurityRequirement) {
@@ -198,19 +194,26 @@ public class MarkdownRender implements Render {
       nameSource = changedSecurityRequirement.getOldSecurityRequirement();
     }
     sb.append(
-        format("Changed security requirement: %s\n\n", code(securityRequirementName(nameSource))));
+        format(
+            "%sChanged security requirement: %s\n", LI, code(securityRequirementName(nameSource))));
     if (changedSecurityRequirement.getIncreased() != null) {
       sb.append(
-          itemSecurityRequirement(
-              "New security scheme", changedSecurityRequirement.getIncreased()));
+          itemSecurityScheme("New security scheme", changedSecurityRequirement.getIncreased()));
     }
     if (changedSecurityRequirement.getMissing() != null) {
       sb.append(
-          itemSecurityRequirement(
-              "Deleted security scheme", changedSecurityRequirement.getMissing()));
+          itemSecurityScheme("Deleted security scheme", changedSecurityRequirement.getMissing()));
     }
     changedSecurityRequirement.getChanged().forEach(scheme -> sb.append(securityScheme(scheme)));
-    return sb.append('\n').toString();
+    return sb.toString();
+  }
+
+  // Nested list items are indented two spaces per level so they render as a list; the
+  // four-space PRE_LI indent used elsewhere would render them as an indented code block.
+  protected String itemSecurityScheme(String title, SecurityRequirement securityRequirement) {
+    return format(
+        "%s%s%s: %s\n",
+        liIndent(1), LI, title, code(securityRequirementWithScopes(securityRequirement)));
   }
 
   private String securityRequirementWithScopes(SecurityRequirement securityRequirement) {
@@ -232,45 +235,66 @@ public class MarkdownRender implements Render {
     if (changedSecurityScheme.isChangedType()) {
       sb.append(
           format(
-              "%s* Changed security scheme type: `%s` -> `%s`\n",
-              indent(1), oldScheme.getType(), newScheme.getType()));
+              "%s%sChanged security scheme type: `%s` -> `%s`\n",
+              liIndent(1), LI, oldScheme.getType(), newScheme.getType()));
     }
     if (changedSecurityScheme.isChangedIn()) {
       sb.append(
           format(
-              "%s* Changed security scheme location: `%s` -> `%s`\n",
-              indent(1), oldScheme.getIn(), newScheme.getIn()));
+              "%s%sChanged security scheme location: `%s` -> `%s`\n",
+              liIndent(1), LI, oldScheme.getIn(), newScheme.getIn()));
     }
     if (changedSecurityScheme.isChangedName()) {
       sb.append(
           format(
-              "%s* Changed security scheme name: `%s` -> `%s`\n",
-              indent(1), oldScheme.getName(), newScheme.getName()));
+              "%s%sChanged security scheme name: `%s` -> `%s`\n",
+              liIndent(1), LI, oldScheme.getName(), newScheme.getName()));
     }
     if (changedSecurityScheme.isChangedScheme()) {
       sb.append(
           format(
-              "%s* Changed security scheme: `%s` -> `%s`\n",
-              indent(1), oldScheme.getScheme(), newScheme.getScheme()));
+              "%s%sChanged security scheme: `%s` -> `%s`\n",
+              liIndent(1), LI, oldScheme.getScheme(), newScheme.getScheme()));
     }
     if (changedSecurityScheme.isChangedBearerFormat()) {
       sb.append(
           format(
-              "%s* Changed bearer format: `%s` -> `%s`\n",
-              indent(1), oldScheme.getBearerFormat(), newScheme.getBearerFormat()));
+              "%s%sChanged bearer format: `%s` -> `%s`\n",
+              liIndent(1), LI, oldScheme.getBearerFormat(), newScheme.getBearerFormat()));
     }
     if (changedSecurityScheme.isChangedOpenIdConnectUrl()) {
       sb.append(
           format(
-              "%s* Changed openIdConnectUrl: %s -> %s\n",
-              indent(1),
+              "%s%sChanged openIdConnectUrl: %s -> %s\n",
+              liIndent(1),
+              LI,
               url(oldScheme.getOpenIdConnectUrl()),
               url(newScheme.getOpenIdConnectUrl())));
     }
-    sb.append(listDiff(1, "scope", changedSecurityScheme.getChangedScopes()));
-    sb.append(metadata(indent(1), "description", changedSecurityScheme.getDescription()));
+    sb.append(scopeChanges(changedSecurityScheme.getChangedScopes()));
+    sb.append(metadata(liIndent(1), "description", changedSecurityScheme.getDescription()));
     if (changedSecurityScheme.getOAuthFlows() != null) {
       sb.append(oAuthFlows(changedSecurityScheme.getOAuthFlows()));
+    }
+    return sb.toString();
+  }
+
+  private String scopeChanges(ChangedSecuritySchemeScopes changedScopes) {
+    if (changedScopes == null) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder();
+    if (!changedScopes.getIncreased().isEmpty()) {
+      sb.append(
+          format(
+              "%s%sAdded scope value(s): %s\n",
+              liIndent(1), LI, code(String.join(", ", changedScopes.getIncreased()))));
+    }
+    if (!changedScopes.getMissing().isEmpty()) {
+      sb.append(
+          format(
+              "%s%sRemoved scope value(s): %s\n",
+              liIndent(1), LI, code(String.join(", ", changedScopes.getMissing()))));
     }
     return sb.toString();
   }
@@ -292,25 +316,28 @@ public class MarkdownRender implements Render {
     if (changedOAuthFlow.isAuthorizationUrl()) {
       sb.append(
           format(
-              "%s* authorizationUrl: %s -> %s\n",
-              indent(2), url(oldFlow.getAuthorizationUrl()), url(newFlow.getAuthorizationUrl())));
+              "%s%sauthorizationUrl: %s -> %s\n",
+              liIndent(2),
+              LI,
+              url(oldFlow.getAuthorizationUrl()),
+              url(newFlow.getAuthorizationUrl())));
     }
     if (changedOAuthFlow.isTokenUrl()) {
       sb.append(
           format(
-              "%s* tokenUrl: %s -> %s\n",
-              indent(2), url(oldFlow.getTokenUrl()), url(newFlow.getTokenUrl())));
+              "%s%stokenUrl: %s -> %s\n",
+              liIndent(2), LI, url(oldFlow.getTokenUrl()), url(newFlow.getTokenUrl())));
     }
     if (changedOAuthFlow.isRefreshUrl()) {
       sb.append(
           format(
-              "%s* refreshUrl: %s -> %s\n",
-              indent(2), url(oldFlow.getRefreshUrl()), url(newFlow.getRefreshUrl())));
+              "%s%srefreshUrl: %s -> %s\n",
+              liIndent(2), LI, url(oldFlow.getRefreshUrl()), url(newFlow.getRefreshUrl())));
     }
     if (sb.length() == 0) {
       return "";
     }
-    return format("%s* Changed %s flow:\n", indent(1), flowName) + sb;
+    return format("%s%sChanged %s flow:\n", liIndent(1), LI, flowName) + sb;
   }
 
   private String url(String url) {
@@ -756,6 +783,12 @@ public class MarkdownRender implements Render {
       sb.append(PRE_LI);
     }
     return sb.toString();
+  }
+
+  // Two spaces per level, the CommonMark nested-list indent (indent() uses four spaces per
+  // level, which markdown renders as an indented code block).
+  protected String liIndent(int deepness) {
+    return StringUtils.repeat(' ', 2 * deepness);
   }
 
   protected Schema<?> resolve(Schema<?> schema) {

@@ -50,12 +50,33 @@ public class HtmlRenderTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
     ChangedOpenApi diff =
-        OpenApiCompare.fromLocations("issue-802-api-key-1.yaml", "issue-802-api-key-2.yaml");
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-name-changed-1.yaml", "issue-802-api-key-name-changed-2.yaml");
     render.render(diff, outputStreamWriter);
     String output = outputStream.toString();
     assertThat(output).contains("Security Requirements");
     assertThat(output)
-        .contains("New security requirement : ")
+        .contains("Changed security requirement : ")
         .contains("name: Authorization -&gt; pat");
+  }
+
+  @Test
+  public void issue802_renderRemovedAndAddedApiKeySchemeInHtml() {
+    HtmlRender render = new HtmlRender(true);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-802-api-key-key-and-name-changed-1.yaml",
+            "issue-802-api-key-key-and-name-changed-2.yaml");
+    render.render(diff, outputStreamWriter);
+    String output = outputStream.toString();
+    assertThat(output).contains("Security Requirements");
+    assertThat(output)
+        .contains("Changed security requirement : ")
+        .contains("New security scheme : ")
+        .contains(">PAT2: []</span>")
+        .contains("Deleted security scheme : ")
+        .contains(">PAT: []</span>");
   }
 }

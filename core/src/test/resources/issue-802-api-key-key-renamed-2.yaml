@@ -1,0 +1,19 @@
+openapi: 3.0.0
+info:
+  title: Issue 802 API
+  version: V1
+paths:
+  /info:
+    get:
+      operationId: getInfo
+      responses:
+        '200':
+          description: OK
+      security:
+        - PAT2: []
+components:
+  securitySchemes:
+    PAT2:
+      type: apiKey
+      name: Authorization
+      in: header

@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.ChangedApiResponse;
 import org.openapitools.openapidiff.core.model.ChangedContent;
@@ -261,11 +263,6 @@ public class HtmlRender implements Render {
         ul.with(li_changedSecurityRequirement(changedRequirement));
       }
     }
-    if (changedSecurityRequirements.getChangedSchemes() != null) {
-      for (ChangedSecurityScheme scheme : changedSecurityRequirements.getChangedSchemes()) {
-        ul.with(li_changedSecurityScheme(scheme));
-      }
-    }
 
     return ul;
   }
@@ -282,25 +279,61 @@ public class HtmlRender implements Render {
 
   private LiTag li_changedSecurityRequirement(
       ChangedSecurityRequirement changedSecurityRequirement) {
-    UlTag ul_schemes = ul().withClass("change security schemes");
-    for (ChangedSecurityScheme scheme : changedSecurityRequirement.getChanged()) {
-      ul_schemes.with(li_changedSecurityScheme(scheme));
+    List<LiTag> schemeItems = new ArrayList<>();
+    if (changedSecurityRequirement.getIncreased() != null) {
+      schemeItems.add(
+          li().withClass("add security scheme")
+              .withText("New security scheme : ")
+              .with(span(securityRequirementText(changedSecurityRequirement.getIncreased()))));
     }
-    return li().withText(String.format("Changed security requirement : "))
-        .with(
-            span(
-                (null == changedSecurityRequirement.getNewSecurityRequirement()
-                        || null
-                            == changedSecurityRequirement.getNewSecurityRequirement().toString())
-                    ? ""
-                    : (changedSecurityRequirement.getNewSecurityRequirement().toString())))
-        .with(ul_schemes);
+    if (changedSecurityRequirement.getMissing() != null) {
+      schemeItems.add(
+          li().withClass("delete security scheme")
+              .withText("Deleted security scheme : ")
+              .with(span(securityRequirementText(changedSecurityRequirement.getMissing()))));
+    }
+    for (ChangedSecurityScheme scheme : changedSecurityRequirement.getChanged()) {
+      LiTag liScheme = li_changedSecurityScheme(scheme);
+      if (liScheme != null) {
+        schemeItems.add(liScheme);
+      }
+    }
+    LiTag li =
+        li().withText(String.format("Changed security requirement : "))
+            .with(
+                span(
+                    (null == changedSecurityRequirement.getNewSecurityRequirement()
+                            || null
+                                == changedSecurityRequirement
+                                    .getNewSecurityRequirement()
+                                    .toString())
+                        ? ""
+                        : (changedSecurityRequirement.getNewSecurityRequirement().toString())));
+    if (!schemeItems.isEmpty()) {
+      UlTag ul_schemes = ul().withClass("change security schemes");
+      schemeItems.forEach(ul_schemes::with);
+      li.with(ul_schemes);
+    }
+    return li;
   }
 
   private LiTag li_changedSecurityScheme(ChangedSecurityScheme changedSecurityScheme) {
+    String changes = securitySchemeChanges(changedSecurityScheme);
+    if (changes.isEmpty()) {
+      // suppress the item when there is no displayable scheme change (e.g. only the
+      // requirements around it changed)
+      return null;
+    }
     return li().withClass("change security scheme")
         .withText("Changed security scheme : ")
-        .with(span(securitySchemeChanges(changedSecurityScheme)));
+        .with(span(changes));
+  }
+
+  private String securityRequirementText(SecurityRequirement securityRequirement) {
+    return securityRequirement.entrySet().stream()
+        .map(
+            entry -> String.format("%s: [%s]", entry.getKey(), String.join(", ", entry.getValue())))
+        .collect(Collectors.joining(", "));
   }
 
   private String securitySchemeChanges(ChangedSecurityScheme changedSecurityScheme) {
@@ -329,6 +362,13 @@ public class HtmlRender implements Render {
           String.format(
               "openIdConnectUrl: %s -> %s",
               oldScheme.getOpenIdConnectUrl(), newScheme.getOpenIdConnectUrl()));
+    }
+    if (changedSecurityScheme.getDescription() != null) {
+      changes.add(
+          String.format(
+              "description: %s -> %s",
+              StringUtils.defaultString(changedSecurityScheme.getDescription().getLeft()),
+              StringUtils.defaultString(changedSecurityScheme.getDescription().getRight())));
     }
     if (changedSecurityScheme.getChangedScopes() != null) {
       ChangedSecuritySchemeScopes changedScopes = changedSecurityScheme.getChangedScopes();
