@@ -52,22 +52,20 @@ public class SecurityRequirementsDiff {
 
   private List<Pair<SecurityScheme.Type, SecurityScheme.In>> getListOfSecuritySchemes(
       Components components, SecurityRequirement securityRequirement) {
+    if (components == null) {
+      throw new IllegalArgumentException("Missing components definition.");
+    }
+    Map<String, SecurityScheme> securitySchemes = components.getSecuritySchemes();
+    if (securitySchemes == null) {
+      return new ArrayList<>();
+    }
     return securityRequirement.keySet().stream()
         .map(
             x -> {
-              if (components == null) {
-                throw new IllegalArgumentException("Missing securitySchemes component definition.");
-              }
-              Map<String, SecurityScheme> securitySchemes = components.getSecuritySchemes();
-              if (securitySchemes == null) {
-                throw new IllegalArgumentException("Missing securitySchemes component definition.");
-              }
-
               SecurityScheme result = securitySchemes.get(x);
               if (result == null) {
                 throw new IllegalArgumentException("Impossible to find security scheme: " + x);
               }
-
               return result;
             })
         .map(this::getPair)

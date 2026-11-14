@@ -2,6 +2,7 @@ package org.openapitools.openapidiff.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.openapitools.openapidiff.core.TestUtils.assertSpecUnchanged;
 
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.junit.jupiter.api.Test;
@@ -90,15 +91,13 @@ public class SecurityDiffTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> OpenApiCompare.fromLocations(OPENAPI_DOC3, OPENAPI_DOC3));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> OpenApiCompare.fromLocations(OPENAPI_DOC4, OPENAPI_DOC4));
   }
 
   @Test
   public void testMissingSecurityDefinition() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> OpenApiCompare.fromLocations(OPENAPI_DOC5, OPENAPI_DOC5));
+    // A missing securitySchemes map (DOC4) or an entirely empty components block (DOC5) is valid
+    // OpenAPI
+    assertSpecUnchanged(OPENAPI_DOC4, OPENAPI_DOC4);
+    assertSpecUnchanged(OPENAPI_DOC5, OPENAPI_DOC5);
   }
 }
