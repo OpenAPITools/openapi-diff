@@ -1,0 +1,50 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/resource": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Fetched resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Fetch resource"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResourceResponse": {
+        "type": "object",
+        "properties": {
+          "ro": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Deep"
+            },
+            "readOnly": true
+          }
+        }
+      },
+      "Deep": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
