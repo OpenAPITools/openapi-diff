@@ -83,25 +83,29 @@ public class SchemaDiff {
 
   protected static Schema<?> resolveComposedSchema(
       Components components, Schema<?> schema, Set<String> visitedRefs) {
-    if (schema instanceof ComposedSchema) {
-      ComposedSchema composedSchema = (ComposedSchema) schema;
-      List<Schema> composedSchemas = new ArrayList<>();
-      Optional.ofNullable(composedSchema.getAllOf()).ifPresent(composedSchemas::addAll);
-      Optional.ofNullable(composedSchema.getAnyOf()).ifPresent(composedSchemas::addAll);
+    if (schema == null) {
+      return null;
+    }
+    // OpenAPI 3.0 compositions are deserialized into ComposedSchema instances, while OpenAPI 3.1
+    // compositions become JsonSchema instances; since swagger-models 2.2.x both carry their
+    // allOf/anyOf members on the shared base Schema, so the members are merged into the parent
+    // the same way for both versions.
+    List<Schema> composedSchemas = new ArrayList<>();
+    Optional.ofNullable(schema.getAllOf()).ifPresent(composedSchemas::addAll);
+    Optional.ofNullable(schema.getAnyOf()).ifPresent(composedSchemas::addAll);
 
-      if (!composedSchemas.isEmpty()) {
-        for (Schema<?> composed : composedSchemas) {
-          if (composed.get$ref() == null || !visitedRefs.contains(composed.get$ref())) {
-            Set<String> updatedVisitedRefs = new HashSet<>(visitedRefs);
-            updatedVisitedRefs.add(composed.get$ref());
-            composed = refPointer.resolveRef(components, composed, composed.get$ref());
-            composed = resolveComposedSchema(components, composed, updatedVisitedRefs);
-            addSchema(schema, composed);
-          }
+    if (!composedSchemas.isEmpty()) {
+      for (Schema<?> composed : composedSchemas) {
+        if (composed.get$ref() == null || !visitedRefs.contains(composed.get$ref())) {
+          Set<String> updatedVisitedRefs = new HashSet<>(visitedRefs);
+          updatedVisitedRefs.add(composed.get$ref());
+          composed = refPointer.resolveRef(components, composed, composed.get$ref());
+          composed = resolveComposedSchema(components, composed, updatedVisitedRefs);
+          addSchema(schema, composed);
         }
-        composedSchema.setAllOf(null);
-        composedSchema.setAnyOf(null);
       }
+      schema.setAllOf(null);
+      schema.setAnyOf(null);
     }
     return schema;
   }
@@ -151,6 +155,9 @@ public class SchemaDiff {
     }
     if (fromSchema.getType() != null) {
       schema.setType(fromSchema.getType());
+    }
+    if (fromSchema.getTypes() != null) {
+      schema.setTypes(fromSchema.getTypes());
     }
     if (fromSchema.getEnum() != null) {
       if (schema.getEnum() == null) {
@@ -303,6 +310,27 @@ public class SchemaDiff {
     return ofNullable(schema).map(Schema::get$ref).orElse(null);
   }
 
+  /**
+   * Returns the union of {@link Schema#getType()} and {@link Schema#getTypes()}.
+   *
+   * <p>The type of a schema is carried by different fields depending on the OpenAPI version and how
+   * the schema was deserialized: OpenAPI 3.1 schemas (JsonSchema) hold the `type` keyword in the
+   * `types` set with `getType()` returning null, while OpenAPI 3.0 schemas hold it in `type` (and
+   * typed concrete schemas mirror it in `types` too). Composed schemas merged from their
+   * allOf/anyOf children carry whichever field their members provided. Comparing the effective type
+   * set makes the type-change detection work across all of these representations.
+   */
+  private static Set<String> getEffectiveTypes(Schema<?> schema) {
+    Set<String> types = new HashSet<>();
+    if (schema.getType() != null) {
+      types.add(schema.getType());
+    }
+    if (schema.getTypes() != null) {
+      types.addAll(schema.getTypes());
+    }
+    return types;
+  }
+
   public DeferredChanged<ChangedSchema> diff(Schema left, Schema right, DiffContext context) {
     return this.diff(new RecursiveSchemaSet(), left, right, context);
   }
@@ -346,11 +374,15 @@ public class SchemaDiff {
     left = resolveComposedSchema(leftComponents, left, refSet.getLeftKeys());
     right = resolveComposedSchema(rightComponents, right, refSet.getRightKeys());
 
-    // If type of schemas are different, just set old & new schema, set changedType to true in
-    // SchemaDiffResult and
-    // return the object
+    // If the effective type of the schemas are different, just set old & new schema, set
+    // changedType to true in SchemaDiffResult and return the object
+    // The comparison must be based on the effective type set (union of `Schema#getType()` and
+    // `Schema#getTypes()`) only: OpenAPI 3.0 schemas carry the `type` keyword in `type`, while
+    // OpenAPI 3.1 schemas (JsonSchema) hold it in the `types` set with `getType()` returning
+    // null, so a raw `getType()` comparison would report a false type change for equivalent
+    // schemas (see https://github.com/OpenAPITools/openapi-diff/issues/910)
     if ((left == null || right == null)
-        || !Objects.equals(left.getType(), right.getType())
+        || !Objects.equals(getEffectiveTypes(left), getEffectiveTypes(right))
         || !Objects.equals(left.getFormat(), right.getFormat())) {
       return getTypeChangedSchema(left, right, context);
     }

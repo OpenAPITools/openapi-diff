@@ -52,6 +52,22 @@ public class SchemaDiffTest {
     assertTrue(changedSchema.getChangedProperties().get("field1").isChangedType());
   }
 
+  @Test // issue #910
+  public void schemaPropertyTypeChanged31() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-props-type-handling-3.1-1.yaml",
+            "schemaDiff/schema-props-type-handling-3.1-2.yaml");
+
+    assertEquals(1, changedOpenApi.getChangedOperations().size());
+    assertEquals(1, changedOpenApi.getChangedSchemas().size());
+    ChangedSchema changedSchema = changedOpenApi.getChangedSchemas().get(0);
+    assertEquals(1, changedSchema.getChangedProperties().size());
+    assertTrue(changedSchema.getChangedProperties().containsKey("weight"));
+    assertTrue(changedSchema.getChangedProperties().get("weight").isChangedType());
+    assertTrue(changedOpenApi.isIncompatible());
+  }
+
   @Test // issue #485
   public void schemaBecomesDeprecatedTest() {
     ChangedOpenApi changedOpenApi =
