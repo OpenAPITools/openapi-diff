@@ -1,0 +1,108 @@
+{
+  "components": {
+    "schemas": {
+    },
+    "securitySchemes": {
+    }
+  },
+  "info": {
+    "description": "This is the swagger documentation for sample-api.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).   ",
+    "title": "sample-api",
+    "version": "3.47.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/sample-api/export": {
+      "get": {
+        "description": "Export into MS Excel",
+        "operationId": "exportItems_1",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        },
+        "summary": "Export list in excel format",
+        "tags": [
+          "Search"
+        ]
+      }
+    },
+    "/sample-api/{id}/actions/CAN": {
+      "post": {
+        "description": "Sample description",
+        "operationId": "cancel_1",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Cancel executed"
+          }
+        },
+        "summary": "Cancel",
+        "tags": [
+          "Workflow actions"
+        ]
+      }
+    },
+    "/sample-api/{id}/actions/DEL": {
+      "post": {
+        "description": "This method should be used when a user wants to delete an entity from the system",
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Delete executed"
+          }
+        },
+        "summary": "Delete",
+        "tags": [
+          "Workflow actions"
+        ]
+      }
+    }
+  },
+  "security": [
+  ],
+  "servers": [
+    {
+      "url": "http://sample-server"
+    }
+  ]
+}

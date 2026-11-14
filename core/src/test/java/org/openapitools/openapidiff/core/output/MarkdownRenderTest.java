@@ -21,6 +21,21 @@ public class MarkdownRenderTest {
   }
 
   @Test
+  public void issue857_renderShowsChangedOperationDescription() {
+    MarkdownRender render = new MarkdownRender();
+    render.setShowChangedMetadata(true);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-857-operation-description-1.json", "issue-857-operation-description-2.json");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString())
+        .contains(
+            "Changed description:\n> Sample description\n\n\nto:\n> Sample description changed");
+  }
+
+  @Test
   public void renderDoesNotCauseStackOverflowWithRecursiveDefinitions() {
     MarkdownRender render = new MarkdownRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
