@@ -1,0 +1,84 @@
+openapi: 3.0.3
+info:
+  title: Pet Store
+  version: 2.0.0
+paths:
+  /pets:
+    get:
+      summary: List pets
+      operationId: listAllPets
+      parameters:
+        - name: limit
+          in: query
+          deprecated: true
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: X-Request-Id
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+    post:
+      summary: Create a pet
+      operationId: createPet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Invalid pet
+  /pets/{petId}:
+    get:
+      summary: Info for a specific pet
+      operationId: showPetById
+      deprecated: true
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+  /store/orders:
+    post:
+      summary: "Place an <b>order</b>"
+      operationId: placeOrder
+      responses:
+        '201':
+          description: Created
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          maxLength: 10
