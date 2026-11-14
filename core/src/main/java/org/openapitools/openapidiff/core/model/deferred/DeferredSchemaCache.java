@@ -42,8 +42,18 @@ public class DeferredSchemaCache {
 
   public DeferredChanged<ChangedSchema> getOrAddSchema(
       RecursiveSchemaSet refSet, CacheKey key, Schema left, Schema right) {
+    return getOrAddSchema(refSet, refSet, key, left, right);
+  }
+
+  /** Use a separate recursion guard when scheduling siblings that share references. */
+  public DeferredChanged<ChangedSchema> getOrAddSchema(
+      RecursiveSchemaSet refSet,
+      RecursiveSchemaSet recursionGuard,
+      CacheKey key,
+      Schema left,
+      Schema right) {
     // don't allow recursive references to schemas
-    if (refSet.contains(key)) {
+    if (recursionGuard.contains(key)) {
       log.debug("getOrAddSchema recursive call aborted {} ", key);
       return DeferredChanged.empty();
     }
