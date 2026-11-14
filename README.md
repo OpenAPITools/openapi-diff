@@ -72,7 +72,8 @@ usage: openapi-diff <old> <new>
     --off                       No information printed
     --query <property=value>    use query param for authorisation
     --state                     Only output diff state: no_changes,
-                                incompatible, compatible
+                                metadata, compatible, unknown,
+                                incompatible
     --text <file>               export diff as text in given file
     --trace                     be extra verbose
     --version                   print the version information and exit
@@ -125,7 +126,8 @@ usage: openapi-diff <old> <new>
     --off                       No information printed
     --query <property=value>    use query param for authorisation
     --state                     Only output diff state: no_changes,
-                                incompatible, compatible
+                                metadata, compatible, unknown,
+                                incompatible
     --fail-on-incompatible      Fail only if API changes broke backward compatibility
     --fail-on-changed           Fail if API changed but is backward compatible
     --config-file               Config file to override default behavior. Supported file formats: .yaml

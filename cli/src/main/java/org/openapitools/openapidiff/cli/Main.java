@@ -6,8 +6,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -19,6 +21,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openapitools.openapidiff.core.OpenApiCompare;
 import org.openapitools.openapidiff.core.compare.OpenApiDiffOptions;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
+import org.openapitools.openapidiff.core.model.DiffResult;
 import org.openapitools.openapidiff.core.output.AsciidocRender;
 import org.openapitools.openapidiff.core.output.ConsoleRender;
 import org.openapitools.openapidiff.core.output.HtmlRender;
@@ -42,7 +45,11 @@ public class Main {
     options.addOption(
         Option.builder()
             .longOpt("state")
-            .desc("Only output diff state: no_changes, incompatible, compatible")
+            .desc(
+                "Only output diff state: "
+                    + Arrays.stream(DiffResult.values())
+                        .map(DiffResult::getValue)
+                        .collect(Collectors.joining(", ")))
             .build());
     options.addOption(
         Option.builder()
