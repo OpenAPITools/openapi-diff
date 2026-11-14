@@ -1,0 +1,49 @@
+openapi: 3.0.1
+info:
+  title: allOf-wrapped recursive test
+  version: '1.0'
+servers:
+  - url: 'http://localhost:8000/'
+paths:
+  /ping:
+    get:
+      operationId: ping
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+components:
+  schemas:
+    Entry:
+      type: object
+      properties:
+        message:
+          type: string
+        first:
+          title: First
+          allOf:
+            - $ref: '#/components/schemas/First'
+          description: Only reachable through an allOf wrapper
+    First:
+      type: object
+      properties:
+        name:
+          type: integer
+        second:
+          title: Second
+          allOf:
+            - $ref: '#/components/schemas/Second'
+          description: Only reachable through an allOf wrapper
+    Second:
+      type: object
+      properties:
+        name:
+          type: string
+        first:
+          title: First
+          allOf:
+            - $ref: '#/components/schemas/First'
+          description: Closes the cycle without passing through Entry
