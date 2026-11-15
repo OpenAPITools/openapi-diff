@@ -88,4 +88,19 @@ public class ConsoleRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void issue805_renderDoesNotFailWhenByteExampleMediaTypesChangeWithNoSchemaChanges() {
+    ConsoleRender render = new ConsoleRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-805-byte-example-media-types-1.yaml",
+            "issue-805-byte-example-media-types-2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString())
+        .isNotBlank()
+        .containsSubsequence("Media types:", "- Changed text/csv", "Backward compatible");
+  }
 }

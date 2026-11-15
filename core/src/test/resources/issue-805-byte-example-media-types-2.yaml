@@ -1,0 +1,159 @@
+openapi: '3.0.3'
+info:
+  license:
+    name: ''
+  termsOfService: ''
+  title: "my test service"
+  version: 'Latest'
+tags:
+  - name: mytestTag
+    description: endpoints
+paths:
+  /v4/mytest/formats/{downloadFormat}/records/{recordId}:
+    get:
+      tags:
+        - mytestTag
+      summary: Converts record to provided format
+      operationId: getV4DownloadsFormatsRecords
+      deprecated: false
+      security:
+        - Authorization: [ ]
+      parameters:
+        - name: downloadFormat
+          in: path
+          description: Export format
+          required: true
+          schema:
+            type: string
+          example: 'csv'
+        - name: recordId
+          in: path
+          description: Unique record identifier
+          required: true
+          example: 'ax74x2wyin'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: byte
+              example: 'blob'
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: string
+                format: byte
+              example: 'blob'
+            application/pdf:
+              schema:
+                type: string
+                format: byte
+              example: 'blob'
+            application/x-bibtex:
+              schema:
+                type: string
+                format: byte
+              example: 'blob'
+            application/marc:
+              schema:
+                type: string
+                format: byte
+              example: 'blob'
+            text/xml:
+              schema:
+                type: string
+                format: byte
+              example: 'blob'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  responses:
+    BadRequest:
+      description: 'BadRequest'
+      content:
+        application/json:
+          example:
+            name: BAD_REQUEST
+            details:
+              - field: '#/login/username'
+                issue: BAD_REQUEST
+                location: body
+            debugId: '123456789'
+            message: Request contains errors
+            informationLink: 'http://developer.foo.com/apidoc/blah#BAD_REQUEST'
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: 'NotFound'
+      content:
+        application/json:
+          example:
+            name: NOT_FOUND
+            details:
+              - field: '#/login/username'
+                issue: USERNAME_IS_NOT_FOUND
+                location: body
+            debugId: '123456789'
+            message: Item is not found
+            informationLink: 'http://developer.foo.com/apidoc/blah#USERNAME_IS_NOT_FOUND'
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: 'Unauthorized'
+      content:
+        application/json:
+          example:
+            name: UNAUTHORIZED
+            details:
+              - field: '#/login/username'
+                issue: NOT_AUTHORIZED
+                location: body
+            debugId: '123456789'
+            message: User is not authorized
+            informationLink: 'http://developer.foo.com/apidoc/blah#NOT_AUTHORIZED'
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: 'Forbidden'
+      content:
+        application/json:
+          example:
+            name: FORBIDDEN
+            details:
+              - field: '#/login/username'
+                issue: FORBIDDEN
+                location: body
+            debugId: '123456789'
+            message: Access denied
+            informationLink: 'http://developer.foo.com/apidoc/blah#FORBIDDEN'
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    ErrorResponse:
+      type: object
+      description: Common Error response
+      x-examples:
+        example-1:
+          name: VALIDATION_ERROR
+          details:
+            - field: '#/login/username'
+              issue: REQUIRED_FIELD_MISSING
+              location: body
+          debugId: '123456789'
+          message: Invalid data provided
+          informationLink: 'http://developer.foo.com/apidoc/blah#VALIDATION_ERROR'
+  securitySchemes:
+    Authorization:
+      description: Authorization token
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
