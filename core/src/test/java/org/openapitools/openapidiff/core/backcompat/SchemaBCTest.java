@@ -46,6 +46,14 @@ public class SchemaBCTest {
   }
 
   @Test
+  public void requestPropsDecreased() {
+    // Removing a property from a request schema breaks clients that still send
+    // it. See https://github.com/OpenAPITools/openapi-diff/issues/673
+    BackwardIncompatibleProp prop = REQUEST_PROPERTIES_DECREASED;
+    assertSpecIncompatible(BASE, "bc_request_schema_props_decreased.yaml", prop);
+  }
+
+  @Test
   public void responseFormatDecreased() {
     // TODO: Document why desired or remove support (test added to avoid unintentional regression)
     assertOpenApiBackwardIncompatible(BASE, "bc_response_schema_format_decreased.yaml");
@@ -57,8 +65,25 @@ public class SchemaBCTest {
   }
 
   @Test
+  public void responsePropsIncreased() {
+    // Adding a property to a response schema is backward compatible: existing
+    // clients ignore unknown fields.
+    assertSpecChangedButCompatible(BASE, "bc_response_schema_props_increased.yaml");
+  }
+
+  @Test
+  public void responsePropsDecreased() {
+    // Removing a property from a response schema breaks clients that depend on
+    // receiving it. See https://github.com/OpenAPITools/openapi-diff/issues/673
+    BackwardIncompatibleProp prop = RESPONSE_PROPERTIES_DECREASED;
+    assertSpecIncompatible(BASE, "bc_response_schema_props_decreased.yaml", prop);
+  }
+
+  @Test
   public void responsePropsRequiredDecreased() {
-    BackwardIncompatibleProp prop = RESPONSE_REQUIRED_DECREASED;
+    // Removing a previously required property is covered by the general
+    // RESPONSE_PROPERTIES_DECREASED rule since issue #673.
+    BackwardIncompatibleProp prop = RESPONSE_PROPERTIES_DECREASED;
     assertSpecIncompatible(BASE, "bc_response_schema_props_required_decreased.yaml", prop);
   }
 

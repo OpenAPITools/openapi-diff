@@ -1,6 +1,7 @@
 package org.openapitools.openapidiff.core.model;
 
-import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_REQUIRED_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_PROPERTIES_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.RESPONSE_PROPERTIES_DECREASED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_DISCRIMINATOR_CHANGED;
 import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.SCHEMA_TYPE_CHANGED;
 
@@ -203,6 +204,11 @@ public class ChangedSchema implements ComposedChanged {
         // TODO: dead code? If not, create test.
         return false;
       }
+      // Removed properties are backward incompatible: existing clients may still
+      // send them (issue #673). Adding properties stays compatible.
+      if (!missingProperties.isEmpty() && REQUEST_PROPERTIES_DECREASED.enabled(context)) {
+        return false;
+      }
     }
     return true;
   }
@@ -214,12 +220,12 @@ public class ChangedSchema implements ComposedChanged {
           // TODO: dead code? If not, create test.
           return false;
         }
-        if (oldSchema.getRequired() != null
-            && missingProperties.keySet().stream()
-                .anyMatch(prop -> oldSchema.getRequired().contains(prop))) {
-          if (RESPONSE_REQUIRED_DECREASED.enabled(context)) {
-            return false;
-          }
+        // Removed properties are backward incompatible: existing clients may
+        // depend on receiving them (issue #673). This also covers previously
+        // required properties, which used to be handled here via
+        // RESPONSE_REQUIRED_DECREASED (still used for required -> optional).
+        if (!missingProperties.isEmpty() && RESPONSE_PROPERTIES_DECREASED.enabled(context)) {
+          return false;
         }
       }
     }

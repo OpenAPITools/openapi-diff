@@ -85,6 +85,16 @@ components:
           type: integer
           format: int32
           deprecated: true
+        stuffUnbounded:
+          type: object
+          additionalProperties:
+            type: string
+        stuffBounded:
+          type: object
+          minProperties: 1
+          maxProperties: 10
+          additionalProperties:
+            type: string
       required:
         - '@type'
         - prop1

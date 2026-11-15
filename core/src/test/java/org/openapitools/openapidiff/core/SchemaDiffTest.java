@@ -1,5 +1,6 @@
 package org.openapitools.openapidiff.core;
 
+import static io.swagger.v3.oas.models.PathItem.HttpMethod.GET;
 import static io.swagger.v3.oas.models.PathItem.HttpMethod.POST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -96,8 +97,11 @@ public class SchemaDiffTest {
 
   @Test
   public void addPropertyHandlingTest() {
+    // Adding a property is backward compatible. Note the direction: schema 2
+    // has fewer properties than schema 1, so the addition goes from 2 to 1.
+    // Since #673, comparing 1 to 2 (a removed property) would be incompatible.
     assertOpenApiBackwardCompatible(
-        "schemaDiff/schema-add-property-1.yaml", "schemaDiff/schema-add-property-2.yaml", true);
+        "schemaDiff/schema-add-property-2.yaml", "schemaDiff/schema-add-property-1.yaml", true);
   }
 
   @Test // issue #537
@@ -394,7 +398,8 @@ public class SchemaDiffTest {
     assertThat(changedSchema).isNotNull();
     // The diff compares the *merged* schema resulting from anyOf, not the anyOf structure itself.
     // See details in #772
-    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+    // Since #673, removing the fieldB property makes the merged schema incompatible.
+    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
 
     // fieldA only changed required status, not its schema
     assertThat(changedSchema.getChangedProperties()).isEmpty();
@@ -422,7 +427,8 @@ public class SchemaDiffTest {
     assertThat(changedSchema).isNotNull();
     // The diff compares the *merged* schema resulting from allOf, not the allOf structure itself.
     // See details in #772
-    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+    // Since #673, removing the fieldB property makes the merged schema incompatible.
+    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
 
     // fieldA only changed required status, commonField is unchanged
     assertThat(changedSchema.getChangedProperties()).isEmpty();
@@ -437,6 +443,53 @@ public class SchemaDiffTest {
     assertThat(changedSchema.getRequired().isChanged()).isEqualTo(DiffResult.COMPATIBLE);
     assertThat(changedSchema.getRequired().getMissing()).containsExactly("fieldA");
     assertThat(changedSchema.getRequired().getIncreased()).isEmpty();
+  }
+
+  @Test // issue #673
+  public void testResponsePropertyRemovedIsIncompatible() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/props-removed-1.yaml", "schemaDiff/props-removed-2.yaml");
+    ChangedSchema changedSchema =
+        getResponseBodyChangedSchema(changedOpenApi, GET, "/widgets", "200", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    assertThat(changedSchema.getMissingProperties()).containsKey("foo");
+    assertThat(changedSchema.getIncreasedProperties()).isEmpty();
+    assertThat(changedSchema.isCoreChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
+    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
+    assertThat(changedOpenApi.isChanged().isIncompatible()).isTrue();
+  }
+
+  @Test // issue #673
+  public void testResponsePropertyAddedIsCompatible() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/props-added-1.yaml", "schemaDiff/props-added-2.yaml");
+    ChangedSchema changedSchema =
+        getResponseBodyChangedSchema(changedOpenApi, GET, "/widgets", "200", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    assertThat(changedSchema.getIncreasedProperties()).containsKey("bar");
+    assertThat(changedSchema.getMissingProperties()).isEmpty();
+    assertThat(changedSchema.isCoreChanged()).isEqualTo(DiffResult.COMPATIBLE);
+    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.COMPATIBLE);
+    assertThat(changedOpenApi.isChanged().isCompatible()).isTrue();
+  }
+
+  @Test // issue #673
+  public void testResponseRequiredPropertyRemovedIsIncompatible() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/props-required-removed-1.yaml", "schemaDiff/props-required-removed-2.yaml");
+    ChangedSchema changedSchema =
+        getResponseBodyChangedSchema(changedOpenApi, GET, "/widgets", "200", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    assertThat(changedSchema.getMissingProperties()).containsKey("id");
+    assertThat(changedSchema.isCoreChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
+    assertThat(changedSchema.isChanged()).isEqualTo(DiffResult.INCOMPATIBLE);
+    assertThat(changedOpenApi.isChanged().isIncompatible()).isTrue();
   }
 
   @Test

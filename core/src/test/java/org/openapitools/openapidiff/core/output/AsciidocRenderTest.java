@@ -63,10 +63,10 @@ public class AsciidocRenderTest {
                 + "** Media types:\n"
                 + "*** Changed application/json\n"
                 + "*** Schema:\n"
-                + "Backward compatible\n"
+                + "Broken compatibility\n"
+                + "*** Missing property: childProperty (object)\n"
                 + "\n"
-                + "\n"
-                + "NOTE: API changes are backward compatible\n");
+                + "WARNING: API changes broke backward compatibility\n");
   }
 
   @Test
