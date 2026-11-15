@@ -78,6 +78,18 @@ public class ConsoleRenderTest {
   }
 
   @Test
+  public void renderShowsChangedEnumValuesWhenResponseEnumValueIsAdded() {
+    ConsoleRender render = new ConsoleRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff = OpenApiCompare.fromLocations("enum_diff_1.yaml", "enum_diff_2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString())
+        .containsSubsequence(
+            "Schema: Broken compatibility", "Added enum value: [n].someProperty ENUM_VALUE_3");
+  }
+
+  @Test
   public void issue870_renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
     ConsoleRender render = new ConsoleRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
