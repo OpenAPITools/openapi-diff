@@ -1,0 +1,88 @@
+openapi: 3.0.1
+info:
+  title: deep acyclic composed schema test
+  version: '1.0'
+servers:
+  - url: 'http://localhost:8000/'
+paths:
+  /ping:
+    get:
+      operationId: ping
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Level1'
+components:
+  schemas:
+    Level1:
+      type: object
+      properties:
+        tag:
+          type: string
+        next:
+          title: Level2
+          allOf:
+            - $ref: '#/components/schemas/Level2'
+    Level2:
+      type: object
+      properties:
+        tag:
+          type: string
+        next:
+          title: Level3
+          allOf:
+            - $ref: '#/components/schemas/Level3'
+    Level3:
+      type: object
+      properties:
+        tag:
+          type: string
+        next:
+          title: Level4
+          allOf:
+            - $ref: '#/components/schemas/Level4'
+    Level4:
+      type: object
+      properties:
+        tag:
+          type: string
+        next:
+          title: Level5
+          allOf:
+            - $ref: '#/components/schemas/Level5'
+    Level5:
+      type: object
+      properties:
+        tag:
+          type: string
+        next:
+          title: Level6
+          allOf:
+            - $ref: '#/components/schemas/Level6'
+    Level6:
+      type: object
+      properties:
+        tag:
+          type: string
+        next:
+          title: Level7
+          allOf:
+            - $ref: '#/components/schemas/Level7'
+    Level7:
+      type: object
+      properties:
+        tag:
+          type: string
+        next:
+          title: Level8
+          allOf:
+            - $ref: '#/components/schemas/Level8'
+    Level8:
+      type: object
+      properties:
+        value:
+          type: integer

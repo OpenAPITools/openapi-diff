@@ -332,8 +332,21 @@ public class SchemaDiff {
     CacheKey key = new CacheKey(getSchemaRef(left), getSchemaRef(right), context);
     if (key.getLeft() != null && key.getRight() != null) {
       return openApiDiff.getDeferredSchemaCache().getOrAddSchema(refSet, key, left, right);
-    } else {
+    }
+    // A pair without a reference on both sides skips the cache guard above. When
+    // resolveComposedSchema merges an allOf member into the wrapping schema, the cycle can lead
+    // back into the same pair with no reference left to check, so guard the descent on the
+    // identity of the pair instead.
+    if (left == null || right == null) {
       return computeDiffForReal(refSet, left, right, context);
+    }
+    if (!refSet.enter(left, right)) {
+      return DeferredChanged.empty();
+    }
+    try {
+      return computeDiffForReal(refSet, left, right, context);
+    } finally {
+      refSet.leave(left, right);
     }
   }
 

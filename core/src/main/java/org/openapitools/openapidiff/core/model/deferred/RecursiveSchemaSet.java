@@ -1,11 +1,13 @@
 package org.openapitools.openapidiff.core.model.deferred;
 
+import io.swagger.v3.oas.models.media.Schema;
 import java.util.HashSet;
 import org.openapitools.openapidiff.core.compare.CacheKey;
 
 public class RecursiveSchemaSet {
   HashSet<String> leftKeys = new HashSet<>();
   HashSet<String> rightKeys = new HashSet<>();
+  private final HashSet<SchemaPair> schemaPath = new HashSet<>();
 
   public HashSet<String> getLeftKeys() {
     return leftKeys;
@@ -22,5 +24,49 @@ public class RecursiveSchemaSet {
   public void put(CacheKey key) {
     leftKeys.add(key.getLeft());
     rightKeys.add(key.getRight());
+  }
+
+  /**
+   * Marks the start of comparing a schema pair on the current path. Schemas compared without a
+   * reference on both sides never reach the guards in {@code DeferredSchemaCache}, and a cycle
+   * among them (for example through an allOf member whose target got merged into the wrapping
+   * schema) would otherwise be followed until the stack overflows. Returns false when the pair is
+   * already being compared higher up the path, in which case the descent must stop.
+   */
+  public boolean enter(Schema<?> left, Schema<?> right) {
+    return schemaPath.add(new SchemaPair(left, right));
+  }
+
+  /** Marks the end of comparing a schema pair, allowing sibling occurrences to be diffed again. */
+  public void leave(Schema<?> left, Schema<?> right) {
+    schemaPath.remove(new SchemaPair(left, right));
+  }
+
+  /** Identity-based pair, since merged schemas may not carry a reference to compare by. */
+  private static final class SchemaPair {
+    private final Schema<?> left;
+    private final Schema<?> right;
+
+    private SchemaPair(Schema<?> left, Schema<?> right) {
+      this.left = left;
+      this.right = right;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof SchemaPair)) {
+        return false;
+      }
+      SchemaPair other = (SchemaPair) o;
+      return left == other.left && right == other.right;
+    }
+
+    @Override
+    public int hashCode() {
+      return 31 * System.identityHashCode(left) + System.identityHashCode(right);
+    }
   }
 }
