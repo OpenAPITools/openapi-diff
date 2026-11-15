@@ -33,6 +33,17 @@
       <version>3.4</version>
       <scope>provided</scope>
     </dependency>
+    <!-- Maven Reporting API 4 / Doxia 2: used by the `report` goal (maven-site-plugin 3.21.0+) -->
+    <dependency>
+      <groupId>org.apache.maven.reporting</groupId>
+      <artifactId>maven-reporting-api</artifactId>
+      <version>4.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.reporting</groupId>
+      <artifactId>maven-reporting-impl</artifactId>
+      <version>4.0.0</version>
+    </dependency>
 
     <dependency>
       <groupId>org.openapitools.openapidiff</groupId>

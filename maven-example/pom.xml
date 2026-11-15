@@ -19,6 +19,16 @@
     </properties>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <!-- The openapi-diff report needs maven-site-plugin 3.21.0 or newer -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.22.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.openapitools.openapidiff</groupId>
@@ -48,5 +58,28 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- `mvn site` adds an "OpenAPI Diff" page under Project Reports -->
+    <reporting>
+        <excludeDefaults>true</excludeDefaults>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools.openapidiff</groupId>
+                <artifactId>openapi-diff-maven</artifactId>
+                <version>${project.version}</version>
+                <configuration>
+                    <oldSpec>${project.basedir}/../maven/src/test/resources/oldspec.yaml</oldSpec>
+                    <newSpec>${project.basedir}/../maven/src/test/resources/newspec.yaml</newSpec>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 
 </project>
