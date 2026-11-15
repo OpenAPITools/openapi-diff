@@ -43,4 +43,33 @@ public class HtmlRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void issue364_renderShowsOldAndNewNotesForChangedParameter() {
+    HtmlRender render = new HtmlRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-364-param-notes-1.json", "issue-364-param-notes-2.json");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString())
+        .contains("<del class=\"comment\">Number of pets returned</del>");
+    assertThat(outputStream.toString())
+        .contains("<span class=\"comment\">Maximum number of pets returned</span>");
+  }
+
+  @Test
+  public void issue364_renderDoesNotShowNullWhenParameterGainsNotes() {
+    HtmlRender render = new HtmlRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-364-param-notes-1.json", "issue-364-param-notes-2.json");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).doesNotContain(">null<");
+    assertThat(outputStream.toString())
+        .contains("<span class=\"comment\">Filter expression</span>");
+  }
 }

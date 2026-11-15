@@ -560,9 +560,13 @@ public class HtmlRender implements Render {
     }
     if (changeDescription) {
       li.withText(" Notes ")
-          .with(del(leftParam.getDescription()).withClass(COMMENT))
+          .with(
+              del(null == leftParam.getDescription() ? "" : leftParam.getDescription())
+                  .withClass(COMMENT))
           .withText(" change into ")
-          .with(span(rightParam.getDescription()).withClass(COMMENT));
+          .with(
+              span(null == rightParam.getDescription() ? "" : rightParam.getDescription())
+                  .withClass(COMMENT));
     }
     return li;
   }
