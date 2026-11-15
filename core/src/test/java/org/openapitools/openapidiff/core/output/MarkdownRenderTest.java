@@ -42,6 +42,16 @@ public class MarkdownRenderTest {
   }
 
   @Test
+  public void renderShowsChangedEnumValuesWhenResponseEnumValueIsAdded() {
+    MarkdownRender render = new MarkdownRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff = OpenApiCompare.fromLocations("enum_diff_1.yaml", "enum_diff_2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).containsSubsequence("Added enum value", "`ENUM_VALUE_3`");
+  }
+
+  @Test
   public void issue870_renderDoesNotFailWhenSchemaIsNullButExampleChanged() {
     MarkdownRender render = new MarkdownRender();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

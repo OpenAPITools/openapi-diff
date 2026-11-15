@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.*;
+import org.openapitools.openapidiff.core.model.schema.ChangedEnum;
 import org.openapitools.openapidiff.core.model.schema.ChangedOperationId;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
@@ -197,6 +198,9 @@ public class ConsoleRender implements Render {
       String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
       sb.append(property(propName, "Changed property type", type));
     }
+    if (schema.getEnumeration() != null) {
+      sb.append(enumValues(propName, schema.getEnumeration()));
+    }
     String prefix = propName.isEmpty() ? "" : propName + ".";
     sb.append(
         properties(prefix, "Missing property", schema.getMissingProperties(), schema.getContext()));
@@ -208,6 +212,22 @@ public class ConsoleRender implements Render {
 
   private String items(String propName, ChangedSchema schema) {
     return incompatibilities(propName + "[n]", schema);
+  }
+
+  private String enumValues(String propName, ChangedEnum<?> changedEnum) {
+    StringBuilder sb = new StringBuilder();
+    String prefix = propName.isEmpty() ? "" : propName + " ";
+    changedEnum
+        .getIncreased()
+        .forEach(value -> sb.append(enumValue("Added enum value", prefix + value)));
+    changedEnum
+        .getMissing()
+        .forEach(value -> sb.append(enumValue("Removed enum value", prefix + value)));
+    return sb.toString();
+  }
+
+  private String enumValue(String title, String value) {
+    return String.format("%s%s: %s%n", StringUtils.repeat(' ', 10), title, value);
   }
 
   private String properties(
