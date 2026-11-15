@@ -1,6 +1,6 @@
 package org.openapitools.openapidiff.core.model;
 
-import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.OPENAPI_ENDPOINTS_DECREASED;
+import static org.openapitools.openapidiff.core.model.BackwardIncompatibleProp.REQUEST_BODY_REQUIRED_INCREASED;
 
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.Arrays;
@@ -33,10 +33,23 @@ public class ChangedRequestBody implements ComposedChanged {
     if (!changeRequired) {
       return DiffResult.NO_CHANGES;
     }
-    if (OPENAPI_ENDPOINTS_DECREASED.enabled(context)) {
+    // Making a required request body optional is backward compatible: existing
+    // clients that keep sending the body still work (issue #329).
+    if (isRequestRequiredDecreased()) {
+      return DiffResult.COMPATIBLE;
+    }
+    if (REQUEST_BODY_REQUIRED_INCREASED.enabled(context)) {
       return DiffResult.INCOMPATIBLE;
     }
     return DiffResult.COMPATIBLE;
+  }
+
+  private boolean isRequestRequiredDecreased() {
+    // Both bodies must exist: a removed required body stays incompatible.
+    return oldRequestBody != null
+        && newRequestBody != null
+        && Boolean.TRUE.equals(oldRequestBody.getRequired())
+        && !Boolean.TRUE.equals(newRequestBody.getRequired());
   }
 
   public RequestBody getOldRequestBody() {
