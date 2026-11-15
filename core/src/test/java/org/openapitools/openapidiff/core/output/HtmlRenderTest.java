@@ -43,4 +43,17 @@ public class HtmlRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void issue805_renderDoesNotFailWhenByteExampleMediaTypesChangeWithNoSchemaChanges() {
+    HtmlRender render = new HtmlRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations(
+            "issue-805-byte-example-media-types-1.yaml",
+            "issue-805-byte-example-media-types-2.yaml");
+    render.render(diff, outputStreamWriter);
+    assertThat(outputStream.toString()).isNotBlank().contains("text/csv");
+  }
 }
