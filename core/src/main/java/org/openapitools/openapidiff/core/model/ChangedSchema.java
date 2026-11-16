@@ -33,6 +33,11 @@ public class ChangedSchema implements ComposedChanged {
   protected DiffContext context;
   protected Schema<?> oldSchema;
   protected Schema<?> newSchema;
+  // The `$ref` values the old/new schemas were referenced by before the diff resolved them; null
+  // when the schema was inline. Metadata for downstream consumers only; it does not affect
+  // change detection.
+  protected String oldRef;
+  protected String newRef;
   protected String type;
   protected Map<String, ChangedSchema> changedProperties;
   protected Map<String, Schema<?>> increasedProperties;
@@ -238,6 +243,14 @@ public class ChangedSchema implements ComposedChanged {
     return this.newSchema;
   }
 
+  public String getOldRef() {
+    return this.oldRef;
+  }
+
+  public String getNewRef() {
+    return this.newRef;
+  }
+
   public String getType() {
     return this.type;
   }
@@ -378,6 +391,16 @@ public class ChangedSchema implements ComposedChanged {
 
   public ChangedSchema setNewSchema(final Schema<?> newSchema) {
     this.newSchema = newSchema;
+    return this;
+  }
+
+  public ChangedSchema setOldRef(final String oldRef) {
+    this.oldRef = oldRef;
+    return this;
+  }
+
+  public ChangedSchema setNewRef(final String newRef) {
+    this.newRef = newRef;
     return this;
   }
 
@@ -586,6 +609,8 @@ public class ChangedSchema implements ComposedChanged {
         && Objects.equals(context, that.context)
         && Objects.equals(oldSchema, that.oldSchema)
         && Objects.equals(newSchema, that.newSchema)
+        && Objects.equals(oldRef, that.oldRef)
+        && Objects.equals(newRef, that.newRef)
         && Objects.equals(type, that.type)
         && Objects.equals(changedProperties, that.changedProperties)
         && Objects.equals(increasedProperties, that.increasedProperties)
@@ -620,6 +645,8 @@ public class ChangedSchema implements ComposedChanged {
         context,
         oldSchema,
         newSchema,
+        oldRef,
+        newRef,
         type,
         changedProperties,
         increasedProperties,
@@ -662,6 +689,10 @@ public class ChangedSchema implements ComposedChanged {
         + this.getOldSchema()
         + ", newSchema="
         + this.getNewSchema()
+        + ", oldRef="
+        + this.getOldRef()
+        + ", newRef="
+        + this.getNewRef()
         + ", type="
         + this.getType()
         + ", changedProperties="

@@ -340,8 +340,10 @@ public class SchemaDiff {
   public DeferredChanged<ChangedSchema> computeDiffForReal(
       RecursiveSchemaSet refSet, Schema left, Schema right, DiffContext context) {
 
-    left = refPointer.resolveRef(this.leftComponents, left, getSchemaRef(left));
-    right = refPointer.resolveRef(this.rightComponents, right, getSchemaRef(right));
+    String leftRef = getSchemaRef(left);
+    String rightRef = getSchemaRef(right);
+    left = refPointer.resolveRef(this.leftComponents, left, leftRef);
+    right = refPointer.resolveRef(this.rightComponents, right, rightRef);
 
     left = resolveComposedSchema(leftComponents, left, refSet.getLeftKeys());
     right = resolveComposedSchema(rightComponents, right, refSet.getRightKeys());
@@ -352,11 +354,28 @@ public class SchemaDiff {
     if ((left == null || right == null)
         || !Objects.equals(left.getType(), right.getType())
         || !Objects.equals(left.getFormat(), right.getFormat())) {
-      return getTypeChangedSchema(left, right, context);
+      return keepSourceRefs(getTypeChangedSchema(left, right, context), leftRef, rightRef);
     }
 
     // If schema type is same then get specific SchemaDiffResult and compare the properties
     SchemaDiffResult result = SchemaDiff.getSchemaDiffResult(right.getClass(), openApiDiff);
-    return result.diff(refSet, leftComponents, rightComponents, left, right, context);
+    return keepSourceRefs(
+        result.diff(refSet, leftComponents, rightComponents, left, right, context),
+        leftRef,
+        rightRef);
+  }
+
+  /**
+   * Keeps the `$ref` values the schemas were referenced by on the resulting {@link ChangedSchema};
+   * reference resolution drops them, and downstream consumers need to know which component schemas
+   * were compared.
+   */
+  private static DeferredChanged<ChangedSchema> keepSourceRefs(
+      DeferredChanged<ChangedSchema> diff, String oldRef, String newRef) {
+    return diff.mapOptional(
+        changedSchema -> {
+          changedSchema.ifPresent(schema -> schema.setOldRef(oldRef).setNewRef(newRef));
+          return changedSchema;
+        });
   }
 }

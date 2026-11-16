@@ -182,7 +182,9 @@ public class SchemaDiffResult {
           new ChangedSchema()
               .setContext(context)
               .setOldSchema(leftAdditionalSchema)
-              .setNewSchema(rightAdditionalSchema);
+              .setNewSchema(rightAdditionalSchema)
+              .setOldRef(ofNullable(leftAdditionalSchema).map(Schema::get$ref).orElse(null))
+              .setNewRef(ofNullable(rightAdditionalSchema).map(Schema::get$ref).orElse(null));
       if (left != null && right != null) {
         DeferredChanged<ChangedSchema> addPropChangedSchemaOP =
             openApiDiff

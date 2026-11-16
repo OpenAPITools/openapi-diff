@@ -4,6 +4,7 @@ import static io.swagger.v3.oas.models.PathItem.HttpMethod.POST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openapitools.openapidiff.core.ChangesResolver.getRequestBodyChangedSchema;
 import static org.openapitools.openapidiff.core.ChangesResolver.getResponseBodyChangedSchema;
@@ -50,6 +51,34 @@ public class SchemaDiffTest {
     assertEquals(1, changedSchema.getChangedProperties().size());
     assertTrue(changedSchema.getChangedProperties().containsKey("field1"));
     assertTrue(changedSchema.getChangedProperties().get("field1").isChangedType());
+  }
+
+  @Test // issue #956
+  public void schemaRefsAreKeptOnChangedSchema() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "schemaDiff/schema-ref-handling-1.yaml", "schemaDiff/schema-ref-handling-2.yaml");
+
+    ChangedSchema requestBodySchema =
+        getRequestBodyChangedSchema(changedOpenApi, POST, "/widgets", "application/json");
+    assertNotNull(requestBodySchema);
+    // The request body schema is a reference to a component schema on both sides
+    assertEquals("#/components/schemas/Widget", requestBodySchema.getOldRef());
+    assertEquals("#/components/schemas/Widget", requestBodySchema.getNewRef());
+
+    // A property that is itself a reference keeps the refs it was reached through
+    ChangedSchema weight = requestBodySchema.getChangedProperties().get("weight");
+    assertNotNull(weight);
+    assertTrue(weight.isChangedType());
+    assertEquals("#/components/schemas/Weight", weight.getOldRef());
+    assertEquals("#/components/schemas/Weight", weight.getNewRef());
+
+    // An inline property has no refs to keep
+    ChangedSchema label = requestBodySchema.getChangedProperties().get("label");
+    assertNotNull(label);
+    assertTrue(label.isChangedType());
+    assertNull(label.getOldRef());
+    assertNull(label.getNewRef());
   }
 
   @Test // issue #485
