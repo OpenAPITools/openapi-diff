@@ -18,6 +18,7 @@ import org.openapitools.openapidiff.core.model.Endpoint;
 import org.openapitools.openapidiff.core.model.deferred.DeferredChanged;
 import org.openapitools.openapidiff.core.model.deferred.DeferredSchemaCache;
 import org.openapitools.openapidiff.core.utils.EndpointUtils;
+import org.openapitools.openapidiff.core.utils.SchemaTypeNormalizer;
 
 public class OpenApiDiff {
   private PathsDiff pathsDiff;
@@ -103,6 +104,7 @@ public class OpenApiDiff {
   }
 
   private ChangedOpenApi compare() {
+    normalizeCrossVersionSchemaTypes();
     preProcess(oldSpecOpenApi);
     preProcess(newSpecOpenApi);
 
@@ -144,6 +146,27 @@ public class OpenApiDiff {
 
   private void setChangedExtension(ChangedExtensions changedExtension) {
     this.changedExtensions = changedExtension;
+  }
+
+  /**
+   * The parser stores the OAS 3.1 {@code type} keyword in the JSON Schema 2020-12 {@code types} set
+   * and leaves the singular {@code type} null, while OAS 3.0 documents only use the singular {@code
+   * type}. When comparing across that representation boundary, mirror a single-element {@code
+   * types} set back into {@code type} so that identical schemas are not reported as type changes
+   * (see issue 858). Same-version comparisons are left untouched.
+   */
+  private void normalizeCrossVersionSchemaTypes() {
+    boolean oldSpecIs31 = isOpenApi31(oldSpecOpenApi);
+    boolean newSpecIs31 = isOpenApi31(newSpecOpenApi);
+    if (oldSpecIs31 != newSpecIs31) {
+      SchemaTypeNormalizer.normalize(oldSpecOpenApi);
+      SchemaTypeNormalizer.normalize(newSpecOpenApi);
+    }
+  }
+
+  private static boolean isOpenApi31(OpenAPI openApi) {
+    String version = openApi.getOpenapi();
+    return version != null && version.startsWith("3.1");
   }
 
   private void preProcess(OpenAPI openApi) {
