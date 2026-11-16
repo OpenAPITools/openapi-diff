@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: oas31 harness fixture (exclusive-bounds)
+  version: "1.0"
+paths:
+  /scores:
+    post:
+      operationId: createScore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 100
+      responses:
+        "200":
+          description: OK

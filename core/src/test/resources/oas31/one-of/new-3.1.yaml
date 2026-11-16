@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: oas31 harness fixture (one-of)
+  version: "1.0"
+paths:
+  /widgets:
+    post:
+      operationId: createWidget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WidgetCreateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WidgetCreateResponse"
+components:
+  schemas:
+    WidgetCreateRequest:
+      oneOf:
+        - $ref: "#/components/schemas/Doodad"
+        - $ref: "#/components/schemas/Gadget"
+    WidgetCreateResponse:
+      oneOf:
+        - $ref: "#/components/schemas/Doodad"
+        - $ref: "#/components/schemas/Gadget"
+    Doodad:
+      type: object
+      properties:
+        doodad_prop1:
+          type: integer
+    Gadget:
+      type: object
+      properties:
+        gadget_prop1:
+          type: string
