@@ -1,0 +1,26 @@
+openapi: 3.0.0
+info:
+  title: Schema Ref Handling Test - Before
+  version: 1.0.0
+paths:
+  /widgets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Widget'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    Widget:
+      type: object
+      properties:
+        weight:
+          $ref: '#/components/schemas/Weight'
+        label:
+          type: string
+    Weight:
+      type: integer
