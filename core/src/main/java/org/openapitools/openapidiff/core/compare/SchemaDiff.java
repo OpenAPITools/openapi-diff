@@ -27,6 +27,7 @@ import org.openapitools.openapidiff.core.model.deferred.RealizedChanged;
 import org.openapitools.openapidiff.core.model.deferred.RecursiveSchemaSet;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
+import org.openapitools.openapidiff.core.utils.SchemaTypes;
 
 public class SchemaDiff {
 
@@ -350,7 +351,7 @@ public class SchemaDiff {
     // SchemaDiffResult and
     // return the object
     if ((left == null || right == null)
-        || !Objects.equals(left.getType(), right.getType())
+        || !SchemaTypes.types(left).equals(SchemaTypes.types(right))
         || !Objects.equals(left.getFormat(), right.getFormat())) {
       return getTypeChangedSchema(left, right, context);
     }
