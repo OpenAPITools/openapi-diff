@@ -1,0 +1,31 @@
+openapi: 3.0.3
+info:
+  title: oas31 harness fixture (all-of)
+  version: "1.0"
+paths:
+  /things:
+    get:
+      operationId: getThing
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Thing"
+components:
+  schemas:
+    Thing:
+      allOf:
+        - $ref: "#/components/schemas/Base"
+        - $ref: "#/components/schemas/Extra"
+    Base:
+      type: object
+      properties:
+        name:
+          type: string
+    Extra:
+      type: object
+      properties:
+        tag:
+          type: string

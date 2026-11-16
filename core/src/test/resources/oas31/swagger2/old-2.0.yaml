@@ -1,0 +1,21 @@
+swagger: "2.0"
+info:
+  title: oas31 harness fixture (swagger2)
+  version: "1.0"
+paths:
+  /things:
+    get:
+      operationId: getThing
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Thing"
+definitions:
+  Thing:
+    type: object
+    properties:
+      weight:
+        type: integer
