@@ -88,6 +88,12 @@ public class SchemaBCTest {
   }
 
   @Test
+  public void responsePropsRequiredRemoved() {
+    BackwardIncompatibleProp prop = RESPONSE_PROPERTIES_DECREASED;
+    assertSpecIncompatible(BASE, "bc_response_schema_props_required_removed.yaml", prop);
+  }
+
+  @Test
   public void typeChanged() {
     BackwardIncompatibleProp prop = SCHEMA_TYPE_CHANGED;
     assertSpecIncompatible(BASE, "bc_schema_type_changed.yaml", prop);

@@ -59,7 +59,11 @@ public class SchemaDiffResult {
         .setChangeDeprecated(!Objects.equals(left.getDeprecated(), right.getDeprecated()))
         .setChangeTitle(!Objects.equals(left.getTitle(), right.getTitle()))
         .setRequired(
-            ListDiff.diff(new ChangedRequired(left.getRequired(), right.getRequired(), context)))
+            ListDiff.diff(
+                new ChangedRequired(
+                    oldRequiredWithoutRemovedProperties(left, right),
+                    right.getRequired(),
+                    context)))
         .setChangeDefault(!Objects.equals(left.getDefault(), right.getDefault()))
         .setEnumeration(changedEnum)
         .setChangeFormat(!Objects.equals(left.getFormat(), right.getFormat()))
@@ -153,6 +157,23 @@ public class SchemaDiffResult {
       } else {
         // Child property is not applicable, so required cannot be applied
         changedSchema.getRequired().getIncreased().remove(entry.getKey());
+      }
+    }
+    return result;
+  }
+
+  private static List<String> oldRequiredWithoutRemovedProperties(Schema<?> left, Schema<?> right) {
+    if (left.getRequired() == null) {
+      return null;
+    }
+    Set<String> oldProperties =
+        left.getProperties() == null ? new LinkedHashSet<>() : left.getProperties().keySet();
+    Set<String> newProperties =
+        right.getProperties() == null ? new LinkedHashSet<>() : right.getProperties().keySet();
+    List<String> result = new ArrayList<>();
+    for (String name : left.getRequired()) {
+      if (newProperties.contains(name) || !oldProperties.contains(name)) {
+        result.add(name);
       }
     }
     return result;

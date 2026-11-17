@@ -493,6 +493,20 @@ public class SchemaDiffTest {
   }
 
   @Test
+  void testRemovedRequiredPropertyNotReportedAsRequiredDecrease() {
+    ChangedOpenApi changedOpenApi =
+        OpenApiCompare.fromLocations(
+            "bc_schema_base.yaml", "bc_response_schema_props_required_removed.yaml");
+    ChangedSchema changedSchema =
+        getResponseBodyChangedSchema(changedOpenApi, POST, "/widgets", "200", "application/json");
+
+    assertThat(changedSchema).isNotNull();
+    assertThat(changedSchema.getMissingProperties()).containsKey("response_prop1");
+    assertThat(changedSchema.getRequired().getMissing()).isEmpty();
+    assertThat(changedSchema.getRequired().isChanged()).isEqualTo(DiffResult.NO_CHANGES);
+  }
+
+  @Test
   void renderShowsNoDifferencesWhenCSVMediaTypeResponseExampleIsByteArray() {
     ChangedOpenApi changedOpenApi =
         OpenApiCompare.fromLocations(
