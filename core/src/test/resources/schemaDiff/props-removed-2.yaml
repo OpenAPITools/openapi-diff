@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: Property Removed Test - Version 2
+  version: 2.0.0
+paths:
+  /widgets:
+    get:
+      summary: Get a widget
+      operationId: getWidget
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+components:
+  schemas:
+    Widget:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id

@@ -45,6 +45,9 @@ components:
       properties:
         to_create:
           $ref: '#/components/schemas/Widget_Polymorphic'
+        request_prop1:
+          type: integer
+          format: int32
         request_prop2:
           type: integer
           format: int64
@@ -62,6 +65,9 @@ components:
         response_prop1:
           type: integer
           format: int32
+        response_prop2:
+          type: integer
+          format: int64
         response_prop3:
           type: string
       required:
@@ -85,6 +91,16 @@ components:
         prop2:
           type: integer
           format: int32
+        stuffUnbounded:
+          type: object
+          additionalProperties:
+            type: string
+        stuffBounded:
+          type: object
+          minProperties: 1
+          maxProperties: 10
+          additionalProperties:
+            type: string
       required:
         - '@type'
         - prop1
