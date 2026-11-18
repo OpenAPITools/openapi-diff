@@ -13,7 +13,8 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class MarkdownRender implements Render {
 
   protected RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected ChangedOpenApi diff;
-  protected Set<Schema<?>> handledSchemas = new HashSet<>();
+  protected Set<Schema<?>> visitingSchemas = Collections.newSetFromMap(new IdentityHashMap<>());
   /**
    * A parameter which indicates whether or not metadata (summary and metadata) changes should be
    * logged in the changelog file.
@@ -51,7 +52,7 @@ public class MarkdownRender implements Render {
 
   public void render(ChangedOpenApi diff, OutputStreamWriter outputStreamWriter) {
     this.diff = diff;
-    this.handledSchemas.clear();
+    this.visitingSchemas.clear();
 
     apiTitle(
         diff.getNewSpecOpenApi().getInfo().getTitle(),
@@ -381,17 +382,20 @@ public class MarkdownRender implements Render {
   }
 
   protected String schema(int deepness, Schema schema, DiffContext context) {
-    if (handledSchemas.contains(schema)) return "";
-    handledSchemas.add(schema);
-    StringBuilder sb = new StringBuilder();
-    sb.append(listItem(deepness, "Enum", schema.getEnum()));
-    sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
-    if (schema instanceof ComposedSchema) {
-      sb.append(schema(deepness, (ComposedSchema) schema, context));
-    } else if (schema instanceof ArraySchema) {
-      sb.append(items(deepness, resolve(((ArraySchema) schema).getItems()), context));
+    if (!visitingSchemas.add(schema)) return "";
+    try {
+      StringBuilder sb = new StringBuilder();
+      sb.append(listItem(deepness, "Enum", schema.getEnum()));
+      sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
+      if (schema instanceof ComposedSchema) {
+        sb.append(schema(deepness, (ComposedSchema) schema, context));
+      } else if (schema instanceof ArraySchema) {
+        sb.append(items(deepness, resolve(((ArraySchema) schema).getItems()), context));
+      }
+      return sb.toString();
+    } finally {
+      visitingSchemas.remove(schema);
     }
-    return sb.toString();
   }
 
   protected String items(int deepness, ChangedSchema schema) {
