@@ -21,6 +21,7 @@ import static j2html.TagCreator.title;
 import static j2html.TagCreator.ul;
 import static org.openapitools.openapidiff.core.model.Changed.result;
 
+import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
@@ -33,6 +34,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.OlTag;
+import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.UlTag;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -40,22 +42,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.exception.RendererException;
 import org.openapitools.openapidiff.core.model.ChangedApiResponse;
 import org.openapitools.openapidiff.core.model.ChangedContent;
+import org.openapitools.openapidiff.core.model.ChangedHeader;
+import org.openapitools.openapidiff.core.model.ChangedHeaders;
+import org.openapitools.openapidiff.core.model.ChangedList;
 import org.openapitools.openapidiff.core.model.ChangedMediaType;
 import org.openapitools.openapidiff.core.model.ChangedMetadata;
 import org.openapitools.openapidiff.core.model.ChangedOpenApi;
 import org.openapitools.openapidiff.core.model.ChangedOperation;
 import org.openapitools.openapidiff.core.model.ChangedParameter;
 import org.openapitools.openapidiff.core.model.ChangedParameters;
+import org.openapitools.openapidiff.core.model.ChangedRequestBody;
 import org.openapitools.openapidiff.core.model.ChangedResponse;
 import org.openapitools.openapidiff.core.model.ChangedSchema;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirement;
 import org.openapitools.openapidiff.core.model.ChangedSecurityRequirements;
 import org.openapitools.openapidiff.core.model.DiffContext;
-import org.openapitools.openapidiff.core.model.DiffResult;
 import org.openapitools.openapidiff.core.model.Endpoint;
+import org.openapitools.openapidiff.core.model.schema.ChangedOneOfSchema;
 import org.openapitools.openapidiff.core.model.schema.ChangedOperationId;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
@@ -127,14 +134,15 @@ public class HtmlRender implements Render {
                         link().withRel("stylesheet").withHref(linkCss)),
                 body()
                     .with(
-                        header().with(h1(title)),
+                        header().with(h1(title), specSubtitle()),
                         div()
                             .withClass("article")
                             .with(
                                 div().with(h2("What's New"), hr(), ol_new),
                                 div().with(h2("What's Deleted"), hr(), ol_miss),
                                 div().with(h2("What's Deprecated"), hr(), ol_deprec),
-                                div().with(h2("What's Changed"), hr(), ol_changed))));
+                                div().with(h2("What's Changed"), hr(), ol_changed),
+                                resultSection())));
 
     try {
       FlatHtml<OutputStreamWriter> flatHtml = FlatHtml.into(outputStreamWriter);
@@ -144,6 +152,37 @@ public class HtmlRender implements Render {
     } catch (IOException e) {
       throw new RendererException("Problem rendering html document.", e);
     }
+  }
+
+  private ContainerTag<?> specSubtitle() {
+    if (diff == null) {
+      return p();
+    }
+    String specTitle = diff.getNewSpecOpenApi().getInfo().getTitle();
+    String version = diff.getNewSpecOpenApi().getInfo().getVersion();
+    String subtitle =
+        (StringUtils.isBlank(specTitle) ? "" : specTitle)
+            + " (v "
+            + (StringUtils.isBlank(version) ? "" : version)
+            + ")";
+    return p(subtitle.trim());
+  }
+
+  private ContainerTag<?> resultSection() {
+    if (diff == null) {
+      return div();
+    }
+    return div().with(h2("Result"), hr(), p(resultSummary()));
+  }
+
+  private String resultSummary() {
+    if (diff.isUnchanged()) {
+      return "No differences. Specifications are equivalent";
+    }
+    if (diff.isCompatible()) {
+      return "API changes are backward compatible";
+    }
+    return "API changes broke backward compatibility";
   }
 
   private OlTag ol_newEndpoint(List<Endpoint> endpoints) {
@@ -212,9 +251,7 @@ public class HtmlRender implements Render {
             li().with(h3("Parameters")).with(ul_param(changedOperation.getParameters())));
       }
       if (changedOperation.resultRequestBody().isDifferent()) {
-        ul_detail.with(
-            li().with(h3("Request"))
-                .with(ul_request(changedOperation.getRequestBody().getContent())));
+        ul_detail.with(li_request(changedOperation.getRequestBody()));
       }
       if (changedOperation.resultApiResponses().isDifferent()) {
         ul_detail.with(
@@ -232,6 +269,15 @@ public class HtmlRender implements Render {
               .with(ul_detail));
     }
     return ol;
+  }
+
+  private LiTag li_request(ChangedRequestBody requestBody) {
+    LiTag li = li().with(h3("Request"));
+    ChangedMetadata description = requestBody.getDescription();
+    if (description != null && StringUtils.isNotBlank(description.getRight())) {
+      li.with(span("//" + description.getRight().trim()).withClass(COMMENT));
+    }
+    return li.with(ul_request(requestBody.getContent()));
   }
 
   private UlTag ul_securityRequirements(ChangedSecurityRequirements changedSecurityRequirements) {
@@ -297,29 +343,89 @@ public class HtmlRender implements Render {
     return ul;
   }
 
+  private String statusCode(String code) {
+    if (code.equals("default") || code.matches("[1-5]XX")) {
+      return code;
+    }
+    return code + " " + HttpStatus.getReasonPhrase(Integer.parseInt(code));
+  }
+
   private LiTag li_addResponse(String name, ApiResponse response) {
-    return li().withText(String.format("New response : [%s]", name))
+    return li().withText(String.format("New response : [%s]", statusCode(name)))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
                 .withClass(COMMENT));
   }
 
   private LiTag li_missingResponse(String name, ApiResponse response) {
-    return li().withText(String.format("Deleted response : [%s]", name))
+    return li().withText(String.format("Deleted response : [%s]", statusCode(name)))
         .with(
             span(null == response.getDescription() ? "" : ("//" + response.getDescription()))
                 .withClass(COMMENT));
   }
 
   private LiTag li_changedResponse(String name, ChangedResponse response) {
-    return li().withText(String.format("Changed response : [%s]", name))
+    LiTag li =
+        li().withText(String.format("Changed response : [%s]", statusCode(name)))
+            .with(
+                span((null == response.getNewApiResponse()
+                            || null == response.getNewApiResponse().getDescription())
+                        ? ""
+                        : ("//" + response.getNewApiResponse().getDescription()))
+                    .withClass(COMMENT));
+    if (response.getHeaders() != null) {
+      li.with(ul_headers(response.getHeaders()));
+    }
+    return li.with(ul_request(response.getContent()));
+  }
+
+  private UlTag ul_headers(ChangedHeaders changedHeaders) {
+    UlTag ul = ul().withClass("change headers");
+    if (changedHeaders == null) {
+      return ul;
+    }
+    Map<String, Header> addHeaders = changedHeaders.getIncreased();
+    Map<String, Header> delHeaders = changedHeaders.getMissing();
+    Map<String, ChangedHeader> changedHeadersMap = changedHeaders.getChanged();
+    if (addHeaders != null) {
+      for (Entry<String, Header> header : addHeaders.entrySet()) {
+        ul.with(li_addHeader(header.getKey(), header.getValue()));
+      }
+    }
+    if (delHeaders != null) {
+      for (Entry<String, Header> header : delHeaders.entrySet()) {
+        ul.with(li_missingHeader(header.getKey(), header.getValue()));
+      }
+    }
+    if (changedHeadersMap != null) {
+      for (Entry<String, ChangedHeader> header : changedHeadersMap.entrySet()) {
+        ul.with(li_changedHeader(header.getKey(), header.getValue()));
+      }
+    }
+    return ul;
+  }
+
+  private LiTag li_addHeader(String name, Header header) {
+    return li().withText(String.format("New header : %s", name))
         .with(
-            span((null == response.getNewApiResponse()
-                        || null == response.getNewApiResponse().getDescription())
+            span(null == header.getDescription() ? "" : ("//" + header.getDescription()))
+                .withClass(COMMENT));
+  }
+
+  private LiTag li_missingHeader(String name, Header header) {
+    return li().withText(String.format("Deleted header : %s", name))
+        .with(
+            span(null == header.getDescription() ? "" : ("//" + header.getDescription()))
+                .withClass(COMMENT));
+  }
+
+  private LiTag li_changedHeader(String name, ChangedHeader header) {
+    return li().withText(String.format("Changed header : %s", name))
+        .with(
+            span((null == header.getNewHeader() || null == header.getNewHeader().getDescription())
                     ? ""
-                    : ("//" + response.getNewApiResponse().getDescription()))
-                .withClass(COMMENT))
-        .with(ul_request(response.getContent()));
+                    : ("//" + header.getNewHeader().getDescription()))
+                .withClass(COMMENT));
   }
 
   private UlTag ul_request(ChangedContent changedContent) {
@@ -351,10 +457,10 @@ public class HtmlRender implements Render {
     ChangedSchema schema = request.getSchema();
     if (schema != null) {
       li.with(div_changedSchema(schema));
-      if (request.isIncompatible() && !showAllChanges) {
-        incompatibilities(li, schema);
-      } else if (showAllChanges) {
+      if (showAllChanges) {
         allChanges(li, schema);
+      } else {
+        incompatibilities(li, schema);
       }
     }
     return li;
@@ -373,19 +479,24 @@ public class HtmlRender implements Render {
   private void allChanges(
       final ContainerTag<?> output, String propName, final ChangedSchema schema) {
     String prefix = propName.isEmpty() ? "" : propName + ".";
-    properties(
-        output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
-    properties(
-        output, prefix, "Added property", schema.getIncreasedProperties(), schema.getContext());
-
-    propertiesChanged(
-        output, prefix, "Changed property", schema.getChangedProperties(), schema.getContext());
+    oneOfSchema(output, schema.getOneOfSchema(), discriminator(schema));
+    if (schema.getRequired() != null) {
+      requiredProperties(
+          output, prefix, "New required properties", schema.getRequired().getIncreased());
+      requiredProperties(
+          output, prefix, "New optional properties", schema.getRequired().getMissing());
+    }
     if (schema.getItems() != null) {
       itemsAllChanges(output, propName, schema.getItems());
     }
+    listDiff(output, "enum value", schema.getEnumeration());
+    properties(
+        output, prefix, "Added property", schema.getIncreasedProperties(), schema.getContext());
+    properties(
+        output, prefix, "Deleted property", schema.getMissingProperties(), schema.getContext());
     schema
         .getChangedProperties()
-        .forEach((name, property) -> allChanges(output, prefix + name, property));
+        .forEach((name, property) -> property(output, prefix + name, property));
   }
 
   private void incompatibilities(final LiTag output, final ChangedSchema schema) {
@@ -394,27 +505,114 @@ public class HtmlRender implements Render {
 
   private void incompatibilities(
       final ContainerTag<?> output, String propName, final ChangedSchema schema) {
+    String prefix = propName.isEmpty() ? "" : propName + ".";
+    oneOfSchema(output, schema.getOneOfSchema(), discriminator(schema));
+    if (schema.getRequired() != null) {
+      requiredProperties(
+          output, prefix, "New required properties", schema.getRequired().getIncreased());
+      requiredProperties(
+          output, prefix, "New optional properties", schema.getRequired().getMissing());
+    }
     if (schema.getItems() != null) {
       items(output, propName, schema.getItems());
     }
-    if (schema.isCoreChanged() == DiffResult.INCOMPATIBLE && schema.isChangedType()) {
-      String type = type(schema.getOldSchema()) + " -> " + type(schema.getNewSchema());
-      property(output, propName, "Changed property type", type);
-    }
-    String prefix = propName.isEmpty() ? "" : propName + ".";
+    listDiff(output, "enum value", schema.getEnumeration());
     properties(
-        output, prefix, "Missing property", schema.getMissingProperties(), schema.getContext());
+        output, prefix, "Added property", schema.getIncreasedProperties(), schema.getContext());
+    properties(
+        output, prefix, "Deleted property", schema.getMissingProperties(), schema.getContext());
     schema
         .getChangedProperties()
-        .forEach((name, property) -> incompatibilities(output, prefix + name, property));
+        .forEach((name, property) -> property(output, prefix + name, property));
   }
 
   private void items(ContainerTag<?> output, String propName, ChangedSchema schema) {
+    changedItems(output, propName, schema);
     incompatibilities(output, propName + "[n]", schema);
   }
 
   private void itemsAllChanges(ContainerTag<?> output, String propName, ChangedSchema schema) {
+    changedItems(output, propName, schema);
     allChanges(output, propName + "[n]", schema);
+  }
+
+  private void changedItems(ContainerTag<?> output, String propName, ChangedSchema schema) {
+    property(output, propName + "[n]", "Changed items", changedType(schema), description(schema));
+  }
+
+  private void requiredProperties(
+      ContainerTag<?> output, String propPrefix, String title, List<String> properties) {
+    if (properties != null) {
+      properties.forEach(name -> property(output, propPrefix + name, title, ""));
+    }
+  }
+
+  private void listDiff(ContainerTag<?> output, String name, ChangedList<?> listDiff) {
+    if (listDiff == null) {
+      return;
+    }
+    listItem(output, "Added " + name, listDiff.getIncreased());
+    listItem(output, "Removed " + name, listDiff.getMissing());
+  }
+
+  private <T> void listItem(ContainerTag<?> output, String title, List<T> values) {
+    if (values != null) {
+      values.forEach(value -> property(output, String.valueOf(value), title, ""));
+    }
+  }
+
+  private void oneOfSchema(
+      ContainerTag<?> output, ChangedOneOfSchema oneOfSchema, String discriminator) {
+    if (oneOfSchema == null) {
+      return;
+    }
+    if (oneOfSchema.getMissing() != null) {
+      oneOfSchema
+          .getMissing()
+          .keySet()
+          .forEach(
+              key ->
+                  valueLine(output, String.format("Deleted '%s' %s", key, discriminator).trim()));
+    }
+    if (oneOfSchema.getIncreased() != null) {
+      oneOfSchema
+          .getIncreased()
+          .forEach(
+              (key, sub) ->
+                  valueLine(
+                      output,
+                      String.format(
+                              "Added '%s' %s (%s)", key, discriminator, resolveTypeQuietly(sub))
+                          .trim()));
+    }
+    if (oneOfSchema.getChanged() != null) {
+      oneOfSchema
+          .getChanged()
+          .forEach(
+              (key, sub) -> {
+                valueLine(output, String.format("Updated '%s' %s", key, discriminator).trim());
+                allChanges(output, "", sub);
+              });
+    }
+  }
+
+  private String resolveTypeQuietly(Schema<?> schema) {
+    try {
+      return type(resolve(schema));
+    } catch (Exception e) {
+      return type(schema);
+    }
+  }
+
+  private void valueLine(ContainerTag<?> output, String text) {
+    output.with(p(text).withClass(MISSING));
+  }
+
+  private String discriminator(ChangedSchema schema) {
+    if (schema.getNewSchema() != null && schema.getNewSchema().getDiscriminator() != null) {
+      return schema.getNewSchema().getDiscriminator().getPropertyName();
+    }
+    return "";
   }
 
   private void properties(
@@ -428,41 +626,59 @@ public class HtmlRender implements Render {
     }
   }
 
-  private void propertiesChanged(
-      ContainerTag<?> output,
-      String propPrefix,
-      String title,
-      Map<String, ChangedSchema> properties,
-      DiffContext context) {
-    if (properties != null) {
-      properties.forEach((key, value) -> resolveProperty(output, propPrefix, key, value, title));
-    }
-  }
-
   private void resolveProperty(
       ContainerTag<?> output, String propPrefix, String key, Schema<?> value, String title) {
     try {
-      property(output, propPrefix + key, title, resolve(value));
+      property(output, propPrefix + key, title, type(resolve(value)), value.getDescription());
     } catch (Exception e) {
-      property(output, propPrefix + key, title, type(value));
-    }
-  }
-
-  private void resolveProperty(
-      ContainerTag<?> output, String propPrefix, String key, ChangedSchema value, String title) {
-    try {
-      property(output, propPrefix + key, title, resolve(value));
-    } catch (Exception e) {
-      property(output, propPrefix + key, title, type(value));
+      property(output, propPrefix + key, title, type(value), value.getDescription());
     }
   }
 
   protected void property(ContainerTag<?> output, String name, String title, Schema<?> schema) {
-    property(output, name, title, type(schema));
+    property(output, name, title, type(schema), schema.getDescription());
   }
 
   protected void property(ContainerTag<?> output, String name, String title, String type) {
-    output.with(p(String.format("%s: %s (%s)", title, name, type)).withClass(MISSING));
+    property(output, name, title, type, "");
+  }
+
+  protected void property(ContainerTag<?> output, String name, ChangedSchema schema) {
+    property(output, name, "Changed property", changedType(schema), description(schema));
+    allChanges(output, name, schema);
+  }
+
+  protected void property(
+      ContainerTag<?> output, String name, String title, String type, String description) {
+    String label = String.format("%s: %s", title, name);
+    if (!type.isEmpty()) {
+      label += String.format(" (%s)", type);
+    }
+    PTag line = p(label).withClass(MISSING);
+    if (StringUtils.isNotBlank(description)) {
+      line.with(span("//" + description).withClass(COMMENT));
+    }
+    output.with(line);
+  }
+
+  protected String changedType(ChangedSchema schema) {
+    String newType = type(schema.getNewSchema());
+    if (schema.isChangedType()) {
+      return type(schema.getOldSchema()) + " -> " + newType;
+    }
+    return newType;
+  }
+
+  protected String description(ChangedSchema schema) {
+    try {
+      return description(resolve(schema));
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
+  protected String description(Schema<?> schema) {
+    return null == schema || null == schema.getDescription() ? "" : schema.getDescription();
   }
 
   protected Schema<?> resolve(Schema<?> schema) {
