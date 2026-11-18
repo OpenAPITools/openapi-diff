@@ -1,0 +1,28 @@
+openapi: 3.0.1
+info:
+  title: issue 523 properties
+  version: "1.0"
+paths:
+  /check/API:
+    get:
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpAPIRO"
+components:
+  schemas:
+    ExpAPIRO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/ExpAPIDataRO"
+    ExpAPIDataRO:
+      type: object
+      properties:
+        relationships:
+          $ref: "#/components/schemas/ExpAPIRelationshipsRO"
+    ExpAPIRelationshipsRO:
+      type: object
+      properties: {}

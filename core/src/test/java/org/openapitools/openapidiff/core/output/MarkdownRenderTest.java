@@ -52,4 +52,43 @@ public class MarkdownRenderTest {
     render.render(diff, outputStreamWriter);
     assertThat(outputStream.toString()).isNotBlank();
   }
+
+  @Test
+  public void issue523_enumValuesAreReportedForRepeatedIdenticalSchemas() {
+    MarkdownRender render = new MarkdownRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("issue-523-enum-1.yaml", "issue-523-enum-2.yaml");
+    render.render(diff, outputStreamWriter);
+    String markdown = outputStream.toString();
+    assertThat(countOccurrences(markdown, "`none`")).isEqualTo(2);
+    assertThat(countOccurrences(markdown, "`enabled`")).isEqualTo(2);
+    assertThat(countOccurrences(markdown, "`push`")).isEqualTo(2);
+    assertThat(countOccurrences(markdown, "`disabled`")).isEqualTo(2);
+  }
+
+  @Test
+  public void issue523_propertiesAreReportedForRepeatedIdenticalSchemas() {
+    MarkdownRender render = new MarkdownRender();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+    ChangedOpenApi diff =
+        OpenApiCompare.fromLocations("issue-523-props-1.yaml", "issue-523-props-2.yaml");
+    render.render(diff, outputStreamWriter);
+    String markdown = outputStream.toString();
+    assertThat(countOccurrences(markdown, "`partiallyPopulated`")).isEqualTo(2);
+    assertThat(countOccurrences(markdown, "`additionalAttributes`")).isEqualTo(2);
+    assertThat(countOccurrences(markdown, "`type`")).isEqualTo(2);
+  }
+
+  private static int countOccurrences(String haystack, String needle) {
+    int count = 0;
+    int index = 0;
+    while ((index = haystack.indexOf(needle, index)) != -1) {
+      count++;
+      index += needle.length();
+    }
+    return count;
+  }
 }

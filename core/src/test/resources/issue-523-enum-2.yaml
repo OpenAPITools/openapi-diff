@@ -1,0 +1,80 @@
+openapi: 3.0.1
+info:
+  title: issue 523 enum
+  version: "1.0"
+paths:
+  /check/api/Id/Exp/{ExpId}:
+    get:
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpRO"
+components:
+  schemas:
+    ExpRO:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/ExpDataRO"
+    ExpDataRO:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - tpeExpectations
+        attributes:
+          $ref: "#/components/schemas/ExpAttributesRO"
+    ExpAttributesRO:
+      type: object
+      properties:
+        Terminations:
+          type: array
+          items:
+            $ref: "#/components/schemas/TerminationRO"
+    TerminationRO:
+      type: object
+      properties:
+        NetworkConnectionPackage:
+          $ref: "#/components/schemas/NetworkConnectionRO"
+        ponConnectionPackage:
+          $ref: "#/components/schemas/PonConnectionRO"
+        datalinkPackage:
+          $ref: "#/components/schemas/DatalinkRO"
+    NetworkConnectionRO:
+      type: object
+      properties:
+        tagAction:
+          type: string
+          enum:
+            - none
+            - pop
+            - push
+            - stamp
+        floodingLink:
+          type: string
+          enum:
+            - enabled
+            - disabled
+    PonConnectionRO:
+      type: object
+      properties:
+        tagAction:
+          type: string
+          enum:
+            - none
+            - pop
+            - push
+            - stamp
+    DatalinkRO:
+      type: object
+      properties:
+        adminState:
+          type: string
+          enum:
+            - enabled
+            - disabled
